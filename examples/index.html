@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Functional Web Components - MVP Examples</title>
+    <style>
+      body {
+        font-family:
+          ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
+          Cantarell, Noto Sans, Helvetica Neue, Arial;
+        padding: 2rem;
+      }
+      .counter {
+        display: inline-flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+      .todo {
+        display: inline-flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+      .todo.done span {
+        text-decoration: line-through;
+        color: #777;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Functional Web Components - MVP</h1>
+    <section>
+      <h2>Counter</h2>
+      <f-counter step="2"></f-counter>
+    </section>
+    <section>
+      <h2>Todo Item</h2>
+      <f-todo-item text="Write docs" done></f-todo-item>
+    </section>
+
+    <script type="module" src="./bundle.js"></script>
+  </body>
+</html>
