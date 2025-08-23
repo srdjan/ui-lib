@@ -1,7 +1,8 @@
 {
   "tasks": {
-    "build": "deno bundle examples/main.ts examples/bundle.js",
-    "dev": "deno bundle --watch examples/main.ts examples/bundle.js"
+    "check": "deno check examples/*.tsx src/**/*.ts",
+    "serve": "deno run --allow-net --allow-read jsr:@std/http/file-server examples/ --host localhost --port 8080",
+    "start": "deno task check && deno task serve"
   },
 
   "compilerOptions": {

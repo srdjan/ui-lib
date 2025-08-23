@@ -1,2 +1,1 @@
-import "./counter.tsx";
-import "./todo-item.tsx";
+import "./counter-pipeline.tsx";
