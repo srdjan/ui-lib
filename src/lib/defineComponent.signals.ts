@@ -1,14 +1,12 @@
-import type { Action, ComponentSpec, Store } from "./types.ts";
-import { createStore } from "./store.ts";
-import { type HandlerWrapper, patch } from "./patch.ts";
+import type { Action, ComponentSpec } from "./types.ts";
+import { createEffect, createSignal } from "./signals.ts";
 
-// We keep a tiny imperative adapter for Custom Elements but expose a pure API.
-
+// signals-based defineComponent consuming real DOM nodes from JSX runtime
 export const defineComponent = <S, P, A extends Action>(
   name: string,
   spec: ComponentSpec<S, P, A>,
 ): void => {
-  if (customElements.get(name)) return; // idempotent
+  if (customElements.get(name)) return;
 
   type AnyPropSpec = {
     readonly attribute?: string | false;
@@ -20,7 +18,6 @@ export const defineComponent = <S, P, A extends Action>(
     : null;
 
   class FunctionalElement extends HTMLElement {
-    private _store!: Store<S, A>;
     private _props!: P;
     private _root!: ShadowRoot;
     private _mountedNode: Node | null = null;
@@ -56,38 +53,14 @@ export const defineComponent = <S, P, A extends Action>(
       }
 
       this._props = this._readProps();
-      this._store = createStore(spec.init(this._props), spec.reducer);
-      this._store.subscribe(() => this._scheduleRender());
-      this._scheduleRender();
-    }
 
-    attributeChangedCallback(): void {
-      const nextProps = this._readProps();
-      // naive: always re-render on props change
-      if (JSON.stringify(nextProps) !== JSON.stringify(this._props)) {
-        this._props = nextProps;
-        this._scheduleRender();
-      }
-    }
+      const [getState, setState] = createSignal<S>(spec.init(this._props));
 
-    disconnectedCallback(): void {
-      // No global resources to clean in MVP
-    }
+      const dispatch = (action: Readonly<A>) => {
+        const next = spec.update(getState(), action);
+        setState(next);
+      };
 
-    private _scheduleRender(): void {
-      queueMicrotask(() => this._render());
-    }
-
-    private _wrapHandler: HandlerWrapper = (fn: unknown) => {
-      return ((ev: Event) => {
-        const result = (fn as any)(ev);
-        if (result && typeof result === "object" && "type" in result) {
-          this._store.dispatch(result as A);
-        }
-      }) as EventListener;
-    };
-
-    private _render(): void {
       const ctx = {
         emit: (name: string, detail?: unknown, options?: CustomEventInit) =>
           this.dispatchEvent(
@@ -99,16 +72,40 @@ export const defineComponent = <S, P, A extends Action>(
             }),
           ),
       };
-      const vnode = spec.view(this._store.getState(), {
-        ...(this._props as any),
-        ...ctx,
+
+      // For event handlers attached in JSX, we use a capturing listener on root to translate
+      // handler results (Action) into dispatches. This keeps handlers pure.
+      const wrapHandler = (fn: unknown) => (ev: Event) => {
+        const result = (fn as any)(ev);
+        if (result && typeof result === "object" && "type" in result) {
+          dispatch(result as A);
+        }
+      };
+
+      createEffect(async () => {
+        // Provide current dispatch to JSX runtime wrapper
+        try {
+          const runtime = await import("../lib/jsx-runtime.ts");
+          (runtime as any).setCurrentDispatch((a: unknown) => dispatch(a as A));
+        } catch {
+          // ignore if runtime not present
+        }
+        const node = spec.view(getState(), { ...(this._props as any), ...ctx });
+        if (this._mountedNode === null) {
+          this._mountedNode = node;
+          this._root.appendChild(node);
+        } else if (this._mountedNode !== node) {
+          this._root.replaceChild(node, this._mountedNode);
+          this._mountedNode = node;
+        }
       });
-      this._mountedNode = patch(
-        this._root,
-        this._mountedNode,
-        vnode,
-        this._wrapHandler,
-      );
+    }
+
+    attributeChangedCallback(): void {
+      const nextProps = this._readProps();
+      if (JSON.stringify(nextProps) !== JSON.stringify(this._props)) {
+        this._props = nextProps;
+      }
     }
 
     private _readProps(): P {
@@ -126,10 +123,6 @@ export const defineComponent = <S, P, A extends Action>(
         }
       }
       return out as P;
-    }
-
-    public dispatch(action: Readonly<A>): void {
-      this._store.dispatch(action);
     }
   }
 

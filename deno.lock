@@ -1,0 +1,19 @@
+{
+  "version": "5",
+  "specifiers": {
+    "npm:mono-jsx@0.6.11": "0.6.11"
+  },
+  "npm": {
+    "mono-jsx@0.6.11": {
+      "integrity": "sha512-CupNC1EmSSb7ryt8aGNrSW1SfKJhDkahbYFhJdiv983plOZczoBbnJwcfgb7KzJbycc77+maF83KuhirTpm+dg==",
+      "bin": true
+    }
+  },
+  "redirects": {
+    "https://esm.sh/mono-jsx/jsx-runtime": "https://esm.sh/mono-jsx@0.6.11/jsx-runtime"
+  },
+  "remote": {
+    "https://esm.sh/mono-jsx@0.6.11/denonext/jsx-runtime.mjs": "713ba78140ca1c3a455f26be57a57d060da205a777dcb62e120210cc1efad3db",
+    "https://esm.sh/mono-jsx@0.6.11/jsx-runtime": "36a0c948f9ba10f9a2ef542bbffca0a1d881fbf068c5b230eae7b2d2d2302634"
+  }
+}

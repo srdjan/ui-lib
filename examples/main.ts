@@ -1,3 +1,2 @@
-import "./counter.ts";
-import "./todo-item.ts";
-
+import "./counter.tsx";
+import "./todo-item.tsx";

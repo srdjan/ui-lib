@@ -3,10 +3,10 @@
     "build": "deno bundle examples/main.ts examples/bundle.js",
     "dev": "deno bundle --watch examples/main.ts examples/bundle.js"
   },
+
   "compilerOptions": {
     "strict": true,
     "lib": ["ES2020", "DOM"],
-    "useDefineForClassFields": false
+    "jsx": "react-jsx"
   }
 }
-

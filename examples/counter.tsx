@@ -1,6 +1,6 @@
-import { type Action, defineComponent, h } from "../src/index.ts";
+/** @jsxImportSource https://esm.sh/mono-jsx */
+import { type Action, defineComponent } from "../src/index.ts";
 
-// Types
 export type CounterState = { readonly count: number };
 export type CounterProps = { readonly step?: number };
 export type CounterAction =
@@ -10,12 +10,11 @@ export type CounterAction =
     | { readonly type: "DEC"; readonly payload?: { readonly step?: number } }
   );
 
-// Spec
 const init = (_props: Readonly<CounterProps>): Readonly<CounterState> => ({
   count: 0,
 });
 
-const reducer = (
+const update = (
   state: Readonly<CounterState>,
   action: Readonly<CounterAction>,
 ): Readonly<CounterState> => {
@@ -33,30 +32,34 @@ const reducer = (
   }
 };
 
-const view = (
+const View = (
   state: Readonly<CounterState>,
   props: Readonly<
     CounterProps & { readonly emit: (n: string, d?: unknown) => void }
   >,
-) =>
-  h(
-    "div",
-    { class: "counter" },
-    h("button", {
-      onClick: () => ({ type: "DEC", payload: { step: props.step ?? 1 } }),
-    }, "-"),
-    h("span", {}, String(state.count)),
-    h("button", {
-      onClick: () => ({ type: "INC", payload: { step: props.step ?? 1 } }),
-    }, "+"),
-  );
+): Node =>
+  (
+    <div class="counter">
+      <button
+        onClick={() => ({ type: "DEC", payload: { step: props.step ?? 1 } })}
+      >
+        -
+      </button>
+      <span>{String(state.count)}</span>
+      <button
+        onClick={() => ({ type: "INC", payload: { step: props.step ?? 1 } })}
+      >
+        +
+      </button>
+    </div>
+  ) as unknown as Node;
 
 // Define component
 
-defineComponent<CounterState, CounterProps, CounterAction>("f-counter", {
+defineComponent<CounterState, CounterProps, CounterAction>("f-counter-jsx", {
   init,
-  reducer,
-  view,
+  update,
+  view: View,
   props: {
     step: {
       attribute: "step",
