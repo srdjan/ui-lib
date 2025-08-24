@@ -1,1 +1,1 @@
-import "./counter-pipeline.tsx";
+import "./counter.tsx";

@@ -6,14 +6,17 @@ pure functions, and intelligent type inference.
 
 ## Features
 
-- 🎯 **Ultra-Succinct Pipeline API**: 80% less boilerplate than traditional
-  approaches
-- 🔧 **Functional Programming**: Pure functions, immutable state, action-based
-  updates
-- ⚡ **TypeScript First**: Full type safety with intelligent inference
-- 🎨 **JSX Support**: Modern JSX with mono-jsx runtime
-- 📦 **Zero Dependencies**: Lightweight and self-contained
-- 🚀 **Deno Native**: Built for modern JavaScript runtime
+- 🧩 **SSR-Only, No Browser Code**: Renders HTML on the server; ships markup
+  only.
+- 🧪 **String Templates**: Safe tagged templates with escaping and `raw()` when
+  needed.
+- 🔧 **Functional Style**: Pure computations and immutable patterns.
+- ⚡ **TypeScript First**: Strict types with simple, predictable APIs.
+- 📦 **Zero Dependencies**: Lightweight and self-contained.
+- 🚀 **Deno Native**: Works with `deno.json` tasks and lockfile.
+
+Note: The JSX-based Pipeline API described below is being redesigned. For the
+first release, prefer the string template API for rendering.
 
 ## Quick Start
 
@@ -24,73 +27,68 @@ pure functions, and intelligent type inference.
 git clone <repository-url>
 cd funcwc
 
-# Run examples (builds and serves on http://localhost:8000)
+# Run examples (serves on http://localhost:8080)
 deno task start
 ```
 
-### Basic Example
+### Basic Example (SSR string template)
 
-```tsx
-/** @jsxImportSource https://esm.sh/mono-jsx */
-import { component } from "./src/index.ts";
+```ts
+import { html } from "./src/index.ts";
 
-component("my-counter")
-  .state({ count: 0 })
-  .props({ step: "number?" })
-  .actions({
-    inc: (state, step = 1) => ({ count: state.count + step }),
-    dec: (state, step = 1) => ({ count: state.count - step }),
-    reset: () => ({ count: 0 }),
-  })
-  .view((state, props, { inc, dec, reset }) => (
+type State = { count: number };
+type Props = { step?: number };
+
+export function CounterView(state: State, props: Props): string {
+  const step = props.step ?? 1;
+  return html`
     <div class="counter">
-      <button onClick={() => dec(props.step)}>-</button>
-      <span>{state.count}</span>
-      <button onClick={() => inc(props.step)}>+</button>
-      <button onClick={reset}>Reset</button>
+      <button type="button" disabled>-</button>
+      <span>${state.count}</span>
+      <button type="button" disabled>+</button>
+      <button type="button" disabled>Reset</button>
+      <small style="margin-left:8px;color:#777;">Step: ${step}</small>
     </div>
-  ));
+  `;
+}
 ```
 
-Use in HTML:
+The dev server injects the rendered HTML into `examples/index.html` and removes
+client scripts, so the browser only receives static markup.
 
-```html
-<my-counter step="2"></my-counter>
+Commands: `deno task serve`, `deno task test`, `deno task fmt`,
+`deno task lint`, `deno task coverage`.
+
+## Next Release TODOs
+
+- Hydration option: minimal client bootstrap for interactivity.
+- More ergonomic templating (component helpers or a tiny DSL).
+- Optional JSX/TSX layer reintroduced on the server only.
+- Simple cache for SSR output to speed reloads.
+- Streamed/async template support for data fetching.
+- CI and coverage gates; more examples and docs.
+
+## API Overview (SSR Templates)
+
+Use the `html` tagged template from `src/index.ts` to build safe HTML strings.
+Values are escaped by default; wrap trusted snippets with `raw()`.
+
+```ts
+import { html, raw } from "./src/index.ts";
+
+const markup = html`
+  <div class="card">
+    <h3>${"Title"}</h3>
+    ${raw("<p><b>Server-rendered</b> only.</p>")}
+  </div>
+`;
 ```
 
-## API Overview
+## Appendix: Legacy/Experimental (JSX Pipeline API)
 
-The Pipeline API provides a chainable, functional interface for creating web
-components with minimal boilerplate. Here's the same counter component showing
-the dramatic simplification:
-
-```tsx
-component("f-counter")
-  .state({ count: 0 })
-  .props({ step: "number?" })
-  .actions({
-    inc: (state, step = 1) => ({ count: state.count + step }),
-    dec: (state, step = 1) => ({ count: state.count - step }),
-  })
-  .view((state, props, { inc, dec }) => (
-    <div>
-      <button onClick={() => dec(props.step)}>-</button>
-      <span>{state.count}</span>
-      <button onClick={() => inc(props.step)}>+</button>
-    </div>
-  ));
-```
-
-**Key Benefits:**
-
-- ✅ **80% less code** than traditional approaches
-- ✅ **Automatic type inference** - no manual type definitions
-- ✅ **Smart prop parsing** - `"number?"` means optional number with
-  auto-parsing
-- ✅ **Action creators auto-generated** - actions become callable functions
-- ✅ **Chainable API** - fluent, readable interface
-
-## Pipeline API Reference
+The sections below document the older JSX-based Pipeline API. It is not used in
+the current SSR-only release and will be redesigned. For details, see
+`docs/PIPELINE_API.md`.
 
 ### `component(name: string)`
 
@@ -121,7 +119,10 @@ Render function with auto-generated action creators.
 
 Component-scoped CSS styles.
 
-## Examples
+## Examples (Legacy/Experimental)
+
+The examples below use the older JSX-based pipeline API and are kept for
+reference only. They are not part of the current SSR-only release.
 
 ### Todo List
 
@@ -241,12 +242,11 @@ deno task start
 
 # Individual tasks
 deno task check   # Type check all TypeScript files
-deno task serve   # Serve examples directory on http://localhost:8000
+deno task serve   # Serve examples directory on http://localhost:8080
 ```
 
-The examples will be available at `http://localhost:8000` showing all the
-Pipeline API components in action. The server loads TypeScript files directly
-using Deno's native TypeScript support.
+The examples render at `http://localhost:8080` with server-side HTML only. The
+server injects SSR output into `examples/index.html` and removes client scripts.
 
 ### Type Checking
 
@@ -449,11 +449,11 @@ component("user-card")
   });
 ```
 
-## Troubleshooting
+## Troubleshooting (Legacy/Experimental)
 
 ### Common Issues
 
-**JSX Type Errors**
+**JSX Type Errors (Legacy)**
 
 ```tsx
 // ❌ Wrong: Missing JSX pragma
@@ -523,10 +523,8 @@ component("debug-counter")
 
 ## Browser Support
 
-- Modern browsers with ES2020+ support
-- Custom Elements v1
-- Shadow DOM v1
-- JSX runtime via mono-jsx
+- Server-rendered HTML only (no client JS shipped)
+- Works in any modern browser that renders standard HTML/CSS
 
 ## Migration Guide
 
@@ -558,7 +556,7 @@ component("debug-counter")
 ```bash
 git clone <repository-url>
 cd funcwc
-deno task dev  # Start development server
+deno task serve  # Start SSR dev server (http://localhost:8080)
 ```
 
 ## License

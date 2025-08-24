@@ -13,9 +13,23 @@ export const deepFreeze = <T>(obj: T): T => {
 };
 
 const isProduction = (): boolean => {
-  const g: any = globalThis as any;
-  const denoEnv = g?.Deno?.env?.get?.("NODE_ENV");
-  const nodeEnv = g?.process?.env?.NODE_ENV;
+  const g = globalThis as {
+    Deno?: { env?: { get?: (k: string) => string | undefined } };
+    process?: { env?: { NODE_ENV?: string } };
+    NODE_ENV?: string;
+  };
+  let denoEnv: string | undefined;
+  try {
+    denoEnv = g?.Deno?.env?.get?.("NODE_ENV");
+  } catch {
+    denoEnv = undefined;
+  }
+  let nodeEnv: string | undefined;
+  try {
+    nodeEnv = g?.process?.env?.NODE_ENV;
+  } catch {
+    nodeEnv = undefined;
+  }
   const globalEnv = g?.NODE_ENV;
   const env = denoEnv ?? nodeEnv ?? globalEnv;
   return env === "production";

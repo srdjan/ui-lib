@@ -1,71 +1,46 @@
-// Ultra-succinct pipeline API for functional web components
-/** @jsxImportSource https://esm.sh/mono-jsx */
-import { type Action, defineComponent } from "../index.ts";
-import type { ComponentContext } from "./types.ts";
+// Ultra-succinct pipeline API for functional web components (SSR-only)
+import type { Action as _Action } from "./types.ts";
+import { createPropSpec, type PropSpecObject } from "./props.ts";
 
 // Simplified types for better usability
-type PropSpecObject = Record<string, string>;
-type ActionMap = Record<string, (...args: any[]) => Record<string, any>>;
+type ActionMap = Record<
+  string,
+  (state: unknown, ...args: unknown[]) => Record<string, unknown>
+>;
 
 // Pipeline builder interface
 interface ComponentBuilder {
-  state(initialState: Record<string, any>): ComponentBuilder;
+  state(initialState: Record<string, unknown>): ComponentBuilder;
   props(propSpec: PropSpecObject): ComponentBuilder;
   actions(actionMap: ActionMap): ComponentBuilder;
   view(
-    renderFn: (state: any, props: any, actions: any) => Node,
+    renderFn: (state: unknown, props: unknown, actions: unknown) => string,
   ): ComponentBuilder;
   styles(css: string): ComponentBuilder;
-  effects(effectMap: Record<string, any>): ComponentBuilder;
+  effects(effectMap: Record<string, unknown>): ComponentBuilder;
 }
 
 // Internal builder state
 interface BuilderState {
   name: string;
-  initialState?: Record<string, any>;
+  initialState?: Record<string, unknown>;
   propSpec?: PropSpecObject;
   actionMap?: ActionMap;
-  renderFn?: (state: any, props: any, actions: any) => Node;
+  renderFn?: (state: unknown, props: unknown, actions: unknown) => string;
   css?: string;
-  effectMap?: Record<string, any>;
+  effectMap?: Record<string, unknown>;
 }
 
-// Smart prop parsing implementation
-const createPropSpec = (propSpec: PropSpecObject): Record<string, any> => {
-  const result: Record<string, any> = {};
-
-  for (const [key, typeHint] of Object.entries(propSpec)) {
-    const isOptional = typeHint.endsWith("?");
-    const baseType = isOptional ? typeHint.slice(0, -1) : typeHint;
-
-    result[key] = {
-      attribute: key,
-      parse: (v: unknown) => {
-        if (v == null) return isOptional ? undefined : null;
-
-        switch (baseType) {
-          case "number":
-            const num = Number(v);
-            return isNaN(num) ? (isOptional ? undefined : 0) : num;
-          case "boolean":
-            return v != null && v !== "false" && v !== "0";
-          case "string":
-          default:
-            return String(v);
-        }
-      },
-    };
-  }
-
-  return result;
-};
+// Smart prop parsing implementation moved to props.ts
 
 // Action creator generation
-const createActionCreators = (actionMap: ActionMap): Record<string, any> => {
-  const creators: Record<string, any> = {};
+const createActionCreators = (
+  actionMap: ActionMap,
+): Record<string, (...args: unknown[]) => { type: string; payload: unknown[] }> => {
+  const creators: Record<string, (...args: unknown[]) => { type: string; payload: unknown[] }> = {};
 
   for (const [actionType, _handler] of Object.entries(actionMap)) {
-    creators[actionType] = (...args: any[]) => ({
+    creators[actionType] = (...args: unknown[]) => ({
       type: actionType,
       payload: args,
     });
@@ -82,7 +57,7 @@ class ComponentBuilderImpl implements ComponentBuilder {
     this.builderState = { name };
   }
 
-  state(initialState: Record<string, any>): ComponentBuilder {
+  state(initialState: Record<string, unknown>): ComponentBuilder {
     this.builderState.initialState = initialState;
     return this;
   }
@@ -98,10 +73,10 @@ class ComponentBuilderImpl implements ComponentBuilder {
   }
 
   view(
-    renderFn: (state: any, props: any, actions: any) => Node,
+    renderFn: (state: unknown, props: unknown, actions: unknown) => string,
   ): ComponentBuilder {
     this.builderState.renderFn = renderFn;
-    this.register(); // Auto-register when view is provided
+    this.register();
     return this;
   }
 
@@ -110,7 +85,7 @@ class ComponentBuilderImpl implements ComponentBuilder {
     return this;
   }
 
-  effects(effectMap: Record<string, any>): ComponentBuilder {
+  effects(effectMap: Record<string, unknown>): ComponentBuilder {
     this.builderState.effectMap = effectMap;
     return this;
   }
@@ -124,36 +99,17 @@ class ComponentBuilderImpl implements ComponentBuilder {
         `Component ${name} is missing required configuration: state, actions, and view are required`,
       );
     }
-
-    // Create action creators for the view
+    // SSR-only: expose a render method on the global registry for demos
     const actionCreators = createActionCreators(actionMap);
-
-    // Convert action map to reducer function
-    const update = (state: any, action: Readonly<Action>): any => {
-      const handler = actionMap[action.type];
-      if (!handler) return state;
-
-      const payload = (action as any).payload || [];
-      const updates = handler(state, ...payload);
-      return { ...state, ...updates };
-    };
-
-    // Create prop spec if provided
     const props = propSpec ? createPropSpec(propSpec) : undefined;
-
-    // Wrap render function to provide action creators
-    const view = (state: any, props: any): Node => {
-      return renderFn(state, props, actionCreators);
-    };
-
-    // Register the component
-    defineComponent(name, {
+    const bag = (globalThis as any).__FWC_SSR__ ?? ((globalThis as any).__FWC_SSR__ = {});
+    bag[name] = {
       init: () => initialState,
-      update,
-      view,
       props,
-      styles: css ? [css] : undefined,
-    });
+      css,
+      render: (state: unknown, parsedProps: unknown) =>
+        renderFn(state, parsedProps, actionCreators),
+    };
   }
 }
 

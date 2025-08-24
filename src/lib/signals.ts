@@ -3,7 +3,9 @@
 import { freezeOnDev } from "./immutability.ts";
 
 export type ReadSignal<T> = () => Readonly<T>;
-export type WriteSignal<T> = (value: Readonly<T> | ((prev: Readonly<T>) => Readonly<T>)) => void;
+export type WriteSignal<T> = (
+  value: Readonly<T> | ((prev: Readonly<T>) => Readonly<T>),
+) => void;
 export type Signal<T> = readonly [ReadSignal<T>, WriteSignal<T>];
 
 type EffectRecord = {
@@ -74,4 +76,3 @@ export const createMemo = <T>(calc: () => Readonly<T>): ReadSignal<T> => {
   createEffect(() => set(calc()));
   return get;
 };
-

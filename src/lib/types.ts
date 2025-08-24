@@ -7,11 +7,11 @@ export type Updater<S, A> = (
   action: Readonly<A>,
 ) => Readonly<S>;
 
-// View now returns a real DOM Node (or DocumentFragment) via JSX runtime
+// View returns JSX Element for SSR compatibility with mono-jsx
 export type View<S, P> = (
   state: Readonly<S>,
   props: Readonly<P>,
-) => Node | DocumentFragment;
+) => string; // SSR HTML string
 
 export type Action = {
   readonly type: string;
