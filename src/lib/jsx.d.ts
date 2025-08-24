@@ -15,5 +15,10 @@ declare global {
     interface IntrinsicElements {
       [elemName: string]: Record<string, unknown> & EventHandlers;
     }
+
+    // Enhanced element children attribute
+    interface ElementChildrenAttribute {
+      children: Record<PropertyKey, never>;
+    }
   }
 }

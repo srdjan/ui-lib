@@ -1,1 +1,1 @@
-import "./dom-native-examples.tsx";
+import "./examples.tsx";

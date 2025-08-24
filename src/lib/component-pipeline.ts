@@ -17,7 +17,7 @@ interface ComponentBuilder<TProps extends Record<string, unknown>> {
       props: TProps,
       api?: GeneratedApiMap,
       parts?: PartsMap
-    ) => JSX.Element,
+    ) => string,
   ): ComponentBuilder<TProps>;
   styles(css: string): ComponentBuilder<TProps>;
 }
@@ -32,7 +32,7 @@ interface BuilderState<TProps extends Record<string, unknown>> {
     props: TProps,
     api?: GeneratedApiMap,
     parts?: PartsMap
-  ) => JSX.Element;
+  ) => string;
   css?: string;
 }
 
@@ -75,9 +75,9 @@ class ComponentBuilderImpl<TProps extends Record<string, unknown>> implements Co
       props: TProps,
       api?: GeneratedApiMap,
       parts?: PartsMap
-    ) => JSX.Element,
+    ) => string,
   ): ComponentBuilder<TProps> {
-    this.builderState.renderFn = renderFn as (props: TProps, api?: GeneratedApiMap, parts?: PartsMap) => JSX.Element;
+    this.builderState.renderFn = renderFn;
     this.register();
     return this;
   }
@@ -111,7 +111,7 @@ class ComponentBuilderImpl<TProps extends Record<string, unknown>> implements Co
           generatedApi,
           partsMap,
         );
-        return jsxElement as unknown as string; // JSX elements are already strings in our runtime
+        return jsxElement; // JSX.Element is defined as string in our runtime
       },
     };
   }

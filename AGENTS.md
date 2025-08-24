@@ -10,7 +10,7 @@
   `favicon.ico`).
 - `docs/`: Reference docs (e.g., `PIPELINE_API.md`).
 - Root tooling: `deno.json` (tasks, compiler options), `tsconfig.json`,
-  `dev-server.ts`.
+  `server.ts`.
 
 ## Build, Test, and Development Commands
 

@@ -34,7 +34,7 @@ deno task start
 deno check examples/*.tsx src/**/*.ts
 
 # Run development server with TypeScript MIME type handling
-deno run --allow-net --allow-read --allow-env dev-server.ts
+deno run --allow-net --allow-read --allow-env server.ts
 ```
 
 ## Core Architecture

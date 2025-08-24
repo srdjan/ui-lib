@@ -27,7 +27,7 @@ const parseAttributes = (attrString: string): Record<string, string> => {
 };
 
 // Load all examples to register components and their routes
-const modUrl = new URL(`./examples/dom-native-examples.tsx`, `file://${Deno.cwd()}/`).href;
+const modUrl = new URL(`./examples/examples.tsx`, `file://${Deno.cwd()}/`).href;
 await import(modUrl);
 
 Deno.serve({
