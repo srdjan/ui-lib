@@ -113,7 +113,11 @@ class ComponentBuilderImpl<TProps extends Record<string, unknown>> implements Co
       serverActions: serverActionMap,
       // The render function needs to be wrapped to pass the parts map.
       render: (finalProps, finalServerActions) => {
-        return renderFn(finalProps as TProps, finalServerActions, partsMap);
+        return renderFn(
+          finalProps as TProps,
+          finalServerActions as Record<string, (...args: unknown[]) => Record<string, unknown>> | undefined,
+          partsMap,
+        );
       },
     };
   }
