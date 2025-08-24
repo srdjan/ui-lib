@@ -1,21 +1,21 @@
 /** @jsx h */
-import { 
-  component, 
-  toggleClasses, 
-  conditionalClass, 
+import {
+  component,
+  conditionalClass,
+  h,
   renderComponent,
-  h
+  toggleClasses,
 } from "../src/index.ts";
 import {
-  updateParentCounter,
-  resetCounter,
   activateTab,
-  toggleParentClass,
+  resetCounter,
   syncCheckboxToClass,
+  toggleParentClass,
+  updateParentCounter,
 } from "./dom-actions.ts";
 
 // Example 1: Pure DOM-based Theme Toggle
-component("f-theme-toggle-dom")
+component("f-theme-toggle")
   .styles(`
     .theme-btn { padding: 0.5rem 1rem; border: 1px solid; border-radius: 6px; cursor: pointer; }
     .theme-btn.light { background: #fff; color: #333; border-color: #ccc; }
@@ -23,11 +23,11 @@ component("f-theme-toggle-dom")
     .theme-btn.dark .light-icon, .theme-btn.light .dark-icon { display: none; }
     .theme-btn.dark .dark-icon, .theme-btn.light .light-icon { display: inline; }
   `)
-  .view(() => (
+  .view((_props, _api, _parts) => (
     <button
       type="button"
       class="theme-btn light"
-      onClick={toggleClasses(['light', 'dark'])}
+      onClick={toggleClasses(["light", "dark"])}
       title="Toggle theme"
     >
       <span class="light-icon">☀️ Light</span>
@@ -36,11 +36,11 @@ component("f-theme-toggle-dom")
   ));
 
 // Example 2: Simple Counter with DOM State
-component("f-counter-dom")
+component("f-counter")
   .props({ initialCount: "number?", step: "number?" })
   .parts({
-    self: '.counter',
-    display: '.count-display'
+    self: ".counter",
+    display: ".count-display",
   })
   .styles(`
     .counter { display: inline-flex; gap: 0.5rem; align-items: center; padding: 1rem; border: 2px solid #007bff; border-radius: 8px; }
@@ -53,27 +53,48 @@ component("f-counter-dom")
 
     return (
       <div class="counter" data-count={count}>
-        <button type="button" onClick={updateParentCounter(parts!.self, parts!.display, -stepValue)}>-{stepValue}</button>
+        <button
+          type="button"
+          onClick={updateParentCounter(parts!.self, parts!.display, -stepValue)}
+        >
+          -{stepValue}
+        </button>
         <span class="count-display">{count}</span>
-        <button type="button" onClick={updateParentCounter(parts!.self, parts!.display, stepValue)}>+{stepValue}</button>
-        <button type="button" onClick={resetCounter(parts!.display, count, parts!.self)}>Reset</button>
+        <button
+          type="button"
+          onClick={updateParentCounter(parts!.self, parts!.display, stepValue)}
+        >
+          +{stepValue}
+        </button>
+        <button
+          type="button"
+          onClick={resetCounter(parts!.display, count, parts!.self)}
+        >
+          Reset
+        </button>
       </div>
     );
   });
 
 // Example 3: Todo Item with Unified API
-component("f-todo-item-dom")
+component("f-todo-item")
   .props({ id: "string", text: "string", done: "boolean?" })
   .api({
     // Just define the API endpoints - client functions are auto-generated!
-    'PATCH /api/todos/:id/toggle': async (req, params) => {
+    "PATCH /api/todos/:id/toggle": async (req, params) => {
       const form = await req.formData();
-      const isDone = form.get('done') === 'true';
-      return new Response(renderComponent("f-todo-item-dom", { id: params.id, text: "Toggled item!", done: !isDone }));
+      const isDone = form.get("done") === "true";
+      return new Response(
+        renderComponent("f-todo-item", {
+          id: params.id,
+          text: "Toggled item!",
+          done: !isDone,
+        }),
+      );
     },
-    'DELETE /api/todos/:id': (_req, _params) => {
+    "DELETE /api/todos/:id": (_req, _params) => {
       return new Response(null, { status: 200 });
-    }
+    },
   })
   .styles(`
     .todo { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 0.5rem; }
@@ -85,24 +106,26 @@ component("f-todo-item-dom")
     const isDone = Boolean(props.done);
     const id = props.id;
     const text = props.text;
-    const todoClass = "todo " + conditionalClass(isDone, 'done');
+    const todoClass = "todo " + conditionalClass(isDone, "done");
 
     return (
       <div class={todoClass} data-id={id}>
         <input
           type="checkbox"
           checked={isDone}
-          onChange={syncCheckboxToClass('done')}
+          onChange={syncCheckboxToClass("done")}
           {...(api?.toggle?.(id) || {})}
         />
         <span class="todo-text">{text}</span>
-        <button type="button" class="delete-btn" {...(api?.delete?.(id) || {})}>×</button>
+        <button type="button" class="delete-btn" {...(api?.delete?.(id) || {})}>
+          ×
+        </button>
       </div>
     );
   });
 
 // Example 4: Accordion with Pure DOM State
-component("f-accordion-dom")
+component("f-accordion")
   .props({ title: "string", content: "string", initiallyOpen: "boolean?" })
   .styles(`
     .accordion { border: 1px solid #ddd; border-radius: 4px; margin-bottom: 0.5rem; }
@@ -113,25 +136,33 @@ component("f-accordion-dom")
     .accordion.open .accordion-content { max-height: 500px; }
     .content-inner { padding: 1rem; border-top: 1px solid #ddd; }
   `)
-  .view((props: { title: string; content: string; initiallyOpen?: boolean }) => {
-    const isOpen = Boolean(props.initiallyOpen);
-    const title = props.title;
-    const content = props.content;
-    const accordionClass = "accordion " + conditionalClass(isOpen, 'open');
+  .view(
+    (props: { title: string; content: string; initiallyOpen?: boolean }) => {
+      const isOpen = Boolean(props.initiallyOpen);
+      const title = props.title;
+      const content = props.content;
+      const accordionClass = "accordion " + conditionalClass(isOpen, "open");
 
-    return (
-      <div class={accordionClass}>
-        <button type="button" class="accordion-header" onClick={toggleParentClass('open')}>
-          <span class="title">{title}</span>
-          <span class="icon">▼</span>
-        </button>
-        <div class="accordion-content"><div class="content-inner">{content}</div></div>
-      </div>
-    );
-  });
+      return (
+        <div class={accordionClass}>
+          <button
+            type="button"
+            class="accordion-header"
+            onClick={toggleParentClass("open")}
+          >
+            <span class="title">{title}</span>
+            <span class="icon">▼</span>
+          </button>
+          <div class="accordion-content">
+            <div class="content-inner">{content}</div>
+          </div>
+        </div>
+      );
+    },
+  );
 
 // Example 5: Tab System with DOM State
-component("f-tabs-dom")
+component("f-tabs")
   .props({ tabs: "string", activeTab: "string?" })
   .styles(`
     .tabs { border: 1px solid #ddd; border-radius: 4px; }
@@ -142,34 +173,42 @@ component("f-tabs-dom")
     .tab-content.active { display: block; }
   `)
   .view((props: { tabs: string; activeTab?: string }) => {
-    const tabs = String(props.tabs || "").split(',').map((t) => t.trim()).filter(Boolean);
-    const activeTab = props.activeTab || tabs[0] || '';
+    const tabs = String(props.tabs || "").split(",").map((t) => t.trim())
+      .filter(Boolean);
+    const activeTab = props.activeTab || tabs[0] || "";
 
     return (
       <div class="tabs" data-active={activeTab}>
         <div class="tab-nav">
           {tabs.map((tab) => {
-            const tabBtnClass = "tab-btn " + conditionalClass(tab === activeTab, 'active');
+            const tabBtnClass = "tab-btn " +
+              conditionalClass(tab === activeTab, "active");
             return (
-            <button
-              type="button"
-              class={tabBtnClass}
-              onClick={activateTab('.tabs', '.tab-btn', '.tab-content', 'active')}
-              data-tab={tab}
-            >
-              {tab}
-            </button>
+              <button
+                type="button"
+                class={tabBtnClass}
+                onClick={activateTab(
+                  ".tabs",
+                  ".tab-btn",
+                  ".tab-content",
+                  "active",
+                )}
+                data-tab={tab}
+              >
+                {tab}
+              </button>
             );
           })}
         </div>
         <div class="tab-contents">
           {tabs.map((tab) => {
-            const tabContentClass = "tab-content " + conditionalClass(tab === activeTab, 'active');
+            const tabContentClass = "tab-content " +
+              conditionalClass(tab === activeTab, "active");
             return (
-            <div class={tabContentClass} data-tab={tab}>
-              <h3>{tab} Content</h3>
-              <p>This is the content for the {tab} tab.</p>
-            </div>
+              <div class={tabContentClass} data-tab={tab}>
+                <h3>{tab} Content</h3>
+                <p>This is the content for the {tab} tab.</p>
+              </div>
             );
           })}
         </div>

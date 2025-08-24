@@ -14,80 +14,93 @@
         margin: 0 auto;
         line-height: 1.6;
       }
-      
+
       section {
         margin-bottom: 2rem;
         padding: 1rem;
         border: 1px solid #eee;
         border-radius: 8px;
       }
-      
+
       h2 {
         margin-top: 0;
         color: #333;
       }
-      
+
       p {
         color: #666;
         margin-bottom: 1rem;
       }
-      
+
       code {
         background: #f1f3f4;
         padding: 0.2rem 0.4rem;
         border-radius: 3px;
-        font-family: 'Monaco', 'Menlo', monospace;
+        font-family: "Monaco", "Menlo", monospace;
         font-size: 0.9em;
       }
     </style>
   </head>
   <body>
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.6"></script>
     <h1>Functional Web Components - DOM-Native Pipeline API</h1>
-    <p style="color: #666; margin-bottom: 2rem;">Ultra-simplified API using DOM as the state container. No JavaScript state management required!</p>
-    
+    <p style="color: #666; margin-bottom: 2rem">
+      Ultra-simplified API using DOM as the state container. No JavaScript state
+      management required!
+    </p>
+
     <section>
       <h2>🎨 Theme Toggle</h2>
       <p>Pure DOM state with CSS class manipulation. No JavaScript objects!</p>
-      <f-theme-toggle-dom></f-theme-toggle-dom>
+      <f-theme-toggle></f-theme-toggle>
     </section>
 
-    <section style="margin-top: 2rem;">
+    <section style="margin-top: 2rem">
       <h2>🔢 Counter</h2>
       <p>Counter value stored in DOM attributes and element content.</p>
-      <f-counter-dom step="3" initialCount="5"></f-counter-dom>
+      <f-counter step="3" initialCount="5"></f-counter>
     </section>
 
-    <section style="margin-top: 2rem;">
+    <section style="margin-top: 2rem">
       <h2>✅ Todo Item</h2>
       <p>Local UI state (checkbox) + Server persistence via HTMX.</p>
-      <f-todo-item-dom id="1" text="Learn DOM-native development" done="false"></f-todo-item-dom>
-      <f-todo-item-dom id="2" text="Build awesome components" done="true"></f-todo-item-dom>
+      <f-todo-item
+        id="1"
+        text="Learn DOM-native development"
+        done="false"
+      ></f-todo-item>
+      <f-todo-item
+        id="2"
+        text="Build awesome components"
+        done="true"
+      ></f-todo-item>
     </section>
 
-    <section style="margin-top: 2rem;">
+    <section style="margin-top: 2rem">
       <h2>📁 Accordion</h2>
       <p>Open/closed state managed with CSS classes and transitions.</p>
-      <f-accordion-dom 
-        title="What is DOM-native development?" 
+      <f-accordion
+        title="What is DOM-native development?"
         content="DOM-native development uses the browser's built-in state mechanisms (CSS classes, form values, data attributes) instead of JavaScript object state management. This results in simpler, more performant, and more accessible components."
         initiallyOpen="false"
-      ></f-accordion-dom>
-      
-      <f-accordion-dom 
-        title="Benefits of this approach" 
+      ></f-accordion>
+
+      <f-accordion
+        title="Benefits of this approach"
         content="• Simpler API with fewer concepts<br>• Better performance (no JS state synchronization)<br>• More accessible by default<br>• Works great with HTMX<br>• Easier debugging (state visible in DOM inspector)"
         initiallyOpen="true"
-      ></f-accordion-dom>
+      ></f-accordion>
     </section>
 
-    <section style="margin-top: 2rem;">
+    <section style="margin-top: 2rem">
       <h2>📑 Tabs</h2>
       <p>Active tab state stored as CSS classes and data attributes.</p>
-      <f-tabs-dom tabs="Home,About,Contact" activeTab="About"></f-tabs-dom>
+      <f-tabs tabs="Home,About,Contact" activeTab="About"></f-tabs>
     </section>
 
-    <div style="margin-top: 3rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+    <div
+      style="margin-top: 3rem; padding: 1rem; background: #f8f9fa; border-radius: 8px"
+    >
       <h3>🚀 API Simplification</h3>
       <p>The new DOM-native approach eliminates:</p>
       <ul>
@@ -96,7 +109,11 @@
         <li>JavaScript state synchronization complexity</li>
         <li>Client-side state management overhead</li>
       </ul>
-      <p>Components now only need <code>.view()</code> and optional <code>.props()</code>, <code>.serverActions()</code>, and <code>.styles()</code>.</p>
+      <p>
+        Components now only need <code>.view()</code> and optional <code
+        >.props()</code>, <code>.serverActions()</code>, and <code
+        >.styles()</code>.
+      </p>
     </div>
 
     <!-- Components are server-rendered, no client-side script needed -->

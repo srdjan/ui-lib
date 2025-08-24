@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "strict": true,
-    "jsx": "precompile",
-    "jsxImportSource": "https://deno.land/x/jsx@v0.1.5",
-    "jsxPrecompileSkipElements": ["CustomDynamicComponent"]
-  }
-}
-
