@@ -1,16 +1,16 @@
-import type { 
-  ToggleClassAction, 
-  ToggleClassesAction, 
-  UpdateParentCounterAction, 
-  ResetCounterAction, 
-  ActivateTabAction, 
-  ToggleParentClassAction, 
-  SyncCheckboxAction 
+import type {
+  ToggleClassAction,
+  ToggleClassesAction,
+  UpdateParentCounterAction,
+  ResetCounterAction,
+  ActivateTabAction,
+  ToggleParentClassAction,
+  SyncCheckboxAction,
 } from './actions.ts';
 
 // DOM-helper functions now return structured action objects instead of strings.
 
-export consttoggleClass = (className: string): ToggleClassAction => ({
+export const toggleClass = (className: string): ToggleClassAction => ({
   type: 'toggleClass', className
 });
 
