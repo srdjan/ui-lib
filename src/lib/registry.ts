@@ -1,9 +1,12 @@
+// Simplified registry entry for DOM-native components
 export type SSRRegistryEntry = {
-  init: () => Record<string, unknown>;
   props?: Record<string, { attribute: string; parse: (v: unknown) => unknown }>;
   css?: string;
-  render: (state: unknown, props: unknown, actions: unknown) => string;
-  actions?: Record<string, (...args: unknown[]) => Record<string, unknown>>;
+  render: (
+    props: unknown,
+    serverActions?: unknown
+  ) => string;
+  serverActions?: Record<string, (...args: unknown[]) => Record<string, unknown>>;
 };
 
 export type SSRRegistry = Record<string, SSRRegistryEntry>;

@@ -94,11 +94,22 @@ Deno.test("Pipeline API - Missing required configuration throws error", () => {
     () => {
       component("test-incomplete")
         .state({ count: 0 })
-        // Missing actions and view
+        // Missing both actions and serverActions
         .view(() => "<div>incomplete</div>");
     },
     Error,
-    "missing required configuration"
+    "must have either actions or serverActions"
+  );
+
+  assertThrows(
+    () => {
+      component("test-no-state")
+        .actions({ inc: (state) => ({ count: 1 }) })
+        // Missing state
+        .view(() => "<div>no state</div>");
+    },
+    Error,
+    "state and view are required"
   );
 });
 
@@ -182,4 +193,94 @@ Deno.test("Pipeline API - Chainable interface", () => {
   assertEquals(entry.css, "div { color: red; }");
   assertEquals(typeof entry.props, "object");
   assertEquals(typeof entry.actions, "object");
+});
+
+// New tests for enhanced API
+Deno.test("Enhanced Pipeline API - Server actions only", () => {
+  const registry = getRegistry();
+  delete registry["test-server-only"];
+  
+  component("test-server-only")
+    .state({ message: "Hello" })
+    .serverActions({
+      saveMessage: (...args) => {
+        const msg = args[0] as string;
+        return {
+          "hx-post": `/api/save/${msg}`,
+          "hx-target": "#result"
+        };
+      },
+      loadData: () => ({
+        "hx-get": "/api/data",
+        "hx-trigger": "load"
+      })
+    })
+    .view((state, props, actions, serverActions) => {
+      const { message } = state as { message: string };
+      return `<div>${message}</div>`;
+    });
+    
+  const entry = registry["test-server-only"];
+  assertEquals(typeof entry.serverActions, "object");
+  assertEquals(typeof entry.serverActions!.saveMessage, "function");
+  assertEquals(typeof entry.serverActions!.loadData, "function");
+  
+  // Test server action execution
+  const result = entry.serverActions!.saveMessage("test");
+  assertEquals(result, {
+    "hx-post": "/api/save/test",
+    "hx-target": "#result"
+  });
+});
+
+Deno.test("Enhanced Pipeline API - Mixed actions and server actions", () => {
+  const registry = getRegistry();
+  delete registry["test-mixed"];
+  
+  component("test-mixed")
+    .state({ isOpen: false, data: [] })
+    .actions({
+      toggle: (state) => ({ isOpen: !(state as { isOpen: boolean }).isOpen })
+    })
+    .serverActions({
+      fetchData: (...args) => {
+        const query = args[0] as string;
+        return {
+          "hx-get": `/api/search?q=${query}`,
+          "hx-target": "#results"
+        };
+      }
+    })
+    .view((state, props, actions, serverActions) => {
+      const { isOpen } = state as { isOpen: boolean };
+      return `<div>Open: ${isOpen}</div>`;
+    });
+    
+  const entry = registry["test-mixed"];
+  assertEquals(typeof entry.actions, "object");
+  assertEquals(typeof entry.serverActions, "object");
+  assertEquals(typeof entry.actions!.toggle, "function");
+  assertEquals(typeof entry.serverActions!.fetchData, "function");
+});
+
+Deno.test("Enhanced Pipeline API - Backward compatibility", () => {
+  const registry = getRegistry();
+  delete registry["test-compat"];
+  
+  // Old style component (3-parameter view function)
+  component("test-compat")
+    .state({ count: 0 })
+    .actions({
+      inc: (state) => ({ count: (state as { count: number }).count + 1 })
+    })
+    .view((state, props, actions) => {
+      // Should work with 3 parameters (backward compatibility)
+      const count = (state as { count: number }).count;
+      return `<div>${count}</div>`;
+    });
+    
+  const entry = registry["test-compat"];
+  assertEquals(typeof entry, "object");
+  assertEquals(typeof entry.actions, "object");
+  assertEquals(entry.serverActions, undefined);
 });

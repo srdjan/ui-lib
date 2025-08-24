@@ -1,0 +1,412 @@
+import { html, raw } from "../src/lib/ssr.ts";
+import { component } from "../src/index.ts";
+
+// Example 1: Pure Browser-Side Component
+// This component manages only local UI state, no server interaction
+component("f-theme-toggle")
+  .state({ isDark: false })
+  .actions({
+    toggle: (state) => ({ isDark: !(state as { isDark: boolean }).isDark })
+  })
+  .view((state, _, actions) => {
+    const { isDark } = state as { isDark: boolean };
+    const actionCreators = actions as any;
+    
+    return html`
+      <button 
+        class="${isDark ? 'dark' : 'light'}" 
+        onclick="this.closest('[data-component]').dispatchEvent(new CustomEvent('action', { detail: { name: 'toggle' } }))"
+      >
+        ${isDark ? "🌙" : "☀️"} ${isDark ? "Dark" : "Light"} Mode
+      </button>
+    `;
+  })
+  .styles(`
+    .dark { 
+      background: #333; 
+      color: white; 
+      border: 1px solid #666;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .light { 
+      background: #fff; 
+      color: black; 
+      border: 1px solid #ccc;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .dark:hover { background: #444; }
+    .light:hover { background: #f5f5f5; }
+  `);
+
+// Example 2: Pure Server-Side Component
+// This component only interacts with the server, no local state management
+component("f-user-profile")
+  .state({}) // Empty browser state
+  .props({ userId: "string" })
+  .serverActions({
+    loadProfile: (...args) => {
+      const userId = args[0] as string;
+      return {
+        "hx-get": `/api/users/${userId}`,
+        "hx-trigger": "load",
+        "hx-target": "#profile-content",
+        "hx-indicator": ".loading"
+      };
+    },
+    updateProfile: () => ({
+      "hx-post": "/api/update-profile",
+      "hx-include": "#profile-form *",
+      "hx-target": "#profile-content",
+      "hx-swap": "outerHTML"
+    })
+  })
+  .view((_, props, __, serverActions) => {
+    const { userId } = props as { userId: string };
+    const actions = serverActions as any;
+    
+    return html`
+      <div class="user-profile">
+        <div class="loading" style="display: none;">Loading...</div>
+        
+        <div id="profile-content" ${raw(Object.entries(actions.loadProfile(userId)).map(([k, v]) => `${k}="${v}"`).join(' '))}>
+          <div>Loading profile for user ${userId}...</div>
+        </div>
+        
+        <form id="profile-form" ${raw(Object.entries(actions.updateProfile()).map(([k, v]) => `${k}="${v}"`).join(' '))}>
+          <div>
+            <label>Name: <input name="name" type="text" placeholder="Full Name" /></label>
+          </div>
+          <div>
+            <label>Email: <input name="email" type="email" placeholder="Email Address" /></label>
+          </div>
+          <button type="submit">Update Profile</button>
+        </form>
+      </div>
+    `;
+  })
+  .styles(`
+    .user-profile {
+      max-width: 400px;
+      margin: 1rem;
+      padding: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    .user-profile form {
+      margin-top: 1rem;
+    }
+    .user-profile form div {
+      margin-bottom: 0.5rem;
+    }
+    .user-profile label {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+    .user-profile input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .user-profile button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .loading {
+      color: #666;
+      font-style: italic;
+    }
+  `);
+
+// Example 3: Mixed Component (Local UI + Server Data)
+// This demonstrates the full power of the enhanced API
+component("f-data-table")
+  .state({ 
+    sortBy: "name", 
+    sortDirection: "asc",
+    currentPage: 1 
+  })
+  .props({ apiUrl: "string" })
+  .actions({
+    setSort: (state, ...args) => {
+      const column = args[0] as string;
+      const currentState = state as { sortBy: string; sortDirection: string };
+      
+      return {
+        sortBy: column,
+        sortDirection: currentState.sortBy === column && currentState.sortDirection === "asc" ? "desc" : "asc"
+      };
+    },
+    setPage: (state, ...args) => {
+      const page = args[0] as number;
+      return { currentPage: page };
+    }
+  })
+  .serverActions({
+    loadData: (...args) => {
+      const [apiUrl, sortBy, sortDirection, page] = args as [string, string, string, number];
+      return {
+        "hx-get": `${apiUrl}?sort=${sortBy}&dir=${sortDirection}&page=${page}`,
+        "hx-trigger": "load, dataChange from:body",
+        "hx-target": "#table-body",
+        "hx-indicator": ".loading"
+      };
+    }
+  })
+  .view((state, props, actions, serverActions) => {
+    const { sortBy, sortDirection, currentPage } = state as { sortBy: string; sortDirection: string; currentPage: number };
+    const { apiUrl } = props as { apiUrl: string };
+    const localActions = actions as any;
+    const serverActs = serverActions as any;
+    
+    const getSortIcon = (column: string) => {
+      if (sortBy === column) {
+        return sortDirection === "asc" ? " ↑" : " ↓";
+      }
+      return "";
+    };
+    
+    return html`
+      <div class="data-table">
+        <div class="loading" style="display: none;">Loading data...</div>
+        
+        <table>
+          <thead>
+            <tr>
+              <th onclick="this.closest('[data-component]').dispatchEvent(new CustomEvent('action', { detail: { name: 'setSort', args: ['name'] } }))">
+                Name${getSortIcon("name")}
+              </th>
+              <th onclick="this.closest('[data-component]').dispatchEvent(new CustomEvent('action', { detail: { name: 'setSort', args: ['date'] } }))">
+                Date${getSortIcon("date")}
+              </th>
+            </tr>
+          </thead>
+          <tbody id="table-body" ${raw(Object.entries(serverActs.loadData(apiUrl, sortBy, sortDirection, currentPage)).map(([k, v]) => `${k}="${v}"`).join(' '))}>
+            <tr>
+              <td colspan="2" style="text-align: center; padding: 2rem; color: #666;">
+                Loading initial data...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="pagination">
+          <button 
+            ${currentPage <= 1 ? 'disabled' : ''}
+            onclick="this.closest('[data-component]').dispatchEvent(new CustomEvent('action', { detail: { name: 'setPage', args: [${currentPage - 1}] } }))"
+          >
+            Previous
+          </button>
+          <span>Page ${currentPage}</span>
+          <button onclick="this.closest('[data-component]').dispatchEvent(new CustomEvent('action', { detail: { name: 'setPage', args: [${currentPage + 1}] } }))">
+            Next
+          </button>
+        </div>
+      </div>
+    `;
+  })
+  .styles(`
+    .data-table {
+      max-width: 600px;
+      margin: 1rem;
+      font-family: Arial, sans-serif;
+    }
+    .data-table table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #ddd;
+    }
+    .data-table th, .data-table td {
+      padding: 0.5rem;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    .data-table th {
+      background: #f5f5f5;
+      cursor: pointer;
+      user-select: none;
+    }
+    .data-table th:hover {
+      background: #e5e5e5;
+    }
+    .pagination {
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .pagination button {
+      padding: 0.25rem 0.5rem;
+      border: 1px solid #ccc;
+      background: #fff;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    .pagination button:hover:not(:disabled) {
+      background: #f5f5f5;
+    }
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .loading {
+      color: #666;
+      font-style: italic;
+      margin-bottom: 0.5rem;
+    }
+  `);
+
+// Example 4: Enhanced Counter (Mixed approach)
+// Shows how to migrate from the legacy counter to the enhanced API
+component("f-counter-enhanced")
+  .state({ displayMode: "normal" }) // Local UI state
+  .props({ step: "number?", initialCount: "number?" })
+  .serverActions({
+    increment: (...args) => {
+      const step = args[0] as number || 1;
+      return {
+        "hx-post": "/api/counter/increment",
+        "hx-vals": JSON.stringify({ step }),
+        "hx-target": "#counter-value",
+        "hx-swap": "innerHTML"
+      };
+    },
+    decrement: (...args) => {
+      const step = args[0] as number || 1;
+      return {
+        "hx-post": "/api/counter/decrement", 
+        "hx-vals": JSON.stringify({ step }),
+        "hx-target": "#counter-value",
+        "hx-swap": "innerHTML"
+      };
+    },
+    reset: () => ({
+      "hx-post": "/api/counter/reset",
+      "hx-target": "#counter-value",
+      "hx-swap": "innerHTML"
+    })
+  })
+  .actions({
+    toggleDisplayMode: (state) => {
+      const current = state as { displayMode: string };
+      return {
+        displayMode: current.displayMode === "normal" ? "large" : "normal"
+      };
+    }
+  })
+  .view((state, props, actions, serverActions) => {
+    const { displayMode } = state as { displayMode: string };
+    const { step, initialCount } = props as { step?: number; initialCount?: number };
+    const serverActs = serverActions as any;
+    const localActions = actions as any;
+    
+    const stepValue = step || 1;
+    const currentCount = initialCount || 0;
+    
+    return html`
+      <div class="enhanced-counter ${displayMode}">
+        <div class="controls">
+          <button ${raw(Object.entries(serverActs.decrement(stepValue)).map(([k, v]) => `${k}="${v}"`).join(' '))}>
+            -${stepValue}
+          </button>
+          
+          <div id="counter-value" class="value">
+            ${currentCount}
+          </div>
+          
+          <button ${raw(Object.entries(serverActs.increment(stepValue)).map(([k, v]) => `${k}="${v}"`).join(' '))}>
+            +${stepValue}
+          </button>
+        </div>
+        
+        <div class="meta-controls">
+          <button ${raw(Object.entries(serverActs.reset()).map(([k, v]) => `${k}="${v}"`).join(' '))}>
+            Reset
+          </button>
+          
+          <button onclick="this.closest('[data-component]').dispatchEvent(new CustomEvent('action', { detail: { name: 'toggleDisplayMode' } }))">
+            ${displayMode === "normal" ? "Large View" : "Normal View"}
+          </button>
+        </div>
+      </div>
+    `;
+  })
+  .styles(`
+    .enhanced-counter {
+      display: inline-block;
+      padding: 1rem;
+      border: 2px solid #007bff;
+      border-radius: 8px;
+      font-family: monospace;
+      background: #f8f9fa;
+    }
+    
+    .enhanced-counter.large {
+      transform: scale(1.5);
+      margin: 2rem;
+    }
+    
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .controls button {
+      padding: 0.5rem 1rem;
+      border: 1px solid #007bff;
+      background: #007bff;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
+    .controls button:hover {
+      background: #0056b3;
+    }
+    
+    .value {
+      font-size: 2rem;
+      font-weight: bold;
+      min-width: 4rem;
+      text-align: center;
+      padding: 0.5rem;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    
+    .large .value {
+      font-size: 3rem;
+    }
+    
+    .meta-controls {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    
+    .meta-controls button {
+      padding: 0.25rem 0.5rem;
+      border: 1px solid #6c757d;
+      background: #6c757d;
+      color: white;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    
+    .meta-controls button:hover {
+      background: #545b62;
+    }
+  `);

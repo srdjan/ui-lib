@@ -8,9 +8,6 @@ export function renderComponent(name: string, props: Record<string, unknown> = {
     return `<!-- component ${name} not registered -->`;
   }
   
-  // Initialize component state
-  const state = entry.init();
-  
   // Parse props if prop spec exists
   let parsedProps = props;
   if (entry.props) {
@@ -23,12 +20,19 @@ export function renderComponent(name: string, props: Record<string, unknown> = {
     }
   }
   
-  // Create empty action creators for static SSR
-  const actionCreators = {};
+  // Create server action creators if available
+  let serverActionCreators = undefined;
+  if (entry.serverActions) {
+    const creators: Record<string, (...args: unknown[]) => Record<string, unknown>> = {};
+    for (const [actionType, handler] of Object.entries(entry.serverActions)) {
+      creators[actionType] = (...args: unknown[]) => handler(...args);
+    }
+    serverActionCreators = creators;
+  }
   
-  // Render component with CSS and markup
+  // Render component with CSS and markup using simplified signature
   const cssTag = entry.css ? html`<style>${entry.css}</style>` : "";
-  const markup = entry.render(state, parsedProps, actionCreators);
+  const markup = entry.render(parsedProps, serverActionCreators);
   return `${cssTag}${markup}`;
 }
 

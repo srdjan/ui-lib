@@ -2,48 +2,48 @@
 import { createPropSpec, type PropSpecObject } from "./props.ts";
 import { getRegistry } from "./registry.ts";
 
-// Simplified types for better usability
-type ActionMap = Record<
+// Server action map for HTMX attributes - the only state management we need
+type ServerActionMap = Record<
   string,
-  (state: unknown, ...args: unknown[]) => Record<string, unknown>
+  (...args: unknown[]) => Record<string, unknown>
 >;
 
-// Pipeline builder interface
+// Pipeline builder interface - simplified for DOM-native approach
 interface ComponentBuilder {
-  state(initialState: Record<string, unknown>): ComponentBuilder;
   props(propSpec: PropSpecObject): ComponentBuilder;
-  actions(actionMap: ActionMap): ComponentBuilder;
+  serverActions(serverActionMap: ServerActionMap): ComponentBuilder;
   view(
-    renderFn: (state: unknown, props: unknown, actions: unknown) => string,
+    renderFn: (
+      props: unknown,
+      serverActions?: unknown
+    ) => string,
   ): ComponentBuilder;
   styles(css: string): ComponentBuilder;
-  effects(effectMap: Record<string, unknown>): ComponentBuilder;
 }
 
-// Internal builder state
+// Internal builder state - simplified
 interface BuilderState {
   name: string;
-  initialState?: Record<string, unknown>;
   propSpec?: PropSpecObject;
-  actionMap?: ActionMap;
-  renderFn?: (state: unknown, props: unknown, actions: unknown) => string;
+  serverActionMap?: ServerActionMap;
+  renderFn?: (
+    props: unknown,
+    serverActions?: unknown
+  ) => string;
   css?: string;
-  effectMap?: Record<string, unknown>;
 }
 
 // Smart prop parsing implementation moved to props.ts
 
-// Action creator generation - creates callable functions for the view
-const createActionCreators = (
-  actionMap: ActionMap,
-): Record<string, (...args: unknown[]) => void> => {
-  const creators: Record<string, (...args: unknown[]) => void> = {};
+// Server action creator generation - creates callable functions that return HTMX attributes
+const createServerActionCreators = (
+  serverActionMap: ServerActionMap,
+): Record<string, (...args: unknown[]) => Record<string, unknown>> => {
+  const creators: Record<string, (...args: unknown[]) => Record<string, unknown>> = {};
 
-  for (const [actionType, _handler] of Object.entries(actionMap)) {
-    // For SSR, action creators are just placeholders that return void
-    // In a full implementation, these would dispatch to the component's state management
-    creators[actionType] = (..._args: unknown[]) => {
-      // SSR placeholder - no-op since we're not handling client-side interactions yet
+  for (const [actionType, handler] of Object.entries(serverActionMap)) {
+    creators[actionType] = (...args: unknown[]) => {
+      return handler(...args);
     };
   }
 
@@ -58,23 +58,21 @@ class ComponentBuilderImpl implements ComponentBuilder {
     this.builderState = { name };
   }
 
-  state(initialState: Record<string, unknown>): ComponentBuilder {
-    this.builderState.initialState = initialState;
-    return this;
-  }
-
   props(propSpec: PropSpecObject): ComponentBuilder {
     this.builderState.propSpec = propSpec;
     return this;
   }
 
-  actions(actionMap: ActionMap): ComponentBuilder {
-    this.builderState.actionMap = actionMap;
+  serverActions(serverActionMap: ServerActionMap): ComponentBuilder {
+    this.builderState.serverActionMap = serverActionMap;
     return this;
   }
 
   view(
-    renderFn: (state: unknown, props: unknown, actions: unknown) => string,
+    renderFn: (
+      props: unknown,
+      serverActions?: unknown
+    ) => string,
   ): ComponentBuilder {
     this.builderState.renderFn = renderFn;
     this.register();
@@ -86,32 +84,24 @@ class ComponentBuilderImpl implements ComponentBuilder {
     return this;
   }
 
-  effects(effectMap: Record<string, unknown>): ComponentBuilder {
-    this.builderState.effectMap = effectMap;
-    return this;
-  }
-
   private register(): void {
-    const { name, initialState, propSpec, actionMap, renderFn, css } =
-      this.builderState;
+    const { name, propSpec, serverActionMap, renderFn, css } = this.builderState;
 
-    if (!initialState || !actionMap || !renderFn) {
+    if (!renderFn) {
       throw new Error(
-        `Component ${name} is missing required configuration: state, actions, and view are required`,
+        `Component ${name} is missing required configuration: view is required`,
       );
     }
     
     // Register component in SSR registry
-    const actionCreators = createActionCreators(actionMap);
     const props = propSpec ? createPropSpec(propSpec) : undefined;
     const registry = getRegistry();
     
     registry[name] = {
-      init: () => initialState,
       props,
       css,
-      actions: actionMap,
-      render: renderFn, // Store the raw render function, not pre-bound with action creators
+      serverActions: serverActionMap,
+      render: renderFn,
     };
   }
 }
@@ -120,3 +110,6 @@ class ComponentBuilderImpl implements ComponentBuilder {
 export const component = (name: string): ComponentBuilder => {
   return new ComponentBuilderImpl(name);
 };
+
+// Export types for external use
+export type { ServerActionMap };

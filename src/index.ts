@@ -3,4 +3,18 @@ export { component } from "./lib/component-pipeline.ts";
 export type { Result } from "./lib/result.ts";
 export { err, flatMap, map, mapError, ok } from "./lib/result.ts";
 export { escapeHtml, html, raw } from "./lib/ssr.ts";
-export { renderComponent } from "./lib/ssr-service.ts";
+export { renderComponent } from "./lib/component-state.ts";
+export { 
+  spreadAttrs, 
+  toggleClass, 
+  toggleClasses,
+  updateCounter,
+  updateParentCounter,
+  setText,
+  toggleVisibility,
+  updateInputValue,
+  syncCheckboxToClass,
+  conditionalClass,
+  dataAttrs,
+  escape
+} from "./lib/dom-helpers.ts";
