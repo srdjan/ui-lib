@@ -77,7 +77,8 @@ component('theme-toggle')
 ### 🔢 Counter - Type-Safe Props + DOM State
 
 ```tsx
-import { component, updateParentCounter, resetCounter } from './src/index.ts';
+import { component } from './src/index.ts';
+import { updateParentCounter, resetCounter } from './examples/dom-actions.ts';
 
 component('counter')
   .props({ initialCount: 'number?', step: 'number?' }) // Type hints
@@ -110,7 +111,8 @@ component('counter')
 ### ✅ Todo Item - Server Actions + Local State
 
 ```tsx
-import { component, conditionalClass, syncCheckboxToClass } from './src/index.ts';
+import { component, conditionalClass } from './src/index.ts';
+import { syncCheckboxToClass } from './examples/dom-actions.ts';
 
 component('todo-item')
   .props({ id: 'string', text: 'string', done: 'boolean?' })
@@ -210,28 +212,14 @@ The render function. Returns JSX that compiles to optimized HTML strings.
 ))
 ```
 
-## 🎮 DOM Action Helpers
+## 🎮 DOM Helpers
 
-**Type-safe functions for common DOM operations. Use directly in event handlers:**
+**Core helpers shipped by the library:**
 
 ### Class Manipulation
 ```tsx
-toggleClass('active')                    // Toggle single class
-toggleClasses(['open', 'visible'])       // Toggle multiple classes
-toggleParentClass('expanded')            // Toggle class on parent element
-```
-
-### Counter Operations  
-```tsx
-updateParentCounter('.container', '.display', 5)   // Increment by 5
-updateParentCounter('.container', '.display', -1)  // Decrement by 1
-resetCounter('.display', 0, '.container')          // Reset to initial value
-```
-
-### Form & UI Interactions
-```tsx
-syncCheckboxToClass('completed')                          // Checkbox state → CSS class
-activateTab('.tabs', '.tab-btn', '.content', 'active')   // Tab system activation
+toggleClass('active')              // Toggle single class
+toggleClasses(['open', 'visible']) // Toggle multiple classes
 ```
 
 ### Template Utilities
@@ -241,7 +229,18 @@ spreadAttrs({ 'hx-get': '/api/data' })       // Spread HTMX attributes
 dataAttrs({ userId: 123, role: 'admin' })    // Generate data-* attributes
 ```
 
-**All helpers generate optimized, minified JavaScript for production SSR output.**
+### Example-only helpers (in `examples/dom-actions.ts`)
+Small, copyable helpers that return inline handler strings for common UI patterns:
+
+```tsx
+updateParentCounter('.container', '.display', 5)   // Increment by 5
+resetCounter('.display', 0, '.container')          // Reset to initial value
+toggleParentClass('expanded')                      // Toggle class on parent element
+syncCheckboxToClass('completed')                   // Checkbox state → CSS class
+activateTab('.tabs', '.tab-btn', '.content', 'active') // Tab activation
+```
+
+These are app-level conveniences and intentionally live outside the library to keep the core clean and framework-agnostic.
 
 ## 🛠 Development Commands
 

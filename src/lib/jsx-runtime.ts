@@ -90,16 +90,6 @@ function renderActionToString(action: ComponentAction): string {
       return `this.classList.toggle('${action.className}')`;
     case "toggleClasses": 
       return action.classNames.map(c => `this.classList.toggle('${c}')`).join(';');
-    case "updateParentCounter": 
-      return `const p=this.closest('${action.parentSelector}');if(p){const c=p.querySelector('${action.counterSelector}');if(c){const v=parseInt(c.textContent||0)+${action.delta};c.textContent=v;if(p.dataset)p.dataset.count=v;}}`.replace(/\s+/g, ' ');
-    case "resetCounter": 
-      return `const C=this.closest('${action.containerSelector||'.counter'}');if(C){const D=C.querySelector('${action.displaySelector}');if(D)D.textContent='${action.initialValue}';if(C.dataset)C.dataset.count='${action.initialValue}'}`.replace(/\s+/g, ' ');
-    case "activateTab": 
-      return `const C=this.closest('${action.container}');if(!C)return;const K=this.dataset.tab;C.querySelectorAll('${action.buttons}').forEach(b=>b.classList.remove('${action.activeClass}'));this.classList.add('${action.activeClass}');C.querySelectorAll('${action.content}').forEach(c=>c.classList.remove('${action.activeClass}'));const A=C.querySelector("[data-tab='"+K+"']");if(A)A.classList.add('${action.activeClass}');if(C.dataset)C.dataset.active=K;`.replace(/\s+/g, ' ');
-    case "toggleParentClass": 
-      return `this.parentElement.classList.toggle('${action.className}')`;
-    case "syncCheckbox": 
-      return `this.closest('.todo,[data-todo]').classList.toggle('${action.className}',this.checked)`;
     default: 
       return '';
   }

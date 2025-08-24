@@ -3,7 +3,7 @@ import { h } from "https://deno.land/x/jsx@v0.1.5/mod.ts";
 
 interface LayoutProps {
   title: string;
-  children: any;
+  children?: unknown;
 }
 
 export function Layout({ title, children }: LayoutProps) {
@@ -75,4 +75,3 @@ export function Layout({ title, children }: LayoutProps) {
     </html>
   );
 }
-

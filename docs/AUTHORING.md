@@ -39,19 +39,19 @@ component("f-example")
 ```
 
 ## DOM-Native Events
-Use helpers that return action objects. Pass an array to any `on*` prop.
+Use helpers that return action objects. Pass a single action or array to any `on*` prop.
 
 ```tsx
 import { toggleClass, toggleClasses } from "../src/index.ts";
 
-<button onclick={[toggleClass("active"), toggleClasses(["light","dark"]) ]}>Toggle</button>
+<button onClick={[toggleClass("active"), toggleClasses(["light","dark"]) ]}>Toggle</button>
 ```
 
 Common helpers (see `src/lib/dom-helpers.ts`):
 - `toggleClass`, `toggleClasses`
-- `updateParentCounter`, `resetCounter`
-- `activateTab`, `toggleParentClass`, `syncCheckboxToClass`
 - `conditionalClass` for class string generation
+
+Note: App-specific convenience handlers (e.g., counters, tabs) are not part of the core library. See `examples/dom-actions.ts` for small, userland helpers that return inline handler strings you can copy or adapt.
 
 ## Server Actions (HTMX)
 Declare `serverActions` to return attribute objects, then spread in TSX.
@@ -86,9 +86,9 @@ component("f-counter")
     const step = (props as any).step ?? 1;
     return (
       <div class="counter" data-count={0}>
-        <button onclick={[updateParentCounter(parts!.self, parts!.display, -step)]}>-{step}</button>
+        <button onClick={`const p=this.closest('${parts!.self}');if(p){const c=p.querySelector('${parts!.display}');if(c){const v=parseInt(c.textContent||0)-${step};c.textContent=v;if(p.dataset)p.dataset.count=v;}}`}>-{step}</button>
         <span class="count">0</span>
-        <button onclick={[updateParentCounter(parts!.self, parts!.display, step)]}>+{step}</button>
+        <button onClick={`const p=this.closest('${parts!.self}');if(p){const c=p.querySelector('${parts!.display}');if(c){const v=parseInt(c.textContent||0)+${step};c.textContent=v;if(p.dataset)p.dataset.count=v;}}`}>+{step}</button>
       </div>
     );
   });
@@ -103,4 +103,3 @@ component("f-counter")
 - Keep handlers minimal; let CSS represent state.
 - Prefer `.styles(css)` over inline `<style>` tags in TSX.
 - Use `conditionalClass()` to build class strings.
-

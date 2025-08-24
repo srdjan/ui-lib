@@ -12,11 +12,11 @@ This guide helps move components that used `.state()`/`.actions()` and string-ba
 
 Example (counter):
 - Old: `{ count }` in JS; `actions.inc` returned `{ count: count + 1 }`.
-- New: `<div class="counter" data-count="0"><span class="count">0</span>…</div>` and buttons use `updateParentCounter('.counter','.count', ±step)`.
+- New: `<div class="counter" data-count="0"><span class="count">0</span>…</div>` and buttons use a tiny inline handler string (or a userland helper) to update DOM state.
 
-## 3) Event handlers: strings → action arrays
+## 3) Event handlers: strings → action arrays (plus userland strings)
 - Old: build handler strings manually or with helpers that returned strings.
-- New: event props accept `ComponentAction[]`. Helpers return actions, runtime serializes them.
+- New: for core toggles use `ComponentAction[]` (e.g., `toggleClass`, `toggleClasses`). For app-specific logic, keep using short inline strings or local helpers (see `examples/dom-actions.ts`).
 
 ```tsx
 <button onclick={[toggleClass('open')]}>Toggle</button>
@@ -67,13 +67,12 @@ component('f-counter-dom')
     const step = (props as any).step ?? 1;
     return (
       <div class="counter" data-count={0}>
-        <button onclick={[updateParentCounter(parts!.self, parts!.display, -step)]}>-{step}</button>
+        <button onClick={`const p=this.closest('${parts!.self}');if(p){const c=p.querySelector('${parts!.display}');if(c){const v=parseInt(c.textContent||0)-${step};c.textContent=v;if(p.dataset)p.dataset.count=v;}}`}>-{step}</button>
         <span class="count">0</span>
-        <button onclick={[updateParentCounter(parts!.self, parts!.display, step)]}>+{step}</button>
+        <button onClick={`const p=this.closest('${parts!.self}');if(p){const c=p.querySelector('${parts!.display}');if(c){const v=parseInt(c.textContent||0)+${step};c.textContent=v;if(p.dataset)p.dataset.count=v;}}`}>+{step}</button>
       </div>
     );
   });
 ```
 
 That’s it. Most migrations are a mechanical swap of JS state/actions for DOM-based state plus action helpers.
-

@@ -23,7 +23,7 @@ Deno.test("component with props creates prop spec", () => {
   
   component("test-props")
     .props({ name: "string", age: "number?" })
-    .view((props) => h("div", null, `Hello ${(props as any).name}`));
+    .view((props) => h("div", null, `Hello ${props.name}`));
     
   const entry = registry["test-props"];
   assertExists(entry.props);
@@ -75,7 +75,7 @@ Deno.test("component render function works with JSX", () => {
   
   component("test-render")
     .props({ message: "string" })
-    .view((props) => h("p", null, (props as any).message));
+    .view((props) => h("p", null, props.message));
     
   const entry = registry["test-render"];
   const result = entry.render({ message: "Hello Test" });
@@ -107,7 +107,7 @@ Deno.test("component pipeline is chainable", () => {
     .props({ title: "string" })
     .styles(".chain { display: block; }")
     .api({ 'GET /test': () => new Response("test") })
-    .view((props) => h("div", { class: "chain" }, (props as any).title));
+    .view((props) => h("div", { class: "chain" }, props.title));
     
   // Should return the builder for chaining
   assertExists(result);

@@ -4,11 +4,6 @@ import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import {
   toggleClass,
   toggleClasses,
-  updateParentCounter,
-  resetCounter,
-  activateTab,
-  toggleParentClass,
-  syncCheckboxToClass,
   conditionalClass,
   spreadAttrs,
   dataAttrs,
@@ -31,52 +26,7 @@ Deno.test("toggleClasses returns correct action", () => {
   });
 });
 
-Deno.test("updateParentCounter returns correct action", () => {
-  const action = updateParentCounter(".counter", ".display", 5);
-  assertEquals(action, {
-    type: "updateParentCounter",
-    parentSelector: ".counter",
-    counterSelector: ".display",
-    delta: 5
-  });
-});
-
-Deno.test("resetCounter returns correct action", () => {
-  const action = resetCounter(".display", 0, ".container");
-  assertEquals(action, {
-    type: "resetCounter",
-    displaySelector: ".display",
-    initialValue: 0,
-    containerSelector: ".container"
-  });
-});
-
-Deno.test("activateTab returns correct action", () => {
-  const action = activateTab(".tabs", ".btn", ".content", "active");
-  assertEquals(action, {
-    type: "activateTab",
-    container: ".tabs",
-    buttons: ".btn",
-    content: ".content",
-    activeClass: "active"
-  });
-});
-
-Deno.test("toggleParentClass returns correct action", () => {
-  const action = toggleParentClass("open");
-  assertEquals(action, {
-    type: "toggleParentClass",
-    className: "open"
-  });
-});
-
-Deno.test("syncCheckboxToClass returns correct action", () => {
-  const action = syncCheckboxToClass("done");
-  assertEquals(action, {
-    type: "syncCheckbox",
-    className: "done"
-  });
-});
+// Example-only helpers were moved out of the library.
 
 Deno.test("conditionalClass returns correct class", () => {
   assertEquals(conditionalClass(true, "active", "inactive"), "active");

@@ -9,11 +9,6 @@ export { h } from "./lib/jsx-runtime.ts";
 export { 
   toggleClass, 
   toggleClasses,
-  updateParentCounter,
-  resetCounter,
-  activateTab,
-  toggleParentClass,
-  syncCheckboxToClass,
 } from "./lib/dom-helpers.ts";
 
 // Utility functions for templates

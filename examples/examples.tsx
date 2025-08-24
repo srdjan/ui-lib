@@ -2,15 +2,17 @@
 import { 
   component, 
   toggleClasses, 
-  updateParentCounter, 
   conditionalClass, 
-  syncCheckboxToClass, 
-  resetCounter, 
-  activateTab, 
-  toggleParentClass, 
   renderComponent,
   h
 } from "../src/index.ts";
+import {
+  updateParentCounter,
+  resetCounter,
+  activateTab,
+  toggleParentClass,
+  syncCheckboxToClass,
+} from "./dom-actions.ts";
 
 // Example 1: Pure DOM-based Theme Toggle
 component("f-theme-toggle-dom")
@@ -21,8 +23,9 @@ component("f-theme-toggle-dom")
     .theme-btn.dark .light-icon, .theme-btn.light .dark-icon { display: none; }
     .theme-btn.dark .dark-icon, .theme-btn.light .light-icon { display: inline; }
   `)
-  .view((props) => (
+  .view(() => (
     <button
+      type="button"
       class="theme-btn light"
       onClick={toggleClasses(['light', 'dark'])}
       title="Toggle theme"
@@ -44,16 +47,16 @@ component("f-counter-dom")
     .counter button { padding: 0.5rem; border: 1px solid #007bff; background: #007bff; color: white; border-radius: 4px; cursor: pointer; }
     .count-display { font-size: 1.5rem; min-width: 3rem; text-align: center; }
   `)
-  .view((props, _api, parts) => {
-    const count = (props as any).initialCount ?? 0;
-    const stepValue = (props as any).step ?? 1;
+  .view((props: { initialCount?: number; step?: number }, _api, parts) => {
+    const count = props.initialCount ?? 0;
+    const stepValue = props.step ?? 1;
 
     return (
       <div class="counter" data-count={count}>
-        <button onClick={updateParentCounter(parts!.self, parts!.display, -stepValue)}>-{stepValue}</button>
+        <button type="button" onClick={updateParentCounter(parts!.self, parts!.display, -stepValue)}>-{stepValue}</button>
         <span class="count-display">{count}</span>
-        <button onClick={updateParentCounter(parts!.self, parts!.display, stepValue)}>+{stepValue}</button>
-        <button onClick={resetCounter(parts!.display, count, parts!.self)}>Reset</button>
+        <button type="button" onClick={updateParentCounter(parts!.self, parts!.display, stepValue)}>+{stepValue}</button>
+        <button type="button" onClick={resetCounter(parts!.display, count, parts!.self)}>Reset</button>
       </div>
     );
   });
@@ -78,10 +81,10 @@ component("f-todo-item-dom")
     .todo.done .todo-text { text-decoration: line-through; color: #6c757d; }
     .delete-btn { background: #dc3545; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; }
   `)
-  .view((props, api) => {
-    const isDone = Boolean((props as any).done);
-    const id = (props as any).id as string;
-    const text = (props as any).text as string;
+  .view((props: { id: string; text: string; done?: boolean }, api) => {
+    const isDone = Boolean(props.done);
+    const id = props.id;
+    const text = props.text;
     const todoClass = "todo " + conditionalClass(isDone, 'done');
 
     return (
@@ -93,7 +96,7 @@ component("f-todo-item-dom")
           {...(api?.toggle?.(id) || {})}
         />
         <span class="todo-text">{text}</span>
-        <button class="delete-btn" {...(api?.delete?.(id) || {})}>×</button>
+        <button type="button" class="delete-btn" {...(api?.delete?.(id) || {})}>×</button>
       </div>
     );
   });
@@ -110,15 +113,15 @@ component("f-accordion-dom")
     .accordion.open .accordion-content { max-height: 500px; }
     .content-inner { padding: 1rem; border-top: 1px solid #ddd; }
   `)
-  .view((props) => {
-    const isOpen = Boolean((props as any).initiallyOpen);
-    const title = (props as any).title as string;
-    const content = (props as any).content as string;
+  .view((props: { title: string; content: string; initiallyOpen?: boolean }) => {
+    const isOpen = Boolean(props.initiallyOpen);
+    const title = props.title;
+    const content = props.content;
     const accordionClass = "accordion " + conditionalClass(isOpen, 'open');
 
     return (
       <div class={accordionClass}>
-        <button class="accordion-header" onClick={toggleParentClass('open')}>
+        <button type="button" class="accordion-header" onClick={toggleParentClass('open')}>
           <span class="title">{title}</span>
           <span class="icon">▼</span>
         </button>
@@ -138,9 +141,9 @@ component("f-tabs-dom")
     .tab-content { display: none; padding: 1rem; }
     .tab-content.active { display: block; }
   `)
-  .view((props) => {
-    const tabs = String((props as any).tabs || "").split(',').map((t) => t.trim()).filter(Boolean);
-    const activeTab = (props as any).activeTab as string || tabs[0] || '';
+  .view((props: { tabs: string; activeTab?: string }) => {
+    const tabs = String(props.tabs || "").split(',').map((t) => t.trim()).filter(Boolean);
+    const activeTab = props.activeTab || tabs[0] || '';
 
     return (
       <div class="tabs" data-active={activeTab}>
@@ -149,6 +152,7 @@ component("f-tabs-dom")
             const tabBtnClass = "tab-btn " + conditionalClass(tab === activeTab, 'active');
             return (
             <button
+              type="button"
               class={tabBtnClass}
               onClick={activateTab('.tabs', '.tab-btn', '.tab-content', 'active')}
               data-tab={tab}

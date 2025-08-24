@@ -60,7 +60,7 @@ Deno.serve({
         const componentNames = Object.keys(componentRegistry);
         const componentRegex = new RegExp(`(<(${componentNames.join('|')})([^>]*)>)(</\\2>)`, 'g');
 
-        html = html.replace(componentRegex, (match, openTag, tagName, attrString) => {
+        html = html.replace(componentRegex, (_match, _openTag, tagName, attrString) => {
           console.log(`[Server] Rendering component: <${tagName}>`);
           const props = parseAttributes(attrString.trim());
           return renderComponent(tagName, props);
