@@ -1,6 +1,10 @@
 // Ultra-succinct pipeline API for functional web components (SSR-compatible)
 import { createPropSpec, type PropSpecObject } from "./props.ts";
 import { getRegistry } from "./registry.ts";
+import { appRouter } from "./router.ts";
+import { type RouteHandler } from "./router.ts";
+
+type ApiMap = Record<string, RouteHandler>;
 
 // Server action map for HTMX attributes - the only state management we need
 type ServerActionMap = Record<
@@ -12,6 +16,7 @@ type ServerActionMap = Record<
 interface ComponentBuilder {
   props(propSpec: PropSpecObject): ComponentBuilder;
   serverActions(serverActionMap: ServerActionMap): ComponentBuilder;
+  api(apiMap: ApiMap): ComponentBuilder;
   view(
     renderFn: (
       props: unknown,
@@ -65,6 +70,19 @@ class ComponentBuilderImpl implements ComponentBuilder {
 
   serverActions(serverActionMap: ServerActionMap): ComponentBuilder {
     this.builderState.serverActionMap = serverActionMap;
+    return this;
+  }
+
+  api(apiMap: ApiMap): ComponentBuilder {
+    for (const [route, handler] of Object.entries(apiMap)) {
+      const [method, path] = route.split(' ');
+      if (!method || !path || !handler) {
+        console.warn(`Invalid route definition: "${route}"`);
+        continue;
+      }
+      // Register the route with the global router
+      appRouter.register(method, path, handler);
+    }
     return this;
   }
 

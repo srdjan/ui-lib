@@ -16,5 +16,8 @@ export {
   syncCheckboxToClass,
   conditionalClass,
   dataAttrs,
-  escape
+  escape,
+  resetCounter,
+  activateTab,
+  toggleParentClass
 } from "./lib/dom-helpers.ts";

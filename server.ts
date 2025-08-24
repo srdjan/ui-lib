@@ -1,0 +1,93 @@
+#!/usr/bin/env deno run --allow-net --allow-read --allow-env
+import { renderComponent } from "./src/index.ts";
+import { getRegistry } from "./src/lib/registry.ts";
+import { appRouter } from "./src/lib/router.ts";
+
+/**
+ * Generic development server with component-defined routes.
+ */
+
+const port = Number(Deno.env.get("PORT") ?? "8080");
+
+console.log(`🚀 Generic SSR Development server starting on http://localhost:${port}`);
+
+/**
+ * Parses attributes from an HTML tag string.
+ * @param attrString The string of attributes (e.g., 'key="value" name="test"').
+ * @returns An object of key-value pairs.
+ */
+const parseAttributes = (attrString: string): Record<string, string> => {
+  const attrs: Record<string, string> = {};
+  const regex = /([a-zA-Z0-9-]+)=["'](.*?)["']/g;
+  let match;
+  while ((match = regex.exec(attrString)) !== null) {
+    attrs[match[1]] = match[2];
+  }
+  return attrs;
+};
+
+// Load all examples to register components and their routes
+const modUrl = new URL(`./examples/dom-native-examples.tsx`, `file://${Deno.cwd()}/`).href;
+await import(modUrl);
+
+Deno.serve({
+  port,
+  handler: async (request: Request) => {
+    const url = new URL(request.url);
+
+    // 1. Try to match an API route first
+    const apiMatch = appRouter.match(request);
+    if (apiMatch) {
+      console.log(`[Server] Matched API route: ${request.method} ${url.pathname}`);
+      return await apiMatch.handler(request, apiMatch.params);
+    }
+
+    // 2. If no API route, handle special files like favicon
+    if (url.pathname === "/favicon.ico") {
+      try {
+        const favicon = await Deno.readFile("./examples/favicon.ico");
+        return new Response(favicon, { headers: { "content-type": "image/x-icon" } });
+      } catch {
+        return new Response(null, { status: 404 });
+      }
+    }
+
+    try {
+      // 3. Handle root path (index.html rendering)
+      if (url.pathname === "/") {
+        let html = await Deno.readTextFile("./examples/index.html");
+        const componentRegistry = getRegistry();
+        const componentNames = Object.keys(componentRegistry);
+        const componentRegex = new RegExp(`(<(${componentNames.join('|')})([^>]*)>)(</\\2>)`, 'g');
+
+        html = html.replace(componentRegex, (match, openTag, tagName, attrString) => {
+          console.log(`[Server] Rendering component: <${tagName}>`);
+          const props = parseAttributes(attrString.trim());
+          return renderComponent(tagName, props);
+        });
+
+        return new Response(html, { headers: { "content-type": "text/html; charset=utf-8" } });
+      }
+
+      // 4. If still no match, fall back to serving static files
+      const filePath = `./examples${url.pathname}`;
+      if (filePath.endsWith(".ts") || filePath.endsWith(".tsx")) {
+        return new Response("/* TS/TSX files cannot be served. */", { status: 403 });
+      }
+
+      const content = await Deno.readFile(filePath);
+      let contentType = "text/plain";
+      if (filePath.endsWith(".js")) contentType = "application/javascript; charset=utf-8";
+      else if (filePath.endsWith(".css")) contentType = "text/css; charset=utf-8";
+
+      return new Response(content, { headers: { "content-type": contentType } });
+
+    } catch (error) {
+      if (error instanceof Deno.errors.NotFound) {
+        return new Response("Not found", { status: 404 });
+      }
+      console.error("[Server] Error:", error);
+      return new Response("Internal Server Error", { status: 500 });
+    }
+  },
+});

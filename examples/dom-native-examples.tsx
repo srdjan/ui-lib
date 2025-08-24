@@ -1,5 +1,5 @@
 import { html } from "../src/lib/ssr.ts";
-import { component, spreadAttrs, toggleClasses, updateParentCounter, conditionalClass, syncCheckboxToClass, resetCounter, activateTab, toggleParentClass } from "../src/index.ts";
+import { component, spreadAttrs, toggleClasses, updateParentCounter, conditionalClass, syncCheckboxToClass, resetCounter, activateTab, toggleParentClass, renderComponent } from "../src/index.ts";
 
 // Example 1: Pure DOM-based Theme Toggle
 // No JavaScript state management - just CSS class manipulation
@@ -137,21 +137,26 @@ component("f-counter-dom")
 component("f-todo-item-dom")
   .props({ id: "string", text: "string", done: "boolean?" })
   .serverActions({
-    toggle: (...args) => {
-      const id = args[0] as string;
-      return {
-        "hx-patch": `/api/todos/${id}/toggle`,
-        "hx-target": "closest .todo",
-        "hx-swap": "outerHTML"
-      };
+    toggle: (id) => ({ "hx-patch": `/api/todos/${id}/toggle` }),
+    delete: (id) => ({ "hx-delete": `/api/todos/${id}` })
+  })
+  .api({
+    'PATCH /api/todos/:id/toggle': async (req, params) => {
+      console.log(`Toggling todo with id: ${params.id}`);
+      // In a real app, you would update a database here.
+      // For this example, we'll just fake it.
+      const form = await req.formData();
+      const isDone = form.get('done') === 'true';
+      return new Response(renderComponent("f-todo-item-dom", {
+        id: params.id,
+        text: "Toggled item!",
+        done: !isDone
+      }));
     },
-    delete: (...args) => {
-      const id = args[0] as string;
-      return {
-        "hx-delete": `/api/todos/${id}`,
-        "hx-target": "closest .todo",
-        "hx-swap": "delete"
-      };
+    'DELETE /api/todos/:id': (req, params) => {
+      console.log(`Deleting todo with id: ${params.id}`);
+      // In a real app, you would delete from a database here.
+      return new Response(null, { status: 200 });
     }
   })
   .view((props, serverActions) => {
