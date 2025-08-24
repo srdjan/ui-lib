@@ -15,5 +15,9 @@
     "lib": ["ES2021", "DOM", "deno.ns"],
     "jsx": "react",
     "jsxFactory": "h"
+  },
+  
+  "imports": {
+    "jsx": "./src/lib/jsx-runtime.ts"
   }
 }

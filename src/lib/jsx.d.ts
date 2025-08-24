@@ -1,8 +1,8 @@
 import type { ComponentAction } from './actions.ts';
 
-// Define global event handler types to accept our ComponentAction arrays
+// Define global event handler types to accept our ComponentAction objects
 type EventHandlers = {
-  [K in keyof GlobalEventHandlers]?: ComponentAction[] | string;
+  [K in keyof GlobalEventHandlers]?: ComponentAction | string;
 };
 
 declare global {

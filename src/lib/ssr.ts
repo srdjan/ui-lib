@@ -1,4 +1,4 @@
-import { type ComponentAction, renderActionToString } from "./actions.ts";
+import { type ComponentAction } from "./actions.ts";
 
 // Minimal SSR string template utilities (no browser code)
 
@@ -26,11 +26,8 @@ export function html(
       const v = values[i];
       if (v == null || v === false) continue;
 
-      // Check if it's an array of ComponentAction objects
-      if (Array.isArray(v) && v.length > 0 && v[0].type) {
-        out += v.map(action => renderActionToString(action as ComponentAction)).join(";");
-      } else if (Array.isArray(v)) {
-        // Fallback for regular arrays
+      if (Array.isArray(v)) {
+        // Handle arrays by joining them
         out += v.map((x) => (typeof x === "string" ? x : escapeHtml(String(x)))).join("");
       } else if (typeof v === "object" && (v as RawHTML).__raw_html) {
         out += (v as RawHTML).__raw_html;

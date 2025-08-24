@@ -1,153 +1,299 @@
-# Functional Web Components (DOM-Native)
+# funcwc - DOM-Native SSR Web Components
 
-A lightweight, server-side rendering (SSR) library for building web components with a DOM-native approach. Built for Deno + TypeScript, focused on performance, simplicity, and a functional style.
+**Ultra-lightweight, type-safe web components with the DOM as your state container.**
 
-The core philosophy is "the DOM is the state." Component state lives in DOM attributes, CSS classes, and element content. This keeps components fast, easy to reason about, and naturally compatible with server-driven updates (e.g., HTMX).
+Built for Deno + TypeScript, funcwc takes a revolutionary approach: **the DOM _is_ the state**. No JavaScript state objects, no synchronization overhead, just pure DOM manipulation with a delightful developer experience.
 
-## Features
+## ✨ Key Features
 
-- DOM-native state: No client-side state objects to sync.
-- SSR-first: Render on the server and send HTML only.
-- Zero runtime deps for components: Custom JSX runtime, no client bundle.
-- HTMX-friendly: Define `serverActions` that emit HTMX attributes.
-- Functional API: Small, composable pipeline with `.props()`, `.view()`, `.styles()`.
+- **🎯 DOM-Native State**: Component state lives in CSS classes, data attributes, and element content
+- **⚡ Type-Safe**: Full TypeScript inference with zero casting required  
+- **🚀 SSR-First**: Render on server, send optimized HTML
+- **🔄 HTMX Ready**: Built-in server actions for dynamic updates
+- **📦 Zero Runtime**: No client-side framework dependencies
+- **🎨 Functional API**: Chainable pipeline design
 
-## Quick Start
+## 🚀 Quick Start
 
 ```bash
-# Clone and enter
-git clone <repository-url>
-cd funcwc
-
-# Run SSR dev server for examples (custom JSX runtime)
-deno task serve
-
-# Or run docs site (uses Deno JSX precompile, separate config)
-deno task docs
+# Clone and run examples
+git clone <repository-url> && cd funcwc
+deno task serve  # → http://localhost:8080
 ```
 
-- Examples SSR: http://localhost:8080
-- Docs site: http://localhost:8000 (or `PORT=... deno task docs`)
+## 🎯 Philosophy: DOM as State
 
-## How It Works
+Instead of managing JavaScript state objects, funcwc uses the DOM itself:
 
-- Components are authored in TSX and compiled via a custom JSX runtime (`h`).
-- Inline event handlers accept arrays of action objects and are serialized to tiny JS strings.
-- `serverActions` return HTMX attribute objects that you can spread directly in TSX.
-- Styles are declared via `.styles(css)` and injected server-side.
+- **CSS Classes** → UI states (`active`, `open`, `loading`)
+- **Data Attributes** → Component data (`data-count="5"`)  
+- **Element Content** → Display values (counter numbers, text)
+- **Form Values** → Input states (checkboxes, text inputs)
 
-### Basic Example: Theme Toggle (TSX)
+This eliminates state synchronization bugs and makes debugging trivial—just inspect the DOM!
+
+## 🎬 See It In Action
+
+Run `deno task serve` and visit http://localhost:8080 to see all examples working:
+
+- **🎨 Theme Toggle**: CSS class switching
+- **🔢 Counter**: Data attributes + element content  
+- **✅ Todo Items**: Checkbox state + HTMX server sync
+- **📁 Accordion**: Pure CSS transitions
+- **📑 Tabs**: Multi-element state coordination
+
+## 📋 Complete Examples
+
+### 🎨 Theme Toggle - Pure DOM State
 
 ```tsx
-import { component, h, toggleClasses } from './src/index.ts';
+import { component, toggleClasses } from './src/index.ts';
 
-component('f-theme-toggle-dom')
+component('theme-toggle')
   .styles(`
     .theme-btn { padding: 0.5rem 1rem; border: 1px solid; border-radius: 6px; cursor: pointer; }
-    .theme-btn.light { background: #fff; color: #333; border-color: #ccc; }
-    .theme-btn.dark { background: #333; color: #fff; border-color: #666; }
-    .theme-btn.dark .light-icon, .theme-btn.light .dark-icon { display: none; }
-    .theme-btn.dark .dark-icon, .theme-btn.light .light-icon { display: inline; }
+    .theme-btn.light { background: #fff; color: #333; }
+    .theme-btn.dark { background: #333; color: #fff; }
+    .theme-btn.dark .light-icon { display: none; }
+    .theme-btn.light .dark-icon { display: none; }
   `)
   .view(() => (
     <button
       class="theme-btn light"
-      onclick={[toggleClasses(['light', 'dark'])]}
-      title="Toggle theme"
+      onClick={toggleClasses(['light', 'dark'])} // ✨ Direct function call!
     >
       <span class="light-icon">☀️ Light</span>
-      <span class="dark-icon" style="display: none;">🌙 Dark</span>
+      <span class="dark-icon">🌙 Dark</span>
     </button>
   ));
 ```
 
-### Example with Props and DOM State (TSX)
+**Key Benefits:**
+- ✅ No JavaScript state objects
+- ✅ CSS handles the visual transitions  
+- ✅ State visible in DOM inspector
+- ✅ Type-safe event handlers
+
+### 🔢 Counter - Type-Safe Props + DOM State
 
 ```tsx
-import { component, h, updateParentCounter, resetCounter } from './src/index.ts';
+import { component, updateParentCounter, resetCounter } from './src/index.ts';
 
-component('f-counter-dom')
-  .props({ initialCount: 'number?', step: 'number?' })
+component('counter')
+  .props({ initialCount: 'number?', step: 'number?' }) // Type hints
   .styles(`
-    .counter { display: inline-flex; gap: 0.5rem; align-items: center; padding: 1rem; border: 2px solid #007bff; border-radius: 8px; }
-    .counter button { padding: 0.5rem; border: 1px solid #007bff; background: #007bff; color: white; border-radius: 4px; cursor: pointer; }
+    .counter { display: inline-flex; gap: 0.5rem; padding: 1rem; border: 2px solid #007bff; }
+    .counter button { padding: 0.5rem; background: #007bff; color: white; border: none; }
     .count-display { font-size: 1.5rem; min-width: 3rem; text-align: center; }
   `)
   .view((props) => {
-    const count = (props as any).initialCount || 0;
-    const step = (props as any).step || 1;
+    // ✨ Fully typed props - no casting needed in latest version!
+    const count = props.initialCount ?? 0;  
+    const step = props.step ?? 1;
+    
     return (
       <div class="counter" data-count={count}>
-        <button onclick={[updateParentCounter('.counter', '.count-display', -step)]}>-{step}</button>
+        <button onClick={updateParentCounter('.counter', '.count-display', -step)}>-{step}</button>
         <span class="count-display">{count}</span>
-        <button onclick={[updateParentCounter('.counter', '.count-display', step)]}>+{step}</button>
-        <button onclick={[resetCounter('.count-display', count, '.counter')]}>Reset</button>
+        <button onClick={updateParentCounter('.counter', '.count-display', step)}>+{step}</button>
+        <button onClick={resetCounter('.count-display', count, '.counter')}>Reset</button>
       </div>
     );
   });
 ```
 
-### Server Actions + HTMX (TSX)
+**DOM State in Action:**
+- Counter value stored in `data-count` attribute
+- Display synced with element `.textContent`
+- No JavaScript variables to manage!
+
+### ✅ Todo Item - Server Actions + Local State
 
 ```tsx
-import { component, h, conditionalClass, syncCheckboxToClass } from './src/index.ts';
+import { component, conditionalClass, syncCheckboxToClass } from './src/index.ts';
 
-component('f-todo-item-dom')
+component('todo-item')
   .props({ id: 'string', text: 'string', done: 'boolean?' })
   .serverActions({
     toggle: (id) => ({ 'hx-patch': `/api/todos/${id}/toggle` }),
     delete: (id) => ({ 'hx-delete': `/api/todos/${id}` }),
   })
+  .api({
+    'PATCH /api/todos/:id/toggle': async (req, params) => {
+      // Handle server-side toggle logic
+      return renderComponent('todo-item', updatedProps);
+    }
+  })
   .view((props, serverActions) => {
-    const id = (props as any).id;
-    const text = (props as any).text;
-    const isDone = Boolean((props as any).done);
+    const isDone = Boolean(props.done);
+    
     return (
-      <div class={`todo ${conditionalClass(isDone, 'done')}`} data-id={id}>
-        <input type="checkbox" checked={isDone} onchange={[syncCheckboxToClass('done')]} {...(serverActions?.toggle?.(id) || {})} />
-        <span class="todo-text">{text}</span>
-        <button class="delete-btn" {...(serverActions?.delete?.(id) || {})}>×</button>
+      <div class={`todo ${conditionalClass(isDone, 'done')}`} data-id={props.id}>
+        <input 
+          type="checkbox" 
+          checked={isDone} 
+          onChange={syncCheckboxToClass('done')} // ✨ Local DOM state
+          {...(serverActions?.toggle?.(props.id) || {})} // ✨ Server persistence
+        />
+        <span class="todo-text">{props.text}</span>
+        <button {...(serverActions?.delete?.(props.id) || {})}>×</button>
       </div>
     );
   });
 ```
 
-## Core APIs
+**Hybrid State Management:**
+- ✅ **Local UI state**: Checkbox syncs to CSS class instantly
+- ✅ **Server persistence**: HTMX handles data updates
+- ✅ **No state conflicts**: DOM is the single source of truth
+
+## 🔧 Pipeline API Reference
 
 ### `component(name: string)`
-Starts a new component definition.
+Starts a new component definition. Component names should be kebab-case.
 
-### `.props(spec)`
-Define attribute parsing with string hints: `'string' | 'number' | 'boolean'` and optional variants with `?`.
+```tsx
+component('my-component') // Creates <my-component> custom element
+```
 
-### `.serverActions(map)`
-Define functions that return HTMX attribute objects. In TSX, spread them directly: `<button {...serverActions.remove(id)}>`.
+### `.props(spec: PropSpec)`
+Type-safe prop parsing with automatic TypeScript inference.
+
+```tsx
+.props({ 
+  count: 'number',      // Required number
+  step: 'number?',      // Optional number  
+  disabled: 'boolean?', // Optional boolean
+  title: 'string'       // Required string
+})
+// Props are fully typed in .view() - no casting needed!
+```
+
+### `.serverActions(actions: ActionMap)`
+Define server-side actions that return HTMX attributes.
+
+```tsx
+.serverActions({
+  save: (id) => ({ 'hx-post': `/api/save/${id}`, 'hx-target': '#result' }),
+  delete: (id) => ({ 'hx-delete': `/api/items/${id}`, 'hx-confirm': 'Delete?' })
+})
+```
+
+### `.api(routes: RouteMap)` 
+Define API endpoints directly in the component.
+
+```tsx
+.api({
+  'POST /api/items': async (req) => { /* handle create */ },
+  'DELETE /api/items/:id': async (req, params) => { /* handle delete */ }
+})
+```
 
 ### `.styles(css: string)`
-Attach component-scoped CSS to render with the component on SSR.
+Component-scoped CSS that renders with SSR output.
 
-### `.view((props, serverActions?, parts?) => string)`
-Render function returning a string (via TSX + custom `h`). Event handlers accept `ComponentAction[]`.
+```tsx
+.styles(`
+  .my-button { background: blue; color: white; }
+  .my-button:hover { background: darkblue; }
+`)
+```
 
-## DOM Helpers (events return actions)
+### `.view((props, serverActions?, parts?) => JSX.Element)`
+The render function. Returns JSX that compiles to optimized HTML strings.
 
-- `toggleClass(className)`
-- `toggleClasses(classNames: string[])`
-- `updateParentCounter(parentSel, displaySel, delta)`
-- `resetCounter(displaySel, initialValue, containerSel?)`
-- `activateTab(container, btnSel, contentSel, activeClass)`
-- `toggleParentClass(className)`
-- `syncCheckboxToClass(className)`
-- `conditionalClass(condition, trueClass, falseClass?)`
+```tsx
+.view((props, serverActions) => (
+  <div class="container">
+    <button onClick={someAction}>Click me</button>
+  </div>
+))
+```
 
-## Development
+## 🎮 DOM Action Helpers
 
-- `deno task serve`: Runs the SSR examples/dev server (custom JSX runtime).
-- `deno task docs`: Runs docs site with Deno JSX precompile (separate config).
-- `deno task fmt` / `deno task lint`: Format and lint.
+**Type-safe functions for common DOM operations. Use directly in event handlers:**
 
-## Documentation
+### Class Manipulation
+```tsx
+toggleClass('active')                    // Toggle single class
+toggleClasses(['open', 'visible'])       // Toggle multiple classes
+toggleParentClass('expanded')            // Toggle class on parent element
+```
 
-- Authoring guide: docs/AUTHORING.md
-- Migration guide (from legacy .state()/.actions()): docs/MIGRATION.md
-- Docs site (precompiled JSX): `deno task docs` → http://localhost:8000
+### Counter Operations  
+```tsx
+updateParentCounter('.container', '.display', 5)   // Increment by 5
+updateParentCounter('.container', '.display', -1)  // Decrement by 1
+resetCounter('.display', 0, '.container')          // Reset to initial value
+```
+
+### Form & UI Interactions
+```tsx
+syncCheckboxToClass('completed')                          // Checkbox state → CSS class
+activateTab('.tabs', '.tab-btn', '.content', 'active')   // Tab system activation
+```
+
+### Template Utilities
+```tsx
+conditionalClass(isOpen, 'open', 'closed')  // Conditional CSS classes
+spreadAttrs({ 'hx-get': '/api/data' })       // Spread HTMX attributes
+dataAttrs({ userId: 123, role: 'admin' })    // Generate data-* attributes
+```
+
+**All helpers generate optimized, minified JavaScript for production SSR output.**
+
+## 🛠 Development Commands
+
+```bash
+deno task serve      # Development server → http://localhost:8080
+deno task start      # Type check + serve (recommended)
+deno task check      # Type check all files
+deno task test       # Run tests
+deno task fmt        # Format code
+deno task lint       # Lint code
+```
+
+## 🎯 Why funcwc?
+
+### Traditional React/Vue Problems:
+```tsx
+// ❌ Complex state management
+const [count, setCount] = useState(0);
+const [isOpen, setIsOpen] = useState(false);
+const [loading, setLoading] = useState(false);
+
+// ❌ State synchronization bugs
+// ❌ Prop drilling
+// ❌ Large bundle sizes
+// ❌ Hydration mismatches
+```
+
+### funcwc Solution:
+```tsx
+// ✅ DOM is the state - no synchronization needed!
+component('my-widget')
+  .view(() => (
+    <div class="widget closed" data-count="0">
+      <button onClick={toggleClass('open')}>Toggle</button>
+      <span class="counter">0</span>
+    </div>
+  ));
+
+// ✅ Zero runtime JavaScript
+// ✅ Perfect SSR
+// ✅ No hydration issues
+// ✅ Instant debugging (inspect DOM)
+```
+
+## 🚀 Performance Benefits
+
+- **🏃‍♂️ Faster**: No client-side state management overhead
+- **📦 Smaller**: Zero runtime dependencies, minimal JavaScript
+- **🔧 Simpler**: DOM inspector shows all state
+- **⚡ Instant**: Direct DOM manipulation, no virtual DOM
+- **🎯 Reliable**: No state synchronization bugs
+
+---
+
+**Built with ❤️ for the modern web. Deno + TypeScript + DOM-native state management.**

@@ -3,6 +3,7 @@ import { createPropSpec, type PropSpecObject, type InferProps } from "./props.ts
 import { getRegistry } from "./registry.ts";
 import { appRouter } from "./router.ts";
 import { type RouteHandler } from "./router.ts";
+import "./jsx.d.ts"; // Import JSX types
 
 type ApiMap = Record<string, RouteHandler>;
 
@@ -24,7 +25,7 @@ interface ComponentBuilder<TProps extends Record<string, unknown>> {
       props: TProps,
       serverActions?: Record<string, (...args: unknown[]) => Record<string, unknown>>,
       parts?: PartsMap
-    ) => string,
+    ) => JSX.Element,
   ): ComponentBuilder<TProps>;
   styles(css: string): ComponentBuilder<TProps>;
 }
@@ -39,7 +40,7 @@ interface BuilderState<TProps extends Record<string, unknown>> {
     props: TProps,
     serverActions?: Record<string, (...args: unknown[]) => Record<string, unknown>>,
     parts?: PartsMap
-  ) => string;
+  ) => JSX.Element;
   css?: string;
 }
 
@@ -83,7 +84,7 @@ class ComponentBuilderImpl<TProps extends Record<string, unknown>> implements Co
       props: TProps,
       serverActions?: Record<string, (...args: unknown[]) => Record<string, unknown>>,
       parts?: PartsMap
-    ) => string,
+    ) => JSX.Element,
   ): ComponentBuilder<TProps> {
     this.builderState.renderFn = renderFn as any; // Cast to avoid deep generic issues
     this.register();
@@ -111,13 +112,14 @@ class ComponentBuilderImpl<TProps extends Record<string, unknown>> implements Co
       props,
       css,
       serverActions: serverActionMap,
-      // The render function needs to be wrapped to pass the parts map.
+      // The render function needs to be wrapped to pass the parts map and convert JSX to string
       render: (finalProps, finalServerActions) => {
-        return renderFn(
+        const jsxElement = renderFn(
           finalProps as TProps,
           finalServerActions as Record<string, (...args: unknown[]) => Record<string, unknown>> | undefined,
           partsMap,
         );
+        return jsxElement as unknown as string; // JSX elements are already strings in our runtime
       },
     };
   }

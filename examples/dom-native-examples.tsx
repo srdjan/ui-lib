@@ -1,4 +1,15 @@
-import { component, h, toggleClasses, updateParentCounter, conditionalClass, syncCheckboxToClass, resetCounter, activateTab, toggleParentClass, renderComponent } from "../src/index.ts";
+import { 
+  component, 
+  toggleClasses, 
+  updateParentCounter, 
+  conditionalClass, 
+  syncCheckboxToClass, 
+  resetCounter, 
+  activateTab, 
+  toggleParentClass, 
+  renderComponent,
+  h
+} from "../src/index.ts";
 
 // Example 1: Pure DOM-based Theme Toggle
 component("f-theme-toggle-dom")
@@ -12,7 +23,7 @@ component("f-theme-toggle-dom")
   .view(() => (
     <button
       class="theme-btn light"
-      onclick={[toggleClasses(['light', 'dark'])]}
+      onClick={toggleClasses(['light', 'dark'])}
       title="Toggle theme"
     >
       <span class="light-icon">☀️ Light</span>
@@ -32,16 +43,16 @@ component("f-counter-dom")
     .counter button { padding: 0.5rem; border: 1px solid #007bff; background: #007bff; color: white; border-radius: 4px; cursor: pointer; }
     .count-display { font-size: 1.5rem; min-width: 3rem; text-align: center; }
   `)
-  .view((props, _serverActions, parts) => {
-    const count = (props as any).initialCount || 0;
-    const stepValue = (props as any).step || 1;
+  .view((props, _, parts) => {
+    const count = (props as any).initialCount ?? 0;
+    const stepValue = (props as any).step ?? 1;
 
     return (
       <div class="counter" data-count={count}>
-        <button onclick={[updateParentCounter(parts!.self, parts!.display, -stepValue)]}>-{stepValue}</button>
+        <button onClick={updateParentCounter(parts!.self, parts!.display, -stepValue)}>-{stepValue}</button>
         <span class="count-display">{count}</span>
-        <button onclick={[updateParentCounter(parts!.self, parts!.display, stepValue)]}>+{stepValue}</button>
-        <button onclick={[resetCounter(parts!.display, count, parts!.self)]}>Reset</button>
+        <button onClick={updateParentCounter(parts!.self, parts!.display, stepValue)}>+{stepValue}</button>
+        <button onClick={resetCounter(parts!.display, count, parts!.self)}>Reset</button>
       </div>
     );
   });
@@ -79,7 +90,7 @@ component("f-todo-item-dom")
         <input
           type="checkbox"
           checked={isDone}
-          onchange={[syncCheckboxToClass('done')]}
+          onChange={syncCheckboxToClass('done')}
           {...(serverActions?.toggle?.(id) || {})}
         />
         <span class="todo-text">{text}</span>
@@ -107,7 +118,7 @@ component("f-accordion-dom")
 
     return (
       <div class={`accordion ${conditionalClass(isOpen, 'open')}`}>
-        <button class="accordion-header" onclick={[toggleParentClass('open')]}>
+        <button class="accordion-header" onClick={toggleParentClass('open')}>
           <span class="title">{title}</span>
           <span class="icon">▼</span>
         </button>
@@ -129,7 +140,7 @@ component("f-tabs-dom")
   `)
   .view((props) => {
     const tabs = String((props as any).tabs || "").split(',').map((t) => t.trim()).filter(Boolean);
-    const activeTab = ((props as any).activeTab as string) || tabs[0] || '';
+    const activeTab = (props as any).activeTab as string || tabs[0] || '';
 
     return (
       <div class="tabs" data-active={activeTab}>
@@ -137,7 +148,7 @@ component("f-tabs-dom")
           {tabs.map((tab) => (
             <button
               class={`tab-btn ${conditionalClass(tab === activeTab, 'active')}`}
-              onclick={[activateTab('.tabs', '.tab-btn', '.tab-content', 'active')]}
+              onClick={activateTab('.tabs', '.tab-btn', '.tab-content', 'active')}
               data-tab={tab}
             >
               {tab}
