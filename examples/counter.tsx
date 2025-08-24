@@ -1,17 +1,36 @@
-import { html } from "../src/lib/ssr.ts";
+import { html, raw } from "../src/lib/ssr.ts";
 import { component } from "../src/index.ts";
 
 // Reusable view so SSR can import it
 type CounterState = { count: number };
 type CounterProps = { step?: number };
-export function CounterView(state: CounterState, props: CounterProps): string {
+export function CounterView(
+  state: CounterState, 
+  props: CounterProps,
+  htmxAction?: (action: string, args?: unknown[]) => string
+): string {
   const step = props.step ?? 1;
+  
+  if (!htmxAction) {
+    // SSR-only version (no interactivity)
+    return html`
+      <div class="counter">
+        <button type="button" disabled>-</button>
+        <span>${state.count}</span>
+        <button type="button" disabled>+</button>
+        <button type="button" disabled>Reset</button>
+        <small style="margin-left:8px;color:#777;">Step: ${step}</small>
+      </div>
+    `;
+  }
+  
+  // Interactive version with HTMX
   return html`
     <div class="counter">
-      <button type="button" disabled>-</button>
+      <button type="button" ${raw(htmxAction('dec', [step]))}>-</button>
       <span>${state.count}</span>
-      <button type="button" disabled>+</button>
-      <button type="button" disabled>Reset</button>
+      <button type="button" ${raw(htmxAction('inc', [step]))}>+</button>
+      <button type="button" ${raw(htmxAction('reset'))}>Reset</button>
       <small style="margin-left:8px;color:#777;">Step: ${step}</small>
     </div>
   `;
@@ -61,4 +80,7 @@ component("f-counter-pipeline")
     reset: () => ({ count: 0 }),
   })
   .styles(styles)
-  .view((state, props) => CounterView(state as CounterState, props as CounterProps));
+  .view((state, props, actions) => {
+    const { htmxAction } = actions as { htmxAction: (action: string, args?: unknown[]) => string };
+    return CounterView(state as CounterState, props as CounterProps, htmxAction);
+  });

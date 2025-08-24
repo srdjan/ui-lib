@@ -28,10 +28,27 @@
     </style>
   </head>
   <body>
-    <h1>Functional Web Components - MVP</h1>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <h1>Functional Web Components - SSR Pipeline API</h1>
+    
     <section>
-      <h2>Counter (Pipeline API)</h2>
+      <h2>Counter (Original Implementation)</h2>
       <f-counter-pipeline step="3"></f-counter-pipeline>
+    </section>
+
+    <section style="margin-top: 2rem;">
+      <h2>Counter (JSX-style)</h2>
+      <f-counter-pipeline step="2"></f-counter-pipeline>
+    </section>
+
+    <section style="margin-top: 2rem;">
+      <h2>Styled Counter</h2>
+      <f-counter-styled step="5"></f-counter-styled>
+    </section>
+
+    <section style="margin-top: 2rem;">
+      <h2>Todo List</h2>
+      <f-todo-list></f-todo-list>
     </section>
 
     <script type="module" src="./main.ts"></script>

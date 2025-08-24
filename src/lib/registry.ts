@@ -2,7 +2,8 @@ export type SSRRegistryEntry = {
   init: () => Record<string, unknown>;
   props?: Record<string, { attribute: string; parse: (v: unknown) => unknown }>;
   css?: string;
-  render: (state: unknown, props: unknown) => string;
+  render: (state: unknown, props: unknown, actions: unknown) => string;
+  actions?: Record<string, (...args: unknown[]) => Record<string, unknown>>;
 };
 
 export type SSRRegistry = Record<string, SSRRegistryEntry>;

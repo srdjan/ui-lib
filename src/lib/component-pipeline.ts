@@ -1,6 +1,7 @@
-// Ultra-succinct pipeline API for functional web components (SSR-only)
+// Ultra-succinct pipeline API for functional web components (SSR-compatible)
 import type { Action as _Action } from "./types.ts";
 import { createPropSpec, type PropSpecObject } from "./props.ts";
+import { getRegistry } from "./registry.ts";
 
 // Simplified types for better usability
 type ActionMap = Record<
@@ -33,17 +34,18 @@ interface BuilderState {
 
 // Smart prop parsing implementation moved to props.ts
 
-// Action creator generation
+// Action creator generation - creates callable functions for the view
 const createActionCreators = (
   actionMap: ActionMap,
-): Record<string, (...args: unknown[]) => { type: string; payload: unknown[] }> => {
-  const creators: Record<string, (...args: unknown[]) => { type: string; payload: unknown[] }> = {};
+): Record<string, (...args: unknown[]) => void> => {
+  const creators: Record<string, (...args: unknown[]) => void> = {};
 
   for (const [actionType, _handler] of Object.entries(actionMap)) {
-    creators[actionType] = (...args: unknown[]) => ({
-      type: actionType,
-      payload: args,
-    });
+    // For SSR, action creators are just placeholders that return void
+    // In a full implementation, these would dispatch to the component's state management
+    creators[actionType] = (..._args: unknown[]) => {
+      // SSR placeholder - no-op since we're not handling client-side interactions yet
+    };
   }
 
   return creators;
@@ -99,16 +101,18 @@ class ComponentBuilderImpl implements ComponentBuilder {
         `Component ${name} is missing required configuration: state, actions, and view are required`,
       );
     }
-    // SSR-only: expose a render method on the global registry for demos
+    
+    // Register component in SSR registry
     const actionCreators = createActionCreators(actionMap);
     const props = propSpec ? createPropSpec(propSpec) : undefined;
-    const bag = (globalThis as any).__FWC_SSR__ ?? ((globalThis as any).__FWC_SSR__ = {});
-    bag[name] = {
+    const registry = getRegistry();
+    
+    registry[name] = {
       init: () => initialState,
       props,
       css,
-      render: (state: unknown, parsedProps: unknown) =>
-        renderFn(state, parsedProps, actionCreators),
+      actions: actionMap,
+      render: renderFn, // Store the raw render function, not pre-bound with action creators
     };
   }
 }
