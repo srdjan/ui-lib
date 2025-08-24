@@ -1,5 +1,4 @@
 // Ultra-succinct pipeline API for functional web components (SSR-compatible)
-import type { Action as _Action } from "./types.ts";
 import { createPropSpec, type PropSpecObject } from "./props.ts";
 import { getRegistry } from "./registry.ts";
 

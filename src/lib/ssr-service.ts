@@ -16,7 +16,9 @@ export function renderComponent(name: string, props: Record<string, unknown> = {
   if (entry.props) {
     parsedProps = {};
     for (const [key, spec] of Object.entries(entry.props)) {
-      const rawValue = props[key];
+      // Use the attribute name to look up the raw value from props
+      const attributeName = spec.attribute;
+      const rawValue = props[attributeName];
       parsedProps[key] = spec.parse(rawValue);
     }
   }
