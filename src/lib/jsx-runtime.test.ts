@@ -71,7 +71,7 @@ Deno.test("h function handles arrays of children", () => {
 });
 
 Deno.test("h function handles function components", () => {
-  const MyComponent = (props: { name: string; children?: any }) => {
+  const MyComponent = (props: { name: string; children?: unknown[] }) => {
     return h("div", { class: "my-component" }, `Hello ${props.name}`, props.children);
   };
   

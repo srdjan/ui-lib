@@ -71,14 +71,16 @@ Deno.serve({
 
       // 4. If still no match, fall back to serving static files
       const filePath = `./examples${url.pathname}`;
-      if (filePath.endsWith(".ts") || filePath.endsWith(".tsx")) {
-        return new Response("/* TS/TSX files cannot be served. */", { status: 403 });
-      }
 
       const content = await Deno.readFile(filePath);
       let contentType = "text/plain";
-      if (filePath.endsWith(".js")) contentType = "application/javascript; charset=utf-8";
-      else if (filePath.endsWith(".css")) contentType = "text/css; charset=utf-8";
+      if (filePath.endsWith(".js") || filePath.endsWith(".ts")) {
+        contentType = "application/javascript; charset=utf-8";
+      } else if (filePath.endsWith(".tsx")) {
+        contentType = "application/javascript; charset=utf-8";
+      } else if (filePath.endsWith(".css")) {
+        contentType = "text/css; charset=utf-8";
+      }
 
       return new Response(content, { headers: { "content-type": contentType } });
 

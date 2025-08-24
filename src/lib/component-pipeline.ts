@@ -2,28 +2,20 @@
 import { createPropSpec, type PropSpecObject, type InferProps } from "./props.ts";
 import { getRegistry } from "./registry.ts";
 import { appRouter } from "./router.ts";
-import { type RouteHandler } from "./router.ts";
+import { type ApiMap, type GeneratedApiMap, generateClientApi } from "./api-generator.ts";
 import "./jsx.d.ts"; // Import JSX types
-
-type ApiMap = Record<string, RouteHandler>;
-
-type ServerActionMap = Record<
-  string,
-  (...args: unknown[]) => Record<string, unknown>
->;
 
 type PartsMap = Record<string, string>;
 
 // Generic Pipeline builder interface
 interface ComponentBuilder<TProps extends Record<string, unknown>> {
   props<P extends PropSpecObject>(propSpec: P): ComponentBuilder<TProps & InferProps<P>>;
-  serverActions(serverActionMap: ServerActionMap): ComponentBuilder<TProps>;
   api(apiMap: ApiMap): ComponentBuilder<TProps>;
   parts(partsMap: PartsMap): ComponentBuilder<TProps>;
   view(
     renderFn: (
       props: TProps,
-      serverActions?: Record<string, (...args: unknown[]) => Record<string, unknown>>,
+      api?: GeneratedApiMap,
       parts?: PartsMap
     ) => JSX.Element,
   ): ComponentBuilder<TProps>;
@@ -34,11 +26,11 @@ interface ComponentBuilder<TProps extends Record<string, unknown>> {
 interface BuilderState<TProps extends Record<string, unknown>> {
   name: string;
   propSpec?: PropSpecObject;
-  serverActionMap?: ServerActionMap;
+  apiMap?: ApiMap;
   partsMap?: PartsMap;
   renderFn?: (
     props: TProps,
-    serverActions?: Record<string, (...args: unknown[]) => Record<string, unknown>>,
+    api?: GeneratedApiMap,
     parts?: PartsMap
   ) => JSX.Element;
   css?: string;
@@ -57,12 +49,11 @@ class ComponentBuilderImpl<TProps extends Record<string, unknown>> implements Co
     return this as unknown as ComponentBuilder<TProps & InferProps<P>>;
   }
 
-  serverActions(serverActionMap: ServerActionMap): ComponentBuilder<TProps> {
-    this.builderState.serverActionMap = serverActionMap;
-    return this;
-  }
-
   api(apiMap: ApiMap): ComponentBuilder<TProps> {
+    // Store the API map for later use in view function
+    this.builderState.apiMap = apiMap;
+    
+    // Register all routes with the router
     for (const [route, handler] of Object.entries(apiMap)) {
       const [method, path] = route.split(' ');
       if (!method || !path || !handler) {
@@ -82,11 +73,11 @@ class ComponentBuilderImpl<TProps extends Record<string, unknown>> implements Co
   view(
     renderFn: (
       props: TProps,
-      serverActions?: Record<string, (...args: unknown[]) => Record<string, unknown>>,
+      api?: GeneratedApiMap,
       parts?: PartsMap
     ) => JSX.Element,
   ): ComponentBuilder<TProps> {
-    this.builderState.renderFn = renderFn as any; // Cast to avoid deep generic issues
+    this.builderState.renderFn = renderFn as (props: TProps, api?: GeneratedApiMap, parts?: PartsMap) => JSX.Element;
     this.register();
     return this;
   }
@@ -97,7 +88,7 @@ class ComponentBuilderImpl<TProps extends Record<string, unknown>> implements Co
   }
 
   private register(): void {
-    const { name, propSpec, serverActionMap, renderFn, css, partsMap } = this.builderState;
+    const { name, propSpec, apiMap, renderFn, css, partsMap } = this.builderState;
 
     if (!renderFn) {
       throw new Error(
@@ -106,17 +97,18 @@ class ComponentBuilderImpl<TProps extends Record<string, unknown>> implements Co
     }
     
     const props = propSpec ? createPropSpec(propSpec) : undefined;
+    const generatedApi = apiMap ? generateClientApi(apiMap) : undefined;
     const registry = getRegistry();
     
     registry[name] = {
       props,
       css,
-      serverActions: serverActionMap,
-      // The render function needs to be wrapped to pass the parts map and convert JSX to string
-      render: (finalProps, finalServerActions) => {
+      serverActions: generatedApi, // Now contains auto-generated client functions
+      // The render function needs to be wrapped to pass the generated API and parts map
+      render: (finalProps, _unusedServerActions) => {
         const jsxElement = renderFn(
           finalProps as TProps,
-          finalServerActions as Record<string, (...args: unknown[]) => Record<string, unknown>> | undefined,
+          generatedApi,
           partsMap,
         );
         return jsxElement as unknown as string; // JSX elements are already strings in our runtime
@@ -126,9 +118,9 @@ class ComponentBuilderImpl<TProps extends Record<string, unknown>> implements Co
 }
 
 // Main component function - starts with an empty props object
-export const component = (name: string): ComponentBuilder<{}> => {
+export const component = (name: string): ComponentBuilder<Record<PropertyKey, never>> => {
   return new ComponentBuilderImpl(name);
 };
 
 // Export types for external use
-export type { ServerActionMap };
+export type { ApiMap, GeneratedApiMap };

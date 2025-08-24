@@ -33,24 +33,27 @@ Deno.test("component with props creates prop spec", () => {
   assertEquals(entry.props!.age.attribute, "age");
 });
 
-Deno.test("component with serverActions stores actions", () => {
+Deno.test("component with api generates client functions", () => {
   const registry = getRegistry();
-  delete registry["test-actions"];
+  delete registry["test-api"];
   
-  component("test-actions")
-    .serverActions({
-      save: (id) => ({ "hx-post": `/api/save/${id}` }),
-      delete: (id) => ({ "hx-delete": `/api/delete/${id}` })
+  component("test-api")
+    .api({
+      'POST /api/save/:id': () => new Response("saved"),
+      'DELETE /api/delete/:id': () => new Response("deleted")
     })
     .view(() => h("div", null, "Content"));
     
-  const entry = registry["test-actions"];
-  assertExists(entry.serverActions);
-  assertExists(entry.serverActions!.save);
-  assertExists(entry.serverActions!.delete);
+  const entry = registry["test-api"];
+  assertExists(entry.serverActions); // Auto-generated client functions
+  assertExists(entry.serverActions!.create); // Generated from POST
+  assertExists(entry.serverActions!.delete); // Generated from DELETE
   
-  const saveAction = entry.serverActions!.save("123");
-  assertEquals(saveAction["hx-post"], "/api/save/123");
+  const createAction = entry.serverActions!.create("123");
+  assertEquals(createAction["hx-post"], "/api/save/123");
+  
+  const deleteAction = entry.serverActions!.delete("123");  
+  assertEquals(deleteAction["hx-delete"], "/api/delete/123");
 });
 
 Deno.test("component with styles stores CSS", () => {
@@ -85,7 +88,7 @@ Deno.test("component with parts passes parts to view function", () => {
   
   component("test-parts")
     .parts({ container: ".container", content: ".content" })
-    .view((props, serverActions, parts) => {
+    .view((_props, _api, parts) => {
       return h("div", { class: parts!.container.slice(1) }, 
         h("span", { class: parts!.content.slice(1) }, "Content")
       );
@@ -103,7 +106,7 @@ Deno.test("component pipeline is chainable", () => {
   const result = component("test-chain")
     .props({ title: "string" })
     .styles(".chain { display: block; }")
-    .serverActions({ test: () => ({ "hx-get": "/test" }) })
+    .api({ 'GET /test': () => new Response("test") })
     .view((props) => h("div", { class: "chain" }, (props as any).title));
     
   // Should return the builder for chaining

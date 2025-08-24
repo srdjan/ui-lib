@@ -1,3 +1,4 @@
+/** @jsx h */
 import { 
   component, 
   toggleClasses, 
@@ -20,7 +21,7 @@ component("f-theme-toggle-dom")
     .theme-btn.dark .light-icon, .theme-btn.light .dark-icon { display: none; }
     .theme-btn.dark .dark-icon, .theme-btn.light .light-icon { display: inline; }
   `)
-  .view(() => (
+  .view((props) => (
     <button
       class="theme-btn light"
       onClick={toggleClasses(['light', 'dark'])}
@@ -43,7 +44,7 @@ component("f-counter-dom")
     .counter button { padding: 0.5rem; border: 1px solid #007bff; background: #007bff; color: white; border-radius: 4px; cursor: pointer; }
     .count-display { font-size: 1.5rem; min-width: 3rem; text-align: center; }
   `)
-  .view((props, _, parts) => {
+  .view((props, _api, parts) => {
     const count = (props as any).initialCount ?? 0;
     const stepValue = (props as any).step ?? 1;
 
@@ -57,14 +58,11 @@ component("f-counter-dom")
     );
   });
 
-// Example 3: Todo Item with Server Actions
+// Example 3: Todo Item with Unified API
 component("f-todo-item-dom")
   .props({ id: "string", text: "string", done: "boolean?" })
-  .serverActions({
-    toggle: (id) => ({ "hx-patch": `/api/todos/${id}/toggle` }),
-    delete: (id) => ({ "hx-delete": `/api/todos/${id}` })
-  })
   .api({
+    // Just define the API endpoints - client functions are auto-generated!
     'PATCH /api/todos/:id/toggle': async (req, params) => {
       const form = await req.formData();
       const isDone = form.get('done') === 'true';
@@ -80,21 +78,22 @@ component("f-todo-item-dom")
     .todo.done .todo-text { text-decoration: line-through; color: #6c757d; }
     .delete-btn { background: #dc3545; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; }
   `)
-  .view((props, serverActions) => {
+  .view((props, api) => {
     const isDone = Boolean((props as any).done);
     const id = (props as any).id as string;
     const text = (props as any).text as string;
+    const todoClass = "todo " + conditionalClass(isDone, 'done');
 
     return (
-      <div class={`todo ${conditionalClass(isDone, 'done')}`} data-id={id}>
+      <div class={todoClass} data-id={id}>
         <input
           type="checkbox"
           checked={isDone}
           onChange={syncCheckboxToClass('done')}
-          {...(serverActions?.toggle?.(id) || {})}
+          {...(api?.toggle?.(id) || {})}
         />
         <span class="todo-text">{text}</span>
-        <button class="delete-btn" {...(serverActions?.delete?.(id) || {})}>×</button>
+        <button class="delete-btn" {...(api?.delete?.(id) || {})}>×</button>
       </div>
     );
   });
@@ -115,9 +114,10 @@ component("f-accordion-dom")
     const isOpen = Boolean((props as any).initiallyOpen);
     const title = (props as any).title as string;
     const content = (props as any).content as string;
+    const accordionClass = "accordion " + conditionalClass(isOpen, 'open');
 
     return (
-      <div class={`accordion ${conditionalClass(isOpen, 'open')}`}>
+      <div class={accordionClass}>
         <button class="accordion-header" onClick={toggleParentClass('open')}>
           <span class="title">{title}</span>
           <span class="icon">▼</span>
@@ -145,23 +145,29 @@ component("f-tabs-dom")
     return (
       <div class="tabs" data-active={activeTab}>
         <div class="tab-nav">
-          {tabs.map((tab) => (
+          {tabs.map((tab) => {
+            const tabBtnClass = "tab-btn " + conditionalClass(tab === activeTab, 'active');
+            return (
             <button
-              class={`tab-btn ${conditionalClass(tab === activeTab, 'active')}`}
+              class={tabBtnClass}
               onClick={activateTab('.tabs', '.tab-btn', '.tab-content', 'active')}
               data-tab={tab}
             >
               {tab}
             </button>
-          ))}
+            );
+          })}
         </div>
         <div class="tab-contents">
-          {tabs.map((tab) => (
-            <div class={`tab-content ${conditionalClass(tab === activeTab, 'active')}`} data-tab={tab}>
+          {tabs.map((tab) => {
+            const tabContentClass = "tab-content " + conditionalClass(tab === activeTab, 'active');
+            return (
+            <div class={tabContentClass} data-tab={tab}>
               <h3>{tab} Content</h3>
               <p>This is the content for the {tab} tab.</p>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     );

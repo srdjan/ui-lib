@@ -13,7 +13,7 @@ declare global {
     // This defines the props that intrinsic elements like 'div' or 'button' can have.
     // It includes all standard HTML attributes, plus our custom event handlers.
     interface IntrinsicElements {
-      [elemName: string]: Record<string, any> & EventHandlers;
+      [elemName: string]: Record<string, unknown> & EventHandlers;
     }
   }
 }

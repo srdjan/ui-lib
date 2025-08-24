@@ -9,11 +9,12 @@ const SELF_CLOSING_TAGS = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', '
 type EventHandler = ComponentAction | string;
 
 // Fragment component for JSX
-export function Fragment(props: { children?: any[] }): string {
+export function Fragment(props: { children?: unknown[] }): string {
   return props.children?.flat(Infinity).join('') || '';
 }
 
-export function h(tag: string | Function, props: Record<string, any> | null, ...children: any[]): string {
+// deno-lint-ignore no-explicit-any
+export function h(tag: string | ((props: any) => string), props: Record<string, unknown> | null, ...children: unknown[]): string {
   props = props || {};
   
   if (typeof tag === 'function') {
@@ -29,7 +30,7 @@ export function h(tag: string | Function, props: Record<string, any> | null, ...
       
       if (typeof value === 'string') {
         handlerString = value;
-      } else if (typeof value === 'object' && value.type) {
+      } else if (typeof value === 'object' && value && 'type' in value) {
         // Direct ComponentAction object
         handlerString = renderActionToString(value as ComponentAction);
       } else if (Array.isArray(value)) {
@@ -61,9 +62,14 @@ export function h(tag: string | Function, props: Record<string, any> | null, ...
       if (typeof child === 'number') return String(child);
       if (typeof child === 'string') {
         // Check if it's already rendered HTML element from nested h calls
-        // Must start with '<', end with '>', and contain proper closing tag structure
+        // Must start with '<', end with '>', and be either self-closing or have proper closing tag structure
+        const tagMatch = child.match(/^<([a-zA-Z][a-zA-Z0-9-]*)/);
+        const tagName = tagMatch ? tagMatch[1] : '';
+        
         if (child.startsWith('<') && child.endsWith('>') && 
-            child.match(/^<[a-zA-Z][^>]*>.*<\/[a-zA-Z][^>]*>$/) &&
+            (child.match(/^<[a-zA-Z][^>]*\/>$/) || // Self-closing tag like <input />
+             (SELF_CLOSING_TAGS.has(tagName) && child.match(/^<[a-zA-Z][^>]*>$/)) || // Our self-closing tags like <input>
+             child.match(/^<[a-zA-Z][^>]*>.*<\/[a-zA-Z][^>]*>$/)) && // Regular tag with closing
             !child.includes('<script')) { // Extra safety check
           return child; // Already rendered HTML from nested h calls
         } else {

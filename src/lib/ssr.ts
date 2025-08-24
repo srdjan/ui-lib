@@ -1,4 +1,4 @@
-import { type ComponentAction } from "./actions.ts";
+import { type ComponentAction as _ComponentAction } from "./actions.ts";
 
 // Minimal SSR string template utilities (no browser code)
 
