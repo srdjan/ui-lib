@@ -53,10 +53,15 @@ working:
 ### 🎨 Theme Toggle - Pure DOM State
 
 ```tsx
-import { component, toggleClasses } from "./src/index.ts";
+import { defineComponent, toggleClasses, h } from "./src/index.ts";
 
-component("f-theme-toggle")
-  .styles(`
+defineComponent("theme-toggle", {
+  classes: {
+    button: "theme-btn",
+    lightIcon: "light-icon", 
+    darkIcon: "dark-icon"
+  },
+  styles: `
     .theme-btn { 
       padding: 0.5rem 1rem; 
       border: 2px solid; 
@@ -71,16 +76,17 @@ component("f-theme-toggle")
     .theme-btn.dark:hover { border-color: #63b3ed; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
     .theme-btn.dark .light-icon, .theme-btn.light .dark-icon { display: none !important; }
     .theme-btn.dark .dark-icon, .theme-btn.light .light-icon { display: inline; }
-  `)
-  .view(() => (
+  `,
+  render: (props, api, classes) => (
     <button
-      class="theme-btn light"
-      onclick={toggleClasses(["light", "dark"])} // ✨ Direct function call!
+      class={`${classes!.button} light`}
+      onclick={toggleClasses(["light", "dark"])} // ✨ Direct DOM manipulation!
     >
-      <span class="light-icon">☀️ Light</span>
-      <span class="dark-icon">🌙 Dark</span>
+      <span class={classes!.lightIcon}>☀️ Light</span>
+      <span class={classes!.darkIcon}>🌙 Dark</span>
     </button>
-  ));
+  )
+});
 ```
 
 **Key Benefits:**
@@ -90,43 +96,55 @@ component("f-theme-toggle")
 - ✅ State visible in DOM inspector
 - ✅ Type-safe event handlers
 
-### 🔢 Counter - Type-Safe Props + DOM State
+### 🔢 Counter - Enhanced Props with Defaults
 
 ```tsx
-import { component } from "./src/index.ts";
+import { defineComponent, h } from "./src/index.ts";
 import { resetCounter, updateParentCounter } from "./examples/dom-actions.ts";
 
-component("f-counter")
-  .props({ initialCount: "number?", step: "number?" }) // Type hints
-  .styles(`
-    .counter { display: inline-flex; gap: 0.5rem; padding: 1rem; border: 2px solid #007bff; }
-    .counter button { padding: 0.5rem; background: #007bff; color: white; border: none; }
-    .count-display { font-size: 1.5rem; min-width: 3rem; text-align: center; }
-  `)
-  .view((props) => {
-    // ✨ Fully typed props - no casting needed in latest version!
-    const count = props.initialCount ?? 0;
-    const step = props.step ?? 1;
-
-    return (
-      <div class="counter" data-count={count}>
-        <button
-          onclick={updateParentCounter(".counter", ".count-display", -step)}
-        >
-          -{step}
-        </button>
-        <span class="count-display">{count}</span>
-        <button
-          onclick={updateParentCounter(".counter", ".count-display", step)}
-        >
-          +{step}
-        </button>
-        <button onclick={resetCounter(".count-display", count, ".counter")}>
-          Reset
-        </button>
-      </div>
-    );
-  });
+defineComponent("smart-counter", {
+  props: { 
+    initialCount: { type: "number", default: 0 },  // ✨ Default values!
+    step: { type: "number", default: 1 },
+    label: "string?"
+  },
+  classes: {
+    container: "counter",
+    button: "counter-btn", 
+    display: "count-display",
+    label: "counter-label"
+  },
+  styles: `
+    .counter { display: inline-flex; gap: 0.5rem; padding: 1rem; border: 2px solid #007bff; align-items: center; }
+    .counter-btn { padding: 0.5rem; background: #007bff; color: white; border: none; border-radius: 4px; }
+    .count-display { font-size: 1.5rem; min-width: 3rem; text-align: center; font-weight: bold; }
+    .counter-label { margin-right: 0.5rem; font-weight: 500; }
+  `,
+  render: ({ initialCount, step, label }, api, classes) => (
+    <div class={classes!.container} data-count={initialCount}>
+      {label && <span class={classes!.label}>{label}:</span>}
+      <button
+        class={classes!.button}
+        onclick={updateParentCounter(`.${classes!.container}`, `.${classes!.display}`, -step)}
+      >
+        -{step}
+      </button>
+      <span class={classes!.display}>{initialCount}</span>
+      <button
+        class={classes!.button}
+        onclick={updateParentCounter(`.${classes!.container}`, `.${classes!.display}`, step)}
+      >
+        +{step}
+      </button>
+      <button 
+        class={classes!.button}
+        onclick={resetCounter(`.${classes!.display}`, initialCount, `.${classes!.container}`)}
+      >
+        Reset
+      </button>
+    </div>
+  )
+});
 ```
 
 **DOM State in Action:**
@@ -135,58 +153,81 @@ component("f-counter")
 - Display synced with element `.textContent`
 - No JavaScript variables to manage!
 
-### ✅ Todo Item - Server Actions + Local State
+### ✅ Todo Item - HTMX Server Integration
 
 ```tsx
-import { component, conditionalClass } from "./src/index.ts";
+import { defineComponent, conditionalClass, renderComponent, h } from "./src/index.ts";
 import { syncCheckboxToClass } from "./examples/dom-actions.ts";
 
-component("f-todo-item")
-  .props({ id: "string", text: "string", done: "boolean?" })
-  .api({
-    // Just define the API endpoints - client functions are auto-generated!
+defineComponent("todo-item", {
+  props: { 
+    id: "string", 
+    text: "string", 
+    done: { type: "boolean", default: false }
+  },
+  api: {
+    // ✨ Define server endpoints - HTMX attributes auto-generated!
     "PATCH /api/todos/:id/toggle": async (req, params) => {
       const form = await req.formData();
       const isDone = form.get("done") === "true";
       return new Response(
-        renderComponent("f-todo-item", {
+        renderComponent("todo-item", {
           id: params.id,
-          text: "Toggled item!",
+          text: "Updated task!",
           done: !isDone,
-        }),
+        })
       );
     },
     "DELETE /api/todos/:id": (_req, _params) => {
-      return new Response(null, { status: 200 });
+      return new Response(null, { status: 204 });
     },
-  })
-  .styles(`
-    .todo { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 0.5rem; }
-    .todo.done { background: #f8f9fa; opacity: 0.7; }
+  },
+  classes: {
+    item: "todo",
+    checkbox: "todo-checkbox",
+    text: "todo-text",
+    deleteBtn: "delete-btn"
+  },
+  styles: `
+    .todo { 
+      display: flex; align-items: center; gap: 0.5rem; 
+      padding: 0.75rem; border: 1px solid #ddd; 
+      border-radius: 4px; margin-bottom: 0.5rem; 
+      background: white; transition: background-color 0.2s;
+    }
+    .todo.done { background: #f8f9fa; opacity: 0.8; }
+    .todo-text { flex: 1; font-size: 1rem; }
     .todo.done .todo-text { text-decoration: line-through; color: #6c757d; }
-    .delete-btn { background: #dc3545; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; }
-  `)
-  .view((props: { id: string; text: string; done?: boolean }, api) => {
-    const isDone = Boolean(props.done);
-    const id = props.id;
-    const text = props.text;
-    const todoClass = "todo " + conditionalClass(isDone, "done");
-
+    .delete-btn { 
+      background: #dc3545; color: white; border: none; 
+      border-radius: 50%; width: 24px; height: 24px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+  `,
+  render: ({ id, text, done }, api, classes) => {
+    const itemClass = `${classes!.item} ${done ? "done" : ""}`;
+    
     return (
-      <div class={todoClass} data-id={id}>
+      <div class={itemClass} data-id={id}>
         <input
           type="checkbox"
-          checked={isDone}
+          class={classes!.checkbox}
+          checked={done}
           onChange={syncCheckboxToClass("done")}
-          {...(api?.toggle?.(id) || {})}
+          {...(api?.toggle?.(id) || {})} // ✨ Auto-generated HTMX attributes!
         />
-        <span class="todo-text">{text}</span>
-        <button type="button" class="delete-btn" {...(api?.delete?.(id) || {})}>
+        <span class={classes!.text}>{text}</span>
+        <button 
+          type="button" 
+          class={classes!.deleteBtn}
+          {...(api?.delete?.(id) || {})}
+        >
           ×
         </button>
       </div>
     );
-  });
+  }
+});
 ```
 
 **Hybrid State Management:**
@@ -195,100 +236,109 @@ component("f-todo-item")
 - ✅ **Server persistence**: HTMX handles data updates
 - ✅ **No state conflicts**: DOM is the single source of truth
 
-## 🔧 Pipeline API Reference
+## 🔧 defineComponent API Reference
 
-### `component(name: string)`
+### `defineComponent(name: string, config: ComponentConfig)`
 
-Starts a new component definition. Component names should be kebab-case.
+Define a component with clean, object-based configuration. Component names should be kebab-case.
 
 ```tsx
-component("f-my-component"); // Creates <f-my-component> custom element
+defineComponent("my-component", {
+  // Component configuration
+});
 ```
 
-### `.props(spec: PropSpec)`
+### Enhanced Props System
 
-Type-safe prop parsing with automatic TypeScript inference.
+Multiple syntax options for maximum flexibility:
 
 ```tsx
-.props({ 
-  count: 'number',      // Required number
-  step: 'number?',      // Optional number  
-  disabled: 'boolean?', // Optional boolean
-  title: 'string'       // Required string
-})
-// Props are fully typed in .view() - no casting needed!
+// Basic string syntax
+props: { 
+  title: "string",           // Required string
+  count: "number?",          // Optional number
+  active: "boolean?"         // Optional boolean
+}
+
+// Enhanced syntax with defaults
+props: {
+  title: "string",
+  count: { type: "number", default: 0 },
+  active: { type: "boolean", default: true }
+}
+
+// Explicit required/optional syntax
+props: {
+  title: { type: "string", required: true },
+  count: { type: "number", required: false }
+}
 ```
 
-### `.api(routes: RouteMap)` - Unified API System
+### Unified API System
 
-The `.api()` method is funcwc's revolutionary unified API system that eliminates
-the duplication between server route definitions and client-side HTMX
-attributes. Define your API endpoints once, and funcwc automatically generates
-type-safe client functions.
+Define server endpoints once - HTMX attributes generated automatically:
 
 ```tsx
-.api({
-  'POST /api/items': async (req) => { 
+api: {
+  'POST /api/items': async (req) => {
     const data = await req.formData();
-    // Handle create logic
     return new Response(renderComponent("item", { id: newId, ...data }));
   },
-  'DELETE /api/items/:id': async (req, params) => { 
-    // Handle delete logic  
+  'DELETE /api/items/:id': async (req, params) => {
     return new Response(null, { status: 204 });
   }
-})
-.view((props, api) => (
-  <div class="item">
+}
+
+// Usage in render function:
+render: ({ id }, api) => (
+  <div>
     <button {...(api?.create?.() || {})}>Add Item</button>
-    <button {...(api?.delete?.(props.id) || {})}>Delete</button>
+    <button {...(api?.delete?.(id) || {})}>Delete</button>
   </div>
-))
+)
 ```
 
-**How it works:**
-
-1. **Server Routes**: Define actual HTTP handlers in `.api()`
-2. **Auto-Generated Functions**: funcwc creates client functions based on your
-   routes
-3. **HTMX Attributes**: Client functions return proper `hx-*` attributes
-4. **Type Safety**: All generated functions are fully typed
-5. **Parameter Extraction**: URL parameters become function arguments
-
 **Route-to-Function Mapping:**
-
 - `POST /api/items` → `api.create()`
 - `DELETE /api/items/:id` → `api.delete(id)`
 - `PATCH /api/todos/:id/toggle` → `api.toggle(id)`
 
-### `.styles(css: string)`
-
-Component-scoped CSS that renders with SSR output.
+### Component-Scoped CSS
 
 ```tsx
-.styles(`
+styles: `
   .my-button { background: blue; color: white; }
   .my-button:hover { background: darkblue; }
-`)
+`
 ```
 
-### `.view((props, api?, classes?) => JSX.Element)`
-
-The render function. Returns JSX that compiles to optimized HTML strings.
+### Class Mapping
 
 ```tsx
-.view((props, api, classes) => (
+classes: {
+  button: "btn-primary",
+  container: "main-container"
+}
+
+// Usage: <button class={classes.button}>Click me</button>
+```
+
+### Render Function
+
+Returns JSX that compiles to optimized HTML strings:
+
+```tsx
+render: (props, api, classes) => (
   <div class={classes?.container}>
     <button {...(api?.action?.(props.id) || {})}>Click me</button>
   </div>
-))
+)
 ```
 
 **Parameters:**
-
-- `props`: Typed props object based on `.props()` definition
-- `api`: Auto-generated client functions from `.api()` routes (optional)
-- `classes`: Class names from `.classes()` definition (optional)
+- `props`: Fully typed props object
+- `api`: Auto-generated HTMX client functions (optional)
+- `classes`: Class name mappings (optional)
 
 ## 🎮 DOM Helpers
 
@@ -356,16 +406,18 @@ const [loading, setLoading] = useState(false);
 
 ```tsx
 // ✅ DOM is the state - no synchronization needed!
-component("my-widget")
-  .view(() => (
-    <div class="widget closed" data-count="0">
-      <button onclick={toggleClass("open")}>Toggle</button>
-      <span class="counter">0</span>
+defineComponent("my-widget", {
+  classes: { container: "widget", button: "toggle-btn", counter: "counter" },
+  render: (props, api, classes) => (
+    <div class={`${classes!.container} closed`} data-count="0">
+      <button class={classes!.button} onclick={toggleClass("open")}>Toggle</button>
+      <span class={classes!.counter}>0</span>
     </div>
-  ));
+  )
+});
 
 // ✅ Zero runtime JavaScript
-// ✅ Perfect SSR
+// ✅ Perfect SSR  
 // ✅ No hydration issues
 // ✅ Instant debugging (inspect DOM)
 ```

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8" />
+    <meta charset="ut8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Functional Web Components - MVP Examples</title>
+    <title>funcwc - DOM-Native SSR Components</title>
     <style>
       body {
         font-family:
@@ -43,84 +43,92 @@
   </head>
   <body>
     <script src="https://unpkg.com/htmx.org@2.0.6"></script>
-    <h1>Functional Web Components - DOM-Native Pipeline API</h1>
+    <h1>funcwc - DOM-Native SSR Components</h1>
     <p style="color: #666; margin-bottom: 2rem">
-      Ultra-simplified API using DOM as the state container. No JavaScript state
-      management required!
+      Clean <code>defineComponent</code> API with enhanced props, HTMX integration, and DOM-as-state architecture. Zero client-side dependencies!
     </p>
 
     <section>
       <h2>🎨 Theme Toggle</h2>
       <p>Pure DOM state with CSS class manipulation. No JavaScript objects!</p>
-      <f-theme-toggle></f-theme-toggle>
+      <theme-toggle></theme-toggle>
     </section>
 
     <section style="margin-top: 2rem">
       <h2>🔢 Counter</h2>
       <p>Counter value stored in DOM attributes and element content.</p>
-      <f-counter step="3" initialCount="5"></f-counter>
+      <counter step="3" initialCount="5"></counter>
     </section>
 
     <section style="margin-top: 2rem">
       <h2>✅ Todo Item</h2>
       <p>Local UI state (checkbox) + Server persistence via HTMX.</p>
-      <f-todo-item
+      <todo-item
         id="1"
         text="Learn DOM-native development"
         done="false"
-      ></f-todo-item>
-      <f-todo-item
+      ></todo-item>
+      <todo-item
         id="2"
         text="Build awesome components"
         done="true"
-      ></f-todo-item>
+      ></todo-item>
     </section>
 
     <section style="margin-top: 2rem">
       <h2>📁 Accordion</h2>
       <p>Open/closed state managed with CSS classes and transitions.</p>
-      <f-accordion
+      <accordion
         title="What is DOM-native development?"
         content="DOM-native development uses the browser's built-in state mechanisms (CSS classes, form values, data attributes) instead of JavaScript object state management. This results in simpler, more performant, and more accessible components."
         initiallyOpen="false"
-      ></f-accordion>
+      ></accordion>
 
-      <f-accordion
+      <accordion
         title="Benefits of this approach"
         content="• Simpler API with fewer concepts<br>• Better performance (no JS state synchronization)<br>• More accessible by default<br>• Works great with HTMX<br>• Easier debugging (state visible in DOM inspector)"
         initiallyOpen="true"
-      ></f-accordion>
+      ></accordion>
     </section>
 
     <section style="margin-top: 2rem">
       <h2>📑 Tabs</h2>
       <p>Active tab state stored as CSS classes and data attributes.</p>
-      <f-tabs tabs="Home,About,Settings,Contact" activeTab="Home"></f-tabs>
+      <tabs tabs="Home,About,Settings,Contact" activeTab="Home"></tabs>
     </section>
 
-    <section style="margin-top: 2rem; border: 2px solid #007bff; background: #f8f9ff">
-      <h2>🆕 New defineComponent API</h2>
-      <p style="color: #0056b3">Clean, object-based component definition with enhanced props support.</p>
+    <section style="margin-top: 2rem; border: 2px solid #28a745; background: #f8fff9">
+      <h2>🆕 defineComponent Examples</h2>
+      <p style="color: #155724; font-weight: 500">All examples now use the new <code>defineComponent</code> API with enhanced props, class mapping, and HTMX integration.</p>
       
-      <h3>Simple Button</h3>
-      <p>Basic props with classes mapping:</p>
-      <simple-button text="Click me!" disabled="false"></simple-button>
-      <simple-button text="Disabled" disabled="true"></simple-button>
-
-      <h3>Enhanced Counter with Defaults</h3>
-      <p>Props with default values and explicit configuration:</p>
-      <enhanced-counter label="Count" initialCount="5" step="2"></enhanced-counter>
-      <enhanced-counter label="Score" disabled="true"></enhanced-counter>
-
-      <h3>Todo Item with API Integration</h3>
-      <p>Component with HTMX API integration:</p>
-      <todo-item id="1" text="Try the new defineComponent API" done="false"></todo-item>
-      <todo-item id="2" text="Update documentation" done="true"></todo-item>
-
-      <h3>Profile Card</h3>
-      <p>Explicit props syntax with required/optional validation:</p>
-      <profile-card name="Alice Smith" email="alice@example.com" age="28" verified="true"></profile-card>
-      <profile-card name="Bob Jones" email="bob@example.com" verified="false"></profile-card>
+      <h3>Enhanced Examples</h3>
+      <p>Browse the examples above to see the new API in action - featuring props with defaults, class mapping, and integrated HTMX server actions.</p>
+      
+      <details style="margin-top: 1rem; padding: 1rem; background: white; border: 1px solid #ddd; border-radius: 4px;">
+        <summary style="font-weight: 500; cursor: pointer;">View defineComponent Example Code</summary>
+        <pre style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 4px; overflow-x: auto; font-size: 0.9rem;"><code>defineComponent("smart-counter", {
+  props: {
+    initialCount: { type: "number", default: 0 },
+    step: { type: "number", default: 1 }
+  },
+  classes: {
+    container: "counter",
+    button: "counter-btn",
+    display: "count-display"
+  },
+  styles: `
+    .counter { display: flex; gap: 0.5rem; }
+    .counter-btn { background: #007bff; color: white; }
+  `,
+  render: ({ initialCount, step }, api, classes) => (
+    &lt;div class={classes.container}&gt;
+      &lt;button class={classes.button}&gt;-{step}&lt;/button&gt;
+      &lt;span class={classes.display}&gt;{initialCount}&lt;/span&gt;
+      &lt;button class={classes.button}&gt;+{step}&lt;/button&gt;
+    &lt;/div&gt;
+  )
+});</code></pre>
+      </details>
     </section>
 
     <!-- Components are server-rendered, no client-side script needed -->

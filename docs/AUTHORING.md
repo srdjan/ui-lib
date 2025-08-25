@@ -17,29 +17,36 @@ Key ideas:
 
 ```ts
 // examples/foo.tsx
-import { component, h } from "../src/index.ts";
+import { defineComponent, h } from "../src/index.ts";
 ```
 
 ## Component Structure
 
 ```tsx
-import { component, h } from "../src/index.ts";
+import { defineComponent, h } from "../src/index.ts";
 
-component("f-example")
-  .props({ title: "string", count: "number?" })
-  .styles(`
-    .box { border: 1px solid #ddd; padding: 8px; border-radius: 6px; }
-  `)
-  .view((props) => {
-    const title = props.title;  // Fully typed - no casting needed!
-    const count = props.count ?? 0;
-    return (
-      <div class="box">
-        <h3>{title}</h3>
-        <span>{count}</span>
-      </div>
-    );
-  });
+defineComponent("example-card", {
+  props: { 
+    title: "string", 
+    count: { type: "number", default: 0 }  // Enhanced props with defaults!
+  },
+  classes: {
+    container: "card-box",
+    title: "card-title",
+    counter: "card-count"
+  },
+  styles: `
+    .card-box { border: 1px solid #ddd; padding: 8px; border-radius: 6px; }
+    .card-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 0.5rem; }
+    .card-count { color: #666; }
+  `,
+  render: ({ title, count }, api, classes) => (
+    <div class={classes!.container}>
+      <h3 class={classes!.title}>{title}</h3>
+      <span class={classes!.counter}>{count}</span>
+    </div>
+  )
+});
 ```
 
 ## DOM-Native Events
@@ -69,17 +76,21 @@ return inline handler strings you can copy or adapt.
 The `.api()` method is funcwc's revolutionary unified API system that eliminates duplication between server route definitions and client-side HTMX attributes. Define your API endpoints once, and funcwc automatically generates type-safe client functions.
 
 ```tsx
-import { component, renderComponent, h } from "../src/index.ts";
+import { defineComponent, renderComponent, h } from "../src/index.ts";
 
-component("f-todo-item")
-  .props({ id: "string", text: "string", done: "boolean?" })
-  .api({
+defineComponent("todo-item", {
+  props: { 
+    id: "string", 
+    text: "string", 
+    done: { type: "boolean", default: false }
+  },
+  api: {
     // Define actual server handlers - client functions are auto-generated!
     'PATCH /api/todos/:id/toggle': async (req, params) => {
       const form = await req.formData();
       const isDone = form.get('done') === 'true';
       return new Response(
-        renderComponent("f-todo-item", { 
+        renderComponent("todo-item", { 
           id: params.id, 
           text: "Updated!", 
           done: !isDone 
@@ -90,22 +101,35 @@ component("f-todo-item")
       // Handle deletion logic
       return new Response(null, { status: 200 });
     }
-  })
-  .view((props, api) => {
-    const id = props.id as string;
-    const done = Boolean(props.done);
-    return (
-      <div class={`todo ${done ? "done" : ""}`} data-id={id}>
-        <input
-          type="checkbox"
-          checked={done}
-          {...(api?.toggle?.(id) || {})}  // Auto-generated HTMX attributes!
-        />
-        <span class="todo-text">{props.text}</span>
-        <button {...(api?.delete?.(id) || {})}>×</button>  // Auto-generated!
-      </div>
-    );
-  });
+  },
+  classes: {
+    item: "todo",
+    checkbox: "todo-checkbox", 
+    text: "todo-text",
+    deleteBtn: "todo-delete"
+  },
+  styles: `
+    .todo { display: flex; align-items: center; gap: 0.5rem; }
+    .todo.done { opacity: 0.7; }
+    .todo-text { flex: 1; }
+    .todo.done .todo-text { text-decoration: line-through; }
+    .todo-delete { background: #dc3545; color: white; border: none; }
+  `,
+  render: ({ id, text, done }, api, classes) => (
+    <div class={`${classes!.item} ${done ? "done" : ""}`} data-id={id}>
+      <input
+        type="checkbox"
+        class={classes!.checkbox}
+        checked={done}
+        {...(api?.toggle?.(id) || {})}  // Auto-generated HTMX attributes!
+      />
+      <span class={classes!.text}>{text}</span>
+      <button 
+        class={classes!.deleteBtn}
+        {...(api?.delete?.(id) || {})}>×</button>  // Auto-generated!
+    </div>
+  )
+});
 ```
 
 **How it works:**
@@ -132,35 +156,43 @@ This eliminates the need to manually define client-side HTMX attributes and ensu
 Avoid hardcoding repeated class names by declaring `classes`.
 
 ```tsx
-component("f-counter")
-  .props({ step: "number?" })
-  .classes({ self: "counter", display: "count" })
-  .view((props, _api, classes) => {
-    const step = props.step ?? 1;
-    return (
-      <div class={classes!.self} data-count={0}>
-        <button
-          onClick={`const p=this.closest('.${
-            classes!.self
-          }');if(p){const c=p.querySelector('.${
-            classes!.display
-          }');if(c){const v=parseInt(c.textContent||0)-${step};c.textContent=v;if(p.dataset)p.dataset.count=v;}}`}
-        >
-          -{step}
-        </button>
-        <span class={classes!.display}>0</span>
-        <button
-          onClick={`const p=this.closest('.${
-            classes!.self
-          }');if(p){const c=p.querySelector('.${
-            classes!.display
-          }');if(c){const v=parseInt(c.textContent||0)+${step};c.textContent=v;if(p.dataset)p.dataset.count=v;}}`}
-        >
-          +{step}
-        </button>
-      </div>
-    );
-  });
+defineComponent("smart-counter", {
+  props: { 
+    step: { type: "number", default: 1 },
+    initialCount: { type: "number", default: 0 }
+  },
+  classes: { container: "counter", display: "count", button: "counter-btn" },
+  styles: `
+    .counter { display: inline-flex; align-items: center; gap: 0.5rem; }
+    .counter-btn { padding: 0.5rem; background: #007bff; color: white; border: none; }
+    .count { font-size: 1.2rem; min-width: 3rem; text-align: center; }
+  `,
+  render: ({ step, initialCount }, api, classes) => (
+    <div class={classes!.container} data-count={initialCount}>
+      <button
+        class={classes!.button}
+        onClick={`const p=this.closest('.${
+          classes!.container
+        }');if(p){const c=p.querySelector('.${
+          classes!.display
+        }');if(c){const v=parseInt(c.textContent||0)-${step};c.textContent=v;if(p.dataset)p.dataset.count=v;}}`}
+      >
+        -{step}
+      </button>
+      <span class={classes!.display}>{initialCount}</span>
+      <button
+        class={classes!.button}
+        onClick={`const p=this.closest('.${
+          classes!.container
+        }');if(p){const c=p.querySelector('.${
+          classes!.display
+        }');if(c){const v=parseInt(c.textContent||0)+${step};c.textContent=v;if(p.dataset)p.dataset.count=v;}}`}
+      >
+        +{step}
+      </button>
+    </div>
+  )
+});
 ```
 
 ## SSR

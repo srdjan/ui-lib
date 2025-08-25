@@ -1,10 +1,12 @@
 // Main exports for funcwc - DOM-native SSR components library
 
 // Core component system
-export { component } from "./lib/component-pipeline.ts";
 export { defineComponent } from "./lib/define-component.ts";
 export { renderComponent } from "./lib/component-state.ts";
 export { h } from "./lib/jsx-runtime.ts";
+
+// Legacy API (maintained for backward compatibility)
+export { component } from "./lib/component-pipeline.ts";
 
 // Type-safe DOM helpers for event handlers
 export { toggleClass, toggleClasses } from "./lib/dom-helpers.ts";
