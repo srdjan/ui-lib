@@ -23,7 +23,7 @@ component("f-theme-toggle")
       border-radius: 6px; 
       cursor: pointer; 
       font-weight: 500;
-      transition: all 0.2s ease;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
     .theme-btn.light { 
       background: #fff; 

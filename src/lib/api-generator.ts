@@ -22,13 +22,23 @@ export function generateClientApi(apiMap: ApiMap): GeneratedApiMap {
   for (const [route, _handler] of Object.entries(apiMap)) {
     const [method, path] = route.split(" ");
     if (!method || !path) {
-      console.warn(`Invalid route definition: "${route}"`);
+      console.warn(
+        `Invalid route definition: "${route}". Expected format: "METHOD /path" (e.g., "GET /api/todos", "POST /api/users/:id")`
+      );
       continue;
     }
 
     const functionName = generateFunctionName(method, path);
     const paramNames = extractParameterNames(path);
 
+    if (generatedApi[functionName]) {
+      console.warn(
+        `API function name collision: "${functionName}" already exists. ` +
+        `New route "${route}" will overwrite previous definition. ` +
+        `Consider using more specific route paths or actions to avoid conflicts.`
+      );
+    }
+    
     generatedApi[functionName] = (...args: unknown[]) => {
       const htmxMethod = `hx-${method.toLowerCase()}` as const;
       let finalPath = path;
@@ -61,8 +71,10 @@ function generateFunctionName(method: string, path: string): string {
   const pathParts = path.split("/").filter(Boolean);
   const lastPart = pathParts[pathParts.length - 1];
 
-  // If the last part is a specific action (not a parameter), use it
-  if (lastPart && !lastPart.startsWith(":")) {
+  // If the last part is a specific action (not a resource or parameter), use it
+  // Common resource names should not be treated as actions
+  const commonResourceNames = new Set(['todos', 'users', 'posts', 'comments', 'items', 'api']);
+  if (lastPart && !lastPart.startsWith(":") && !commonResourceNames.has(lastPart)) {
     return lastPart;
   }
 

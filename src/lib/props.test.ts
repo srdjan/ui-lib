@@ -28,3 +28,23 @@ Deno.test("createPropSpec parses number, boolean, string with optionals", () => 
   assertEquals(spec.s.parse(3), "3");
   assertEquals(spec.so.parse(undefined), undefined);
 });
+
+Deno.test("boolean attribute parsing follows HTML standards", () => {
+  const spec = createPropSpec({
+    disabled: "boolean",
+    checked: "boolean?",
+  });
+
+  // HTML boolean attribute rules: presence = true, "false" = false
+  assertEquals(spec.disabled.parse(""), true); // Empty string should be true
+  assertEquals(spec.disabled.parse("true"), true);
+  assertEquals(spec.disabled.parse("false"), false); // "false" string should be false
+  assertEquals(spec.disabled.parse("0"), false); // "0" should be false
+  assertEquals(spec.disabled.parse("1"), true);
+  assertEquals(spec.disabled.parse("disabled"), true); // Any other string = true
+  
+  // Optional boolean
+  assertEquals(spec.checked.parse(""), true);
+  assertEquals(spec.checked.parse(null), undefined);
+  assertEquals(spec.checked.parse("false"), false);
+});

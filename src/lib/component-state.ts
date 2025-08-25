@@ -15,7 +15,8 @@ export function renderComponent(
   const entry = registry[componentName];
 
   if (!entry) {
-    return `<!-- component ${componentName} not found -->`;
+    const registeredComponents = Object.keys(registry).join(", ");
+    return `<!-- component "${componentName}" not found. Available components: ${registeredComponents || "none"} -->`;
   }
 
   // Parse props if prop spec exists
@@ -24,7 +25,14 @@ export function renderComponent(
     parsedProps = {};
     for (const [key, spec] of Object.entries(entry.props)) {
       const rawValue = props[key];
-      parsedProps[key] = spec.parse(rawValue);
+      try {
+        parsedProps[key] = spec.parse(rawValue);
+      } catch (error) {
+        throw new Error(
+          `Component "${componentName}" prop "${key}" parsing failed: ${error instanceof Error ? error.message : error}. ` +
+          `Received value: ${JSON.stringify(rawValue)}`
+        );
+      }
     }
   }
 

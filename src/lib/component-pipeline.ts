@@ -106,7 +106,8 @@ class ComponentBuilderImpl<TProps extends Record<string, unknown>>
 
     if (!renderFn) {
       throw new Error(
-        `Component ${name} is missing required configuration: view is required`,
+        `Component "${name}" is missing required configuration: .view() must be called before component registration. ` +
+        `Example: component("${name}").state({...}).view((state, props) => "...")`,
       );
     }
 

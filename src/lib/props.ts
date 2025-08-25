@@ -42,7 +42,12 @@ export const createPropSpec = (propSpec: PropSpecObject): ParsedPropSpec => {
             return isNaN(num) ? (isOptional ? undefined : 0) : num;
           }
           case "boolean":
-            return v != null && v !== "false" && v !== "0";
+            // HTML boolean attribute standards: presence = true, "false" = false
+            // Examples: disabled, checked="" (empty string should be true)
+            if (typeof v === "string") {
+              return v !== "false" && v !== "0"; // Empty string "" should be true
+            }
+            return v != null && Boolean(v);
           case "string":
           default:
             return String(v);

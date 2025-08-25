@@ -103,7 +103,11 @@ Deno.serve({
       if (error instanceof Deno.errors.NotFound) {
         return new Response("Not found", { status: 404 });
       }
-      console.error("[Server] Error:", error);
+      console.error(
+        `[Server] Error processing ${request.method} ${url.pathname}:`,
+        error instanceof Error ? error.message : error,
+        error instanceof Error && error.stack ? `\nStack: ${error.stack}` : ""
+      );
       return new Response("Internal Server Error", { status: 500 });
     }
   },

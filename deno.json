@@ -8,7 +8,7 @@
     "coverage": "deno test --coverage=coverage && deno coverage coverage --lcov > coverage.lcov",
     "serve": "deno run --allow-net --allow-read --allow-env server.ts",
     "start": "deno task check && deno task serve",
-    "docs": "deno run --allow-net --allow-env --config docs/deno.json docs/server.tsx"
+    "docs": "deno doc src/index.ts"
   },
 
   "compilerOptions": {
