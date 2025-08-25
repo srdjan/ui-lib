@@ -1,22 +1,32 @@
 // Ultra-succinct pipeline API for functional web components (SSR-compatible)
-import { createPropSpec, type PropSpecObject, type InferProps } from "./props.ts";
+import {
+  createPropSpec,
+  type InferProps,
+  type PropSpecObject,
+} from "./props.ts";
 import { getRegistry } from "./registry.ts";
 import { appRouter } from "./router.ts";
-import { type ApiMap, type GeneratedApiMap, generateClientApi } from "./api-generator.ts";
+import {
+  type ApiMap,
+  generateClientApi,
+  type GeneratedApiMap,
+} from "./api-generator.ts";
 import "./jsx.d.ts"; // Import JSX types
 
 type PartsMap = Record<string, string>;
 
 // Generic Pipeline builder interface
 interface ComponentBuilder<TProps extends Record<string, unknown>> {
-  props<P extends PropSpecObject>(propSpec: P): ComponentBuilder<TProps & InferProps<P>>;
+  props<P extends PropSpecObject>(
+    propSpec: P,
+  ): ComponentBuilder<TProps & InferProps<P>>;
   api(apiMap: ApiMap): ComponentBuilder<TProps>;
   parts(partsMap: PartsMap): ComponentBuilder<TProps>;
   view(
     renderFn: (
       props: TProps,
       api?: GeneratedApiMap,
-      parts?: PartsMap
+      parts?: PartsMap,
     ) => string,
   ): ComponentBuilder<TProps>;
   styles(css: string): ComponentBuilder<TProps>;
@@ -31,20 +41,23 @@ interface BuilderState<TProps extends Record<string, unknown>> {
   renderFn?: (
     props: TProps,
     api?: GeneratedApiMap,
-    parts?: PartsMap
+    parts?: PartsMap,
   ) => string;
   css?: string;
 }
 
 // Main builder implementation - now generic
-class ComponentBuilderImpl<TProps extends Record<string, unknown>> implements ComponentBuilder<TProps> {
+class ComponentBuilderImpl<TProps extends Record<string, unknown>>
+  implements ComponentBuilder<TProps> {
   private builderState: BuilderState<TProps>;
 
   constructor(name: string) {
     this.builderState = { name };
   }
 
-  props<P extends PropSpecObject>(propSpec: P): ComponentBuilder<TProps & InferProps<P>> {
+  props<P extends PropSpecObject>(
+    propSpec: P,
+  ): ComponentBuilder<TProps & InferProps<P>> {
     this.builderState.propSpec = propSpec;
     return this as unknown as ComponentBuilder<TProps & InferProps<P>>;
   }
@@ -52,10 +65,10 @@ class ComponentBuilderImpl<TProps extends Record<string, unknown>> implements Co
   api(apiMap: ApiMap): ComponentBuilder<TProps> {
     // Store the API map for later use in view function
     this.builderState.apiMap = apiMap;
-    
+
     // Register all routes with the router
     for (const [route, handler] of Object.entries(apiMap)) {
-      const [method, path] = route.split(' ');
+      const [method, path] = route.split(" ");
       if (!method || !path || !handler) {
         console.warn(`Invalid route definition: "${route}"`);
         continue;
@@ -74,7 +87,7 @@ class ComponentBuilderImpl<TProps extends Record<string, unknown>> implements Co
     renderFn: (
       props: TProps,
       api?: GeneratedApiMap,
-      parts?: PartsMap
+      parts?: PartsMap,
     ) => string,
   ): ComponentBuilder<TProps> {
     this.builderState.renderFn = renderFn;
@@ -88,18 +101,19 @@ class ComponentBuilderImpl<TProps extends Record<string, unknown>> implements Co
   }
 
   private register(): void {
-    const { name, propSpec, apiMap, renderFn, css, partsMap } = this.builderState;
+    const { name, propSpec, apiMap, renderFn, css, partsMap } =
+      this.builderState;
 
     if (!renderFn) {
       throw new Error(
         `Component ${name} is missing required configuration: view is required`,
       );
     }
-    
+
     const props = propSpec ? createPropSpec(propSpec) : undefined;
     const generatedApi = apiMap ? generateClientApi(apiMap) : undefined;
     const registry = getRegistry();
-    
+
     registry[name] = {
       props,
       css,
@@ -118,7 +132,9 @@ class ComponentBuilderImpl<TProps extends Record<string, unknown>> implements Co
 }
 
 // Main component function - starts with an empty props object
-export const component = (name: string): ComponentBuilder<Record<PropertyKey, never>> => {
+export const component = (
+  name: string,
+): ComponentBuilder<Record<PropertyKey, never>> => {
   return new ComponentBuilderImpl(name);
 };
 

@@ -4,7 +4,7 @@ export type RouteParams = Record<string, string>;
 
 export type RouteHandler = (
   request: Request,
-  params: RouteParams
+  params: RouteParams,
 ) => Promise<Response> | Response;
 
 export interface Route {
@@ -19,24 +19,36 @@ class Router {
   private routes: Route[] = [];
 
   // Converts a path string like '/users/:id' into a RegExp
-  private createPattern(path: string): { pattern: RegExp; paramNames: string[] } {
+  private createPattern(
+    path: string,
+  ): { pattern: RegExp; paramNames: string[] } {
     const paramNames: string[] = [];
     const pattern = new RegExp(
-      `^${path.replace(/:(\w+)/g, (_, name) => {
-        paramNames.push(name);
-        return '([^\/]+)';
-      })}/?$`
+      `^${
+        path.replace(/:(\w+)/g, (_, name) => {
+          paramNames.push(name);
+          return "([^\/]+)";
+        })
+      }/?$`,
     );
     return { pattern, paramNames };
   }
 
   public register(method: string, path: string, handler: RouteHandler) {
     const { pattern, paramNames } = this.createPattern(path);
-    this.routes.push({ method: method.toUpperCase(), path, pattern, paramNames, handler });
+    this.routes.push({
+      method: method.toUpperCase(),
+      path,
+      pattern,
+      paramNames,
+      handler,
+    });
     console.log(`[Router] Registered: ${method} ${path}`);
   }
 
-  public match(request: Request): { handler: RouteHandler; params: RouteParams } | null {
+  public match(
+    request: Request,
+  ): { handler: RouteHandler; params: RouteParams } | null {
     const url = new URL(request.url);
     for (const route of this.routes) {
       if (route.method !== request.method.toUpperCase()) {

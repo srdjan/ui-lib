@@ -6,17 +6,14 @@ export { renderComponent } from "./lib/component-state.ts";
 export { h } from "./lib/jsx-runtime.ts";
 
 // Type-safe DOM helpers for event handlers
-export { 
-  toggleClass, 
-  toggleClasses,
-} from "./lib/dom-helpers.ts";
+export { toggleClass, toggleClasses } from "./lib/dom-helpers.ts";
 
 // Utility functions for templates
-export { 
-  spreadAttrs, 
+export {
   conditionalClass,
   dataAttrs,
   escape,
+  spreadAttrs,
 } from "./lib/dom-helpers.ts";
 
 // Functional programming utilities

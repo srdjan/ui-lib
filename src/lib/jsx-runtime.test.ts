@@ -1,7 +1,7 @@
 // Tests for JSX runtime with type-safe event handlers
 
 import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
-import { h, Fragment } from "./jsx-runtime.ts";
+import { Fragment, h } from "./jsx-runtime.ts";
 import { toggleClass, toggleClasses } from "./dom-helpers.ts";
 
 Deno.test("h function renders basic elements", () => {
@@ -15,48 +15,60 @@ Deno.test("h function handles self-closing tags", () => {
 });
 
 Deno.test("h function handles boolean attributes", () => {
-  const result = h("input", { type: "checkbox", checked: true, disabled: false });
+  const result = h("input", {
+    type: "checkbox",
+    checked: true,
+    disabled: false,
+  });
   assertEquals(result, '<input type="checkbox" checked>');
 });
 
 Deno.test("h function handles ComponentAction objects in event handlers", () => {
   const action = toggleClass("active");
   const result = h("button", { onClick: action }, "Click me");
-  assertEquals(result, '<button onclick="this.classList.toggle(\'active\')">Click me</button>');
+  assertEquals(
+    result,
+    "<button onclick=\"this.classList.toggle('active')\">Click me</button>",
+  );
 });
 
 Deno.test("h function handles multiple ComponentAction objects", () => {
   const action = toggleClasses(["light", "dark"]);
   const result = h("button", { onClick: action }, "Toggle");
-  assertEquals(result, '<button onclick="this.classList.toggle(\'light\');this.classList.toggle(\'dark\')">Toggle</button>');
+  assertEquals(
+    result,
+    "<button onclick=\"this.classList.toggle('light');this.classList.toggle('dark')\">Toggle</button>",
+  );
 });
 
 Deno.test("h function handles string event handlers", () => {
   const result = h("button", { onClick: "alert('clicked')" }, "Click");
-  assertEquals(result, '<button onclick="alert(\'clicked\')">Click</button>');
+  assertEquals(result, "<button onclick=\"alert('clicked')\">Click</button>");
 });
 
 Deno.test("h function handles nested children", () => {
-  const result = h("div", null,
+  const result = h(
+    "div",
+    null,
     h("h1", null, "Title"),
-    h("p", null, "Paragraph")
+    h("p", null, "Paragraph"),
   );
-  assertEquals(result, '<div><h1>Title</h1><p>Paragraph</p></div>');
+  assertEquals(result, "<div><h1>Title</h1><p>Paragraph</p></div>");
 });
 
 Deno.test("h function escapes plain text content", () => {
   const result = h("div", null, "Tom & Jerry");
-  assertEquals(result, '<div>Tom &amp; Jerry</div>');
+  assertEquals(result, "<div>Tom &amp; Jerry</div>");
 });
 
 Deno.test("h function handles HTML-like text content safely", () => {
   const result = h("div", null, "Use <em>tags</em> wisely");
-  assertEquals(result, '<div>Use &lt;em&gt;tags&lt;/em&gt; wisely</div>');
+  assertEquals(result, "<div>Use &lt;em&gt;tags&lt;/em&gt; wisely</div>");
 });
 
 Deno.test("h function handles null and undefined children", () => {
   const result = h("div", null, "Hello", null, undefined, false, "World");
-  assertEquals(result, '<div>HelloWorld</div>');
+  assertEquals(result, "<div>HelloWorld</div>");
 });
 
 Deno.test("Fragment component joins children", () => {
@@ -66,15 +78,23 @@ Deno.test("Fragment component joins children", () => {
 
 Deno.test("h function handles arrays of children", () => {
   const items = ["apple", "banana", "cherry"];
-  const result = h("ul", null, items.map(item => h("li", null, item)));
-  assertEquals(result, '<ul><li>apple</li><li>banana</li><li>cherry</li></ul>');
+  const result = h("ul", null, items.map((item) => h("li", null, item)));
+  assertEquals(result, "<ul><li>apple</li><li>banana</li><li>cherry</li></ul>");
 });
 
 Deno.test("h function handles function components", () => {
   const MyComponent = (props: { name: string; children?: unknown[] }) => {
-    return h("div", { class: "my-component" }, `Hello ${props.name}`, props.children);
+    return h(
+      "div",
+      { class: "my-component" },
+      `Hello ${props.name}`,
+      props.children,
+    );
   };
-  
+
   const result = h(MyComponent, { name: "World" }, h("p", null, "Content"));
-  assertEquals(result, '<div class="my-component">Hello World<p>Content</p></div>');
+  assertEquals(
+    result,
+    '<div class="my-component">Hello World<p>Content</p></div>',
+  );
 });

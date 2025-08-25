@@ -9,7 +9,9 @@ import { appRouter } from "./src/lib/router.ts";
 
 const port = Number(Deno.env.get("PORT") ?? "8080");
 
-console.log(`🚀 Generic SSR Development server starting on http://localhost:${port}`);
+console.log(
+  `🚀 Generic SSR Development server starting on http://localhost:${port}`,
+);
 
 /**
  * Parses attributes from an HTML tag string.
@@ -38,7 +40,9 @@ Deno.serve({
     // 1. Try to match an API route first
     const apiMatch = appRouter.match(request);
     if (apiMatch) {
-      console.log(`[Server] Matched API route: ${request.method} ${url.pathname}`);
+      console.log(
+        `[Server] Matched API route: ${request.method} ${url.pathname}`,
+      );
       return await apiMatch.handler(request, apiMatch.params);
     }
 
@@ -46,7 +50,9 @@ Deno.serve({
     if (url.pathname === "/favicon.ico") {
       try {
         const favicon = await Deno.readFile("./examples/favicon.ico");
-        return new Response(favicon, { headers: { "content-type": "image/x-icon" } });
+        return new Response(favicon, {
+          headers: { "content-type": "image/x-icon" },
+        });
       } catch {
         return new Response(null, { status: 404 });
       }
@@ -58,15 +64,23 @@ Deno.serve({
         let html = await Deno.readTextFile("./examples/index.html");
         const componentRegistry = getRegistry();
         const componentNames = Object.keys(componentRegistry);
-        const componentRegex = new RegExp(`(<(${componentNames.join('|')})([^>]*)>)(</\\2>)`, 'g');
+        const componentRegex = new RegExp(
+          `(<(${componentNames.join("|")})([^>]*)>)(</\\2>)`,
+          "g",
+        );
 
-        html = html.replace(componentRegex, (_match, _openTag, tagName, attrString) => {
-          console.log(`[Server] Rendering component: <${tagName}>`);
-          const props = parseAttributes(attrString.trim());
-          return renderComponent(tagName, props);
+        html = html.replace(
+          componentRegex,
+          (_match, _openTag, tagName, attrString) => {
+            console.log(`[Server] Rendering component: <${tagName}>`);
+            const props = parseAttributes(attrString.trim());
+            return renderComponent(tagName, props);
+          },
+        );
+
+        return new Response(html, {
+          headers: { "content-type": "text/html; charset=utf-8" },
         });
-
-        return new Response(html, { headers: { "content-type": "text/html; charset=utf-8" } });
       }
 
       // 4. If still no match, fall back to serving static files
@@ -82,8 +96,9 @@ Deno.serve({
         contentType = "text/css; charset=utf-8";
       }
 
-      return new Response(content, { headers: { "content-type": contentType } });
-
+      return new Response(content, {
+        headers: { "content-type": contentType },
+      });
     } catch (error) {
       if (error instanceof Deno.errors.NotFound) {
         return new Response("Not found", { status: 404 });

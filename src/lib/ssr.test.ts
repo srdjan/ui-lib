@@ -13,5 +13,8 @@ Deno.test("html template escapes and preserves raw", () => {
   const out = html`
     <div class="box">Hello ${name}! ${raw("<b>ok</b>")}</div>
   `;
-  assertEquals(out.trim(), '<div class="box">Hello &lt;Admin&gt;! <b>ok</b></div>');
+  assertEquals(
+    out.trim(),
+    '<div class="box">Hello &lt;Admin&gt;! <b>ok</b></div>',
+  );
 });

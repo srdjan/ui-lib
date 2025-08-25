@@ -4,7 +4,7 @@ export type SSRRegistryEntry = {
   css?: string;
   render: (
     props: unknown,
-    api?: unknown
+    api?: unknown,
   ) => string;
   api?: Record<string, (...args: unknown[]) => Record<string, unknown>>;
 };
@@ -16,4 +16,3 @@ export function getRegistry(): SSRRegistry {
   (g.__FWC_SSR__ as SSRRegistry | undefined) ??= {} as SSRRegistry;
   return g.__FWC_SSR__ as SSRRegistry;
 }
-

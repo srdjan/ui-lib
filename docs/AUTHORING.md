@@ -1,13 +1,18 @@
 # Component Authoring with TSX (Custom JSX Runtime)
 
-This project uses a custom JSX runtime for components so you can author views in TSX while keeping zero client-side dependencies and SSR-first output.
+This project uses a custom JSX runtime for components so you can author views in
+TSX while keeping zero client-side dependencies and SSR-first output.
 
 Key ideas:
+
 - The DOM is the state: use classes, attributes, and text for UI state.
-- Event handlers accept arrays of action objects and serialize to tiny inline JS.
-- Server interactions are defined via `serverActions` that return HTMX attribute objects.
+- Event handlers accept arrays of action objects and serialize to tiny inline
+  JS.
+- Server interactions are defined via `serverActions` that return HTMX attribute
+  objects.
 
 ## Prerequisites
+
 - Root `deno.json` sets `"jsx": "react"` and `"jsxFactory": "h"`.
 - Import `h` from `src/index.ts` in any TSX file.
 
@@ -39,21 +44,29 @@ component("f-example")
 ```
 
 ## DOM-Native Events
-Use helpers that return action objects. Pass a single action or array to any `on*` prop.
+
+Use helpers that return action objects. Pass a single action or array to any
+`on*` prop.
 
 ```tsx
 import { toggleClass, toggleClasses } from "../src/index.ts";
 
-<button onClick={[toggleClass("active"), toggleClasses(["light","dark"]) ]}>Toggle</button>
+<button onClick={[toggleClass("active"), toggleClasses(["light", "dark"])]}>
+  Toggle
+</button>;
 ```
 
 Common helpers (see `src/lib/dom-helpers.ts`):
+
 - `toggleClass`, `toggleClasses`
 - `conditionalClass` for class string generation
 
-Note: App-specific convenience handlers (e.g., counters, tabs) are not part of the core library. See `examples/dom-actions.ts` for small, userland helpers that return inline handler strings you can copy or adapt.
+Note: App-specific convenience handlers (e.g., counters, tabs) are not part of
+the core library. See `examples/dom-actions.ts` for small, userland helpers that
+return inline handler strings you can copy or adapt.
 
 ## Server Actions (HTMX)
+
 Declare `serverActions` to return attribute objects, then spread in TSX.
 
 ```tsx
@@ -68,7 +81,11 @@ component("f-item")
     const done = Boolean((props as any).done);
     return (
       <div class={`item ${done ? "done" : ""}`} data-id={id}>
-        <input type="checkbox" checked={done} {...(serverActions?.toggle?.(id) || {})} />
+        <input
+          type="checkbox"
+          checked={done}
+          {...(serverActions?.toggle?.(id) || {})}
+        />
         <button {...(serverActions?.remove?.(id) || {})}>×</button>
       </div>
     );
@@ -76,6 +93,7 @@ component("f-item")
 ```
 
 ## Parts Map (Optional)
+
 Avoid hardcoding repeated selectors by declaring `parts`.
 
 ```tsx
@@ -86,20 +104,39 @@ component("f-counter")
     const step = (props as any).step ?? 1;
     return (
       <div class="counter" data-count={0}>
-        <button onClick={`const p=this.closest('${parts!.self}');if(p){const c=p.querySelector('${parts!.display}');if(c){const v=parseInt(c.textContent||0)-${step};c.textContent=v;if(p.dataset)p.dataset.count=v;}}`}>-{step}</button>
+        <button
+          onClick={`const p=this.closest('${
+            parts!.self
+          }');if(p){const c=p.querySelector('${
+            parts!.display
+          }');if(c){const v=parseInt(c.textContent||0)-${step};c.textContent=v;if(p.dataset)p.dataset.count=v;}}`}
+        >
+          -{step}
+        </button>
         <span class="count">0</span>
-        <button onClick={`const p=this.closest('${parts!.self}');if(p){const c=p.querySelector('${parts!.display}');if(c){const v=parseInt(c.textContent||0)+${step};c.textContent=v;if(p.dataset)p.dataset.count=v;}}`}>+{step}</button>
+        <button
+          onClick={`const p=this.closest('${
+            parts!.self
+          }');if(p){const c=p.querySelector('${
+            parts!.display
+          }');if(c){const v=parseInt(c.textContent||0)+${step};c.textContent=v;if(p.dataset)p.dataset.count=v;}}`}
+        >
+          +{step}
+        </button>
       </div>
     );
   });
 ```
 
 ## SSR
+
 - Components are registered globally by name via the pipeline.
 - Use the dev server to SSR pages and swap component tags for HTML.
-- Programmatic SSR is available via `renderComponent(name, props)` from `src/index.ts`.
+- Programmatic SSR is available via `renderComponent(name, props)` from
+  `src/index.ts`.
 
 ## Conventions
+
 - Keep handlers minimal; let CSS represent state.
 - Prefer `.styles(css)` over inline `<style>` tags in TSX.
 - Use `conditionalClass()` to build class strings.

@@ -28,7 +28,8 @@ export function html(
 
       if (Array.isArray(v)) {
         // Handle arrays by joining them
-        out += v.map((x) => (typeof x === "string" ? x : escapeHtml(String(x)))).join("");
+        out += v.map((x) => (typeof x === "string" ? x : escapeHtml(String(x))))
+          .join("");
       } else if (typeof v === "object" && (v as RawHTML).__raw_html) {
         out += (v as RawHTML).__raw_html;
       } else if (typeof v === "string") {

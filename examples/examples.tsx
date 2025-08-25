@@ -1,17 +1,17 @@
 /** @jsx h */
-import { 
-  component, 
-  toggleClasses,
+import {
+  component,
   conditionalClass,
+  h,
   renderComponent,
-  h
+  toggleClasses,
 } from "../src/index.ts";
 import {
-  updateParentCounter,
-  resetCounter,
   activateTab,
-  toggleParentClass,
+  resetCounter,
   syncCheckboxToClass,
+  toggleParentClass,
+  updateParentCounter,
 } from "./dom-actions.ts";
 
 // Example 1: Pure DOM-based Theme Toggle
@@ -27,7 +27,7 @@ component("f-theme-toggle")
     <button
       type="button"
       class="theme-btn light"
-      onClick={toggleClasses(['light', 'dark'])}
+      onClick={toggleClasses(["light", "dark"])}
       title="Toggle theme"
     >
       <span class="light-icon">☀️ Light</span>
@@ -49,10 +49,29 @@ component("f-counter")
 
     return (
       <div class="counter" data-count={count}>
-        <button type="button" onclick={updateParentCounter('.counter', '.count-display', -stepValue)}>-{stepValue}</button>
+        <button
+          type="button"
+          onclick={updateParentCounter(
+            ".counter",
+            ".count-display",
+            -stepValue,
+          )}
+        >
+          -{stepValue}
+        </button>
         <span class="count-display">{count}</span>
-        <button type="button" onclick={updateParentCounter('.counter', '.count-display', stepValue)}>+{stepValue}</button>
-        <button type="button" onclick={resetCounter('.count-display', count, '.counter')}>Reset</button>
+        <button
+          type="button"
+          onclick={updateParentCounter(".counter", ".count-display", stepValue)}
+        >
+          +{stepValue}
+        </button>
+        <button
+          type="button"
+          onclick={resetCounter(".count-display", count, ".counter")}
+        >
+          Reset
+        </button>
       </div>
     );
   });
@@ -61,14 +80,20 @@ component("f-counter")
 component("f-todo-item")
   .props({ id: "string", text: "string", done: "boolean?" })
   .api({
-    'PATCH /api/todos/:id/toggle': async (req, params) => {
+    "PATCH /api/todos/:id/toggle": async (req, params) => {
       const form = await req.formData();
-      const isDone = form.get('done') === 'true';
-      return new Response(renderComponent("f-todo-item", { id: params.id, text: "Toggled item!", done: !isDone }));
+      const isDone = form.get("done") === "true";
+      return new Response(
+        renderComponent("f-todo-item", {
+          id: params.id,
+          text: "Toggled item!",
+          done: !isDone,
+        }),
+      );
     },
-    'DELETE /api/todos/:id': () => {
+    "DELETE /api/todos/:id": () => {
       return new Response(null, { status: 200 });
-    }
+    },
   })
   .styles(`
     .todo { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 0.5rem; }
@@ -80,18 +105,20 @@ component("f-todo-item")
     const isDone = Boolean(props.done);
     const id = props.id as string;
     const text = props.text as string;
-    const todoClass = "todo " + conditionalClass(isDone, 'done');
+    const todoClass = "todo " + conditionalClass(isDone, "done");
 
     return (
       <div class={todoClass} data-id={id}>
         <input
           type="checkbox"
           checked={isDone}
-          onChange={syncCheckboxToClass('done')}
+          onChange={syncCheckboxToClass("done")}
           {...(api?.toggle?.(id) || {})}
         />
         <span class="todo-text">{text}</span>
-        <button type="button" class="delete-btn" {...(api?.delete?.(id) || {})}>×</button>
+        <button type="button" class="delete-btn" {...(api?.delete?.(id) || {})}>
+          ×
+        </button>
       </div>
     );
   });
@@ -112,15 +139,21 @@ component("f-accordion")
     const isOpen = Boolean(props.initiallyOpen);
     const title = props.title as string;
     const content = props.content as string;
-    const accordionClass = "accordion " + conditionalClass(isOpen, 'open');
+    const accordionClass = "accordion " + conditionalClass(isOpen, "open");
 
     return (
       <div class={accordionClass}>
-        <button type="button" class="accordion-header" onClick={toggleParentClass('open')}>
+        <button
+          type="button"
+          class="accordion-header"
+          onClick={toggleParentClass("open")}
+        >
           <span class="title">{title}</span>
           <span class="icon">▼</span>
         </button>
-        <div class="accordion-content"><div class="content-inner">{content}</div></div>
+        <div class="accordion-content">
+          <div class="content-inner">{content}</div>
+        </div>
       </div>
     );
   });
@@ -137,34 +170,42 @@ component("f-tabs")
     .tab-content.active { display: block; }
   `)
   .view((props) => {
-    const tabs = String(props.tabs || "").split(',').map((t) => t.trim()).filter(Boolean);
-    const activeTab = props.activeTab as string || tabs[0] || '';
+    const tabs = String(props.tabs || "").split(",").map((t) => t.trim())
+      .filter(Boolean);
+    const activeTab = props.activeTab as string || tabs[0] || "";
 
     return (
       <div class="tabs" data-active={activeTab}>
         <div class="tab-nav">
           {tabs.map((tab) => {
-            const tabBtnClass = "tab-btn " + conditionalClass(tab === activeTab, 'active');
+            const tabBtnClass = "tab-btn " +
+              conditionalClass(tab === activeTab, "active");
             return (
-            <button
-              type="button"
-              class={tabBtnClass}
-              onClick={activateTab('.tabs', '.tab-btn', '.tab-content', 'active')}
-              data-tab={tab}
-            >
-              {tab}
-            </button>
+              <button
+                type="button"
+                class={tabBtnClass}
+                onClick={activateTab(
+                  ".tabs",
+                  ".tab-btn",
+                  ".tab-content",
+                  "active",
+                )}
+                data-tab={tab}
+              >
+                {tab}
+              </button>
             );
           })}
         </div>
         <div class="tab-contents">
           {tabs.map((tab) => {
-            const tabContentClass = "tab-content " + conditionalClass(tab === activeTab, 'active');
+            const tabContentClass = "tab-content " +
+              conditionalClass(tab === activeTab, "active");
             return (
-            <div class={tabContentClass} data-tab={tab}>
-              <h3>{tab} Content</h3>
-              <p>This is the content for the {tab} tab.</p>
-            </div>
+              <div class={tabContentClass} data-tab={tab}>
+                <h3>{tab} Content</h3>
+                <p>This is the content for the {tab} tab.</p>
+              </div>
             );
           })}
         </div>

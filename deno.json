@@ -3,6 +3,7 @@
     "check": "deno check examples/*.tsx src/**/*.ts",
     "test": "deno test",
     "fmt": "deno fmt",
+    "fmt:check": "deno fmt --check",
     "lint": "deno lint",
     "coverage": "deno test --coverage=coverage && deno coverage coverage --lcov > coverage.lcov",
     "serve": "deno run --allow-net --allow-read --allow-env server.ts",
@@ -16,7 +17,7 @@
     "jsx": "react",
     "jsxFactory": "h"
   },
-  
+
   "imports": {
     "jsx": "./src/lib/jsx-runtime.ts"
   }

@@ -1,4 +1,4 @@
-import type { ComponentAction } from './actions.ts';
+import type { ComponentAction } from "./actions.ts";
 
 // Define global event handler types to accept our ComponentAction objects
 type EventHandlers = {

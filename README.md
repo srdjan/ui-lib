@@ -212,7 +212,10 @@ Type-safe prop parsing with automatic TypeScript inference.
 
 ### `.api(routes: RouteMap)` - Unified API System
 
-The `.api()` method is funcwc's revolutionary unified API system that eliminates the duplication between server route definitions and client-side HTMX attributes. Define your API endpoints once, and funcwc automatically generates type-safe client functions.
+The `.api()` method is funcwc's revolutionary unified API system that eliminates
+the duplication between server route definitions and client-side HTMX
+attributes. Define your API endpoints once, and funcwc automatically generates
+type-safe client functions.
 
 ```tsx
 .api({
@@ -237,17 +240,20 @@ The `.api()` method is funcwc's revolutionary unified API system that eliminates
 **How it works:**
 
 1. **Server Routes**: Define actual HTTP handlers in `.api()`
-2. **Auto-Generated Functions**: funcwc creates client functions based on your routes
+2. **Auto-Generated Functions**: funcwc creates client functions based on your
+   routes
 3. **HTMX Attributes**: Client functions return proper `hx-*` attributes
 4. **Type Safety**: All generated functions are fully typed
 5. **Parameter Extraction**: URL parameters become function arguments
 
 **Route-to-Function Mapping:**
+
 - `POST /api/items` → `api.create()`
 - `DELETE /api/items/:id` → `api.delete(id)`
 - `PATCH /api/todos/:id/toggle` → `api.toggle(id)`
 
-This eliminates the old `.serverActions()` pattern and ensures your client and server stay in sync automatically.
+This eliminates the old `.serverActions()` pattern and ensures your client and
+server stay in sync automatically.
 
 ### `.styles(css: string)`
 
@@ -273,6 +279,7 @@ The render function. Returns JSX that compiles to optimized HTML strings.
 ```
 
 **Parameters:**
+
 - `props`: Typed props object based on `.props()` definition
 - `api`: Auto-generated client functions from `.api()` routes (optional)
 - `parts`: CSS selectors from `.parts()` definition (optional)

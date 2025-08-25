@@ -19,7 +19,9 @@ export const resetCounter = (
   initialValue: number | string,
   containerSelector?: string,
 ): string =>
-  `const C=this.closest('${containerSelector || '.counter'}');if(C){const D=C.querySelector('${displaySelector}');if(D)D.textContent='${initialValue}';if(C.dataset)C.dataset.count='${initialValue}'}`;
+  `const C=this.closest('${
+    containerSelector || ".counter"
+  }');if(C){const D=C.querySelector('${displaySelector}');if(D)D.textContent='${initialValue}';if(C.dataset)C.dataset.count='${initialValue}'}`;
 
 /**
  * Activate a tab button and the corresponding content panel.
@@ -44,4 +46,3 @@ export const toggleParentClass = (className: string): string =>
  */
 export const syncCheckboxToClass = (className: string): string =>
   `this.closest('.todo,[data-todo]').classList.toggle('${className}',this.checked)`;
-

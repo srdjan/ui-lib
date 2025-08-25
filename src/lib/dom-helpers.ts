@@ -1,7 +1,4 @@
-import type {
-  ToggleClassAction,
-  ToggleClassesAction,
-} from './actions.ts';
+import type { ToggleClassAction, ToggleClassesAction } from "./actions.ts";
 
 // Type-safe DOM helper functions that return structured action objects
 // These can be used directly in JSX event handlers: onClick={toggleClass('active')}
@@ -11,7 +8,8 @@ import type {
  * @param className - Class name to toggle
  */
 export const toggleClass = (className: string): ToggleClassAction => ({
-  type: 'toggleClass', className
+  type: "toggleClass",
+  className,
 });
 
 /**
@@ -19,9 +17,9 @@ export const toggleClass = (className: string): ToggleClassAction => ({
  * @param classNames - Array of class names to toggle
  */
 export const toggleClasses = (classNames: string[]): ToggleClassesAction => ({
-  type: 'toggleClasses', classNames
+  type: "toggleClasses",
+  classNames,
 });
-
 
 // --- Pure utility functions that are not event handlers remain the same ---
 
@@ -31,19 +29,19 @@ export const toggleClasses = (classNames: string[]): ToggleClassesAction => ({
 export const spreadAttrs = (attrs: Record<string, unknown> = {}): string => {
   return Object.entries(attrs)
     .map(([key, value]) => {
-      const safeValue = String(value).replace(/"/g, '&quot;');
+      const safeValue = String(value).replace(/"/g, "&quot;");
       return `${key}="${safeValue}"`;
     })
-    .join(' ');
+    .join(" ");
 };
 
 /**
  * Generate conditional CSS class based on a condition
  */
 export const conditionalClass = (
-  condition: boolean, 
-  trueClass: string, 
-  falseClass: string = ''
+  condition: boolean,
+  trueClass: string,
+  falseClass: string = "",
 ): string => {
   return condition ? trueClass : falseClass;
 };
@@ -54,11 +52,11 @@ export const conditionalClass = (
 export const dataAttrs = (data: Record<string, unknown>): string => {
   return Object.entries(data)
     .map(([key, value]) => {
-      const attrKey = `data-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
+      const attrKey = `data-${key.replace(/([A-Z])/g, "-$1").toLowerCase()}`;
       const attrValue = `"${String(value)}"`;
       return `${attrKey}=${attrValue}`;
     })
-    .join(' ');
+    .join(" ");
 };
 
 /**
@@ -66,9 +64,9 @@ export const dataAttrs = (data: Record<string, unknown>): string => {
  */
 export const escape = (content: string): string => {
   return String(content)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 };

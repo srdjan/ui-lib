@@ -2,17 +2,22 @@
 export type PropSpecObject = Record<string, string>;
 
 // Utility type to map string type hints to actual TS types
-export type PropType<T extends string> = T extends 'string' ? string
-  : T extends 'number' ? number
-  : T extends 'boolean' ? boolean
+export type PropType<T extends string> = T extends "string" ? string
+  : T extends "number" ? number
+  : T extends "boolean" ? boolean
   : unknown;
 
 // Utility type to infer the final props object type from a spec
-export type InferProps<T extends PropSpecObject> = {
-  -readonly [K in keyof T as T[K] extends `${string}?` ? K : never]?: PropType<T[K] extends `${infer U}?` ? U : T[K]>;
-} & {
-  -readonly [K in keyof T as T[K] extends `${string}?` ? never : K]: PropType<T[K]>;
-};
+export type InferProps<T extends PropSpecObject> =
+  & {
+    -readonly [K in keyof T as T[K] extends `${string}?` ? K : never]?:
+      PropType<T[K] extends `${infer U}?` ? U : T[K]>;
+  }
+  & {
+    -readonly [K in keyof T as T[K] extends `${string}?` ? never : K]: PropType<
+      T[K]
+    >;
+  };
 
 export type ParsedPropSpec = Record<string, {
   attribute: string;
