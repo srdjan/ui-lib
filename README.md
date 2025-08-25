@@ -272,13 +272,13 @@ Component-scoped CSS that renders with SSR output.
 `)
 ```
 
-### `.view((props, api?, parts?) => JSX.Element)`
+### `.view((props, api?, classes?) => JSX.Element)`
 
 The render function. Returns JSX that compiles to optimized HTML strings.
 
 ```tsx
-.view((props, api) => (
-  <div class="container">
+.view((props, api, classes) => (
+  <div class={classes?.container}>
     <button {...(api?.action?.(props.id) || {})}>Click me</button>
   </div>
 ))
@@ -288,7 +288,7 @@ The render function. Returns JSX that compiles to optimized HTML strings.
 
 - `props`: Typed props object based on `.props()` definition
 - `api`: Auto-generated client functions from `.api()` routes (optional)
-- `parts`: CSS selectors from `.parts()` definition (optional)
+- `classes`: Class names from `.classes()` definition (optional)
 
 ## 🎮 DOM Helpers
 

@@ -127,33 +127,33 @@ component("f-todo-item")
 
 This eliminates the need to manually define client-side HTMX attributes and ensures your client and server stay in sync automatically.
 
-## Parts Map (Optional)
+## Class Map (Optional)
 
-Avoid hardcoding repeated selectors by declaring `parts`.
+Avoid hardcoding repeated class names by declaring `classes`.
 
 ```tsx
 component("f-counter")
   .props({ step: "number?" })
-  .parts({ self: ".counter", display: ".count" })
-  .view((props, _api, parts) => {
+  .classes({ self: "counter", display: "count" })
+  .view((props, _api, classes) => {
     const step = props.step ?? 1;
     return (
-      <div class="counter" data-count={0}>
+      <div class={classes!.self} data-count={0}>
         <button
-          onClick={`const p=this.closest('${
-            parts!.self
-          }');if(p){const c=p.querySelector('${
-            parts!.display
+          onClick={`const p=this.closest('.${
+            classes!.self
+          }');if(p){const c=p.querySelector('.${
+            classes!.display
           }');if(c){const v=parseInt(c.textContent||0)-${step};c.textContent=v;if(p.dataset)p.dataset.count=v;}}`}
         >
           -{step}
         </button>
-        <span class="count">0</span>
+        <span class={classes!.display}>0</span>
         <button
-          onClick={`const p=this.closest('${
-            parts!.self
-          }');if(p){const c=p.querySelector('${
-            parts!.display
+          onClick={`const p=this.closest('.${
+            classes!.self
+          }');if(p){const c=p.querySelector('.${
+            classes!.display
           }');if(c){const v=parseInt(c.textContent||0)+${step};c.textContent=v;if(p.dataset)p.dataset.count=v;}}`}
         >
           +{step}

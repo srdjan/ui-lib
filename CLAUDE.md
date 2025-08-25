@@ -69,13 +69,10 @@ SSR-compatible web components:
 
 ```tsx
 component("my-counter")
-  .state({ count: 0 })
   .props({ step: "number?" })
-  .actions({
-    inc: (state, step = 1) => ({ count: state.count + step }),
-  })
-  .view((state, props, { inc }) => (
-    <button onClick={() => inc(props.step)}>{state.count}</button>
+  .classes({ button: "counter-btn", label: "counter-label" })
+  .view((props, api, classes) => (
+    <button class={classes!.button}>Count</button>
   ));
 ```
 

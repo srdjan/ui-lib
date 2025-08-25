@@ -85,21 +85,21 @@ Deno.test("component render function works with JSX", () => {
   assertEquals(result, "<p>Hello Test</p>");
 });
 
-Deno.test("component with parts passes parts to view function", () => {
+Deno.test("component with classes passes classes to view function", () => {
   const registry = getRegistry();
-  delete registry["test-parts"];
+  delete registry["test-classes"];
 
-  component("test-parts")
-    .parts({ container: ".container", content: ".content" })
-    .view((_props, _api, parts) => {
+  component("test-classes")
+    .classes({ container: "container", content: "content" })
+    .view((_props, _api, classes) => {
       return h(
         "div",
-        { class: parts!.container.slice(1) },
-        h("span", { class: parts!.content.slice(1) }, "Content"),
+        { class: classes!.container },
+        h("span", { class: classes!.content }, "Content"),
       );
     });
 
-  const entry = registry["test-parts"];
+  const entry = registry["test-classes"];
   const result = entry.render({});
   assertEquals(
     result,

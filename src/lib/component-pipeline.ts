@@ -13,7 +13,7 @@ import {
 } from "./api-generator.ts";
 import "./jsx.d.ts"; // Import JSX types
 
-type PartsMap = Record<string, string>;
+type ClassMap = Record<string, string>;
 
 // Generic Pipeline builder interface
 interface ComponentBuilder<TProps extends Record<string, unknown>> {
@@ -21,12 +21,12 @@ interface ComponentBuilder<TProps extends Record<string, unknown>> {
     propSpec: P,
   ): ComponentBuilder<TProps & InferProps<P>>;
   api(apiMap: ApiMap): ComponentBuilder<TProps>;
-  parts(partsMap: PartsMap): ComponentBuilder<TProps>;
+  classes(classMap: ClassMap): ComponentBuilder<TProps>;
   view(
     renderFn: (
       props: TProps,
       api?: GeneratedApiMap,
-      parts?: PartsMap,
+      classes?: ClassMap,
     ) => string,
   ): ComponentBuilder<TProps>;
   styles(css: string): ComponentBuilder<TProps>;
@@ -37,11 +37,11 @@ interface BuilderState<TProps extends Record<string, unknown>> {
   name: string;
   propSpec?: PropSpecObject;
   apiMap?: ApiMap;
-  partsMap?: PartsMap;
+  classMap?: ClassMap;
   renderFn?: (
     props: TProps,
     api?: GeneratedApiMap,
-    parts?: PartsMap,
+    classes?: ClassMap,
   ) => string;
   css?: string;
 }
@@ -78,8 +78,8 @@ class ComponentBuilderImpl<TProps extends Record<string, unknown>>
     return this;
   }
 
-  parts(partsMap: PartsMap): ComponentBuilder<TProps> {
-    this.builderState.partsMap = partsMap;
+  classes(classMap: ClassMap): ComponentBuilder<TProps> {
+    this.builderState.classMap = classMap;
     return this;
   }
 
@@ -87,7 +87,7 @@ class ComponentBuilderImpl<TProps extends Record<string, unknown>>
     renderFn: (
       props: TProps,
       api?: GeneratedApiMap,
-      parts?: PartsMap,
+      classes?: ClassMap,
     ) => string,
   ): ComponentBuilder<TProps> {
     this.builderState.renderFn = renderFn;
@@ -101,7 +101,7 @@ class ComponentBuilderImpl<TProps extends Record<string, unknown>>
   }
 
   private register(): void {
-    const { name, propSpec, apiMap, renderFn, css, partsMap } =
+    const { name, propSpec, apiMap, renderFn, css, classMap } =
       this.builderState;
 
     if (!renderFn) {
@@ -119,12 +119,12 @@ class ComponentBuilderImpl<TProps extends Record<string, unknown>>
       props,
       css,
       api: generatedApi, // Now contains auto-generated client functions
-      // The render function needs to be wrapped to pass the generated API and parts map
+      // The render function needs to be wrapped to pass the generated API and class map
       render: (finalProps, _unusedApi) => {
         const jsxElement = renderFn(
           finalProps as TProps,
           generatedApi,
-          partsMap,
+          classMap,
         );
         return jsxElement; // JSX.Element is defined as string in our runtime
       },
