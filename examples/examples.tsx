@@ -1,17 +1,17 @@
 /** @jsx h */
-import {
-  component,
-  conditionalClass,
-  h,
-  renderComponent,
+import { 
+  component, 
   toggleClasses,
+  conditionalClass,
+  renderComponent,
+  h
 } from "../src/index.ts";
 import {
-  activateTab,
-  resetCounter,
-  syncCheckboxToClass,
-  toggleParentClass,
   updateParentCounter,
+  resetCounter,
+  activateTab,
+  toggleParentClass,
+  syncCheckboxToClass,
 } from "./dom-actions.ts";
 
 // Example 1: Pure DOM-based Theme Toggle
@@ -23,11 +23,11 @@ component("f-theme-toggle")
     .theme-btn.dark .light-icon, .theme-btn.light .dark-icon { display: none; }
     .theme-btn.dark .dark-icon, .theme-btn.light .light-icon { display: inline; }
   `)
-  .view((_props, _api, _parts) => (
+  .view(() => (
     <button
       type="button"
       class="theme-btn light"
-      onClick={toggleClasses(["light", "dark"])}
+      onClick={toggleClasses(['light', 'dark'])}
       title="Toggle theme"
     >
       <span class="light-icon">☀️ Light</span>
@@ -38,40 +38,21 @@ component("f-theme-toggle")
 // Example 2: Simple Counter with DOM State
 component("f-counter")
   .props({ initialCount: "number?", step: "number?" })
-  .parts({
-    self: ".counter",
-    display: ".count-display",
-  })
   .styles(`
     .counter { display: inline-flex; gap: 0.5rem; align-items: center; padding: 1rem; border: 2px solid #007bff; border-radius: 8px; }
     .counter button { padding: 0.5rem; border: 1px solid #007bff; background: #007bff; color: white; border-radius: 4px; cursor: pointer; }
     .count-display { font-size: 1.5rem; min-width: 3rem; text-align: center; }
   `)
-  .view((props: { initialCount?: number; step?: number }, _api, parts) => {
-    const count = props.initialCount ?? 0;
-    const stepValue = props.step ?? 1;
+  .view((props) => {
+    const count = Number(props.initialCount) || 0;
+    const stepValue = Number(props.step) || 1;
 
     return (
       <div class="counter" data-count={count}>
-        <button
-          type="button"
-          onClick={updateParentCounter(parts!.self, parts!.display, -stepValue)}
-        >
-          -{stepValue}
-        </button>
+        <button type="button" onclick={updateParentCounter('.counter', '.count-display', -stepValue)}>-{stepValue}</button>
         <span class="count-display">{count}</span>
-        <button
-          type="button"
-          onClick={updateParentCounter(parts!.self, parts!.display, stepValue)}
-        >
-          +{stepValue}
-        </button>
-        <button
-          type="button"
-          onClick={resetCounter(parts!.display, count, parts!.self)}
-        >
-          Reset
-        </button>
+        <button type="button" onclick={updateParentCounter('.counter', '.count-display', stepValue)}>+{stepValue}</button>
+        <button type="button" onclick={resetCounter('.count-display', count, '.counter')}>Reset</button>
       </div>
     );
   });
@@ -80,21 +61,14 @@ component("f-counter")
 component("f-todo-item")
   .props({ id: "string", text: "string", done: "boolean?" })
   .api({
-    // Just define the API endpoints - client functions are auto-generated!
-    "PATCH /api/todos/:id/toggle": async (req, params) => {
+    'PATCH /api/todos/:id/toggle': async (req, params) => {
       const form = await req.formData();
-      const isDone = form.get("done") === "true";
-      return new Response(
-        renderComponent("f-todo-item", {
-          id: params.id,
-          text: "Toggled item!",
-          done: !isDone,
-        }),
-      );
+      const isDone = form.get('done') === 'true';
+      return new Response(renderComponent("f-todo-item", { id: params.id, text: "Toggled item!", done: !isDone }));
     },
-    "DELETE /api/todos/:id": (_req, _params) => {
+    'DELETE /api/todos/:id': () => {
       return new Response(null, { status: 200 });
-    },
+    }
   })
   .styles(`
     .todo { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 0.5rem; }
@@ -102,24 +76,22 @@ component("f-todo-item")
     .todo.done .todo-text { text-decoration: line-through; color: #6c757d; }
     .delete-btn { background: #dc3545; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; }
   `)
-  .view((props: { id: string; text: string; done?: boolean }, api) => {
+  .view((props, api) => {
     const isDone = Boolean(props.done);
-    const id = props.id;
-    const text = props.text;
-    const todoClass = "todo " + conditionalClass(isDone, "done");
+    const id = props.id as string;
+    const text = props.text as string;
+    const todoClass = "todo " + conditionalClass(isDone, 'done');
 
     return (
       <div class={todoClass} data-id={id}>
         <input
           type="checkbox"
           checked={isDone}
-          onChange={syncCheckboxToClass("done")}
+          onChange={syncCheckboxToClass('done')}
           {...(api?.toggle?.(id) || {})}
         />
         <span class="todo-text">{text}</span>
-        <button type="button" class="delete-btn" {...(api?.delete?.(id) || {})}>
-          ×
-        </button>
+        <button type="button" class="delete-btn" {...(api?.delete?.(id) || {})}>×</button>
       </div>
     );
   });
@@ -136,30 +108,22 @@ component("f-accordion")
     .accordion.open .accordion-content { max-height: 500px; }
     .content-inner { padding: 1rem; border-top: 1px solid #ddd; }
   `)
-  .view(
-    (props: { title: string; content: string; initiallyOpen?: boolean }) => {
-      const isOpen = Boolean(props.initiallyOpen);
-      const title = props.title;
-      const content = props.content;
-      const accordionClass = "accordion " + conditionalClass(isOpen, "open");
+  .view((props) => {
+    const isOpen = Boolean(props.initiallyOpen);
+    const title = props.title as string;
+    const content = props.content as string;
+    const accordionClass = "accordion " + conditionalClass(isOpen, 'open');
 
-      return (
-        <div class={accordionClass}>
-          <button
-            type="button"
-            class="accordion-header"
-            onClick={toggleParentClass("open")}
-          >
-            <span class="title">{title}</span>
-            <span class="icon">▼</span>
-          </button>
-          <div class="accordion-content">
-            <div class="content-inner">{content}</div>
-          </div>
-        </div>
-      );
-    },
-  );
+    return (
+      <div class={accordionClass}>
+        <button type="button" class="accordion-header" onClick={toggleParentClass('open')}>
+          <span class="title">{title}</span>
+          <span class="icon">▼</span>
+        </button>
+        <div class="accordion-content"><div class="content-inner">{content}</div></div>
+      </div>
+    );
+  });
 
 // Example 5: Tab System with DOM State
 component("f-tabs")
@@ -172,43 +136,35 @@ component("f-tabs")
     .tab-content { display: none; padding: 1rem; }
     .tab-content.active { display: block; }
   `)
-  .view((props: { tabs: string; activeTab?: string }) => {
-    const tabs = String(props.tabs || "").split(",").map((t) => t.trim())
-      .filter(Boolean);
-    const activeTab = props.activeTab || tabs[0] || "";
+  .view((props) => {
+    const tabs = String(props.tabs || "").split(',').map((t) => t.trim()).filter(Boolean);
+    const activeTab = props.activeTab as string || tabs[0] || '';
 
     return (
       <div class="tabs" data-active={activeTab}>
         <div class="tab-nav">
           {tabs.map((tab) => {
-            const tabBtnClass = "tab-btn " +
-              conditionalClass(tab === activeTab, "active");
+            const tabBtnClass = "tab-btn " + conditionalClass(tab === activeTab, 'active');
             return (
-              <button
-                type="button"
-                class={tabBtnClass}
-                onClick={activateTab(
-                  ".tabs",
-                  ".tab-btn",
-                  ".tab-content",
-                  "active",
-                )}
-                data-tab={tab}
-              >
-                {tab}
-              </button>
+            <button
+              type="button"
+              class={tabBtnClass}
+              onClick={activateTab('.tabs', '.tab-btn', '.tab-content', 'active')}
+              data-tab={tab}
+            >
+              {tab}
+            </button>
             );
           })}
         </div>
         <div class="tab-contents">
           {tabs.map((tab) => {
-            const tabContentClass = "tab-content " +
-              conditionalClass(tab === activeTab, "active");
+            const tabContentClass = "tab-content " + conditionalClass(tab === activeTab, 'active');
             return (
-              <div class={tabContentClass} data-tab={tab}>
-                <h3>{tab} Content</h3>
-                <p>This is the content for the {tab} tab.</p>
-              </div>
+            <div class={tabContentClass} data-tab={tab}>
+              <h3>{tab} Content</h3>
+              <p>This is the content for the {tab} tab.</p>
+            </div>
             );
           })}
         </div>

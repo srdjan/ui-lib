@@ -28,27 +28,27 @@ export function renderComponent(
     }
   }
   
-  // Create server action creators if available
-  let serverActionCreators = undefined;
-  if (entry.serverActions) {
-    serverActionCreators = createServerActionCreators(entry.serverActions);
+  // Create API function creators if available  
+  let apiCreators = undefined;
+  if (entry.api) {
+    apiCreators = createApiCreators(entry.api);
   }
 
-  // Simple render with props and optional server actions
-  const markup = entry.render(parsedProps, serverActionCreators);
+  // Simple render with props and optional API
+  const markup = entry.render(parsedProps, apiCreators);
     
   const cssTag = entry.css ? `<style>${entry.css}</style>` : "";
   
   return `${cssTag}${markup}`;
 }
 
-// Create server action creators that return HTMX attribute objects
-function createServerActionCreators(
-  serverActionMap: Record<string, (...args: unknown[]) => Record<string, unknown>>
+// Create API creators that return HTMX attribute objects
+function createApiCreators(
+  apiMap: Record<string, (...args: unknown[]) => Record<string, unknown>>
 ): Record<string, (...args: unknown[]) => Record<string, unknown>> {
   const creators: Record<string, (...args: unknown[]) => Record<string, unknown>> = {};
 
-  for (const [actionType, handler] of Object.entries(serverActionMap)) {
+  for (const [actionType, handler] of Object.entries(apiMap)) {
     creators[actionType] = (...args: unknown[]) => {
       return handler(...args);
     };

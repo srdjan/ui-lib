@@ -103,9 +103,9 @@ class ComponentBuilderImpl<TProps extends Record<string, unknown>> implements Co
     registry[name] = {
       props,
       css,
-      serverActions: generatedApi, // Now contains auto-generated client functions
+      api: generatedApi, // Now contains auto-generated client functions
       // The render function needs to be wrapped to pass the generated API and parts map
-      render: (finalProps, _unusedServerActions) => {
+      render: (finalProps, _unusedApi) => {
         const jsxElement = renderFn(
           finalProps as TProps,
           generatedApi,

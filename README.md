@@ -55,7 +55,7 @@ working:
 ```tsx
 import { component, toggleClasses } from "./src/index.ts";
 
-component("theme-toggle")
+component("f-theme-toggle")
   .styles(`
     .theme-btn { padding: 0.5rem 1rem; border: 1px solid; border-radius: 6px; cursor: pointer; }
     .theme-btn.light { background: #fff; color: #333; }
@@ -87,7 +87,7 @@ component("theme-toggle")
 import { component } from "./src/index.ts";
 import { resetCounter, updateParentCounter } from "./examples/dom-actions.ts";
 
-component("counter")
+component("f-counter")
   .props({ initialCount: "number?", step: "number?" }) // Type hints
   .styles(`
     .counter { display: inline-flex; gap: 0.5rem; padding: 1rem; border: 2px solid #007bff; }
@@ -193,7 +193,7 @@ component("f-todo-item")
 Starts a new component definition. Component names should be kebab-case.
 
 ```tsx
-component("my-component"); // Creates <my-component> custom element
+component("f-my-component"); // Creates <f-my-component> custom element
 ```
 
 ### `.props(spec: PropSpec)`
@@ -210,27 +210,44 @@ Type-safe prop parsing with automatic TypeScript inference.
 // Props are fully typed in .view() - no casting needed!
 ```
 
-### `.serverActions(actions: ActionMap)`
+### `.api(routes: RouteMap)` - Unified API System
 
-Define server-side actions that return HTMX attributes.
-
-```tsx
-.serverActions({
-  save: (id) => ({ 'hx-post': `/api/save/${id}`, 'hx-target': '#result' }),
-  delete: (id) => ({ 'hx-delete': `/api/items/${id}`, 'hx-confirm': 'Delete?' })
-})
-```
-
-### `.api(routes: RouteMap)`
-
-Define API endpoints directly in the component.
+The `.api()` method is funcwc's revolutionary unified API system that eliminates the duplication between server route definitions and client-side HTMX attributes. Define your API endpoints once, and funcwc automatically generates type-safe client functions.
 
 ```tsx
 .api({
-  'POST /api/items': async (req) => { /* handle create */ },
-  'DELETE /api/items/:id': async (req, params) => { /* handle delete */ }
+  'POST /api/items': async (req) => { 
+    const data = await req.formData();
+    // Handle create logic
+    return new Response(renderComponent("item", { id: newId, ...data }));
+  },
+  'DELETE /api/items/:id': async (req, params) => { 
+    // Handle delete logic  
+    return new Response(null, { status: 204 });
+  }
 })
+.view((props, api) => (
+  <div class="item">
+    <button {...(api?.create?.() || {})}>Add Item</button>
+    <button {...(api?.delete?.(props.id) || {})}>Delete</button>
+  </div>
+))
 ```
+
+**How it works:**
+
+1. **Server Routes**: Define actual HTTP handlers in `.api()`
+2. **Auto-Generated Functions**: funcwc creates client functions based on your routes
+3. **HTMX Attributes**: Client functions return proper `hx-*` attributes
+4. **Type Safety**: All generated functions are fully typed
+5. **Parameter Extraction**: URL parameters become function arguments
+
+**Route-to-Function Mapping:**
+- `POST /api/items` → `api.create()`
+- `DELETE /api/items/:id` → `api.delete(id)`
+- `PATCH /api/todos/:id/toggle` → `api.toggle(id)`
+
+This eliminates the old `.serverActions()` pattern and ensures your client and server stay in sync automatically.
 
 ### `.styles(css: string)`
 
@@ -243,17 +260,22 @@ Component-scoped CSS that renders with SSR output.
 `)
 ```
 
-### `.view((props, serverActions?, parts?) => JSX.Element)`
+### `.view((props, api?, parts?) => JSX.Element)`
 
 The render function. Returns JSX that compiles to optimized HTML strings.
 
 ```tsx
-.view((props, serverActions) => (
+.view((props, api) => (
   <div class="container">
-    <button onClick={someAction}>Click me</button>
+    <button {...(api?.action?.(props.id) || {})}>Click me</button>
   </div>
 ))
 ```
+
+**Parameters:**
+- `props`: Typed props object based on `.props()` definition
+- `api`: Auto-generated client functions from `.api()` routes (optional)
+- `parts`: CSS selectors from `.parts()` definition (optional)
 
 ## 🎮 DOM Helpers
 

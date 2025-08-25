@@ -45,14 +45,14 @@ Deno.test("component with api generates client functions", () => {
     .view(() => h("div", null, "Content"));
     
   const entry = registry["test-api"];
-  assertExists(entry.serverActions); // Auto-generated client functions
-  assertExists(entry.serverActions!.create); // Generated from POST
-  assertExists(entry.serverActions!.delete); // Generated from DELETE
+  assertExists(entry.api); // Auto-generated client functions
+  assertExists(entry.api!.create); // Generated from POST
+  assertExists(entry.api!.delete); // Generated from DELETE
   
-  const createAction = entry.serverActions!.create("123");
+  const createAction = entry.api!.create("123");
   assertEquals(createAction["hx-post"], "/api/save/123");
   
-  const deleteAction = entry.serverActions!.delete("123");  
+  const deleteAction = entry.api!.delete("123");  
   assertEquals(deleteAction["hx-delete"], "/api/delete/123");
 });
 

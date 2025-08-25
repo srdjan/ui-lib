@@ -4,9 +4,9 @@ export type SSRRegistryEntry = {
   css?: string;
   render: (
     props: unknown,
-    serverActions?: unknown
+    api?: unknown
   ) => string;
-  serverActions?: Record<string, (...args: unknown[]) => Record<string, unknown>>;
+  api?: Record<string, (...args: unknown[]) => Record<string, unknown>>;
 };
 
 export type SSRRegistry = Record<string, SSRRegistryEntry>;
