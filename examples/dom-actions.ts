@@ -32,7 +32,7 @@ export const activateTab = (
   content: string,
   activeClass: string,
 ): string =>
-  `const C=this.closest('${container}');if(!C)return;const K=this.dataset.tab;C.querySelectorAll('${buttons}').forEach(b=>b.classList.remove('${activeClass}'));this.classList.add('${activeClass}');C.querySelectorAll('${content}').forEach(c=>c.classList.remove('${activeClass}'));const A=C.querySelector("[data-tab='"+K+"']");if(A)A.classList.add('${activeClass}');if(C.dataset)C.dataset.active=K;`;
+  `const C=this.closest('${container}');if(!C)return;const K=this.dataset.tab;C.querySelectorAll('${buttons}').forEach(b=>b.classList.remove('${activeClass}'));this.classList.add('${activeClass}');C.querySelectorAll('${content}').forEach(c=>c.classList.remove('${activeClass}'));const A=C.querySelector('${content}[data-tab="'+K+'"]');if(A)A.classList.add('${activeClass}');if(C.dataset)C.dataset.active=K;`;
 
 /**
  * Toggle a class on the parent element.

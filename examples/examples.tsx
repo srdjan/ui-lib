@@ -224,10 +224,71 @@ component("f-tabs")
           {tabs.map((tab) => {
             const tabContentClass = "tab-content " +
               conditionalClass(tab === activeTab, "active");
+            
+            // Generate different content based on tab name
+            const getTabContent = (tabName: string) => {
+              const name = tabName.toLowerCase();
+              if (name.includes('home') || name.includes('overview')) {
+                return {
+                  title: '🏠 Welcome Home',
+                  content: 'Welcome to our application! This is your dashboard where you can see an overview of all your activities and quick access to important features.'
+                };
+              } else if (name.includes('about') || name.includes('info')) {
+                return {
+                  title: 'ℹ️ About Us',
+                  content: 'We are a team of developers building awesome web components with funcwc. Our library focuses on DOM-native SSR components with minimal overhead.'
+                };
+              } else if (name.includes('contact') || name.includes('support')) {
+                return {
+                  title: '📞 Get in Touch',
+                  content: 'Need help or have questions? Reach out to our support team at support@funcwc.dev or visit our documentation for detailed guides.'
+                };
+              } else if (name.includes('settings') || name.includes('config')) {
+                return {
+                  title: '⚙️ Configuration',
+                  content: 'Customize your experience with these settings. You can change themes, notifications, and other preferences to suit your workflow.'
+                };
+              } else if (name.includes('docs') || name.includes('help')) {
+                return {
+                  title: '📚 Documentation',
+                  content: 'Learn how to use funcwc with our comprehensive guides. From basic components to advanced patterns, we\'ve got you covered.'
+                };
+              } else {
+                return {
+                  title: `✨ ${tab}`,
+                  content: `This is the ${tab} section. Each tab can contain unique content, components, and functionality tailored to its specific purpose.`
+                };
+              }
+            };
+            
+            const { title, content } = getTabContent(tab);
+            
             return (
               <div class={tabContentClass} data-tab={tab}>
-                <h3>{tab} Content</h3>
-                <p>This is the content for the {tab} tab.</p>
+                <h3>{title}</h3>
+                <p>{content}</p>
+                {tab.toLowerCase().includes('home') && (
+                  <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 4px;">
+                    <strong>Quick Stats:</strong>
+                    <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                      <li>Components loaded: 5</li>
+                      <li>Active tabs: {tabs.length}</li>
+                      <li>Current tab: {tab}</li>
+                    </ul>
+                  </div>
+                )}
+                {tab.toLowerCase().includes('settings') && (
+                  <div style="margin-top: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem;">
+                      <input type="checkbox" style="margin-right: 0.5rem;" />
+                      Enable notifications
+                    </label>
+                    <label style="display: block;">
+                      <input type="checkbox" style="margin-right: 0.5rem;" checked />
+                      Dark mode theme
+                    </label>
+                  </div>
+                )}
               </div>
             );
           })}
