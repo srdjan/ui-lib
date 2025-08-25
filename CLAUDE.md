@@ -7,7 +7,7 @@ code in this repository.
 
 **funcwc** is a lightweight, functional programming library for building
 **SSR-compatible web components** with TypeScript/Deno. It creates Custom
-Elements that use mono-jsx for server-side rendering while maintaining
+Elements that use custom JSX runtime for server-side rendering while maintaining
 client-side reactivity. The library features an ultra-succinct Pipeline API with
 immutable state, pure functions, and intelligent type inference, following Light
 Functional Programming principles.
@@ -48,7 +48,7 @@ SSR-compatible web components:
    API for component creation
 2. **Core Component System** (`src/lib/defineComponent.signals.ts`) - Custom
    Elements with signals-based reactivity
-3. **JSX Runtime** (`src/lib/jsx-runtime.ts`) - mono-jsx integration for SSR
+3. **JSX Runtime** (`src/lib/jsx-runtime.ts`) - Custom JSX runtime for SSR
    compatibility
 4. **Reactive Primitives** (`src/lib/signals.ts`) - Signal-based state
    management system
@@ -115,7 +115,7 @@ examples/
 
 - **Target**: ES2020 with DOM support
 - **Module**: ES2020 with Bundler resolution
-- **JSX**: Uses mono-jsx runtime via `@jsxImportSource`
+- **JSX**: Uses custom JSX runtime with `h` function
 - **Strict Mode**: Full TypeScript strictness enabled
 - `noUncheckedIndexedAccess: true` for array safety
 
@@ -124,7 +124,8 @@ examples/
 All JSX files must include:
 
 ```tsx
-/** @jsxImportSource https://esm.sh/mono-jsx */
+/** @jsx h */
+import { h } from "../src/index.ts";
 ```
 
 ## Key Development Patterns
@@ -173,7 +174,7 @@ The library follows functional error handling patterns:
 
 ### SSR Compatibility
 
-- Components use mono-jsx runtime for server-side rendering
+- Components use custom JSX runtime for server-side rendering
 - JSX elements render to real DOM nodes, not virtual DOM
 - Custom Elements automatically register on first import
 - Shadow DOM used for style encapsulation and component isolation
@@ -189,22 +190,22 @@ The library follows functional error handling patterns:
 
 - Designed for Deno's TypeScript-first environment
 - Development server handles TypeScript modules with proper MIME types
-- Uses mono-jsx from npm for JSX runtime
+- Uses custom JSX runtime with direct string rendering
 - No build step required for development
 
 ### Browser Compatibility
 
 - Requires modern browsers with ES2020+ support
 - Uses Custom Elements v1 and Shadow DOM v1
-- JSX runtime provided by mono-jsx (npm:mono-jsx@0.6.11)
+- Custom JSX runtime that renders directly to HTML strings
 
 ## Development Workflow
 
 1. **Component Creation**: Use Pipeline API for new components in `.tsx` files
-   with `/** @jsxImportSource https://esm.sh/mono-jsx */`
+   with `/** @jsx h */` pragma
 2. **Type Safety**: Let TypeScript infer types from Pipeline method calls
 3. **Zero Configuration**: Deno automatically handles TypeScript transpilation
-   and mono-jsx imports
+   and custom JSX runtime
 4. **Testing**: Access components at `http://localhost:8080` after
    `deno task start`
 5. **State Updates**: Always return partial state objects from actions
@@ -213,10 +214,9 @@ The library follows functional error handling patterns:
 
 ### SSR Integration
 
-- Components use mono-jsx for JSX elements that are converted to real DOM nodes
-- JSX pragma `/** @jsxImportSource https://esm.sh/mono-jsx */` enables
-  zero-config mono-jsx
-- Custom `jsxElementToDOM()` function converts mono-jsx elements to DOM nodes
+- Components use custom JSX runtime that renders directly to HTML strings
+- JSX pragma `/** @jsx h */` enables zero-config JSX processing
+- Custom `h` function converts JSX elements directly to HTML strings for SSR
 - Event handlers automatically support action dispatching
 - No build step required - Deno handles all transpilation
 

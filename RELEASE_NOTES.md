@@ -20,18 +20,6 @@ Release date: 2025-08-25
 - Example-specific helpers (e.g., `updateParentCounter`, `activateTab`, etc.)
   are no longer exported from the library.
 
-## Migration
-
-1. Replace `html` templates with TSX and import `h` from `src/index.ts`.
-2. Use core actions for toggling: `toggleClass`, `toggleClasses`.
-3. For app-specific behaviors: use small inline handler strings or copy helpers
-   from `examples/dom-actions.ts`.
-4. Server interactions: use `.api({...})` and spread HTMX attributes from
-   generated `serverActions` in TSX.
-5. Styles: prefer `.styles(css)` per component.
-
-See `docs/MIGRATION.md` for examples.
-
 ## Developer Experience
 
 - `deno task start` — type-check + dev server

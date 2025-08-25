@@ -8,8 +8,7 @@ Key ideas:
 - The DOM is the state: use classes, attributes, and text for UI state.
 - Event handlers accept arrays of action objects and serialize to tiny inline
   JS.
-- Server interactions are defined via `serverActions` that return HTMX attribute
-  objects.
+- Server interactions are defined via `.api()` that automatically generates client functions returning HTMX attributes.
 
 ## Prerequisites
 
@@ -32,8 +31,8 @@ component("f-example")
     .box { border: 1px solid #ddd; padding: 8px; border-radius: 6px; }
   `)
   .view((props) => {
-    const title = (props as any).title;
-    const count = (props as any).count ?? 0;
+    const title = props.title;  // Fully typed - no casting needed!
+    const count = props.count ?? 0;
     return (
       <div class="box">
         <h3>{title}</h3>
@@ -65,32 +64,68 @@ Note: App-specific convenience handlers (e.g., counters, tabs) are not part of
 the core library. See `examples/dom-actions.ts` for small, userland helpers that
 return inline handler strings you can copy or adapt.
 
-## Server Actions (HTMX)
+## Unified API System (HTMX)
 
-Declare `serverActions` to return attribute objects, then spread in TSX.
+The `.api()` method is funcwc's revolutionary unified API system that eliminates duplication between server route definitions and client-side HTMX attributes. Define your API endpoints once, and funcwc automatically generates type-safe client functions.
 
 ```tsx
-component("f-item")
-  .props({ id: "string", done: "boolean?" })
-  .serverActions({
-    toggle: (id) => ({ "hx-patch": `/api/todos/${id}/toggle` }),
-    remove: (id) => ({ "hx-delete": `/api/todos/${id}` }),
+import { component, renderComponent, h } from "../src/index.ts";
+
+component("f-todo-item")
+  .props({ id: "string", text: "string", done: "boolean?" })
+  .api({
+    // Define actual server handlers - client functions are auto-generated!
+    'PATCH /api/todos/:id/toggle': async (req, params) => {
+      const form = await req.formData();
+      const isDone = form.get('done') === 'true';
+      return new Response(
+        renderComponent("f-todo-item", { 
+          id: params.id, 
+          text: "Updated!", 
+          done: !isDone 
+        })
+      );
+    },
+    'DELETE /api/todos/:id': async (req, params) => {
+      // Handle deletion logic
+      return new Response(null, { status: 200 });
+    }
   })
-  .view((props, serverActions) => {
-    const id = (props as any).id;
-    const done = Boolean((props as any).done);
+  .view((props, api) => {
+    const id = props.id as string;
+    const done = Boolean(props.done);
     return (
-      <div class={`item ${done ? "done" : ""}`} data-id={id}>
+      <div class={`todo ${done ? "done" : ""}`} data-id={id}>
         <input
           type="checkbox"
           checked={done}
-          {...(serverActions?.toggle?.(id) || {})}
+          {...(api?.toggle?.(id) || {})}  // Auto-generated HTMX attributes!
         />
-        <button {...(serverActions?.remove?.(id) || {})}>×</button>
+        <span class="todo-text">{props.text}</span>
+        <button {...(api?.delete?.(id) || {})}>×</button>  // Auto-generated!
       </div>
     );
   });
 ```
+
+**How it works:**
+
+1. **Define Routes**: Write actual HTTP handlers in `.api()` using standard Web API patterns
+2. **Auto-Generation**: funcwc analyzes your routes and creates client functions:
+   - `PATCH /api/todos/:id/toggle` → `api.toggle(id)` 
+   - `DELETE /api/todos/:id` → `api.delete(id)`
+3. **HTMX Attributes**: Client functions return proper `hx-*` attributes:
+   - `api.toggle(id)` returns `{ "hx-patch": "/api/todos/123/toggle", "hx-target": "closest .todo" }`
+   - `api.delete(id)` returns `{ "hx-delete": "/api/todos/123", "hx-target": "closest .todo", "hx-swap": "outerHTML" }`
+4. **Type Safety**: All generated functions are fully typed based on your route definitions
+
+**Route-to-Function Mapping:**
+- `POST /api/items` → `api.create()`
+- `GET /api/items/:id` → `api.get(id)`  
+- `PATCH /api/items/:id` → `api.update(id)` or `api.toggle(id)` (based on path)
+- `DELETE /api/items/:id` → `api.delete(id)`
+
+This eliminates the need to manually define client-side HTMX attributes and ensures your client and server stay in sync automatically.
 
 ## Parts Map (Optional)
 
@@ -100,8 +135,8 @@ Avoid hardcoding repeated selectors by declaring `parts`.
 component("f-counter")
   .props({ step: "number?" })
   .parts({ self: ".counter", display: ".count" })
-  .view((props, _server, parts) => {
-    const step = (props as any).step ?? 1;
+  .view((props, _api, parts) => {
+    const step = props.step ?? 1;
     return (
       <div class="counter" data-count={0}>
         <button

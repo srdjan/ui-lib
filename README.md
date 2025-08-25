@@ -252,9 +252,6 @@ type-safe client functions.
 - `DELETE /api/items/:id` → `api.delete(id)`
 - `PATCH /api/todos/:id/toggle` → `api.toggle(id)`
 
-This eliminates the old `.serverActions()` pattern and ensures your client and
-server stay in sync automatically.
-
 ### `.styles(css: string)`
 
 Component-scoped CSS that renders with SSR output.
