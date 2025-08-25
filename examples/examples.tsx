@@ -17,10 +17,33 @@ import {
 // Example 1: Pure DOM-based Theme Toggle
 component("f-theme-toggle")
   .styles(`
-    .theme-btn { padding: 0.5rem 1rem; border: 1px solid; border-radius: 6px; cursor: pointer; }
-    .theme-btn.light { background: #fff; color: #333; border-color: #ccc; }
-    .theme-btn.dark { background: #333; color: #fff; border-color: #666; }
-    .theme-btn.dark .light-icon, .theme-btn.light .dark-icon { display: none; }
+    .theme-btn { 
+      padding: 0.5rem 1rem; 
+      border: 2px solid; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .theme-btn.light { 
+      background: #fff; 
+      color: #333; 
+      border-color: #ddd;
+    }
+    .theme-btn.light:hover {
+      border-color: #007bff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .theme-btn.dark { 
+      background: #2d3748; 
+      color: #f7fafc; 
+      border-color: #4a5568;
+    }
+    .theme-btn.dark:hover {
+      border-color: #63b3ed;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .theme-btn.dark .light-icon, .theme-btn.light .dark-icon { display: none !important; }
     .theme-btn.dark .dark-icon, .theme-btn.light .light-icon { display: inline; }
   `)
   .view(() => (
@@ -31,7 +54,7 @@ component("f-theme-toggle")
       title="Toggle theme"
     >
       <span class="light-icon">☀️ Light</span>
-      <span class="dark-icon" style="display: none;">🌙 Dark</span>
+      <span class="dark-icon">🌙 Dark</span>
     </button>
   ));
 
