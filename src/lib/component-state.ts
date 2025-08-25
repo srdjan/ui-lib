@@ -28,10 +28,11 @@ export function renderComponent(
     }
   }
 
-  // Create API function creators if available
+  // Generate client API functions if available (should match component-pipeline logic)
   let apiCreators = undefined;
   if (entry.api) {
-    apiCreators = createApiCreators(entry.api);
+    // Note: entry.api should contain generated client functions, not route handlers
+    apiCreators = entry.api;
   }
 
   // Simple render with props and optional API
@@ -42,20 +43,3 @@ export function renderComponent(
   return `${cssTag}${markup}`;
 }
 
-// Create API creators that return HTMX attribute objects
-function createApiCreators(
-  apiMap: Record<string, (...args: unknown[]) => Record<string, unknown>>,
-): Record<string, (...args: unknown[]) => Record<string, unknown>> {
-  const creators: Record<
-    string,
-    (...args: unknown[]) => Record<string, unknown>
-  > = {};
-
-  for (const [actionType, handler] of Object.entries(apiMap)) {
-    creators[actionType] = (...args: unknown[]) => {
-      return handler(...args);
-    };
-  }
-
-  return creators;
-}

@@ -14,7 +14,7 @@ semantic-ish versioning.
   `.view()` with TSX.
 - Docs site using Deno JSX precompile (separate from component runtime):
   `deno task docs`.
-- Authoring and migration guides: `docs/AUTHORING.md`, `docs/MIGRATION.md`.
+- Authoring guide: `docs/AUTHORING.md`.
 - Example components in `examples/examples.tsx`.
 - Core DOM helpers: `toggleClass`, `toggleClasses`; utilities:
   `conditionalClass`, `spreadAttrs`, `dataAttrs`, `escape`.

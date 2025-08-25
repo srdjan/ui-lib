@@ -66,7 +66,7 @@ component("f-theme-toggle")
   .view(() => (
     <button
       class="theme-btn light"
-      onClick={toggleClasses(["light", "dark"])} // ✨ Direct function call!
+      onclick={toggleClasses(["light", "dark"])} // ✨ Direct function call!
     >
       <span class="light-icon">☀️ Light</span>
       <span class="dark-icon">🌙 Dark</span>
@@ -102,17 +102,17 @@ component("f-counter")
     return (
       <div class="counter" data-count={count}>
         <button
-          onClick={updateParentCounter(".counter", ".count-display", -step)}
+          onclick={updateParentCounter(".counter", ".count-display", -step)}
         >
           -{step}
         </button>
         <span class="count-display">{count}</span>
         <button
-          onClick={updateParentCounter(".counter", ".count-display", step)}
+          onclick={updateParentCounter(".counter", ".count-display", step)}
         >
           +{step}
         </button>
-        <button onClick={resetCounter(".count-display", count, ".counter")}>
+        <button onclick={resetCounter(".count-display", count, ".counter")}>
           Reset
         </button>
       </div>
@@ -350,7 +350,7 @@ const [loading, setLoading] = useState(false);
 component("my-widget")
   .view(() => (
     <div class="widget closed" data-count="0">
-      <button onClick={toggleClass("open")}>Toggle</button>
+      <button onclick={toggleClass("open")}>Toggle</button>
       <span class="counter">0</span>
     </div>
   ));

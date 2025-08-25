@@ -32,4 +32,3 @@ Release date: 2025-08-25
 
 - Changelog: CHANGELOG.md
 - Authoring: docs/AUTHORING.md
-- Migration: docs/MIGRATION.md

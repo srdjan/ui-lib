@@ -25,7 +25,6 @@ export { escapeHtml } from "./lib/ssr.ts";
 
 // Type definitions
 export type { ComponentAction } from "./lib/actions.ts";
-export type { Action } from "./lib/types.ts";
 export type { ApiMap, GeneratedApiMap } from "./lib/component-pipeline.ts";
 
 // Import JSX types to make them globally available
