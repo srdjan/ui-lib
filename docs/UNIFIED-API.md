@@ -43,10 +43,10 @@ defineComponent("todo-item", {
       <input 
         type="checkbox" 
         checked={done}
-        {...(api?.toggle?.(id) || {})}  // ← Magic happens here!
+        {...api.toggle(id)}  // ← Magic happens here!
       />
       <span>{text}</span>
-      <button {...(api?.delete?.(id) || {})}>Delete</button>
+      <button {...api.delete(id)}>Delete</button>
     </div>
   )
 })
@@ -133,15 +133,15 @@ defineComponent("cart-item", {
           type="number" 
           name="quantity"
           value={quantity}
-          {...(api?.update?.(productId) || {})}  // ← PATCH /api/cart/:id/quantity
+          {...api.update(productId)}  // ← PATCH /api/cart/:id/quantity
         />
       </div>
       <div class="price">${price}</div>
       <div class="actions">
-        <button {...(api?.favorite?.(productId) || {})}>
+        <button {...api.favorite(productId)}>
           ❤️ Favorite
         </button>
-        <button {...(api?.delete?.(productId) || {})}>
+        <button {...api.delete(productId)}>
           🗑️ Remove
         </button>
       </div>
@@ -219,8 +219,8 @@ defineComponent("todo-item", {
   },
   render: ({ id }, api) => (
     <div>
-      <input {...(api?.toggle?.(id) || {})} />  {/* Auto-generated */}
-      <button {...(api?.delete?.(id) || {})}>Delete</button>
+      <input {...api.toggle(id)} />  {/* Auto-generated */
+      <button {...api.delete(id)}>Delete</button>
     </div>
   )
 })
@@ -298,7 +298,7 @@ defineComponent("user-profile", {
       <h3>{name}</h3>
       
       {/* Edit profile form */}
-      <form {...(api?.update?.(userId) || {})}>
+      <form {...api.update(userId)}>
         <input name="name" value={name} placeholder="Update name" />
         <button type="submit">Update</button>
       </form>
@@ -307,14 +307,14 @@ defineComponent("user-profile", {
       <div class="actions">
         {!isBlocked && (
           <button {...(isFollowing 
-            ? api?.delete?.(userId) || {}  // Unfollow (DELETE)
-            : api?.follow?.(userId) || {}  // Follow (POST)
+            ? api.delete(userId)  // Unfollow (DELETE)
+            : api.follow(userId)  // Follow (POST)
           )}>
             {isFollowing ? "Unfollow" : "Follow"}
           </button>
         )}
         
-        <button {...(api?.block?.(userId) || {})}>
+        <button {...api.block(userId)}>
           {isBlocked ? "Blocked" : "Block User"}
         </button>
       </div>
@@ -368,14 +368,14 @@ defineComponent("task-list", {
     return (
       <div class="task-list">
         <div class="batch-actions" style={selectedCount > 0 ? "" : "display: none"}>
-          <form {...(api?.create?.(userId) || {})}>
+          <form {...api.create()}>
             {taskList.filter(t => t.selected).map(task => (
               <input type="hidden" name="taskId" value={task.id} />
             ))}
             <button type="submit">Complete Selected ({selectedCount})</button>
           </form>
           
-          <form {...(api?.delete?.(userId) || {})}>
+          <form {...api.delete()}>
             {taskList.filter(t => t.selected).map(task => (
               <input type="hidden" name="taskId" value={task.id} />
             ))}
