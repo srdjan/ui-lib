@@ -6,6 +6,9 @@ import {
   renderComponent,
   toggleClasses,
 } from "../src/index.ts";
+
+// Import the new defineComponent examples
+import "./define-component-example.tsx";
 import {
   activateTab,
   resetCounter,

@@ -2,6 +2,7 @@
 
 // Core component system
 export { component } from "./lib/component-pipeline.ts";
+export { defineComponent } from "./lib/define-component.ts";
 export { renderComponent } from "./lib/component-state.ts";
 export { h } from "./lib/jsx-runtime.ts";
 
@@ -26,6 +27,12 @@ export { escapeHtml } from "./lib/ssr.ts";
 // Type definitions
 export type { ComponentAction } from "./lib/actions.ts";
 export type { ApiMap, GeneratedApiMap } from "./lib/component-pipeline.ts";
+export type { 
+  PropConfig, 
+  EnhancedPropSpec, 
+  InferEnhancedProps 
+} from "./lib/props.ts";
+export type { ComponentConfig } from "./lib/define-component.ts";
 
 // Import JSX types to make them globally available
 import "./lib/jsx.d.ts";

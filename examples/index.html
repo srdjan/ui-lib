@@ -98,6 +98,31 @@
       <f-tabs tabs="Home,About,Settings,Contact" activeTab="Home"></f-tabs>
     </section>
 
+    <section style="margin-top: 2rem; border: 2px solid #007bff; background: #f8f9ff">
+      <h2>🆕 New defineComponent API</h2>
+      <p style="color: #0056b3">Clean, object-based component definition with enhanced props support.</p>
+      
+      <h3>Simple Button</h3>
+      <p>Basic props with classes mapping:</p>
+      <simple-button text="Click me!" disabled="false"></simple-button>
+      <simple-button text="Disabled" disabled="true"></simple-button>
+
+      <h3>Enhanced Counter with Defaults</h3>
+      <p>Props with default values and explicit configuration:</p>
+      <enhanced-counter label="Count" initialCount="5" step="2"></enhanced-counter>
+      <enhanced-counter label="Score" disabled="true"></enhanced-counter>
+
+      <h3>Todo Item with API Integration</h3>
+      <p>Component with HTMX API integration:</p>
+      <todo-item id="1" text="Try the new defineComponent API" done="false"></todo-item>
+      <todo-item id="2" text="Update documentation" done="true"></todo-item>
+
+      <h3>Profile Card</h3>
+      <p>Explicit props syntax with required/optional validation:</p>
+      <profile-card name="Alice Smith" email="alice@example.com" age="28" verified="true"></profile-card>
+      <profile-card name="Bob Jones" email="bob@example.com" verified="false"></profile-card>
+    </section>
+
     <!-- Components are server-rendered, no client-side script needed -->
   </body>
 </html>

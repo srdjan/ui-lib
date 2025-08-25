@@ -63,7 +63,23 @@ SSR-compatible web components:
 
 **Component Definition Approaches:**
 
-1. **Pipeline API (Recommended)** - Chainable, high-level API:
+1. **defineComponent API (New & Recommended)** - Clean, object-based configuration:
+
+```tsx
+defineComponent("my-counter", {
+  props: { 
+    step: "number?", 
+    initialCount: { type: "number", default: 0 }
+  },
+  classes: { button: "counter-btn", label: "counter-label" },
+  styles: ".counter-btn { background: blue; }",
+  render: ({ step, initialCount }, api, classes) => (
+    <button class={classes!.button}>Count: {initialCount}</button>
+  )
+});
+```
+
+2. **Pipeline API** - Chainable, fluent API (maintained for backward compatibility):
 
 ```tsx
 component("my-counter")
@@ -74,7 +90,7 @@ component("my-counter")
   ));
 ```
 
-2. **Core API** - Lower-level, more explicit:
+3. **Core API** - Lower-level, more explicit:
 
 ```tsx
 defineComponent("my-counter", {
@@ -132,14 +148,42 @@ import { h } from "../src/index.ts";
 - Actions follow `{type: string, payload?: unknown}` pattern
 - Use the Pipeline API's action creators for type safety
 
-### Props System
+### Enhanced Props System
 
-The Pipeline API provides intelligent prop parsing:
+The new `defineComponent` API supports multiple prop definition styles:
 
-- `"string"` / `"string?"` - Required/optional string
-- `"number"` / `"number?"` - Required/optional number with auto-parsing
-- `"boolean"` / `"boolean?"` - Required/optional boolean
-- Optional props use `?` suffix
+**Basic String Syntax (backward compatible):**
+```tsx
+props: { 
+  name: "string", 
+  age: "number?", 
+  active: "boolean?" 
+}
+```
+
+**Enhanced Syntax with Defaults:**
+```tsx
+props: {
+  name: "string",
+  age: { type: "number", default: 18 },
+  active: { type: "boolean", default: true }
+}
+```
+
+**Explicit Required/Optional Syntax:**
+```tsx
+props: {
+  name: { type: "string", required: true },
+  age: { type: "number", required: false },
+  active: { type: "boolean", required: false }
+}
+```
+
+**HTML Attribute Parsing:**
+- `"string"` / `"number"` / `"boolean"` - Required props
+- `"string?"` / `"number?"` / `"boolean?"` - Optional props (string syntax)
+- `{ type: "number", default: 42 }` - Optional with default value
+- All HTML attributes (strings) are automatically parsed to correct types
 
 ### Styling
 
