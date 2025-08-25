@@ -35,9 +35,11 @@ export type InferEnhancedProps<T extends EnhancedPropSpec> = {
       ? PropType<U> | undefined
       : PropType<T[K]>
     : T[K] extends PropConfig
-      ? T[K]['required'] extends false
-        ? (T[K]['type'] extends 'string' ? string : T[K]['type'] extends 'number' ? number : boolean) | undefined
-        : T[K]['type'] extends 'string' ? string : T[K]['type'] extends 'number' ? number : boolean
+      ? T[K]['type'] extends 'string' 
+        ? (T[K]['required'] extends false ? string | undefined : string)
+        : T[K]['type'] extends 'number'
+        ? (T[K]['required'] extends false ? number | undefined : number) 
+        : (T[K]['required'] extends false ? boolean | undefined : boolean)
       : unknown;
 };
 

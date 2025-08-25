@@ -220,13 +220,13 @@ defineComponent("todo-item", {
           class={classes!.checkbox}
           checked={done}
           onChange={syncCheckboxToClass("done")}
-          {...(api?.toggle?.(id) || {})}
+          {...api.toggle(id)}
         />
         <span class={classes!.text}>{text}</span>
         <button
           type="button"
           class={classes!.deleteBtn}
-          {...(api?.delete?.(id) || {})}
+          {...api.delete(id)}
         >
           ×
         </button>

@@ -101,7 +101,7 @@ Deno.test("defineComponent with API integration", () => {
       "DELETE /test/:id": () => new Response("deleted")
     },
     render: ({ id }, api) => 
-      h("div", api?.create?.(id) || {}, `Item ${id}`)
+      h("div", api.create(id), `Item ${id}`)
   });
 
   const entry = registry["test-api"];

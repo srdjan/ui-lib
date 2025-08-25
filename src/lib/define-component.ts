@@ -15,31 +15,65 @@ import "./jsx.d.ts"; // Import JSX types
 
 type ClassMap = Record<string, string>;
 
-// Component configuration object
-export interface ComponentConfig<TProps extends EnhancedPropSpec> {
+// Conditional render function types based on whether API is provided
+type RenderFunctionWithApi<TProps extends EnhancedPropSpec> = (
+  props: InferEnhancedProps<TProps>,
+  api: GeneratedApiMap,
+  classes?: ClassMap,
+) => string;
+
+type RenderFunctionWithoutApi<TProps extends EnhancedPropSpec> = (
+  props: InferEnhancedProps<TProps>,
+  api?: undefined,
+  classes?: ClassMap,
+) => string;
+
+// Component configuration with API
+export interface ComponentConfigWithApi<TProps extends EnhancedPropSpec> {
   props?: TProps;
   styles?: string;
   classes?: ClassMap;
-  api?: ApiMap;
-  render: (
-    props: InferEnhancedProps<TProps>,
-    api?: GeneratedApiMap,
-    classes?: ClassMap,
-  ) => string;
+  api: ApiMap;  // Required when this interface is used
+  render: RenderFunctionWithApi<TProps>;
 }
+
+// Component configuration without API
+export interface ComponentConfigWithoutApi<TProps extends EnhancedPropSpec> {
+  props?: TProps;
+  styles?: string;
+  classes?: ClassMap;
+  api?: never;  // Not allowed when this interface is used
+  render: RenderFunctionWithoutApi<TProps>;
+}
+
+// Union type for component configuration
+export type ComponentConfig<TProps extends EnhancedPropSpec> = 
+  | ComponentConfigWithApi<TProps>
+  | ComponentConfigWithoutApi<TProps>;
 
 /**
  * Define a component with a clean, object-based configuration API.
  * 
  * @example
  * ```tsx
- * export const MyButton = defineComponent("my-button", {
- *   props: { text: "string", disabled: "boolean?" },
- *   styles: ".btn { color: blue; }",
- *   classes: { btn: "btn-primary" },
- *   render: ({ text, disabled }, api, classes) => (
- *     <button class={classes.btn} disabled={disabled}>{text}</button>
+ * // With API - api parameter is required and guaranteed
+ * export const TodoItem = defineComponent("todo-item", {
+ *   props: { id: "string", text: "string" },
+ *   api: {
+ *     "DELETE /api/todos/:id": async (req, params) => new Response("")
+ *   },
+ *   render: ({ id, text }, api) => (  // api is guaranteed to exist!
+ *     <div>
+ *       <span>{text}</span>
+ *       <button {...api.delete(id)}>Delete</button>
+ *     </div>
  *   )
+ * });
+ * 
+ * // Without API - no api parameter
+ * export const SimpleCard = defineComponent("simple-card", {
+ *   props: { title: "string" },
+ *   render: ({ title }) => <h3>{title}</h3>  // no api parameter needed
  * });
  * ```
  */
@@ -82,11 +116,22 @@ export function defineComponent<TProps extends EnhancedPropSpec>(
     css,
     api: generatedApi,
     render: (finalProps, _unusedApi) => {
-      return render(
-        finalProps as InferEnhancedProps<TProps>,
-        generatedApi,
-        classMap,
-      );
+      // Pass the correct parameters based on whether API exists
+      if (generatedApi) {
+        // Component has API - pass api as required parameter
+        return (render as RenderFunctionWithApi<TProps>)(
+          finalProps as InferEnhancedProps<TProps>,
+          generatedApi,
+          classMap,
+        );
+      } else {
+        // Component has no API - don't pass api parameter
+        return (render as RenderFunctionWithoutApi<TProps>)(
+          finalProps as InferEnhancedProps<TProps>,
+          undefined,
+          classMap,
+        );
+      }
     },
   };
 }
