@@ -2,25 +2,32 @@
 
 import { type RouteHandler } from "./router.ts";
 
-export type ApiMap = Record<string, RouteHandler>;
+export type ApiDefinition = {
+  route: string;
+  handler: RouteHandler;
+};
+
+export type ApiMap = Record<string, ApiDefinition>;
 export type GeneratedApiMap = Record<
   string,
   (...args: unknown[]) => Record<string, unknown>
 >;
 
 /**
- * Auto-generates client attribute functions from API route definitions
+ * Auto-generates client attribute functions from API definitions with explicit function names
  *
  * Examples:
- * 'PATCH /api/todos/:id/toggle' → toggle: (id) => ({ 'hx-patch': `/api/todos/${id}/toggle` })
- * 'DELETE /api/todos/:id'        → delete: (id) => ({ 'hx-delete': `/api/todos/${id}` })
- * 'POST /api/todos'              → create: () => ({ 'hx-post': '/api/todos' })
+ * toggle: { route: 'PATCH /api/todos/:id/toggle', handler: ... } → toggle: (id) => ({ 'hx-patch': `/api/todos/${id}/toggle` })
+ * remove: { route: 'DELETE /api/todos/:id', handler: ... }        → remove: (id) => ({ 'hx-delete': `/api/todos/${id}` })
+ * create: { route: 'POST /api/todos', handler: ... }              → create: () => ({ 'hx-post': '/api/todos' })
  */
 export function generateClientApi(apiMap: ApiMap): GeneratedApiMap {
   const generatedApi: GeneratedApiMap = {};
 
-  for (const [route, _handler] of Object.entries(apiMap)) {
+  for (const [functionName, apiDef] of Object.entries(apiMap)) {
+    const { route } = apiDef;
     const [method, path] = route.split(" ");
+    
     if (!method || !path) {
       console.warn(
         `Invalid route definition: "${route}". Expected format: "METHOD /path" (e.g., "GET /api/todos", "POST /api/users/:id")`
@@ -28,16 +35,7 @@ export function generateClientApi(apiMap: ApiMap): GeneratedApiMap {
       continue;
     }
 
-    const functionName = generateFunctionName(method, path);
     const paramNames = extractParameterNames(path);
-
-    if (generatedApi[functionName]) {
-      console.warn(
-        `API function name collision: "${functionName}" already exists. ` +
-        `New route "${route}" will overwrite previous definition. ` +
-        `Consider using more specific route paths or actions to avoid conflicts.`
-      );
-    }
     
     generatedApi[functionName] = (...args: unknown[]) => {
       const htmxMethod = `hx-${method.toLowerCase()}` as const;
@@ -57,43 +55,6 @@ export function generateClientApi(apiMap: ApiMap): GeneratedApiMap {
   return generatedApi;
 }
 
-/**
- * Generate a client function name from HTTP method and path
- *
- * Examples:
- * POST /api/todos → create
- * GET /api/todos → list
- * PATCH /api/todos/:id/toggle → toggle
- * DELETE /api/todos/:id → delete
- * PUT /api/todos/:id → update
- */
-function generateFunctionName(method: string, path: string): string {
-  const pathParts = path.split("/").filter(Boolean);
-  const lastPart = pathParts[pathParts.length - 1];
-
-  // If the last part is a specific action (not a resource or parameter), use it
-  // Common resource names should not be treated as actions
-  const commonResourceNames = new Set(['todos', 'users', 'posts', 'comments', 'items', 'api']);
-  if (lastPart && !lastPart.startsWith(":") && !commonResourceNames.has(lastPart)) {
-    return lastPart;
-  }
-
-  // Otherwise, use conventional REST mapping
-  switch (method.toUpperCase()) {
-    case "GET":
-      // GET /api/todos/:id → get, GET /api/todos → list
-      return lastPart?.startsWith(":") ? "get" : "list";
-    case "POST":
-      return "create";
-    case "PUT":
-    case "PATCH":
-      return "update";
-    case "DELETE":
-      return "delete";
-    default:
-      return method.toLowerCase();
-  }
-}
 
 /**
  * Extract parameter names from a route path

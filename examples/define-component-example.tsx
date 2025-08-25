@@ -97,20 +97,26 @@ defineComponent("todo-item", {
     done: { type: "boolean", default: false }
   },
   api: {
-    "PATCH /api/todos/:id/toggle": async (req, params) => {
-      const form = await req.formData();
-      const isDone = form.get('done') === 'true';
-      return new Response(
-        renderComponent("todo-item", { 
-          id: params.id, 
-          text: "Updated task!", 
-          done: !isDone 
-        })
-      );
+    toggle: {
+      route: "PATCH /api/todos/:id/toggle",
+      handler: async (req, params) => {
+        const form = await req.formData();
+        const isDone = form.get('done') === 'true';
+        return new Response(
+          renderComponent("todo-item", { 
+            id: params.id, 
+            text: "Updated task!", 
+            done: !isDone 
+          })
+        );
+      }
     },
-    "DELETE /api/todos/:id": async (req, params) => {
-      console.log(`Deleting todo ${params.id}`);
-      return new Response(null, { status: 204 });
+    remove: {
+      route: "DELETE /api/todos/:id",
+      handler: async (req, params) => {
+        console.log(`Deleting todo ${params.id}`);
+        return new Response(null, { status: 204 });
+      }
     }
   },
   styles: `
@@ -172,13 +178,13 @@ defineComponent("todo-item", {
           type="checkbox"
           class={classes!.checkbox}
           checked={done}
-          {...(api?.toggle?.(id) || {})}
+          {...api.toggle(id)}
         />
         <span class={classes!.text}>{text}</span>
         <button 
           type="button" 
           class={classes!.deleteBtn}
-          {...(api?.delete?.(id) || {})}
+          {...api.remove(id)}
         >
           ×
         </button>

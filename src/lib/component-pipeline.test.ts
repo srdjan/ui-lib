@@ -42,21 +42,27 @@ Deno.test("component with api generates client functions", () => {
 
   component("test-api")
     .api({
-      "POST /api/save/:id": () => new Response("saved"),
-      "DELETE /api/delete/:id": () => new Response("deleted"),
+      save: {
+        route: "POST /api/save/:id",
+        handler: () => new Response("saved")
+      },
+      remove: {
+        route: "DELETE /api/delete/:id", 
+        handler: () => new Response("deleted")
+      }
     })
     .view(() => h("div", null, "Content"));
 
   const entry = registry["test-api"];
   assertExists(entry.api); // Auto-generated client functions
-  assertExists(entry.api!.create); // Generated from POST
-  assertExists(entry.api!.delete); // Generated from DELETE
+  assertExists(entry.api!.save); // Explicit function name
+  assertExists(entry.api!.remove); // Explicit function name
 
-  const createAction = entry.api!.create("123");
-  assertEquals(createAction["hx-post"], "/api/save/123");
+  const saveAction = entry.api!.save("123");
+  assertEquals(saveAction["hx-post"], "/api/save/123");
 
-  const deleteAction = entry.api!.delete("123");
-  assertEquals(deleteAction["hx-delete"], "/api/delete/123");
+  const removeAction = entry.api!.remove("123");
+  assertEquals(removeAction["hx-delete"], "/api/delete/123");
 });
 
 Deno.test("component with styles stores CSS", () => {
@@ -114,7 +120,12 @@ Deno.test("component pipeline is chainable", () => {
   const result = component("test-chain")
     .props({ title: "string" })
     .styles(".chain { display: block; }")
-    .api({ "GET /test": () => new Response("test") })
+    .api({ 
+      test: {
+        route: "GET /test",
+        handler: () => new Response("test")
+      }
+    })
     .view((props) => h("div", { class: "chain" }, props.title));
 
   // Should return the builder for chaining

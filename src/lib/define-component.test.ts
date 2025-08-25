@@ -97,8 +97,14 @@ Deno.test("defineComponent with API integration", () => {
   defineComponent("test-api", {
     props: { id: "string" },
     api: {
-      "POST /test/:id": () => new Response("created"),
-      "DELETE /test/:id": () => new Response("deleted")
+      create: {
+        route: "POST /test/:id",
+        handler: () => new Response("created")
+      },
+      remove: {
+        route: "DELETE /test/:id", 
+        handler: () => new Response("deleted")
+      }
     },
     render: ({ id }, api) => 
       h("div", api.create(id), `Item ${id}`)
@@ -107,13 +113,13 @@ Deno.test("defineComponent with API integration", () => {
   const entry = registry["test-api"];
   assertExists(entry.api);
   assertExists(entry.api!.create);
-  assertExists(entry.api!.delete);
+  assertExists(entry.api!.remove);
 
   const createAction = entry.api!.create("123");
   assertEquals(createAction["hx-post"], "/test/123");
 
-  const deleteAction = entry.api!.delete("456");
-  assertEquals(deleteAction["hx-delete"], "/test/456");
+  const removeAction = entry.api!.remove("456");
+  assertEquals(removeAction["hx-delete"], "/test/456");
 });
 
 Deno.test("defineComponent throws error without render function", () => {

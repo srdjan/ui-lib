@@ -99,10 +99,11 @@ export function defineComponent<TProps extends EnhancedPropSpec>(
     generatedApi = generateClientApi(apiMap);
     
     // Register all routes with the router
-    for (const [route, handler] of Object.entries(apiMap)) {
+    for (const [functionName, apiDef] of Object.entries(apiMap)) {
+      const { route, handler } = apiDef;
       const [method, path] = route.split(" ");
       if (!method || !path || !handler) {
-        console.warn(`Invalid route definition: "${route}"`);
+        console.warn(`Invalid route definition: "${route}" for function "${functionName}"`);
         continue;
       }
       appRouter.register(method, path, handler);
