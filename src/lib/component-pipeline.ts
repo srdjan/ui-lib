@@ -1,4 +1,4 @@
-// Ultra-succinct pipeline API for functional web components (SSR-compatible)
+// Ultra-succinct pipeline API for functional SSR components
 import {
   createPropSpec,
   type InferProps,

@@ -6,11 +6,10 @@ code in this repository.
 ## Project Overview
 
 **funcwc** is a lightweight, functional programming library for building
-**SSR-compatible web components** with TypeScript/Deno. It creates Custom
-Elements that use custom JSX runtime for server-side rendering while maintaining
-client-side reactivity. The library features an ultra-succinct Pipeline API with
-immutable state, pure functions, and intelligent type inference, following Light
-Functional Programming principles.
+**SSR-first components** with TypeScript/Deno. It renders components to HTML strings
+on the server using a custom JSX runtime, with client-side interactivity powered by HTMX.
+The library features an ultra-succinct Pipeline API with immutable state, pure functions,
+and intelligent type inference, following Light Functional Programming principles.
 
 ## Development Commands
 
@@ -46,12 +45,11 @@ SSR-compatible web components:
 
 1. **Pipeline API** (`src/lib/component-pipeline.ts`) - Ultra-succinct chainable
    API for component creation
-2. **Core Component System** (`src/lib/defineComponent.signals.ts`) - Custom
-   Elements with signals-based reactivity
-3. **JSX Runtime** (`src/lib/jsx-runtime.ts`) - Custom JSX runtime for SSR
-   compatibility
-4. **Reactive Primitives** (`src/lib/signals.ts`) - Signal-based state
-   management system
+2. **Component Registry** (`src/lib/registry.ts`) - Global registry for SSR
+   component definitions
+3. **JSX Runtime** (`src/lib/jsx-runtime.ts`) - Custom JSX runtime that renders
+   directly to HTML strings
+4. **SSR Engine** (`src/lib/component-state.ts`) - Server-side rendering system
 
 ### Key Architecture Patterns
 
@@ -169,19 +167,19 @@ The library follows functional error handling patterns:
 
 ## Integration Notes
 
-### SSR Compatibility
+### SSR Architecture
 
-- Components use custom JSX runtime for server-side rendering
-- JSX elements render to real DOM nodes, not virtual DOM
-- Custom Elements automatically register on first import
-- Shadow DOM used for style encapsulation and component isolation
+- Components render to HTML strings on the server via custom JSX runtime
+- Global registry stores component definitions for server-side rendering
+- String-based template replacement converts component tags to rendered HTML
+- Client-side interactivity handled by HTMX attributes
 
-### Web Components
+### Pure SSR Approach
 
-- Built on standard Custom Elements v1 and Shadow DOM v1
-- Components register automatically via `customElements.define()`
-- Full interoperability with any web framework or vanilla HTML
-- Event handling bridges JSX events to action dispatching
+- No Custom Elements or Shadow DOM - components are pure server-side templates
+- Components registered in global registry (`__FWC_SSR__`) for string rendering
+- Zero client-side framework dependencies
+- Event handling via inline DOM manipulation or HTMX server actions
 
 ### Deno Runtime
 
@@ -192,9 +190,9 @@ The library follows functional error handling patterns:
 
 ### Browser Compatibility
 
-- Requires modern browsers with ES2020+ support
-- Uses Custom Elements v1 and Shadow DOM v1
-- Custom JSX runtime that renders directly to HTML strings
+- Works in any browser that supports ES5+ (very broad compatibility)
+- No Custom Elements or Shadow DOM required
+- Uses standard HTML with optional HTMX for interactivity
 
 ## Development Workflow
 
@@ -211,10 +209,10 @@ The library follows functional error handling patterns:
 
 ### SSR Integration
 
-- Components use custom JSX runtime that renders directly to HTML strings
+- Components render to HTML strings via custom JSX runtime
 - JSX pragma `/** @jsx h */` enables zero-config JSX processing
-- Custom `h` function converts JSX elements directly to HTML strings for SSR
-- Event handlers automatically support action dispatching
+- Custom `h` function converts JSX elements directly to HTML strings
+- Server-side template replacement converts `<component-name>` tags to rendered HTML
 - No build step required - Deno handles all transpilation
 
 ## Common Patterns

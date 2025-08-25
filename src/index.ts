@@ -1,4 +1,4 @@
-// Main exports for funcwc - DOM-native SSR web components library
+// Main exports for funcwc - DOM-native SSR components library
 
 // Core component system
 export { component } from "./lib/component-pipeline.ts";

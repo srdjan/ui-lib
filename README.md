@@ -1,9 +1,9 @@
-# funcwc - DOM-Native SSR Web Components
+# funcwc - DOM-Native SSR Components
 
-**Ultra-lightweight, type-safe web components with the DOM as your state
+**Ultra-lightweight, type-safe SSR components with the DOM as your state
 container.**
 
-Built for Deno + TypeScript, based on SSR approach with HTMX, funcwc takes a following approach to the client side state: **the DOM
+Built for Deno + TypeScript with an SSR-first approach using HTMX, funcwc takes a revolutionary approach to state management: **the DOM
 _is_ the state**. No JavaScript state objects, no synchronization overhead, just
 pure DOM manipulation with a delightful developer experience.
 
