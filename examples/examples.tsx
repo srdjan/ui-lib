@@ -5,6 +5,8 @@ import {
   h,
   renderComponent,
   toggleClasses,
+  patch,
+  del,
 } from "../src/index.ts";
 
 import {
@@ -145,7 +147,7 @@ defineComponent("todo-item", {
     done: { type: "boolean", default: false }
   },
   api: {
-    "PATCH /api/todos/:id/toggle": async (req, params) => {
+    toggle: patch("/api/todos/:id/toggle", async (req, params) => {
       const form = await req.formData();
       const isDone = form.get("done") === "true";
       return new Response(
@@ -155,10 +157,10 @@ defineComponent("todo-item", {
           done: !isDone,
         })
       );
-    },
-    "DELETE /api/todos/:id": (_req, _params) => {
+    }),
+    remove: del("/api/todos/:id", (_req, _params) => {
       return new Response(null, { status: 200 });
-    },
+    }),
   },
   classes: {
     item: "todo",
@@ -226,7 +228,7 @@ defineComponent("todo-item", {
         <button
           type="button"
           class={classes!.deleteBtn}
-          {...api.delete(id)}
+          {...api.remove(id)}
         >
           ×
         </button>
@@ -287,7 +289,7 @@ defineComponent("accordion", {
       padding: 1rem;
     }
   `,
-  render: ({ title, content, initiallyOpen }, api, classes) => (
+  render: ({ title, content, initiallyOpen }, _api, classes) => (
     <div class={`${classes!.container} ${initiallyOpen ? "open" : ""}`}>
       <div
         class={classes!.header}

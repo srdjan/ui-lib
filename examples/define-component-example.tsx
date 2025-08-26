@@ -1,5 +1,5 @@
 /** @jsx h */
-import { defineComponent, h, renderComponent } from "../src/index.ts";
+import { defineComponent, h, renderComponent, patch, del } from "../src/index.ts";
 
 // Example 1: Simple component with basic props
 defineComponent("simple-button", {
@@ -97,27 +97,21 @@ defineComponent("todo-item", {
     done: { type: "boolean", default: false }
   },
   api: {
-    toggle: {
-      route: "PATCH /api/todos/:id/toggle",
-      handler: async (req, params) => {
-        const form = await req.formData();
-        const isDone = form.get('done') === 'true';
-        return new Response(
-          renderComponent("todo-item", { 
-            id: params.id, 
-            text: "Updated task!", 
-            done: !isDone 
-          })
-        );
-      }
-    },
-    remove: {
-      route: "DELETE /api/todos/:id",
-      handler: async (req, params) => {
-        console.log(`Deleting todo ${params.id}`);
-        return new Response(null, { status: 204 });
-      }
-    }
+    toggle: patch("/api/todos/:id/toggle", async (req, params) => {
+      const form = await req.formData();
+      const isDone = form.get('done') === 'true';
+      return new Response(
+        renderComponent("todo-item", { 
+          id: params.id, 
+          text: "Updated task!", 
+          done: !isDone 
+        })
+      );
+    }),
+    remove: del("/api/todos/:id", async (req, params) => {
+      console.log(`Deleting todo ${params.id}`);
+      return new Response(null, { status: 204 });
+    })
   },
   styles: `
     .todo {

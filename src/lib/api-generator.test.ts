@@ -5,29 +5,15 @@ import {
   assertExists,
 } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import { generateClientApi } from "./api-generator.ts";
+import { get, post, patch, put, del } from "./api-helpers.ts";
 
-Deno.test("generateClientApi creates client functions with explicit names", () => {
+Deno.test("generateClientApi creates client functions with helper syntax", () => {
   const apiMap = {
-    create: {
-      route: "POST /api/todos",
-      handler: async () => new Response("created")
-    },
-    list: {
-      route: "GET /api/todos",
-      handler: async () => new Response("list")
-    },
-    toggle: {
-      route: "PATCH /api/todos/:id/toggle", 
-      handler: async () => new Response("toggled")
-    },
-    remove: {
-      route: "DELETE /api/todos/:id",
-      handler: async () => new Response("deleted")
-    },
-    getPost: {
-      route: "GET /api/users/:userId/posts/:postId",
-      handler: async () => new Response("nested")
-    }
+    create: post("/api/todos", async () => new Response("created")),
+    list: get("/api/todos", async () => new Response("list")),
+    toggle: patch("/api/todos/:id/toggle", async () => new Response("toggled")),
+    remove: del("/api/todos/:id", async () => new Response("deleted")),
+    getPost: get("/api/users/:userId/posts/:postId", async () => new Response("nested"))
   };
 
   const clientApi = generateClientApi(apiMap);
@@ -56,19 +42,10 @@ Deno.test("generateClientApi creates client functions with explicit names", () =
 
 Deno.test("generateClientApi handles edge cases", () => {
   const apiMap = {
-    update: {
-      route: "PUT /api/users/:id",
-      handler: async () => new Response("updated")
-    },
-    invalid: {
-      route: "INVALID_ROUTE", 
-      handler: async () => new Response("invalid")
-    },
-    root: {
-      route: "GET /api",
-      handler: async () => new Response("root")
-    }
-  };
+    update: put("/api/users/:id", async () => new Response("updated")),
+    invalid: "not a tuple", // Invalid format
+    root: get("/api", async () => new Response("root"))
+  } as any; // Type assertion to allow invalid entry for testing
 
   const clientApi = generateClientApi(apiMap);
 
@@ -86,58 +63,38 @@ Deno.test("generateClientApi handles edge cases", () => {
   assertEquals(Object.keys(clientApi).includes("invalid"), false);
 });
 
-Deno.test("explicit function names work with different HTTP methods", () => {
+Deno.test("helper syntax works with different HTTP methods", () => {
   const apiMap = {
-    list: {
-      route: "GET /api/todos",
-      handler: async () => new Response("test")
-    },
-    get: {
-      route: "GET /api/todos/:id", 
-      handler: async () => new Response("test")
-    },
-    create: {
-      route: "POST /api/todos",
-      handler: async () => new Response("test")
-    },
-    update: {
-      route: "PUT /api/todos/:id",
-      handler: async () => new Response("test")
-    },
-    patch: {
-      route: "PATCH /api/todos/:id",
-      handler: async () => new Response("test")
-    },
-    remove: {
-      route: "DELETE /api/todos/:id",
-      handler: async () => new Response("test")
-    }
+    list: get("/api/todos", async () => new Response("test")),
+    getItem: get("/api/todos/:id", async () => new Response("test")),
+    create: post("/api/todos", async () => new Response("test")),
+    update: put("/api/todos/:id", async () => new Response("test")),
+    patchItem: patch("/api/todos/:id", async () => new Response("test")),
+    remove: del("/api/todos/:id", async () => new Response("test"))
   };
 
   const clientApi = generateClientApi(apiMap);
   
   // Check that all explicit function names are preserved
   assertExists(clientApi.list);
-  assertExists(clientApi.get);
+  assertExists(clientApi.getItem);
   assertExists(clientApi.create);
   assertExists(clientApi.update);
-  assertExists(clientApi.patch);
+  assertExists(clientApi.patchItem);
   assertExists(clientApi.remove);
 
   // Test that HTTP methods are correctly mapped to HTMX attributes
   assertEquals(clientApi.list()["hx-get"], "/api/todos");
   assertEquals(clientApi.create()["hx-post"], "/api/todos");
   assertEquals(clientApi.update("123")["hx-put"], "/api/todos/123");
-  assertEquals(clientApi.patch("123")["hx-patch"], "/api/todos/123");
+  assertEquals(clientApi.patchItem("123")["hx-patch"], "/api/todos/123");
   assertEquals(clientApi.remove("123")["hx-delete"], "/api/todos/123");
 });
 
 Deno.test("parameter extraction handles complex paths", () => {
   const apiMap = {
-    getComment: {
-      route: "GET /api/users/:userId/posts/:postId/comments/:commentId",
-      handler: async () => new Response("nested")
-    }
+    getComment: get("/api/users/:userId/posts/:postId/comments/:commentId", 
+      async () => new Response("nested"))
   };
 
   const clientApi = generateClientApi(apiMap);
@@ -149,14 +106,8 @@ Deno.test("parameter extraction handles complex paths", () => {
 
 Deno.test("generateClientApi handles no parameters", () => {
   const apiMap = {
-    health: {
-      route: "GET /api/health",
-      handler: async () => new Response("ok")
-    },
-    logout: {
-      route: "POST /api/logout", 
-      handler: async () => new Response("logged out")
-    }
+    health: get("/api/health", async () => new Response("ok")),
+    logout: post("/api/logout", async () => new Response("logged out"))
   };
 
   const clientApi = generateClientApi(apiMap);

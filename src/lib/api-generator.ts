@@ -2,11 +2,8 @@
 
 import { type RouteHandler } from "./router.ts";
 
-export type ApiDefinition = {
-  route: string;
-  handler: RouteHandler;
-};
-
+// Type-safe tuple format: functionName -> [method, path, handler]
+export type ApiDefinition = readonly [string, string, RouteHandler]; // [method, path, handler]
 export type ApiMap = Record<string, ApiDefinition>;
 export type GeneratedApiMap = Record<
   string,
@@ -14,23 +11,29 @@ export type GeneratedApiMap = Record<
 >;
 
 /**
- * Auto-generates client attribute functions from API definitions with explicit function names
+ * Auto-generates client attribute functions from type-safe API definitions
  *
  * Examples:
- * toggle: { route: 'PATCH /api/todos/:id/toggle', handler: ... } → toggle: (id) => ({ 'hx-patch': `/api/todos/${id}/toggle` })
- * remove: { route: 'DELETE /api/todos/:id', handler: ... }        → remove: (id) => ({ 'hx-delete': `/api/todos/${id}` })
- * create: { route: 'POST /api/todos', handler: ... }              → create: () => ({ 'hx-post': '/api/todos' })
+ * toggle: ["PATCH", "/api/todos/:id/toggle", handler] → toggle: (id) => ({ 'hx-patch': `/api/todos/${id}/toggle` })
+ * remove: ["DELETE", "/api/todos/:id", handler]       → remove: (id) => ({ 'hx-delete': `/api/todos/${id}` })
+ * create: ["POST", "/api/todos", handler]             → create: () => ({ 'hx-post': '/api/todos' })
  */
 export function generateClientApi(apiMap: ApiMap): GeneratedApiMap {
   const generatedApi: GeneratedApiMap = {};
 
-  for (const [functionName, apiDef] of Object.entries(apiMap)) {
-    const { route } = apiDef;
-    const [method, path] = route.split(" ");
+  for (const [functionName, apiDefinition] of Object.entries(apiMap)) {
+    if (!Array.isArray(apiDefinition) || apiDefinition.length !== 3) {
+      console.warn(
+        `Invalid API definition for "${functionName}". Expected format: [method, path, handler] (e.g., ["POST", "/api/todos", handler])`
+      );
+      continue;
+    }
+
+    const [method, path, _handler] = apiDefinition;
     
     if (!method || !path) {
       console.warn(
-        `Invalid route definition: "${route}". Expected format: "METHOD /path" (e.g., "GET /api/todos", "POST /api/users/:id")`
+        `Invalid API definition for "${functionName}": method and path are required`
       );
       continue;
     }

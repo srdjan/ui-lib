@@ -99,13 +99,18 @@ export function defineComponent<TProps extends EnhancedPropSpec>(
     generatedApi = generateClientApi(apiMap);
     
     // Register all routes with the router
-    for (const [functionName, apiDef] of Object.entries(apiMap)) {
-      const { route, handler } = apiDef;
-      const [method, path] = route.split(" ");
-      if (!method || !path || !handler) {
-        console.warn(`Invalid route definition: "${route}" for function "${functionName}"`);
+    for (const [functionName, apiDefinition] of Object.entries(apiMap)) {
+      if (!Array.isArray(apiDefinition) || apiDefinition.length !== 3) {
+        console.warn(`Invalid API definition for "${functionName}". Expected format: [method, path, handler]`);
         continue;
       }
+      
+      const [method, path, handler] = apiDefinition;
+      if (!method || !path || !handler) {
+        console.warn(`Invalid API definition for "${functionName}": method, path, and handler are required`);
+        continue;
+      }
+      
       appRouter.register(method, path, handler);
     }
   }

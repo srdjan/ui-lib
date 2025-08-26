@@ -5,6 +5,9 @@ export { defineComponent } from "./lib/define-component.ts";
 export { renderComponent } from "./lib/component-state.ts";
 export { h } from "./lib/jsx-runtime.ts";
 
+// HTTP method helpers for clean API definitions
+export { get, post, put, patch, del, remove, create } from "./lib/api-helpers.ts";
+
 // Legacy API (maintained for backward compatibility)
 export { component } from "./lib/component-pipeline.ts";
 
