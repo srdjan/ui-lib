@@ -24,11 +24,11 @@ defineComponent("unified-card", {
     highlighted: "highlighted" in attrs,
   }),
   styles: {
-    // ✨ Define class names and styles together!
-    card: `.card { border: 2px solid #e9ecef; border-radius: 8px; padding: 1.5rem; margin: 1rem 0; background: white; transition: all 0.2s ease; }`,
-    title: `.card-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem; color: #495057; }`,
-    content: `.card-content { color: #6c757d; line-height: 1.5; }`,
-    highlight: `.card-highlight { border-color: #007bff !important; background: #f8f9ff; box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15); }`,
+    // ✨ New ultra-simplified CSS-only format!
+    card: `{ border: 2px solid #e9ecef; border-radius: 8px; padding: 1.5rem; margin: 1rem 0; background: white; transition: all 0.2s ease; }`,
+    title: `{ font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem; color: #495057; }`,
+    content: `{ color: #6c757d; line-height: 1.5; }`,
+    highlight: `{ border-color: #007bff !important; background: #f8f9ff; box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15); }`,
   },
   render: ({ title, highlighted }, _api, classes) => (
     <div class={`${classes!.card} ${highlighted ? classes!.highlight : ""}`}>
@@ -43,7 +43,7 @@ defineComponent("unified-card", {
   ),
 });
 
-// Theme Toggle - Pure DOM State
+// Theme Toggle - Pure DOM State (uses complex selectors)
 defineComponent("theme-toggle", {
   styles: {
     button: `.theme-btn { padding: 0.5rem 1rem; border: 2px solid; border-radius: 6px; cursor: pointer; font-weight: 500; transition: border-color 0.2s ease, box-shadow 0.2s ease; background: none; }`,
@@ -79,10 +79,11 @@ defineComponent("counter", {
     step: parseInt(attrs.step || "1"),
   }),
   styles: {
-    container: `.counter { display: inline-flex; gap: 0.5rem; padding: 1rem; border: 2px solid #007bff; border-radius: 6px; align-items: center; background: white; }`,
-    button: `.counter-btn { padding: 0.5rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; min-width: 2rem; font-weight: bold; }`,
-    buttonHover: `.counter-btn:hover { background: #0056b3; }`,
-    display: `.count-display { font-size: 1.5rem; min-width: 3rem; text-align: center; font-weight: bold; color: #007bff; }`
+    // ✨ CSS-only format - class names auto-generated from keys!
+    container: `{ display: inline-flex; gap: 0.5rem; padding: 1rem; border: 2px solid #007bff; border-radius: 6px; align-items: center; background: white; }`,
+    button: `{ padding: 0.5rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; min-width: 2rem; font-weight: bold; }`,
+    buttonHover: `{ background: #0056b3; }`, // → .button-hover for :hover selector
+    display: `{ font-size: 1.5rem; min-width: 3rem; text-align: center; font-weight: bold; color: #007bff; }`
   },
   render: (
     { initialCount, step }: { initialCount: number; step: number },
@@ -152,30 +153,32 @@ defineComponent("todo-item", {
     }),
   },
   styles: {
-    item: `.todo { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 0.5rem; background: white; transition: background-color 0.2s; }`,
-    itemDone: `.todo.done { background: #f8f9fa; opacity: 0.8; }`,
-    checkbox: `.todo-checkbox { margin-right: 0.5rem; }`,
-    text: `.todo-text { flex: 1; font-size: 1rem; }`,
-    textDone: `.todo.done .todo-text { text-decoration: line-through; color: #6c757d; }`,
-    deleteBtn: `.delete-btn { background: #dc3545; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; line-height: 1; }`,
-    deleteBtnHover: `.delete-btn:hover { background: #c82333; }`
+    // ✨ CSS-only format for todo items!
+    item: `{ display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 0.5rem; background: white; transition: background-color 0.2s; }`,
+    itemDone: `{ background: #f8f9fa; opacity: 0.8; }`, // Applied conditionally  
+    checkbox: `{ margin-right: 0.5rem; }`,
+    text: `{ flex: 1; font-size: 1rem; }`,
+    textDone: `{ text-decoration: line-through; color: #6c757d; }`, // Applied conditionally
+    deleteBtn: `{ background: #dc3545; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; line-height: 1; }`,
+    deleteBtnHover: `{ background: #c82333; }` // → .delete-btn-hover
   },
   render: (
     { id, text, done }: { id: string; text: string; done: boolean },
     api: GeneratedApiMap,
     classes?: Record<string, string>,
   ) => {
-    const todoClass = `${classes!.item} ${done ? "done" : ""}`;
+    const itemClass = `${classes!.item} ${done ? classes!.itemDone : ""}`;
+    const textClass = `${classes!.text} ${done ? classes!.textDone : ""}`;
     return (
-      <div class={todoClass} data-id={id}>
+      <div class={itemClass} data-id={id}>
         <input
           type="checkbox"
           class={classes!.checkbox}
           checked={done}
-          onChange={syncCheckboxToClass("done")}
+          onChange={syncCheckboxToClass(classes!.itemDone)} // Use the generated class name
           {...api.toggle(id)}
         />
-        <span class={classes!.text}>{text}</span>
+        <span class={textClass}>{text}</span>
         <button type="button" class={classes!.deleteBtn} {...api.remove(id)}>
           ×
         </button>
@@ -184,7 +187,7 @@ defineComponent("todo-item", {
   },
 });
 
-// Accordion - showcasing new unified styles API!
+// Accordion - showcasing CSS-only format!
 defineComponent("accordion", {
   props: (attrs) => ({
     title: attrs.title,
@@ -192,13 +195,15 @@ defineComponent("accordion", {
     initiallyOpen: "initiallyOpen" in attrs,
   }),
   styles: {
-    container: `.accordion { border: 1px solid #ddd; border-radius: 6px; margin-bottom: 0.5rem; overflow: hidden; }`,
-    header: `.accordion-header { background: #f8f9fa; padding: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 500; user-select: none; transition: background-color 0.2s; }`,
-    headerHover: `.accordion-header:hover { background: #e9ecef; }`,
-    icon: `.accordion-icon { transition: transform 0.2s; font-size: 1.2rem; }`,
-    iconOpen: `.accordion.open .accordion-icon { transform: rotate(180deg); }`,
-    content: `.accordion-content { padding: 0 1rem; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; }`,
-    contentOpen: `.accordion.open .accordion-content { max-height: 500px; padding: 1rem; }`
+    // ✨ CSS-only format for accordion!
+    container: `{ border: 1px solid #ddd; border-radius: 6px; margin-bottom: 0.5rem; overflow: hidden; }`,
+    containerOpen: `{ /* styles for open state */ }`, // Can be empty if not needed
+    header: `{ background: #f8f9fa; padding: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 500; user-select: none; transition: background-color 0.2s; }`,
+    headerHover: `{ background: #e9ecef; }`, // → .header-hover
+    icon: `{ transition: transform 0.2s; font-size: 1.2rem; }`,
+    iconOpen: `{ transform: rotate(180deg); }`, // Applied conditionally
+    content: `{ padding: 0 1rem; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; }`,
+    contentOpen: `{ max-height: 500px; padding: 1rem; }` // Applied conditionally
   },
   render: (
     { title, content, initiallyOpen }: {
@@ -208,17 +213,23 @@ defineComponent("accordion", {
     },
     _api: undefined,
     classes?: Record<string, string>,
-  ) => (
-    <div class={`${classes!.container} ${initiallyOpen ? "open" : ""}`}>
-      <div class={classes!.header} onclick={toggleParentClass("open")}>
-        <span>{title}</span>
-        <span class={classes!.icon}>▼</span>
+  ) => {
+    const containerClass = `${classes!.container} ${initiallyOpen ? classes!.containerOpen : ""}`;
+    const iconClass = `${classes!.icon} ${initiallyOpen ? classes!.iconOpen : ""}`;
+    const contentClass = `${classes!.content} ${initiallyOpen ? classes!.contentOpen : ""}`;
+    
+    return (
+      <div class={containerClass}>
+        <div class={classes!.header} onclick={toggleParentClass(classes!.containerOpen)}>
+          <span>{title}</span>
+          <span class={iconClass}>▼</span>
+        </div>
+        <div class={contentClass}>
+          <div dangerouslySetInnerHTML={{ __html: content }}></div>
+        </div>
       </div>
-      <div class={classes!.content}>
-        <div dangerouslySetInnerHTML={{ __html: content }}></div>
-      </div>
-    </div>
-  ),
+    );
+  },
 });
 
 // Tabs
@@ -228,14 +239,15 @@ defineComponent("tabs", {
     activeTab: attrs.activeTab || "",
   }),
   styles: {
-    container: `.tabs-container { border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }`,
-    nav: `.tabs-nav { display: flex; background: #f8f9fa; border-bottom: 1px solid #ddd; }`,
-    button: `.tab-btn { flex: 1; padding: 1rem; background: none; border: none; cursor: pointer; font-size: 1rem; transition: background-color 0.2s; }`,
-    buttonHover: `.tab-btn:hover { background: #e9ecef; }`,
-    buttonActive: `.tab-btn.active { background: white; border-bottom: 2px solid #007bff; font-weight: 500; color: #007bff; }`,
-    content: `.tab-content { padding: 1.5rem; min-height: 200px; }`,
-    panel: `.tab-panel { display: none; }`,
-    panelActive: `.tab-panel.active { display: block; }`
+    // ✨ CSS-only format for tabs!
+    container: `{ border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }`,
+    nav: `{ display: flex; background: #f8f9fa; border-bottom: 1px solid #ddd; }`,
+    button: `{ flex: 1; padding: 1rem; background: none; border: none; cursor: pointer; font-size: 1rem; transition: background-color 0.2s; }`,
+    buttonHover: `{ background: #e9ecef; }`, // → .button-hover
+    buttonActive: `{ background: white; border-bottom: 2px solid #007bff; font-weight: 500; color: #007bff; }`, // → .button-active
+    content: `{ padding: 1.5rem; min-height: 200px; }`,
+    panel: `{ display: none; }`,
+    panelActive: `{ display: block; }` // → .panel-active
   },
   render: (
     { tabs, activeTab }: { tabs: string; activeTab: string },
@@ -251,12 +263,12 @@ defineComponent("tabs", {
           {tabList.map((tab) => (
             <button
               type="button"
-              class={`${classes!.button} ${tab === active ? "active" : ""}`}
+              class={`${classes!.button} ${tab === active ? classes!.buttonActive : ""}`}
               onclick={activateTab(
                 `.${classes!.container}`,
                 `.${classes!.button}`,
                 `.${classes!.content}`,
-                "active",
+                classes!.buttonActive,
               )}
               data-tab={tab}
             >
@@ -267,7 +279,7 @@ defineComponent("tabs", {
         <div class={classes!.content}>
           {tabList.map((tab) => (
             <div
-              class={`${classes!.panel} ${tab === active ? "active" : ""}`}
+              class={`${classes!.panel} ${tab === active ? classes!.panelActive : ""}`}
               data-tab-content={tab}
             >
               <h3>{tab} Content</h3>

@@ -50,12 +50,39 @@
     </p>
 
     <section style="border: 3px solid #007bff; background: #f8f9ff">
-      <h2>🎉 NEW: Unified Styles API</h2>
+      <h2>🎉 NEW: Ultra-Simplified CSS-Only Format!</h2>
       <p style="color: #0056b3; font-weight: 500">
-        No more duplication between classes and styles! Define them together in one place.
+        Just write CSS properties - class names auto-generated! No selectors, no duplication, pure magic! ✨
       </p>
       <unified-card title="Amazing!" highlighted></unified-card>
       <unified-card title="Traditional Approach" ></unified-card>
+      
+      <details style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 6px;">
+        <summary style="font-weight: 500; cursor: pointer; color: #007bff;">
+          💫 See The Magic: CSS-Only vs Old Way
+        </summary>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+          <div>
+            <h4 style="color: #28a745; margin: 0 0 0.5rem 0">✨ New CSS-Only Format</h4>
+            <pre style="background: #f8fff9; padding: 1rem; border-radius: 4px; font-size: 0.8rem; margin: 0;"><code>styles: {
+  card: \`{ border: 2px solid #ddd; }\`,
+  title: \`{ font-size: 1.2rem; }\`,
+  buttonPrimary: \`{ background: blue; }\`
+}
+// Auto-generates:
+// .card, .title, .button-primary</code></pre>
+          </div>
+          <div>
+            <h4 style="color: #dc3545; margin: 0 0 0.5rem 0">🔄 Old Unified Format</h4>
+            <pre style="background: #fff5f5; padding: 1rem; border-radius: 4px; font-size: 0.8rem; margin: 0;"><code>styles: {
+  card: \`.card { border: 2px solid #ddd; }\`,
+  title: \`.title { font-size: 1.2rem; }\`,
+  btn: \`.button-primary { background: blue; }\`
+}
+// Still works but more verbose</code></pre>
+          </div>
+        </div>
+      </details>
     </section>
 
     <section>
@@ -66,13 +93,13 @@
 
     <section style="margin-top: 2rem">
       <h2>🔢 Counter</h2>
-      <p>Counter value stored in DOM attributes and element content.</p>
+      <p>Counter value stored in DOM attributes and element content. <strong>Uses CSS-only format!</strong></p>
       <counter step="3" initialCount="5"></counter>
     </section>
 
     <section style="margin-top: 2rem">
       <h2>✅ Todo Item</h2>
-      <p>Local UI state (checkbox) + Server persistence via HTMX.</p>
+      <p>Local UI state (checkbox) + Server persistence via HTMX. <strong>CSS-only format + API integration!</strong></p>
       <todo-item
         id="1"
         text="Learn DOM-native development"
@@ -87,7 +114,7 @@
 
     <section style="margin-top: 2rem">
       <h2>📁 Accordion</h2>
-      <p>Open/closed state managed with CSS classes and transitions.</p>
+      <p>Open/closed state managed with CSS classes and transitions. <strong>Pure CSS-only format!</strong></p>
       <accordion
         title="What is DOM-native development?"
         content="DOM-native development uses the browser's built-in state mechanisms (CSS classes, form values, data attributes) instead of JavaScript object state management. This results in simpler, more performant, and more accessible components."
@@ -103,7 +130,7 @@
 
     <section style="margin-top: 2rem">
       <h2>📑 Tabs</h2>
-      <p>Active tab state stored as CSS classes and data attributes.</p>
+      <p>Active tab state stored as CSS classes and data attributes. <strong>CSS-only styling magic!</strong></p>
       <tabs tabs="Home,About,Settings,Contact" activeTab="Home"></tabs>
     </section>
 
@@ -131,23 +158,23 @@
         <pre
           style="margin-top: 1rem; padding: 1rem; background: #f8f9ff; border: 2px solid #007bff; border-radius: 4px; overflow-x: auto; font-size: 0.9rem"
         >
-<code>// 🎉 NEW: Unified Styles (No Duplication!)
+<code>// 🎉 NEW: Ultra-Simplified CSS-Only Format!
 defineComponent("smart-counter", {
   props: (attrs) => ({
     initialCount: parseInt(attrs.initialCount || "0"),
     step: parseInt(attrs.step || "1")
   }),
   styles: {
-    // ✨ Class names extracted automatically from selectors!
-    container: `.counter { display: flex; gap: 0.5rem; border: 2px solid #007bff; }`,
-    button: `.counter-btn { background: #007bff; color: white; padding: 0.5rem; }`,
-    buttonHover: `.counter-btn:hover { background: #0056b3; }`,
-    display: `.count-display { font-size: 1.5rem; font-weight: bold; }`
+    // ✨ Just CSS properties - class names auto-generated!
+    container: \`{ display: flex; gap: 0.5rem; border: 2px solid #007bff; }\`,
+    button: \`{ background: #007bff; color: white; padding: 0.5rem; }\`,
+    buttonHover: \`{ background: #0056b3; }\`, // → .button-hover
+    display: \`{ font-size: 1.5rem; font-weight: bold; }\`
   },
   render: ({ initialCount, step }, api, classes) => (
-    &lt;div class={classes.container}&gt;
-      &lt;button class={classes.button}&gt;-{step}&lt;/button&gt;
-      &lt;span class={classes.display}&gt;{initialCount}&lt;/span&gt;
+    &lt;div class={classes.container}&gt; {/* .container */}
+      &lt;button class={classes.button}&gt;-{step}&lt;/button&gt; {/* .button */}
+      &lt;span class={classes.display}&gt;{initialCount}&lt;/span&gt; {/* .display */}
       &lt;button class={classes.button}&gt;+{step}&lt;/button&gt;
     &lt;/div&gt;
   )
@@ -171,10 +198,10 @@ styles: \`
   .counter-btn { padding: 1rem; } // ← More repetition
 \`</code></pre>
 
-          <h4 style="color: #28a745; margin-bottom: 0.5rem">✅ New Way (Unified)</h4>
+          <h4 style="color: #28a745; margin-bottom: 0.5rem">✅ New Way (CSS-Only!)</h4>
           <pre style="padding: 1rem; background: #f8fff9; border: 1px solid #28a745; border-radius: 4px; font-size: 0.85rem"><code>styles: {
-  container: \`.counter { display: flex; }\`,        // ← One place!
-  button: \`.counter-btn { padding: 1rem; }\`       // ← Clean & DRY
+  container: \`{ display: flex; }\`,               // ← Just CSS properties!
+  buttonPrimary: \`{ padding: 1rem; color: white; }\` // → .button-primary
 }</code></pre>
         </div>
       </details>
