@@ -51,8 +51,14 @@ export function h(
   }
 
   let attributes = "";
+  let dangerousInnerHTML = "";
   for (const [key, value] of Object.entries(props)) {
     if (key === "children" || value == null || value === false) continue;
+    
+    if (key === "dangerouslySetInnerHTML" && typeof value === "object" && value && "__html" in value) {
+      dangerousInnerHTML = String((value as any).__html);
+      continue;
+    }
 
     if (key.startsWith("on")) {
       let handlerString = "";
@@ -84,6 +90,11 @@ export function h(
   if (SELF_CLOSING_TAGS.has(tag)) {
     return openTag;
   }
+  // If dangerouslySetInnerHTML is provided, use that instead of children
+  if (dangerousInnerHTML) {
+    return `${openTag}${dangerousInnerHTML}</${tag}>`;
+  }
+  
   const flattenedChildren = children.flat(Infinity);
   const childrenHtml = flattenedChildren
     .map((child) => {

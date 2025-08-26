@@ -10,13 +10,11 @@ import {
   number,
   boolean,
 } from "../src/index.ts";
-import type { GeneratedApiMap } from "../src/index.ts";
 
 import {
   activateTab,
   resetCounter,
   syncCheckboxToClass,
-  toggleParentClass,
   updateParentCounter,
 } from "./dom-actions.ts";
 
@@ -81,8 +79,8 @@ defineComponent("counter", {
   styles: {
     // ✨ CSS-only format - class names auto-generated from keys!
     container: `{ display: inline-flex; gap: 0.5rem; padding: 1rem; border: 2px solid #007bff; border-radius: 6px; align-items: center; background: white; }`,
-    button: `{ padding: 0.5rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; min-width: 2rem; font-weight: bold; }`,
-    buttonHover: `{ background: #0056b3; }`, // → .button-hover for :hover selector
+    counterButton: `{ padding: 0.5rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; min-width: 2rem; font-weight: bold; }`,
+    counterButtonHover: `{ background: #0056b3; }`, // → .counter-button-hover
     display: `{ font-size: 1.5rem; min-width: 3rem; text-align: center; font-weight: bold; color: #007bff; }`
   },
   render: ({
@@ -92,7 +90,7 @@ defineComponent("counter", {
     <div class={classes!.container} data-count={initialCount}>
       <button
         type="button"
-        class={classes!.button}
+        class={classes!.counterButton}
         onclick={updateParentCounter(
           `.${classes!.container}`,
           `.${classes!.display}`,
@@ -104,7 +102,7 @@ defineComponent("counter", {
       <span class={classes!.display}>{initialCount}</span>
       <button
         type="button"
-        class={classes!.button}
+        class={classes!.counterButton}
         onclick={updateParentCounter(
           `.${classes!.container}`,
           `.${classes!.display}`,
@@ -115,7 +113,7 @@ defineComponent("counter", {
       </button>
       <button
         type="button"
-        class={classes!.button}
+        class={classes!.counterButton}
         onclick={resetCounter(
           `.${classes!.display}`,
           initialCount,
@@ -128,13 +126,9 @@ defineComponent("counter", {
   ),
 });
 
-// Todo Item - HTMX Integration
+// Todo Item - HTMX Integration + Function-style props!
 defineComponent("todo-item", {
-  props: (attrs) => ({
-    id: attrs.id,
-    text: attrs.text,
-    done: "done" in attrs,
-  }),
+  // ✨ No props transformer needed - auto-generated from render parameters!
   api: {
     toggle: patch("/api/todos/:id/toggle", async (req, params) => {
       const form = await req.formData();
@@ -161,24 +155,24 @@ defineComponent("todo-item", {
     deleteBtn: `{ background: #dc3545; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; line-height: 1; }`,
     deleteBtnHover: `{ background: #c82333; }` // → .delete-btn-hover
   },
-  render: (
-    { id, text, done }: { id: string; text: string; done: boolean },
-    api: GeneratedApiMap,
-    classes?: Record<string, string>,
-  ) => {
-    const itemClass = `${classes!.item} ${done ? classes!.itemDone : ""}`;
-    const textClass = `${classes!.text} ${done ? classes!.textDone : ""}`;
+  render: ({
+    id = string("1"),
+    text = string("Todo item"),
+    done = boolean(false)
+  }, api, classes) => {
+    const itemClass = `${classes!.item} ${(done as boolean) ? classes!.itemDone : ""}`;
+    const textClass = `${classes!.text} ${(done as boolean) ? classes!.textDone : ""}`;
     return (
-      <div class={itemClass} data-id={id}>
+      <div class={itemClass} data-id={id as string}>
         <input
           type="checkbox"
           class={classes!.checkbox}
-          checked={done}
+          checked={done as boolean}
           onChange={syncCheckboxToClass(classes!.itemDone)} // Use the generated class name
-          {...api.toggle(id)}
+          {...api.toggle(id as string)}
         />
-        <span class={textClass}>{text}</span>
-        <button type="button" class={classes!.deleteBtn} {...api.remove(id)}>
+        <span class={textClass}>{text as string}</span>
+        <button type="button" class={classes!.deleteBtn} {...api.remove(id as string)}>
           ×
         </button>
       </div>
@@ -186,51 +180,10 @@ defineComponent("todo-item", {
   },
 });
 
-// Accordion - showcasing CSS-only format + function-style props!
-defineComponent("accordion", {
+// Tabs - Now with function-style props!
+defineComponent("tabs", {
   // ✨ Function-style props eliminate props/render parameter duplication!
   styles: {
-    // ✨ CSS-only format for accordion!
-    container: `{ border: 1px solid #ddd; border-radius: 6px; margin-bottom: 0.5rem; overflow: hidden; }`,
-    containerOpen: `{ /* styles for open state */ }`, // Can be empty if not needed
-    header: `{ background: #f8f9fa; padding: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 500; user-select: none; transition: background-color 0.2s; }`,
-    headerHover: `{ background: #e9ecef; }`, // → .header-hover
-    icon: `{ transition: transform 0.2s; font-size: 1.2rem; }`,
-    iconOpen: `{ transform: rotate(180deg); }`, // Applied conditionally
-    content: `{ padding: 0 1rem; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; }`,
-    contentOpen: `{ max-height: 500px; padding: 1rem; }` // Applied conditionally
-  },
-  render: ({ 
-    title = string("Accordion Title"),
-    content = string("Accordion content goes here..."),
-    initiallyOpen = boolean(false)
-  }, _api, classes) => {
-    const containerClass = `${classes!.container} ${initiallyOpen ? classes!.containerOpen : ""}`;
-    const iconClass = `${classes!.icon} ${initiallyOpen ? classes!.iconOpen : ""}`;
-    const contentClass = `${classes!.content} ${initiallyOpen ? classes!.contentOpen : ""}`;
-    
-    return (
-      <div class={containerClass}>
-        <div class={classes!.header} onclick={toggleParentClass(classes!.containerOpen)}>
-          <span>{title}</span>
-          <span class={iconClass}>▼</span>
-        </div>
-        <div class={contentClass}>
-          <div dangerouslySetInnerHTML={{ __html: content }}></div>
-        </div>
-      </div>
-    );
-  },
-});
-
-// Tabs
-defineComponent("tabs", {
-  props: (attrs) => ({
-    tabs: attrs.tabs || "",
-    activeTab: attrs.activeTab || "",
-  }),
-  styles: {
-    // ✨ CSS-only format for tabs!
     container: `{ border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }`,
     nav: `{ display: flex; background: #f8f9fa; border-bottom: 1px solid #ddd; }`,
     button: `{ flex: 1; padding: 1rem; background: none; border: none; cursor: pointer; font-size: 1rem; transition: background-color 0.2s; }`,
@@ -240,18 +193,17 @@ defineComponent("tabs", {
     panel: `{ display: none; }`,
     panelActive: `{ display: block; }` // → .panel-active
   },
-  render: (
-    { tabs, activeTab }: { tabs: string; activeTab: string },
-    _api: undefined,
-    classes?: Record<string, string>,
-  ) => {
-    const tabList = tabs.split(",").map((t) => t.trim());
-    const active = activeTab || tabList[0];
+  render: ({
+    tabs = string("Home,About"),
+    activeTab = string("Home")
+  }, _api, classes) => {
+    const tabList = (tabs as string).split(",").map((t: string) => t.trim());
+    const active = (activeTab as string) || tabList[0];
 
     return (
       <div class={classes!.container}>
         <div class={classes!.nav}>
-          {tabList.map((tab) => (
+          {tabList.map((tab: string) => (
             <button
               type="button"
               class={`${classes!.button} ${tab === active ? classes!.buttonActive : ""}`}
@@ -268,7 +220,7 @@ defineComponent("tabs", {
           ))}
         </div>
         <div class={classes!.content}>
-          {tabList.map((tab) => (
+          {tabList.map((tab: string) => (
             <div
               class={`${classes!.panel} ${tab === active ? classes!.panelActive : ""}`}
               data-tab-content={tab}
