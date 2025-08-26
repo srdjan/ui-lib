@@ -29,7 +29,7 @@ const parseAttributes = (attrString: string): Record<string, string> => {
 };
 
 // Load all examples to register components and their routes
-const modUrl = new URL(`./examples/examples.tsx`, `file://${Deno.cwd()}/`).href;
+const modUrl = new URL(`./examples/example.tsx`, `file://${Deno.cwd()}/`).href;
 await import(modUrl);
 
 Deno.serve({
@@ -106,7 +106,7 @@ Deno.serve({
       console.error(
         `[Server] Error processing ${request.method} ${url.pathname}:`,
         error instanceof Error ? error.message : error,
-        error instanceof Error && error.stack ? `\nStack: ${error.stack}` : ""
+        error instanceof Error && error.stack ? `\nStack: ${error.stack}` : "",
       );
       return new Response("Internal Server Error", { status: 500 });
     }

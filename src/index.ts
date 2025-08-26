@@ -6,7 +6,15 @@ export { renderComponent } from "./lib/component-state.ts";
 export { h } from "./lib/jsx-runtime.ts";
 
 // HTTP method helpers for clean API definitions
-export { get, post, put, patch, del, remove, create } from "./lib/api-helpers.ts";
+export {
+  create,
+  del,
+  get,
+  patch,
+  post,
+  put,
+  remove,
+} from "./lib/api-helpers.ts";
 
 // Legacy API (maintained for backward compatibility)
 export { component } from "./lib/component-pipeline.ts";
@@ -32,12 +40,15 @@ export { escapeHtml } from "./lib/ssr.ts";
 // Type definitions
 export type { ComponentAction } from "./lib/actions.ts";
 export type { ApiMap, GeneratedApiMap } from "./lib/component-pipeline.ts";
-export type { 
-  PropsTransformer,
-  PropsSpec,
+export type {
+  ComponentConfig,
   InferProps,
-  ComponentConfig
+  PropsSpec,
+  PropsTransformer,
 } from "./lib/define-component.ts";
 
 // Import JSX types to make them globally available
 import "./lib/jsx.d.ts";
+
+// Styles utilities
+export type { UnifiedStyles } from "./lib/styles-parser.ts";

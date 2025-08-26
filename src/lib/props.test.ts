@@ -42,7 +42,7 @@ Deno.test("boolean attribute parsing follows HTML standards", () => {
   assertEquals(spec.disabled.parse("0"), false); // "0" should be false
   assertEquals(spec.disabled.parse("1"), true);
   assertEquals(spec.disabled.parse("disabled"), true); // Any other string = true
-  
+
   // Optional boolean
   assertEquals(spec.checked.parse(""), true);
   assertEquals(spec.checked.parse(null), undefined);

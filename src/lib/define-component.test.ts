@@ -8,7 +8,7 @@ import { defineComponent } from "./define-component.ts";
 import { getRegistry } from "./registry.ts";
 import { renderComponent } from "./component-state.ts";
 import { h } from "./jsx-runtime.ts";
-import { post, del } from "./api-helpers.ts";
+import { del, post } from "./api-helpers.ts";
 
 Deno.test("defineComponent registers component in registry", () => {
   // Clear registry first
@@ -17,7 +17,7 @@ Deno.test("defineComponent registers component in registry", () => {
 
   defineComponent("test-define", {
     // @ts-ignore - test doesn't need perfect types
-    render: (props: { text: string }) => h("div", null, props.text)
+    render: (props: { text: string }) => h("div", null, props.text),
   });
 
   assertExists(registry["test-define"]);
@@ -32,16 +32,20 @@ Deno.test("defineComponent with props transformer (defaults)", () => {
     props: (attrs) => ({
       name: attrs.name,
       count: parseInt(attrs.count || "42"),
-      active: "active" in attrs
+      active: "active" in attrs,
     }),
-    render: ({ name, count, active }) => 
-      h("div", null, `${name}: ${count}, active: ${active}`)
+    render: ({ name, count, active }) =>
+      h("div", null, `${name}: ${count}, active: ${active}`),
   });
 
   const result1 = renderComponent("test-defaults", { name: "test" });
   assertEquals(result1, "<div>test: 42, active: false</div>");
 
-  const result2 = renderComponent("test-defaults", { name: "test", count: "100", active: "" });
+  const result2 = renderComponent("test-defaults", {
+    name: "test",
+    count: "100",
+    active: "",
+  });
   assertEquals(result2, "<div>test: 100, active: true</div>");
 });
 
@@ -53,19 +57,19 @@ Deno.test("defineComponent with validation in props transformer", () => {
     props: (attrs) => ({
       title: attrs.title || "Untitled",
       subtitle: attrs.subtitle || undefined,
-      count: attrs.count ? Math.max(0, parseInt(attrs.count)) : 0
+      count: attrs.count ? Math.max(0, parseInt(attrs.count)) : 0,
     }),
-    render: ({ title, subtitle, count }) => 
-      h("div", null, `${title} ${subtitle || ''} ${count}`)
+    render: ({ title, subtitle, count }) =>
+      h("div", null, `${title} ${subtitle || ""} ${count}`),
   });
 
   const result1 = renderComponent("test-validation", { title: "Hello" });
   assertEquals(result1, "<div>Hello  0</div>");
 
-  const result2 = renderComponent("test-validation", { 
-    title: "Hello", 
-    subtitle: "World", 
-    count: "5" 
+  const result2 = renderComponent("test-validation", {
+    title: "Hello",
+    subtitle: "World",
+    count: "5",
   });
   assertEquals(result2, "<div>Hello World 5</div>");
 });
@@ -79,15 +83,18 @@ Deno.test("defineComponent with styles and classes (zero config)", () => {
     styles: css,
     classes: { button: "btn" },
     // @ts-ignore - test doesn't need perfect types
-    render: (props: { text: string }, _api, classes) => 
-      h("button", { class: classes!.button }, props.text)
+    render: (props: { text: string }, _api, classes) =>
+      h("button", { class: classes!.button }, props.text),
   });
 
   const entry = registry["test-styled"];
   assertEquals(entry.css, css);
-  
+
   const result = renderComponent("test-styled", { text: "Click" });
-  assertEquals(result, '<style>.btn { color: red; }</style><button class="btn">Click</button>');
+  assertEquals(
+    result,
+    '<style>.btn { color: red; }</style><button class="btn">Click</button>',
+  );
 });
 
 Deno.test("defineComponent with API integration", () => {
@@ -98,11 +105,10 @@ Deno.test("defineComponent with API integration", () => {
     props: (attrs) => ({ id: attrs.id }),
     api: {
       create: post("/test/:id", () => new Response("created")),
-      remove: del("/test/:id", () => new Response("deleted"))
+      remove: del("/test/:id", () => new Response("deleted")),
     },
     // @ts-ignore - test doesn't need perfect types
-    render: (props, api) => 
-      h("div", api.create(props.id), `Item ${props.id}`)
+    render: (props, api) => h("div", api.create(props.id), `Item ${props.id}`),
   });
 
   const entry = registry["test-api"];
@@ -122,11 +128,14 @@ Deno.test("defineComponent throws error without render function", () => {
   try {
     // @ts-ignore - testing runtime error
     defineComponent("test-no-render", {
-      props: (attrs) => ({ text: attrs.text })
+      props: (attrs) => ({ text: attrs.text }),
     });
   } catch (error) {
     errorThrown = true;
-    assertStringIncludes((error as Error).message, 'missing required configuration: render function');
+    assertStringIncludes(
+      (error as Error).message,
+      "missing required configuration: render function",
+    );
   }
   assertEquals(errorThrown, true);
 });

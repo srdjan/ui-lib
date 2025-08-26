@@ -31,16 +31,15 @@ export type InferProps<T extends PropSpecObject> =
 // Enhanced type inference for the new prop spec format
 export type InferEnhancedProps<T extends EnhancedPropSpec> = {
   [K in keyof T]: T[K] extends string
-    ? T[K] extends `${infer U}?`
-      ? PropType<U> | undefined
-      : PropType<T[K]>
+    ? T[K] extends `${infer U}?` ? PropType<U> | undefined
+    : PropType<T[K]>
     : T[K] extends PropConfig
-      ? T[K]['type'] extends 'string' 
-        ? (T[K]['required'] extends false ? string | undefined : string)
-        : T[K]['type'] extends 'number'
-        ? (T[K]['required'] extends false ? number | undefined : number) 
-        : (T[K]['required'] extends false ? boolean | undefined : boolean)
-      : unknown;
+      ? T[K]["type"] extends "string"
+        ? (T[K]["required"] extends false ? string | undefined : string)
+      : T[K]["type"] extends "number"
+        ? (T[K]["required"] extends false ? number | undefined : number)
+      : (T[K]["required"] extends false ? boolean | undefined : boolean)
+    : unknown;
 };
 
 export type ParsedPropSpec = Record<string, {
@@ -84,19 +83,21 @@ export const createPropSpec = (propSpec: PropSpecObject): ParsedPropSpec => {
 };
 
 // Enhanced prop spec creation supporting multiple syntax formats
-export const createEnhancedPropSpec = (propSpec: EnhancedPropSpec): ParsedPropSpec => {
+export const createEnhancedPropSpec = (
+  propSpec: EnhancedPropSpec,
+): ParsedPropSpec => {
   const result: ParsedPropSpec = {} as ParsedPropSpec;
 
   for (const [key, spec] of Object.entries(propSpec)) {
     let config: PropConfig;
-    
+
     if (typeof spec === "string") {
       // Handle string format: "string", "number?", etc.
       const isOptional = spec.endsWith("?");
       const baseType = isOptional ? spec.slice(0, -1) : spec;
       config = {
         type: baseType as "string" | "number" | "boolean",
-        required: !isOptional
+        required: !isOptional,
       };
     } else {
       // Handle object format
@@ -116,7 +117,9 @@ export const createEnhancedPropSpec = (propSpec: EnhancedPropSpec): ParsedPropSp
           case "number": {
             const num = Number(v);
             if (isNaN(num)) {
-              return config.default !== undefined ? config.default : (config.required ? 0 : undefined);
+              return config.default !== undefined
+                ? config.default
+                : (config.required ? 0 : undefined);
             }
             return num;
           }

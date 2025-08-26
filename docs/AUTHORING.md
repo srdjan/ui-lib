@@ -8,7 +8,8 @@ Key ideas:
 - The DOM is the state: use classes, attributes, and text for UI state.
 - Event handlers accept arrays of action objects and serialize to tiny inline
   JS.
-- Server interactions are defined via `.api()` that automatically generates client functions returning HTMX attributes.
+- Server interactions are defined via `.api()` that automatically generates
+  client functions returning HTMX attributes.
 
 ## Prerequisites
 
@@ -26,14 +27,14 @@ import { defineComponent, h } from "../src/index.ts";
 import { defineComponent, h } from "../src/index.ts";
 
 defineComponent("example-card", {
-  props: { 
-    title: "string", 
-    count: { type: "number", default: 0 }  // Enhanced props with defaults!
+  props: {
+    title: "string",
+    count: { type: "number", default: 0 }, // Enhanced props with defaults!
   },
   classes: {
     container: "card-box",
     title: "card-title",
-    counter: "card-count"
+    counter: "card-count",
   },
   styles: `
     .card-box { border: 1px solid #ddd; padding: 8px; border-radius: 6px; }
@@ -45,7 +46,7 @@ defineComponent("example-card", {
       <h3 class={classes!.title}>{title}</h3>
       <span class={classes!.counter}>{count}</span>
     </div>
-  )
+  ),
 });
 ```
 
@@ -73,40 +74,43 @@ return inline handler strings you can copy or adapt.
 
 ## Unified API System (HTMX)
 
-The `.api()` method is funcwc's revolutionary unified API system that eliminates duplication between server route definitions and client-side HTMX attributes. Define your API endpoints once, and funcwc automatically generates type-safe client functions.
+The `.api()` method is funcwc's revolutionary unified API system that eliminates
+duplication between server route definitions and client-side HTMX attributes.
+Define your API endpoints once, and funcwc automatically generates type-safe
+client functions.
 
 ```tsx
-import { defineComponent, renderComponent, h } from "../src/index.ts";
+import { defineComponent, h, renderComponent } from "../src/index.ts";
 
 defineComponent("todo-item", {
-  props: { 
-    id: "string", 
-    text: "string", 
-    done: { type: "boolean", default: false }
+  props: {
+    id: "string",
+    text: "string",
+    done: { type: "boolean", default: false },
   },
   api: {
     // Define actual server handlers - client functions are auto-generated!
-    'PATCH /api/todos/:id/toggle': async (req, params) => {
+    "PATCH /api/todos/:id/toggle": async (req, params) => {
       const form = await req.formData();
-      const isDone = form.get('done') === 'true';
+      const isDone = form.get("done") === "true";
       return new Response(
-        renderComponent("todo-item", { 
-          id: params.id, 
-          text: "Updated!", 
-          done: !isDone 
-        })
+        renderComponent("todo-item", {
+          id: params.id,
+          text: "Updated!",
+          done: !isDone,
+        }),
       );
     },
-    'DELETE /api/todos/:id': async (req, params) => {
+    "DELETE /api/todos/:id": async (req, params) => {
       // Handle deletion logic
       return new Response(null, { status: 200 });
-    }
+    },
   },
   classes: {
     item: "todo",
-    checkbox: "todo-checkbox", 
+    checkbox: "todo-checkbox",
     text: "todo-text",
-    deleteBtn: "todo-delete"
+    deleteBtn: "todo-delete",
   },
   styles: `
     .todo { display: flex; align-items: center; gap: 0.5rem; }
@@ -121,35 +125,47 @@ defineComponent("todo-item", {
         type="checkbox"
         class={classes!.checkbox}
         checked={done}
-        {...(api?.toggle?.(id) || {})}  // Auto-generated HTMX attributes!
-      />
+        {...(api?.toggle?.(id) || {})}
+      />{" "}
+      // Auto-generated HTMX attributes!
       <span class={classes!.text}>{text}</span>
-      <button 
+      <button
         class={classes!.deleteBtn}
-        {...(api?.delete?.(id) || {})}>×</button>  // Auto-generated!
+        {...(api?.delete?.(id) || {})}
+      >
+        ×
+      </button>{" "}
+      // Auto-generated!
     </div>
-  )
+  ),
 });
 ```
 
 **How it works:**
 
-1. **Define Routes**: Write actual HTTP handlers in `.api()` using standard Web API patterns
-2. **Auto-Generation**: funcwc analyzes your routes and creates client functions:
-   - `PATCH /api/todos/:id/toggle` → `api.toggle(id)` 
+1. **Define Routes**: Write actual HTTP handlers in `.api()` using standard Web
+   API patterns
+2. **Auto-Generation**: funcwc analyzes your routes and creates client
+   functions:
+   - `PATCH /api/todos/:id/toggle` → `api.toggle(id)`
    - `DELETE /api/todos/:id` → `api.delete(id)`
 3. **HTMX Attributes**: Client functions return proper `hx-*` attributes:
-   - `api.toggle(id)` returns `{ "hx-patch": "/api/todos/123/toggle", "hx-target": "closest .todo" }`
-   - `api.delete(id)` returns `{ "hx-delete": "/api/todos/123", "hx-target": "closest .todo", "hx-swap": "outerHTML" }`
-4. **Type Safety**: All generated functions are fully typed based on your route definitions
+   - `api.toggle(id)` returns
+     `{ "hx-patch": "/api/todos/123/toggle", "hx-target": "closest .todo" }`
+   - `api.delete(id)` returns
+     `{ "hx-delete": "/api/todos/123", "hx-target": "closest .todo", "hx-swap": "outerHTML" }`
+4. **Type Safety**: All generated functions are fully typed based on your route
+   definitions
 
 **Route-to-Function Mapping:**
+
 - `POST /api/items` → `api.create()`
-- `GET /api/items/:id` → `api.get(id)`  
+- `GET /api/items/:id` → `api.get(id)`
 - `PATCH /api/items/:id` → `api.update(id)` or `api.toggle(id)` (based on path)
 - `DELETE /api/items/:id` → `api.delete(id)`
 
-This eliminates the need to manually define client-side HTMX attributes and ensures your client and server stay in sync automatically.
+This eliminates the need to manually define client-side HTMX attributes and
+ensures your client and server stay in sync automatically.
 
 ## Class Map (Optional)
 
@@ -157,9 +173,9 @@ Avoid hardcoding repeated class names by declaring `classes`.
 
 ```tsx
 defineComponent("smart-counter", {
-  props: { 
+  props: {
     step: { type: "number", default: 1 },
-    initialCount: { type: "number", default: 0 }
+    initialCount: { type: "number", default: 0 },
   },
   classes: { container: "counter", display: "count", button: "counter-btn" },
   styles: `
@@ -191,7 +207,7 @@ defineComponent("smart-counter", {
         +{step}
       </button>
     </div>
-  )
+  ),
 });
 ```
 

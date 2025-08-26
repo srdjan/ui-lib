@@ -4,45 +4,62 @@ Release date: 2025-08-25
 
 ## Highlights
 
-- **🔐 Open Source Ready**: Added MIT license and proper .gitignore for distribution
-- **🧪 Comprehensive Testing**: 64 unit tests covering all core modules with edge cases
-- **🐛 Enhanced Error Messages**: Detailed debugging info with context and suggestions
-- **⚡ Performance Optimized**: Replaced expensive CSS transitions with specific properties
-- **📖 Fixed Documentation**: Working `deno task docs` command generates API documentation
-- **🔧 Standards Compliant**: Fixed boolean attribute parsing to follow HTML specifications
+- **🔐 Open Source Ready**: Added MIT license and proper .gitignore for
+  distribution
+- **🧪 Comprehensive Testing**: 64 unit tests covering all core modules with
+  edge cases
+- **🐛 Enhanced Error Messages**: Detailed debugging info with context and
+  suggestions
+- **⚡ Performance Optimized**: Replaced expensive CSS transitions with specific
+  properties
+- **📖 Fixed Documentation**: Working `deno task docs` command generates API
+  documentation
+- **🔧 Standards Compliant**: Fixed boolean attribute parsing to follow HTML
+  specifications
 
 ## New Features
 
-- **Enhanced API Generator**: Function name collision detection with helpful warnings
-- **Better Component Diagnostics**: Missing component errors now show available alternatives
-- **Improved Server Logging**: Request context, detailed error messages, and stack traces
-- **Comprehensive Test Coverage**: Router, API generator, and component state modules fully tested
+- **Enhanced API Generator**: Function name collision detection with helpful
+  warnings
+- **Better Component Diagnostics**: Missing component errors now show available
+  alternatives
+- **Improved Server Logging**: Request context, detailed error messages, and
+  stack traces
+- **Comprehensive Test Coverage**: Router, API generator, and component state
+  modules fully tested
 
 ## Bug Fixes
 
-- Fixed boolean attribute parsing to properly handle empty strings per HTML standards
-- Fixed API generator function naming conflicts (e.g., `POST /api/todos` now correctly generates `create()`)
+- Fixed boolean attribute parsing to properly handle empty strings per HTML
+  standards
+- Fixed API generator function naming conflicts (e.g., `POST /api/todos` now
+  correctly generates `create()`)
 - Fixed broken documentation generation task in deno.json
 - Resolved CSS performance issues with `transition: all` declarations
 
 ## Developer Experience
 
-- **Enhanced Error Context**: Component and prop names, received values, parsing details
-- **Better Debugging**: Server errors include HTTP method, path, and stack traces  
+- **Enhanced Error Context**: Component and prop names, received values, parsing
+  details
+- **Better Debugging**: Server errors include HTTP method, path, and stack
+  traces
 - **Test Coverage**: `deno task test` — 64 tests passing across 10 test files
-- **API Documentation**: `deno task docs` — generates comprehensive API reference
-- **Standards Compliance**: HTML boolean attributes work correctly (disabled, checked, etc.)
+- **API Documentation**: `deno task docs` — generates comprehensive API
+  reference
+- **Standards Compliance**: HTML boolean attributes work correctly (disabled,
+  checked, etc.)
 
-## Performance Improvements  
+## Performance Improvements
 
-- Replaced `transition: all` with specific `border-color, box-shadow` transitions
+- Replaced `transition: all` with specific `border-color, box-shadow`
+  transitions
 - Reduced CSS computation overhead for theme toggle animations
 - More efficient property-specific transitions improve rendering performance
 
 ## Technical Improvements
 
 - Added comprehensive unit tests for router.ts (12 tests)
-- Added comprehensive unit tests for api-generator.ts (5 tests) 
+- Added comprehensive unit tests for api-generator.ts (5 tests)
 - Added comprehensive unit tests for component-state.ts (14 tests)
 - Enhanced prop parsing error messages with component and value context
 - Added API function collision detection with actionable warnings

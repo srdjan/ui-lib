@@ -24,22 +24,22 @@ export function generateClientApi(apiMap: ApiMap): GeneratedApiMap {
   for (const [functionName, apiDefinition] of Object.entries(apiMap)) {
     if (!Array.isArray(apiDefinition) || apiDefinition.length !== 3) {
       console.warn(
-        `Invalid API definition for "${functionName}". Expected format: [method, path, handler] (e.g., ["POST", "/api/todos", handler])`
+        `Invalid API definition for "${functionName}". Expected format: [method, path, handler] (e.g., ["POST", "/api/todos", handler])`,
       );
       continue;
     }
 
     const [method, path, _handler] = apiDefinition;
-    
+
     if (!method || !path) {
       console.warn(
-        `Invalid API definition for "${functionName}": method and path are required`
+        `Invalid API definition for "${functionName}": method and path are required`,
       );
       continue;
     }
 
     const paramNames = extractParameterNames(path);
-    
+
     generatedApi[functionName] = (...args: unknown[]) => {
       const htmxMethod = `hx-${method.toLowerCase()}` as const;
       let finalPath = path;
@@ -57,7 +57,6 @@ export function generateClientApi(apiMap: ApiMap): GeneratedApiMap {
 
   return generatedApi;
 }
-
 
 /**
  * Extract parameter names from a route path

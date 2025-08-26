@@ -45,8 +45,18 @@
     <script src="https://unpkg.com/htmx.org@2.0.6"></script>
     <h1>funcwc - DOM-Native SSR Components</h1>
     <p style="color: #666; margin-bottom: 2rem">
-      Clean <code>defineComponent</code> API with enhanced props, HTMX integration, and DOM-as-state architecture. Zero client-side dependencies!
+      Clean <code>defineComponent</code> API with enhanced props, HTMX
+      integration, and DOM-as-state architecture. Zero client-side dependencies!
     </p>
+
+    <section style="border: 3px solid #007bff; background: #f8f9ff">
+      <h2>🎉 NEW: Unified Styles API</h2>
+      <p style="color: #0056b3; font-weight: 500">
+        No more duplication between classes and styles! Define them together in one place.
+      </p>
+      <unified-card title="Amazing!" highlighted></unified-card>
+      <unified-card title="Traditional Approach" ></unified-card>
+    </section>
 
     <section>
       <h2>🎨 Theme Toggle</h2>
@@ -97,29 +107,43 @@
       <tabs tabs="Home,About,Settings,Contact" activeTab="Home"></tabs>
     </section>
 
-    <section style="margin-top: 2rem; border: 2px solid #28a745; background: #f8fff9">
-      <h2>🆕 defineComponent Examples</h2>
-      <p style="color: #155724; font-weight: 500">All examples now use the new <code>defineComponent</code> API with enhanced props, class mapping, and HTMX integration.</p>
-      
-      <h3>Enhanced Examples</h3>
-      <p>Browse the examples above to see the new API in action - featuring props with defaults, class mapping, and integrated HTMX server actions.</p>
-      
-      <details style="margin-top: 1rem; padding: 1rem; background: white; border: 1px solid #ddd; border-radius: 4px;">
-        <summary style="font-weight: 500; cursor: pointer;">View defineComponent Example Code</summary>
-        <pre style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 4px; overflow-x: auto; font-size: 0.9rem;"><code>defineComponent("smart-counter", {
-  props: {
-    initialCount: { type: "number", default: 0 },
-    step: { type: "number", default: 1 }
+    <section
+      style="margin-top: 2rem; border: 2px solid #28a745; background: #f8fff9"
+    >
+      <h2>🚀 Unified Styles API</h2>
+      <p style="color: #155724; font-weight: 500">
+        All examples now use the revolutionary <strong>unified styles</strong> approach - 
+        no more duplication between classes and styles!
+      </p>
+
+      <h3>Zero Duplication</h3>
+      <p>
+        Define class names and their styles together in one place. The old approach required 
+        defining class names twice - once in <code>classes</code> and again in <code>styles</code>.
+      </p>
+
+      <details
+        style="margin-top: 1rem; padding: 1rem; background: white; border: 1px solid #ddd; border-radius: 4px"
+      >
+        <summary style="font-weight: 500; cursor: pointer">
+          ✨ View New Unified Styles API
+        </summary>
+        <pre
+          style="margin-top: 1rem; padding: 1rem; background: #f8f9ff; border: 2px solid #007bff; border-radius: 4px; overflow-x: auto; font-size: 0.9rem"
+        >
+<code>// 🎉 NEW: Unified Styles (No Duplication!)
+defineComponent("smart-counter", {
+  props: (attrs) => ({
+    initialCount: parseInt(attrs.initialCount || "0"),
+    step: parseInt(attrs.step || "1")
+  }),
+  styles: {
+    // ✨ Class names extracted automatically from selectors!
+    container: `.counter { display: flex; gap: 0.5rem; border: 2px solid #007bff; }`,
+    button: `.counter-btn { background: #007bff; color: white; padding: 0.5rem; }`,
+    buttonHover: `.counter-btn:hover { background: #0056b3; }`,
+    display: `.count-display { font-size: 1.5rem; font-weight: bold; }`
   },
-  classes: {
-    container: "counter",
-    button: "counter-btn",
-    display: "count-display"
-  },
-  styles: `
-    .counter { display: flex; gap: 0.5rem; }
-    .counter-btn { background: #007bff; color: white; }
-  `,
   render: ({ initialCount, step }, api, classes) => (
     &lt;div class={classes.container}&gt;
       &lt;button class={classes.button}&gt;-{step}&lt;/button&gt;
@@ -128,6 +152,31 @@
     &lt;/div&gt;
   )
 });</code></pre>
+      </details>
+
+      <details
+        style="margin-top: 1rem; padding: 1rem; background: white; border: 1px solid #ddd; border-radius: 4px"
+      >
+        <summary style="font-weight: 500; cursor: pointer; color: #6c757d">
+          📚 Compare: Old vs New Approach
+        </summary>
+        <div style="margin-top: 1rem;">
+          <h4 style="color: #dc3545; margin-bottom: 0.5rem">❌ Old Way (Duplication)</h4>
+          <pre style="padding: 1rem; background: #fff5f5; border: 1px solid #dc3545; border-radius: 4px; font-size: 0.85rem; margin-bottom: 1rem"><code>classes: {
+  container: "counter",        // ← Define class name here
+  button: "counter-btn"        // ← And here
+},
+styles: \`
+  .counter { display: flex; }     // ← Then repeat in CSS
+  .counter-btn { padding: 1rem; } // ← More repetition
+\`</code></pre>
+
+          <h4 style="color: #28a745; margin-bottom: 0.5rem">✅ New Way (Unified)</h4>
+          <pre style="padding: 1rem; background: #f8fff9; border: 1px solid #28a745; border-radius: 4px; font-size: 0.85rem"><code>styles: {
+  container: \`.counter { display: flex; }\`,        // ← One place!
+  button: \`.counter-btn { padding: 1rem; }\`       // ← Clean & DRY
+}</code></pre>
+        </div>
       </details>
     </section>
 

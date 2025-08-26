@@ -3,9 +3,10 @@
 **Ultra-lightweight, type-safe SSR components with the DOM as your state
 container.**
 
-Built for Deno + TypeScript with an SSR-first approach using HTMX, funcwc takes a following approach to state management: **the DOM
-_is_ the state**. No JavaScript state objects, no synchronization overhead, just
-pure DOM manipulation with a delightful developer experience.
+Built for Deno + TypeScript with an SSR-first approach using HTMX, funcwc takes
+a following approach to state management: **the DOM _is_ the state**. No
+JavaScript state objects, no synchronization overhead, just pure DOM
+manipulation with a delightful developer experience.
 
 ## ✨ Key Features
 
@@ -53,13 +54,13 @@ working:
 ### 🎨 Theme Toggle - Pure DOM State
 
 ```tsx
-import { defineComponent, toggleClasses, h } from "./src/index.ts";
+import { defineComponent, h, toggleClasses } from "./src/index.ts";
 
 defineComponent("theme-toggle", {
   classes: {
     button: "theme-btn",
-    lightIcon: "light-icon", 
-    darkIcon: "dark-icon"
+    lightIcon: "light-icon",
+    darkIcon: "dark-icon",
   },
   styles: `
     .theme-btn { 
@@ -85,7 +86,7 @@ defineComponent("theme-toggle", {
       <span class={classes!.lightIcon}>☀️ Light</span>
       <span class={classes!.darkIcon}>🌙 Dark</span>
     </button>
-  )
+  ),
 });
 ```
 
@@ -103,16 +104,16 @@ import { defineComponent, h } from "./src/index.ts";
 import { resetCounter, updateParentCounter } from "./examples/dom-actions.ts";
 
 defineComponent("smart-counter", {
-  props: { 
-    initialCount: { type: "number", default: 0 },  // ✨ Default values!
+  props: {
+    initialCount: { type: "number", default: 0 }, // ✨ Default values!
     step: { type: "number", default: 1 },
-    label: "string?"
+    label: "string?",
   },
   classes: {
     container: "counter",
-    button: "counter-btn", 
+    button: "counter-btn",
     display: "count-display",
-    label: "counter-label"
+    label: "counter-label",
   },
   styles: `
     .counter { display: inline-flex; gap: 0.5rem; padding: 1rem; border: 2px solid #007bff; align-items: center; }
@@ -125,25 +126,37 @@ defineComponent("smart-counter", {
       {label && <span class={classes!.label}>{label}:</span>}
       <button
         class={classes!.button}
-        onclick={updateParentCounter(`.${classes!.container}`, `.${classes!.display}`, -step)}
+        onclick={updateParentCounter(
+          `.${classes!.container}`,
+          `.${classes!.display}`,
+          -step,
+        )}
       >
         -{step}
       </button>
       <span class={classes!.display}>{initialCount}</span>
       <button
         class={classes!.button}
-        onclick={updateParentCounter(`.${classes!.container}`, `.${classes!.display}`, step)}
+        onclick={updateParentCounter(
+          `.${classes!.container}`,
+          `.${classes!.display}`,
+          step,
+        )}
       >
         +{step}
       </button>
-      <button 
+      <button
         class={classes!.button}
-        onclick={resetCounter(`.${classes!.display}`, initialCount, `.${classes!.container}`)}
+        onclick={resetCounter(
+          `.${classes!.display}`,
+          initialCount,
+          `.${classes!.container}`,
+        )}
       >
         Reset
       </button>
     </div>
-  )
+  ),
 });
 ```
 
@@ -156,14 +169,19 @@ defineComponent("smart-counter", {
 ### ✅ Todo Item - HTMX Server Integration
 
 ```tsx
-import { defineComponent, conditionalClass, renderComponent, h } from "./src/index.ts";
+import {
+  conditionalClass,
+  defineComponent,
+  h,
+  renderComponent,
+} from "./src/index.ts";
 import { syncCheckboxToClass } from "./examples/dom-actions.ts";
 
 defineComponent("todo-item", {
-  props: { 
-    id: "string", 
-    text: "string", 
-    done: { type: "boolean", default: false }
+  props: {
+    id: "string",
+    text: "string",
+    done: { type: "boolean", default: false },
   },
   api: {
     // ✨ Define server endpoints - HTMX attributes auto-generated!
@@ -175,7 +193,7 @@ defineComponent("todo-item", {
           id: params.id,
           text: "Updated task!",
           done: !isDone,
-        })
+        }),
       );
     },
     "DELETE /api/todos/:id": (_req, _params) => {
@@ -186,7 +204,7 @@ defineComponent("todo-item", {
     item: "todo",
     checkbox: "todo-checkbox",
     text: "todo-text",
-    deleteBtn: "delete-btn"
+    deleteBtn: "delete-btn",
   },
   styles: `
     .todo { 
@@ -206,7 +224,7 @@ defineComponent("todo-item", {
   `,
   render: ({ id, text, done }, api, classes) => {
     const itemClass = `${classes!.item} ${done ? "done" : ""}`;
-    
+
     return (
       <div class={itemClass} data-id={id}>
         <input
@@ -214,11 +232,12 @@ defineComponent("todo-item", {
           class={classes!.checkbox}
           checked={done}
           onChange={syncCheckboxToClass("done")}
-          {...(api?.toggle?.(id) || {})} // ✨ Auto-generated HTMX attributes!
-        />
+          {...(api?.toggle?.(id) || {})}
+        />{" "}
+        // ✨ Auto-generated HTMX attributes!
         <span class={classes!.text}>{text}</span>
-        <button 
-          type="button" 
+        <button
+          type="button"
           class={classes!.deleteBtn}
           {...(api?.delete?.(id) || {})}
         >
@@ -226,7 +245,7 @@ defineComponent("todo-item", {
         </button>
       </div>
     );
-  }
+  },
 });
 ```
 
@@ -240,7 +259,8 @@ defineComponent("todo-item", {
 
 ### `defineComponent(name: string, config: ComponentConfig)`
 
-Define a component with clean, object-based configuration. Component names should be kebab-case.
+Define a component with clean, object-based configuration. Component names
+should be kebab-case.
 
 ```tsx
 defineComponent("my-component", {
@@ -299,6 +319,7 @@ render: ({ id }, api) => (
 ```
 
 **Route-to-Function Mapping:**
+
 - `POST /api/items` → `api.create()`
 - `DELETE /api/items/:id` → `api.delete(id)`
 - `PATCH /api/todos/:id/toggle` → `api.toggle(id)`
@@ -309,7 +330,7 @@ render: ({ id }, api) => (
 styles: `
   .my-button { background: blue; color: white; }
   .my-button:hover { background: darkblue; }
-`
+`;
 ```
 
 ### Class Mapping
@@ -328,14 +349,15 @@ classes: {
 Returns JSX that compiles to optimized HTML strings:
 
 ```tsx
-render: (props, api, classes) => (
+render: ((props, api, classes) => (
   <div class={classes?.container}>
     <button {...(api?.action?.(props.id) || {})}>Click me</button>
   </div>
-)
+));
 ```
 
 **Parameters:**
+
 - `props`: Fully typed props object
 - `api`: Auto-generated HTMX client functions (optional)
 - `classes`: Class name mappings (optional)
@@ -410,14 +432,16 @@ defineComponent("my-widget", {
   classes: { container: "widget", button: "toggle-btn", counter: "counter" },
   render: (props, api, classes) => (
     <div class={`${classes!.container} closed`} data-count="0">
-      <button class={classes!.button} onclick={toggleClass("open")}>Toggle</button>
+      <button class={classes!.button} onclick={toggleClass("open")}>
+        Toggle
+      </button>
       <span class={classes!.counter}>0</span>
     </div>
-  )
+  ),
 });
 
 // ✅ Zero runtime JavaScript
-// ✅ Perfect SSR  
+// ✅ Perfect SSR
 // ✅ No hydration issues
 // ✅ Instant debugging (inspect DOM)
 ```

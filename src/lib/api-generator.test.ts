@@ -5,7 +5,7 @@ import {
   assertExists,
 } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import { generateClientApi } from "./api-generator.ts";
-import { get, post, patch, put, del } from "./api-helpers.ts";
+import { del, get, patch, post, put } from "./api-helpers.ts";
 
 Deno.test("generateClientApi creates client functions with helper syntax", () => {
   const apiMap = {
@@ -13,7 +13,10 @@ Deno.test("generateClientApi creates client functions with helper syntax", () =>
     list: get("/api/todos", () => new Response("list")),
     toggle: patch("/api/todos/:id/toggle", () => new Response("toggled")),
     remove: del("/api/todos/:id", () => new Response("deleted")),
-    getPost: get("/api/users/:userId/posts/:postId", () => new Response("nested"))
+    getPost: get(
+      "/api/users/:userId/posts/:postId",
+      () => new Response("nested"),
+    ),
   };
 
   const clientApi = generateClientApi(apiMap);
@@ -32,7 +35,7 @@ Deno.test("generateClientApi creates client functions with helper syntax", () =>
   const toggleAction = clientApi.toggle("123");
   assertEquals(toggleAction["hx-patch"], "/api/todos/123/toggle");
 
-  const removeAction = clientApi.remove("456"); 
+  const removeAction = clientApi.remove("456");
   assertEquals(removeAction["hx-delete"], "/api/todos/456");
 
   // Test multiple parameters
@@ -44,7 +47,8 @@ Deno.test("generateClientApi handles edge cases", () => {
   const apiMap = {
     update: put("/api/users/:id", () => new Response("updated")),
     invalid: "not a tuple", // Invalid format
-    root: get("/api", () => new Response("root"))
+    root: get("/api", () => new Response("root")),
+  // deno-lint-ignore no-explicit-any -- allow invalid entry shape for negative test
   } as any; // Type assertion to allow invalid entry for testing
 
   const clientApi = generateClientApi(apiMap);
@@ -70,11 +74,11 @@ Deno.test("helper syntax works with different HTTP methods", () => {
     create: post("/api/todos", () => new Response("test")),
     update: put("/api/todos/:id", () => new Response("test")),
     patchItem: patch("/api/todos/:id", () => new Response("test")),
-    remove: del("/api/todos/:id", () => new Response("test"))
+    remove: del("/api/todos/:id", () => new Response("test")),
   };
 
   const clientApi = generateClientApi(apiMap);
-  
+
   // Check that all explicit function names are preserved
   assertExists(clientApi.list);
   assertExists(clientApi.getItem);
@@ -93,21 +97,26 @@ Deno.test("helper syntax works with different HTTP methods", () => {
 
 Deno.test("parameter extraction handles complex paths", () => {
   const apiMap = {
-    getComment: get("/api/users/:userId/posts/:postId/comments/:commentId", 
-      () => new Response("nested"))
+    getComment: get(
+      "/api/users/:userId/posts/:postId/comments/:commentId",
+      () => new Response("nested"),
+    ),
   };
 
   const clientApi = generateClientApi(apiMap);
-  
+
   // Should extract all 3 parameters in order
   const action = clientApi.getComment("user123", "post456", "comment789");
-  assertEquals(action["hx-get"], "/api/users/user123/posts/post456/comments/comment789");
+  assertEquals(
+    action["hx-get"],
+    "/api/users/user123/posts/post456/comments/comment789",
+  );
 });
 
 Deno.test("generateClientApi handles no parameters", () => {
   const apiMap = {
     health: get("/api/health", () => new Response("ok")),
-    logout: post("/api/logout", () => new Response("logged out"))
+    logout: post("/api/logout", () => new Response("logged out")),
   };
 
   const clientApi = generateClientApi(apiMap);

@@ -16,7 +16,9 @@ export function renderComponent(
 
   if (!entry) {
     const registeredComponents = Object.keys(registry).join(", ");
-    return `<!-- component "${componentName}" not found. Available components: ${registeredComponents || "none"} -->`;
+    return `<!-- component "${componentName}" not found. Available components: ${
+      registeredComponents || "none"
+    } -->`;
   }
 
   // Props are now handled directly in the component's render function
@@ -37,4 +39,3 @@ export function renderComponent(
 
   return `${cssTag}${markup}`;
 }
-

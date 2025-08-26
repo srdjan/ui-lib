@@ -4,7 +4,7 @@ import { type ApiDefinition } from "./api-generator.ts";
 
 /**
  * Create a GET route definition
- * 
+ *
  * @example
  * ```tsx
  * api: {
@@ -13,12 +13,12 @@ import { type ApiDefinition } from "./api-generator.ts";
  * }
  * ```
  */
-export const get = (path: string, handler: RouteHandler): ApiDefinition => 
+export const get = (path: string, handler: RouteHandler): ApiDefinition =>
   ["GET", path, handler] as const;
 
 /**
  * Create a POST route definition
- * 
+ *
  * @example
  * ```tsx
  * api: {
@@ -26,12 +26,12 @@ export const get = (path: string, handler: RouteHandler): ApiDefinition =>
  * }
  * ```
  */
-export const post = (path: string, handler: RouteHandler): ApiDefinition => 
+export const post = (path: string, handler: RouteHandler): ApiDefinition =>
   ["POST", path, handler] as const;
 
 /**
  * Create a PUT route definition
- * 
+ *
  * @example
  * ```tsx
  * api: {
@@ -39,12 +39,12 @@ export const post = (path: string, handler: RouteHandler): ApiDefinition =>
  * }
  * ```
  */
-export const put = (path: string, handler: RouteHandler): ApiDefinition => 
+export const put = (path: string, handler: RouteHandler): ApiDefinition =>
   ["PUT", path, handler] as const;
 
 /**
  * Create a PATCH route definition
- * 
+ *
  * @example
  * ```tsx
  * api: {
@@ -52,14 +52,14 @@ export const put = (path: string, handler: RouteHandler): ApiDefinition =>
  * }
  * ```
  */
-export const patch = (path: string, handler: RouteHandler): ApiDefinition => 
+export const patch = (path: string, handler: RouteHandler): ApiDefinition =>
   ["PATCH", path, handler] as const;
 
 /**
  * Create a DELETE route definition
- * 
+ *
  * Note: Uses 'del' instead of 'delete' to avoid JavaScript keyword conflict
- * 
+ *
  * @example
  * ```tsx
  * api: {
@@ -67,7 +67,7 @@ export const patch = (path: string, handler: RouteHandler): ApiDefinition =>
  * }
  * ```
  */
-export const del = (path: string, handler: RouteHandler): ApiDefinition => 
+export const del = (path: string, handler: RouteHandler): ApiDefinition =>
   ["DELETE", path, handler] as const;
 
 // Convenience aliases for common patterns
@@ -77,6 +77,6 @@ export const del = (path: string, handler: RouteHandler): ApiDefinition =>
 export const remove = del;
 
 /**
- * Alias for 'post' - create a POST route definition  
+ * Alias for 'post' - create a POST route definition
  */
 export const create = post;

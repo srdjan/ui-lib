@@ -7,7 +7,7 @@ import {
 import { component } from "./component-pipeline.ts";
 import { getRegistry } from "./registry.ts";
 import { h } from "./jsx-runtime.ts";
-import { post, del, get } from "./api-helpers.ts";
+import { del, get, post } from "./api-helpers.ts";
 
 Deno.test("component registers in registry", () => {
   // Clear registry first
@@ -44,7 +44,7 @@ Deno.test("component with api generates client functions", () => {
   component("test-api")
     .api({
       save: post("/api/save/:id", () => new Response("saved")),
-      remove: del("/api/delete/:id", () => new Response("deleted"))
+      remove: del("/api/delete/:id", () => new Response("deleted")),
     })
     .view(() => h("div", null, "Content"));
 
@@ -115,8 +115,8 @@ Deno.test("component pipeline is chainable", () => {
   const result = component("test-chain")
     .props({ title: "string" })
     .styles(".chain { display: block; }")
-    .api({ 
-      test: get("/test", () => new Response("test"))
+    .api({
+      test: get("/test", () => new Response("test")),
     })
     .view((props) => h("div", { class: "chain" }, props.title));
 
