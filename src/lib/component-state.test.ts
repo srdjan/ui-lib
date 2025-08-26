@@ -71,7 +71,7 @@ Deno.test("renderComponent renders component with props and no prop spec", () =>
   clearRegistry();
   
   registerTestComponent("greeting", {
-    render: (props: any) => `<div>Hello ${props.name || "World"}!</div>`
+    render: (props: Record<string, unknown>) => `<div>Hello ${props.name || "World"}!</div>`
   });
   
   const result = renderComponent("greeting", { name: "Alice" });
@@ -87,7 +87,7 @@ Deno.test("renderComponent handles simplified prop system", () => {
   // Props are now handled by render function itself - no prop spec
   registerTestComponent("counter", {
     props: undefined,
-    render: (props: any) => {
+    render: (props: Record<string, unknown>) => {
       const count = Number(props.count) || 0;
       const disabled = props.disabled === "true" || props.disabled === "";
       return `<button ${disabled ? "disabled" : ""}>Count: ${count}</button>`;
@@ -188,7 +188,7 @@ Deno.test("renderComponent handles empty props object", () => {
   clearRegistry();
   
   registerTestComponent("empty-props", {
-    render: (props: any) => `<div>Props keys: ${Object.keys(props || {}).length}</div>`
+    render: (props: Record<string, unknown>) => `<div>Props keys: ${Object.keys(props || {}).length}</div>`
   });
   
   const result = renderComponent("empty-props", {});
@@ -201,7 +201,7 @@ Deno.test("renderComponent handles null/undefined props", () => {
   // Props handling is now in render function
   registerTestComponent("null-props", {
     props: undefined,
-    render: (props: any) => {
+    render: (props: Record<string, unknown>) => {
       const name = props.name || "default";
       return `<div>Name: ${name}</div>`;
     }
@@ -217,7 +217,7 @@ Deno.test("renderComponent handles render function errors", () => {
   // Error handling is now in render function - no prop spec errors
   registerTestComponent("error-prone", {
     props: undefined,
-    render: (props: any) => {
+    render: (props: Record<string, unknown>) => {
       if (props.shouldError === "true") {
         throw new Error("Render error");
       }

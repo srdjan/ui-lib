@@ -1,7 +1,6 @@
 /** @jsx h */
 import {
   defineComponent,
-  conditionalClass,
   h,
   renderComponent,
   toggleClasses,
@@ -61,8 +60,9 @@ defineComponent("theme-toggle", {
       display: inline;
     }
   `,
-  render: (props, api, classes) => (
+  render: (_props, _api, classes) => (
     <button
+      type="button"
       class={`${classes!.button} light`}
       onclick={toggleClasses(["light", "dark"])}
     >
@@ -114,9 +114,10 @@ defineComponent("counter", {
       color: #007bff;
     }
   `,
-  render: ({ initialCount, step }, api, classes) => (
+  render: ({ initialCount, step }, _api, classes) => (
     <div class={classes!.container} data-count={initialCount}>
       <button
+        type="button"
         class={classes!.button}
         onclick={updateParentCounter(`.${classes!.container}`, `.${classes!.display}`, -step)}
       >
@@ -124,12 +125,14 @@ defineComponent("counter", {
       </button>
       <span class={classes!.display}>{initialCount}</span>
       <button
+        type="button"
         class={classes!.button}
         onclick={updateParentCounter(`.${classes!.container}`, `.${classes!.display}`, step)}
       >
         +{step}
       </button>
       <button
+        type="button"
         class={classes!.button}
         onclick={resetCounter(`.${classes!.display}`, initialCount, `.${classes!.container}`)}
       >
@@ -144,7 +147,7 @@ defineComponent("todo-item", {
   props: (attrs) => ({
     id: attrs.id,
     text: attrs.text,
-    done: attrs.hasOwnProperty("done")
+    done: "done" in attrs
   }),
   api: {
     toggle: patch("/api/todos/:id/toggle", async (req, params) => {
@@ -213,6 +216,7 @@ defineComponent("todo-item", {
       background: #c82333;
     }
   `,
+  // @ts-ignore - example doesn't need strict types
   render: ({ id, text, done }, api, classes) => {
     const todoClass = `${classes!.item} ${done ? "done" : ""}`;
     return (
@@ -242,7 +246,7 @@ defineComponent("accordion", {
   props: (attrs) => ({
     title: attrs.title,
     content: attrs.content,
-    initiallyOpen: attrs.hasOwnProperty("initiallyOpen")
+    initiallyOpen: "initiallyOpen" in attrs
   }),
   classes: {
     container: "accordion",
@@ -358,7 +362,7 @@ defineComponent("tabs", {
       display: block;
     }
   `,
-  render: ({ tabs, activeTab }, api, classes) => {
+  render: ({ tabs, activeTab }, _api, classes) => {
     const tabList = (tabs as string).split(",").map((t: string) => t.trim());
     const active = activeTab || tabList[0];
     
@@ -367,6 +371,7 @@ defineComponent("tabs", {
         <div class={classes!.nav}>
           {tabList.map((tab: string) => (
             <button
+              type="button"
               class={`${classes!.button} ${tab === active ? "active" : ""}`}
               onclick={activateTab(`.${classes!.container}`, `.${classes!.button}`, `.${classes!.content}`, "active")}
               data-tab={tab}

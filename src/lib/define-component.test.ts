@@ -16,6 +16,7 @@ Deno.test("defineComponent registers component in registry", () => {
   delete registry["test-define"];
 
   defineComponent("test-define", {
+    // @ts-ignore - test doesn't need perfect types
     render: (props: { text: string }) => h("div", null, props.text)
   });
 
@@ -31,7 +32,7 @@ Deno.test("defineComponent with props transformer (defaults)", () => {
     props: (attrs) => ({
       name: attrs.name,
       count: parseInt(attrs.count || "42"),
-      active: attrs.hasOwnProperty("active")
+      active: "active" in attrs
     }),
     render: ({ name, count, active }) => 
       h("div", null, `${name}: ${count}, active: ${active}`)
@@ -77,7 +78,8 @@ Deno.test("defineComponent with styles and classes (zero config)", () => {
   defineComponent("test-styled", {
     styles: css,
     classes: { button: "btn" },
-    render: (props: { text: string }, api, classes) => 
+    // @ts-ignore - test doesn't need perfect types
+    render: (props: { text: string }, _api, classes) => 
       h("button", { class: classes!.button }, props.text)
   });
 

@@ -19,8 +19,9 @@ defineComponent("simple-button", {
     }
   `,
   classes: { btn: "simple-btn" },
-  render: (props: { text: string; disabled?: string }, api, classes) => (
-    <button class={classes!.btn} disabled={props.disabled === "true" || props.hasOwnProperty("disabled")}>
+  // @ts-ignore - example doesn't need strict types
+  render: (props: { text: string; disabled?: string }, _api, classes) => (
+    <button type="button" class={classes!.btn} disabled={props.disabled === "true" || "disabled" in props}>
       {props.text}
     </button>
   ),
@@ -32,7 +33,7 @@ defineComponent("enhanced-counter", {
     label: attrs.label || "Counter",
     initialCount: parseInt(attrs.initialCount || "0"),
     step: parseInt(attrs.step || "1"),
-    disabled: attrs.hasOwnProperty("disabled")
+    disabled: "disabled" in attrs
   }),
   styles: `
     .counter {
@@ -78,12 +79,12 @@ defineComponent("enhanced-counter", {
     display: "counter-display",
     label: "counter-label"
   },
-  render: ({ label, initialCount, step, disabled }, api, classes) => (
+  render: ({ label, initialCount, step, disabled }, _api, classes) => (
     <div class={classes!.container}>
       <span class={classes!.label}>{label}:</span>
-      <button class={classes!.button} disabled={disabled}>-{step}</button>
+      <button type="button" class={classes!.button} disabled={disabled}>-{step}</button>
       <span class={classes!.display}>{initialCount}</span>
-      <button class={classes!.button} disabled={disabled}>+{step}</button>
+      <button type="button" class={classes!.button} disabled={disabled}>+{step}</button>
     </div>
   ),
 });
@@ -93,7 +94,7 @@ defineComponent("todo-item", {
   props: (attrs) => ({
     id: attrs.id,
     text: attrs.text, 
-    done: attrs.hasOwnProperty("done")
+    done: "done" in attrs
   }),
   api: {
     toggle: patch("/api/todos/:id/toggle", async (req, params) => {
@@ -107,8 +108,8 @@ defineComponent("todo-item", {
         })
       );
     }),
-    remove: del("/api/todos/:id", async (req, params) => {
-      console.log(`Deleting todo ${params.id}`);
+    remove: del("/api/todos/:id", (_req, _params) => {
+      console.log(`Deleting todo ${_params.id}`);
       return new Response(null, { status: 204 });
     })
   },
@@ -163,6 +164,7 @@ defineComponent("todo-item", {
     text: "todo-text", 
     deleteBtn: "todo-delete"
   },
+  // @ts-ignore - example doesn't need strict types
   render: ({ id, text, done }, api, classes) => {
     const itemClass = `${classes!.item} ${done ? "done" : ""}`;
     return (
@@ -174,8 +176,7 @@ defineComponent("todo-item", {
           {...api.toggle(id)}
         />
         <span class={classes!.text}>{text}</span>
-        <button 
-          type="button" 
+        <button type="button" 
           class={classes!.deleteBtn}
           {...api.remove(id)}
         >
@@ -192,7 +193,7 @@ defineComponent("profile-card", {
     name: attrs.name || "Unknown",
     email: attrs.email && attrs.email.includes("@") ? attrs.email : "no-email",
     age: attrs.age ? Math.max(0, parseInt(attrs.age)) : undefined,
-    verified: attrs.hasOwnProperty("verified")
+    verified: "verified" in attrs
   }),
   styles: `
     .profile {
@@ -242,7 +243,7 @@ defineComponent("profile-card", {
     age: "profile-age",
     badge: "profile-badge"
   },
-  render: ({ name, email, age, verified }, api, classes) => (
+  render: ({ name, email, age, verified }, _api, classes) => (
     <div class={classes!.card}>
       <div class={classes!.name}>{name}</div>
       <div class={classes!.email}>{email}</div>

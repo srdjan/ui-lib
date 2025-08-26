@@ -9,15 +9,15 @@ import { appRouter } from "./router.ts";
 import "./jsx.d.ts"; // Import JSX types
 
 // Props transformer function type - takes raw attributes, returns whatever the user wants
-export type PropsTransformer<TRawAttrs = Record<string, string>, TProps = any> = 
+export type PropsTransformer<TRawAttrs = Record<string, string>, TProps = unknown> = 
   (attrs: TRawAttrs) => TProps;
 
 // Simple prop spec that's just a function or nothing
-export type PropsSpec<TProps = any> = PropsTransformer<Record<string, string>, TProps> | undefined;
+export type PropsSpec<TProps = unknown> = PropsTransformer<Record<string, string>, TProps> | undefined;
 
 // Helper type to infer props type from transformer or default to raw attributes
 export type InferProps<T extends PropsSpec> = 
-  T extends PropsTransformer<any, infer P> ? P : Record<string, string>;
+  T extends PropsTransformer<Record<string, string>, infer P> ? P : Record<string, string>;
 
 type ClassMap = Record<string, string>;
 
@@ -72,7 +72,7 @@ export type ComponentConfig<TPropsSpec extends PropsSpec> =
  *   props: (attrs) => ({
  *     count: parseInt(attrs.count || "0"),
  *     step: parseInt(attrs.step || "1"),
- *     active: attrs.hasOwnProperty("active")
+ *     active: "active" in attrs
  *   }),
  *   render: (props) => (
  *     <div class={props.active ? "active" : ""}>
@@ -86,7 +86,7 @@ export type ComponentConfig<TPropsSpec extends PropsSpec> =
  *   props: (attrs) => ({
  *     id: attrs.id,
  *     text: attrs.text,
- *     done: attrs.hasOwnProperty("done")
+ *     done: "done" in attrs
  *   }),
  *   api: {
  *     toggle: patch("/api/todos/:id/toggle", handler),

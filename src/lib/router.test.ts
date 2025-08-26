@@ -4,7 +4,7 @@ import {
   assertEquals,
   assertExists,
 } from "https://deno.land/std@0.224.0/assert/mod.ts";
-import { appRouter, type RouteHandler } from "./router.ts";
+import { Router, type RouteHandler } from "./router.ts";
 
 // Helper to create test requests
 const createRequest = (method: string, url: string): Request => {
@@ -13,12 +13,12 @@ const createRequest = (method: string, url: string): Request => {
 
 // Helper to create test handlers
 const createHandler = (name: string): RouteHandler => {
-  return async () => new Response(name);
+  return () => new Response(name);
 };
 
 Deno.test("Router registers routes correctly", () => {
   // Create a fresh router instance to avoid test interference
-  const testRouter = new (appRouter.constructor as any)();
+  const testRouter = new Router();
   
   const handler = createHandler("test");
   testRouter.register("GET", "/users/:id", handler);
@@ -33,7 +33,7 @@ Deno.test("Router registers routes correctly", () => {
 });
 
 Deno.test("Router handles different HTTP methods", () => {
-  const testRouter = new (appRouter.constructor as any)();
+  const testRouter = new Router();
   
   const getHandler = createHandler("get");
   const postHandler = createHandler("post");
@@ -70,7 +70,7 @@ Deno.test("Router handles different HTTP methods", () => {
 });
 
 Deno.test("Router extracts single route parameters", () => {
-  const testRouter = new (appRouter.constructor as any)();
+  const testRouter = new Router();
   const handler = createHandler("single-param");
   
   testRouter.register("GET", "/users/:id", handler);
@@ -82,7 +82,7 @@ Deno.test("Router extracts single route parameters", () => {
 });
 
 Deno.test("Router extracts multiple route parameters", () => {
-  const testRouter = new (appRouter.constructor as any)();
+  const testRouter = new Router();
   const handler = createHandler("multi-param");
   
   testRouter.register("GET", "/users/:userId/posts/:postId", handler);
@@ -97,7 +97,7 @@ Deno.test("Router extracts multiple route parameters", () => {
 });
 
 Deno.test("Router handles complex nested parameters", () => {
-  const testRouter = new (appRouter.constructor as any)();
+  const testRouter = new Router();
   const handler = createHandler("nested-param");
   
   testRouter.register("GET", "/api/v1/users/:userId/posts/:postId/comments/:commentId", handler);
@@ -112,7 +112,7 @@ Deno.test("Router handles complex nested parameters", () => {
 });
 
 Deno.test("Router handles trailing slashes", () => {
-  const testRouter = new (appRouter.constructor as any)();
+  const testRouter = new Router();
   const handler = createHandler("trailing-slash");
   
   testRouter.register("GET", "/users/:id", handler);
@@ -132,7 +132,7 @@ Deno.test("Router handles trailing slashes", () => {
 });
 
 Deno.test("Router returns null for non-matching routes", () => {
-  const testRouter = new (appRouter.constructor as any)();
+  const testRouter = new Router();
   testRouter.register("GET", "/users/:id", createHandler("test"));
   
   // Different path
@@ -155,7 +155,7 @@ Deno.test("Router returns null for non-matching routes", () => {
 });
 
 Deno.test("Router normalizes HTTP methods to uppercase", () => {
-  const testRouter = new (appRouter.constructor as any)();
+  const testRouter = new Router();
   const handler = createHandler("case-test");
   
   // Register with lowercase method
@@ -173,7 +173,7 @@ Deno.test("Router normalizes HTTP methods to uppercase", () => {
 });
 
 Deno.test("Router handles routes without parameters", () => {
-  const testRouter = new (appRouter.constructor as any)();
+  const testRouter = new Router();
   const handler = createHandler("no-params");
   
   testRouter.register("GET", "/health", handler);
@@ -185,7 +185,7 @@ Deno.test("Router handles routes without parameters", () => {
 });
 
 Deno.test("Router handles root path", () => {
-  const testRouter = new (appRouter.constructor as any)();
+  const testRouter = new Router();
   const handler = createHandler("root");
   
   testRouter.register("GET", "/", handler);
@@ -197,7 +197,7 @@ Deno.test("Router handles root path", () => {
 });
 
 Deno.test("Router parameter values can contain various characters", () => {
-  const testRouter = new (appRouter.constructor as any)();
+  const testRouter = new Router();
   const handler = createHandler("special-chars");
   
   testRouter.register("GET", "/users/:id/data", handler);
@@ -218,7 +218,7 @@ Deno.test("Router parameter values can contain various characters", () => {
 });
 
 Deno.test("Router first matching route wins", () => {
-  const testRouter = new (appRouter.constructor as any)();
+  const testRouter = new Router();
   const firstHandler = createHandler("first");
   const secondHandler = createHandler("second");
   

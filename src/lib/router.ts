@@ -15,7 +15,7 @@ export interface Route {
   handler: RouteHandler;
 }
 
-class Router {
+export class Router {
   private routes: Route[] = [];
 
   // Converts a path string like '/users/:id' into a RegExp
