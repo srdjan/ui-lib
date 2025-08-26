@@ -93,7 +93,7 @@
 
     <section style="margin-top: 2rem">
       <h2>🔢 Counter</h2>
-      <p>Counter value stored in DOM attributes and element content. <strong>Uses CSS-only format!</strong></p>
+      <p>Counter value stored in DOM attributes and element content. <strong>Now uses CSS-only format + function-style props!</strong></p>
       <counter step="3" initialCount="5"></counter>
     </section>
 
@@ -114,7 +114,7 @@
 
     <section style="margin-top: 2rem">
       <h2>📁 Accordion</h2>
-      <p>Open/closed state managed with CSS classes and transitions. <strong>Pure CSS-only format!</strong></p>
+      <p>Open/closed state managed with CSS classes and transitions. <strong>Pure CSS-only format + function-style props!</strong></p>
       <accordion
         title="What is DOM-native development?"
         content="DOM-native development uses the browser's built-in state mechanisms (CSS classes, form values, data attributes) instead of JavaScript object state management. This results in simpler, more performant, and more accessible components."
@@ -132,6 +132,47 @@
       <h2>📑 Tabs</h2>
       <p>Active tab state stored as CSS classes and data attributes. <strong>CSS-only styling magic!</strong></p>
       <tabs tabs="Home,About,Settings,Contact" activeTab="Home"></tabs>
+    </section>
+
+    <section style="margin-top: 2rem; border: 2px solid #007bff; background: #f0f8ff">
+      <h2>🎉 NEW: Function-Style Props!</h2>
+      <p style="color: #0056b3; font-weight: 500">
+        Zero duplication between props and render parameters! Props auto-generated from function signature! 🚀
+      </p>
+      <function-style-card title="Amazing Innovation!" count="100" enabled></function-style-card>
+      
+      <details style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 6px;">
+        <summary style="font-weight: 500; cursor: pointer; color: #007bff;">
+          ✨ See The Function-Style Magic
+        </summary>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+          <div>
+            <h4 style="color: #28a745; margin: 0 0 0.5rem 0">✨ NEW: Function-Style Props</h4>
+            <pre style="background: #f8fff9; padding: 1rem; border-radius: 4px; font-size: 0.8rem; margin: 0;"><code>// Zero duplication - props in function signature!
+defineComponent("counter", {
+  render: ({ 
+    initialCount = number(0),
+    step = number(1)
+  }, api, classes) => (
+    &lt;div&gt;Count: {initialCount}&lt;/div&gt;
+  )
+});</code></pre>
+          </div>
+          <div>
+            <h4 style="color: #dc3545; margin: 0 0 0.5rem 0">🔄 Old Approach</h4>
+            <pre style="background: #fff5f5; padding: 1rem; border-radius: 4px; font-size: 0.8rem; margin: 0;"><code>// Duplication between props and render params
+defineComponent("counter", {
+  props: (attrs) => ({
+    initialCount: parseInt(attrs.initialCount || "0"),
+    step: parseInt(attrs.step || "1")
+  }),
+  render: ({ initialCount, step }) => (
+    &lt;div&gt;Count: {initialCount}&lt;/div&gt;
+  )
+});</code></pre>
+          </div>
+        </div>
+      </details>
     </section>
 
     <section

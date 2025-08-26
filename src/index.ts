@@ -52,3 +52,14 @@ import "./lib/jsx.d.ts";
 
 // Styles utilities
 export type { UnifiedStyles } from "./lib/styles-parser.ts";
+
+// Smart prop helpers for function-style props
+export { 
+  string, 
+  number, 
+  boolean, 
+  array, 
+  object,
+  type PropHelper,
+  isPropHelper 
+} from "./lib/prop-helpers.ts";

@@ -11,6 +11,8 @@ import {
   parseUnifiedStyles,
   isUnifiedStyles,
 } from "./styles-parser.ts";
+import { parseRenderParameters } from "./render-parameter-parser.ts";
+import { extractPropDefinitions } from "./prop-helpers.ts";
 import "./jsx.d.ts"; // Import JSX types
 
 // Props transformer function type - takes raw attributes, returns whatever the user wants
@@ -108,6 +110,17 @@ export function defineComponent<TProps = Record<string, string>>(
     render,
   } = config;
 
+  // Auto-generate props transformer from render function parameters if none provided
+  let finalPropsTransformer = propsTransformer;
+  if (!propsTransformer) {
+    const { propHelpers, hasProps } = parseRenderParameters(render);
+    if (hasProps) {
+      const { propsTransformer: autoTransformer } = extractPropDefinitions(propHelpers);
+      finalPropsTransformer = autoTransformer as PropsTransformer<Record<string, string>, TProps>;
+      console.log(`Auto-generated props for component "${name}":`, Object.keys(propHelpers));
+    }
+  }
+
   // Handle unified styles or traditional string styles
   let css: string | undefined;
   let classMap: ClassMap | undefined;
@@ -173,8 +186,8 @@ export function defineComponent<TProps = Record<string, string>>(
     css,
     api: generatedApi,
     render: (rawAttrs, _unusedApi) => {
-      const finalProps = propsTransformer
-        ? propsTransformer(rawAttrs as Record<string, string>)
+      const finalProps = finalPropsTransformer
+        ? finalPropsTransformer(rawAttrs as Record<string, string>)
         : (rawAttrs as unknown as TProps);
 
       if (generatedApi) {

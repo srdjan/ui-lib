@@ -6,6 +6,9 @@ import {
   patch,
   renderComponent,
   toggleClasses,
+  string,
+  number,
+  boolean,
 } from "../src/index.ts";
 import type { GeneratedApiMap } from "../src/index.ts";
 
@@ -17,12 +20,9 @@ import {
   updateParentCounter,
 } from "./dom-actions.ts";
 
-// 🎉 NEW: Unified Styles API Showcase
+// 🎉 NEW: Unified Styles API Showcase - Now with function-style props!
 defineComponent("unified-card", {
-  props: (attrs) => ({
-    title: attrs.title || "Unified Styles",
-    highlighted: "highlighted" in attrs,
-  }),
+  // ✨ Function-style props - no duplication between props and render parameters!
   styles: {
     // ✨ New ultra-simplified CSS-only format!
     card: `{ border: 2px solid #e9ecef; border-radius: 8px; padding: 1.5rem; margin: 1rem 0; background: white; transition: all 0.2s ease; }`,
@@ -30,7 +30,10 @@ defineComponent("unified-card", {
     content: `{ color: #6c757d; line-height: 1.5; }`,
     highlight: `{ border-color: #007bff !important; background: #f8f9ff; box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15); }`,
   },
-  render: ({ title, highlighted }, _api, classes) => (
+  render: ({ 
+    title = string("Unified Styles"),
+    highlighted = boolean(false)
+  }, _api, classes) => (
     <div class={`${classes!.card} ${highlighted ? classes!.highlight : ""}`}>
       <h3 class={classes!.title}>{title}</h3>
       <div class={classes!.content}>
@@ -72,12 +75,9 @@ defineComponent("theme-toggle", {
   ),
 });
 
-// Counter - Props transformer for numbers
+// Counter - Now using function-style props! 🎉
 defineComponent("counter", {
-  props: (attrs) => ({
-    initialCount: parseInt(attrs.initialCount || "0"),
-    step: parseInt(attrs.step || "1"),
-  }),
+  // ✨ No props transformer needed - auto-generated from render parameters!
   styles: {
     // ✨ CSS-only format - class names auto-generated from keys!
     container: `{ display: inline-flex; gap: 0.5rem; padding: 1rem; border: 2px solid #007bff; border-radius: 6px; align-items: center; background: white; }`,
@@ -85,11 +85,10 @@ defineComponent("counter", {
     buttonHover: `{ background: #0056b3; }`, // → .button-hover for :hover selector
     display: `{ font-size: 1.5rem; min-width: 3rem; text-align: center; font-weight: bold; color: #007bff; }`
   },
-  render: (
-    { initialCount, step }: { initialCount: number; step: number },
-    _api: undefined,
-    classes?: Record<string, string>,
-  ) => (
+  render: ({
+    initialCount = number(0),
+    step = number(1)
+  }, _api, classes) => (
     <div class={classes!.container} data-count={initialCount}>
       <button
         type="button"
@@ -187,13 +186,9 @@ defineComponent("todo-item", {
   },
 });
 
-// Accordion - showcasing CSS-only format!
+// Accordion - showcasing CSS-only format + function-style props!
 defineComponent("accordion", {
-  props: (attrs) => ({
-    title: attrs.title,
-    content: attrs.content,
-    initiallyOpen: "initiallyOpen" in attrs,
-  }),
+  // ✨ Function-style props eliminate props/render parameter duplication!
   styles: {
     // ✨ CSS-only format for accordion!
     container: `{ border: 1px solid #ddd; border-radius: 6px; margin-bottom: 0.5rem; overflow: hidden; }`,
@@ -205,15 +200,11 @@ defineComponent("accordion", {
     content: `{ padding: 0 1rem; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; }`,
     contentOpen: `{ max-height: 500px; padding: 1rem; }` // Applied conditionally
   },
-  render: (
-    { title, content, initiallyOpen }: {
-      title: string;
-      content: string;
-      initiallyOpen: boolean;
-    },
-    _api: undefined,
-    classes?: Record<string, string>,
-  ) => {
+  render: ({ 
+    title = string("Accordion Title"),
+    content = string("Accordion content goes here..."),
+    initiallyOpen = boolean(false)
+  }, _api, classes) => {
     const containerClass = `${classes!.container} ${initiallyOpen ? classes!.containerOpen : ""}`;
     const iconClass = `${classes!.icon} ${initiallyOpen ? classes!.iconOpen : ""}`;
     const contentClass = `${classes!.content} ${initiallyOpen ? classes!.contentOpen : ""}`;
@@ -305,6 +296,33 @@ defineComponent("tabs", {
       </div>
     );
   },
+});
+
+// 🧪 TEST: Function-style Props (NEW!)
+defineComponent("function-style-card", {
+  styles: {
+    container: `{ padding: 1.5rem; border: 2px solid #28a745; border-radius: 8px; margin: 1rem 0; background: #f8fff9; }`,
+    title: `{ font-size: 1.25rem; font-weight: bold; color: #155724; margin-bottom: 1rem; }`,
+    content: `{ color: #155724; line-height: 1.5; }`,
+    highlight: `{ background: #d4edda; padding: 0.5rem; border-radius: 4px; font-family: monospace; }`
+  },
+  // ✨ NEW: No props transformer needed! Props auto-generated from render function parameters
+  render: ({ 
+    title = string("Function-Style Props"),
+    count = number(42),
+    enabled = boolean(true)
+  }, _api, classes) => (
+    <div class={classes!.container}>
+      <h3 class={classes!.title}>{title}</h3>
+      <div class={classes!.content}>
+        <p>🎉 <strong>This component uses function-style props!</strong></p>
+        <p>✨ No props transformer defined - props auto-generated from render function parameters</p>
+        <p>🔢 Count prop: <span class={classes!.highlight}>{count}</span></p>
+        <p>🎯 Enabled prop: <span class={classes!.highlight}>{enabled ? "Yes" : "No"}</span></p>
+        <p>📝 Title prop: <span class={classes!.highlight}>"{title}"</span></p>
+      </div>
+    </div>
+  ),
 });
 
 console.log("✅ All examples registered from example.tsx");
