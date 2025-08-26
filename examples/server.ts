@@ -1,7 +1,7 @@
 #!/usr/bin/env deno run --allow-net --allow-read --allow-env
-import { renderComponent } from "./src/index.ts";
-import { getRegistry } from "./src/lib/registry.ts";
-import { appRouter } from "./src/lib/router.ts";
+import { renderComponent } from "../src/index.ts";
+import { getRegistry } from "../src/lib/registry.ts";
+import { appRouter } from "../src/lib/router.ts";
 
 /**
  * Generic development server with component-defined routes.
@@ -29,7 +29,7 @@ const parseAttributes = (attrString: string): Record<string, string> => {
 };
 
 // Load all examples to register components and their routes
-const modUrl = new URL(`./examples/example.tsx`, `file://${Deno.cwd()}/`).href;
+const modUrl = new URL(`./example.tsx`, `file://${Deno.cwd()}/`).href;
 await import(modUrl);
 
 Deno.serve({
@@ -49,7 +49,7 @@ Deno.serve({
     // 2. If no API route, handle special files like favicon
     if (url.pathname === "/favicon.ico") {
       try {
-        const favicon = await Deno.readFile("./examples/favicon.ico");
+        const favicon = await Deno.readFile("./favicon.ico");
         return new Response(favicon, {
           headers: { "content-type": "image/x-icon" },
         });
@@ -61,7 +61,7 @@ Deno.serve({
     try {
       // 3. Handle root path (index.html rendering)
       if (url.pathname === "/") {
-        let html = await Deno.readTextFile("./examples/index.html");
+        let html = await Deno.readTextFile("./index.html");
         const componentRegistry = getRegistry();
         const componentNames = Object.keys(componentRegistry);
         const componentRegex = new RegExp(
@@ -84,7 +84,7 @@ Deno.serve({
       }
 
       // 4. If still no match, fall back to serving static files
-      const filePath = `./examples${url.pathname}`;
+      const filePath = `.${url.pathname}`;
 
       const content = await Deno.readFile(filePath);
       let contentType = "text/plain";
