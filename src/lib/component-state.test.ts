@@ -81,23 +81,17 @@ Deno.test("renderComponent renders component with props and no prop spec", () =>
   assertEquals(defaultResult, "<div>Hello World!</div>");
 });
 
-Deno.test("renderComponent handles prop parsing with prop spec", () => {
+Deno.test("renderComponent handles simplified prop system", () => {
   clearRegistry();
   
-  const propSpec = {
-    count: {
-      attribute: "count",
-      parse: (v: unknown) => Number(v) || 0
-    },
-    disabled: {
-      attribute: "disabled", 
-      parse: (v: unknown) => v === "" || v === "true"
-    }
-  };
-  
+  // Props are now handled by render function itself - no prop spec
   registerTestComponent("counter", {
-    props: propSpec,
-    render: (props: any) => `<button ${props.disabled ? "disabled" : ""}>Count: ${props.count}</button>`
+    props: undefined,
+    render: (props: any) => {
+      const count = Number(props.count) || 0;
+      const disabled = props.disabled === "true" || props.disabled === "";
+      return `<button ${disabled ? "disabled" : ""}>Count: ${count}</button>`;
+    }
   });
   
   const result = renderComponent("counter", { count: "42", disabled: "true" });
@@ -204,53 +198,41 @@ Deno.test("renderComponent handles empty props object", () => {
 Deno.test("renderComponent handles null/undefined props", () => {
   clearRegistry();
   
-  const propSpec = {
-    name: {
-      attribute: "name",
-      parse: (v: unknown) => v || "default"
-    }
-  };
-  
+  // Props handling is now in render function
   registerTestComponent("null-props", {
-    props: propSpec,
-    render: (props: any) => `<div>Name: ${props.name}</div>`
+    props: undefined,
+    render: (props: any) => {
+      const name = props.name || "default";
+      return `<div>Name: ${name}</div>`;
+    }
   });
   
   const result = renderComponent("null-props", { name: null });
   assertEquals(result, "<div>Name: default</div>");
 });
 
-Deno.test("renderComponent preserves prop parsing errors", () => {
+Deno.test("renderComponent handles render function errors", () => {
   clearRegistry();
   
-  const propSpec = {
-    count: {
-      attribute: "count",
-      parse: (v: unknown) => {
-        const num = Number(v);
-        if (isNaN(num)) throw new Error("Invalid number");
-        return num;
+  // Error handling is now in render function - no prop spec errors
+  registerTestComponent("error-prone", {
+    props: undefined,
+    render: (props: any) => {
+      if (props.shouldError === "true") {
+        throw new Error("Render error");
       }
+      return `<div>OK</div>`;
     }
-  };
-  
-  registerTestComponent("strict-counter", {
-    props: propSpec,
-    render: (props: any) => `<div>Count: ${props.count}</div>`
   });
   
-  // This should throw during prop parsing
+  // This should throw during render function
   let errorThrown = false;
   try {
-    renderComponent("strict-counter", { count: "not-a-number" });
+    renderComponent("error-prone", { shouldError: "true" });
   } catch (error) {
     errorThrown = true;
     const message = (error as Error).message;
-    // Check that the enhanced error message includes the component name, prop name, and original error
-    assert(message.includes('Component "strict-counter"'), "Error should include component name");
-    assert(message.includes('prop "count"'), "Error should include prop name");
-    assert(message.includes("Invalid number"), "Error should include original error message");
-    assert(message.includes('"not-a-number"'), "Error should include received value");
+    assert(message.includes("Render error"), "Error should include render error message");
   }
-  assert(errorThrown, "Expected prop parsing error to be thrown");
+  assert(errorThrown, "Expected render function error to be thrown");
 });

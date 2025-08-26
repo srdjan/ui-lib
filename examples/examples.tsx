@@ -17,7 +17,7 @@ import {
   updateParentCounter,
 } from "./dom-actions.ts";
 
-// Theme Toggle - Pure DOM State Management
+// Theme Toggle - Pure DOM State Management (no props needed)
 defineComponent("theme-toggle", {
   classes: {
     button: "theme-btn",
@@ -72,12 +72,12 @@ defineComponent("theme-toggle", {
   )
 });
 
-// Enhanced Counter with Defaults
+// Enhanced Counter with Props Transformer
 defineComponent("counter", {
-  props: {
-    initialCount: { type: "number", default: 0 },
-    step: { type: "number", default: 1 }
-  },
+  props: (attrs) => ({
+    initialCount: parseInt(attrs.initialCount || "0"),
+    step: parseInt(attrs.step || "1")
+  }),
   classes: {
     container: "counter",
     button: "counter-btn",
@@ -141,11 +141,11 @@ defineComponent("counter", {
 
 // Todo Item with HTMX Integration
 defineComponent("todo-item", {
-  props: {
-    id: "string",
-    text: "string",
-    done: { type: "boolean", default: false }
-  },
+  props: (attrs) => ({
+    id: attrs.id,
+    text: attrs.text,
+    done: attrs.hasOwnProperty("done")
+  }),
   api: {
     toggle: patch("/api/todos/:id/toggle", async (req, params) => {
       const form = await req.formData();
@@ -239,11 +239,11 @@ defineComponent("todo-item", {
 
 // Accordion Component
 defineComponent("accordion", {
-  props: {
-    title: "string",
-    content: "string",
-    initiallyOpen: { type: "boolean", default: false }
-  },
+  props: (attrs) => ({
+    title: attrs.title,
+    content: attrs.content,
+    initiallyOpen: attrs.hasOwnProperty("initiallyOpen")
+  }),
   classes: {
     container: "accordion",
     header: "accordion-header", 
@@ -307,10 +307,10 @@ defineComponent("accordion", {
 
 // Tabs Component
 defineComponent("tabs", {
-  props: {
-    tabs: "string",
-    activeTab: { type: "string", default: "" }
-  },
+  props: (attrs) => ({
+    tabs: attrs.tabs || "",
+    activeTab: attrs.activeTab || ""
+  }),
   classes: {
     container: "tabs-container",
     nav: "tabs-nav",

@@ -19,22 +19,9 @@ export function renderComponent(
     return `<!-- component "${componentName}" not found. Available components: ${registeredComponents || "none"} -->`;
   }
 
-  // Parse props if prop spec exists
-  let parsedProps = props;
-  if (entry.props) {
-    parsedProps = {};
-    for (const [key, spec] of Object.entries(entry.props)) {
-      const rawValue = props[key];
-      try {
-        parsedProps[key] = spec.parse(rawValue);
-      } catch (error) {
-        throw new Error(
-          `Component "${componentName}" prop "${key}" parsing failed: ${error instanceof Error ? error.message : error}. ` +
-          `Received value: ${JSON.stringify(rawValue)}`
-        );
-      }
-    }
-  }
+  // Props are now handled directly in the component's render function
+  // The registry no longer stores complex prop specs
+  const rawProps = props;
 
   // Generate client API functions if available (should match component-pipeline logic)
   let apiCreators = undefined;
@@ -44,7 +31,7 @@ export function renderComponent(
   }
 
   // Simple render with props and optional API
-  const markup = entry.render(parsedProps, apiCreators);
+  const markup = entry.render(rawProps, apiCreators);
 
   const cssTag = entry.css ? `<style>${entry.css}</style>` : "";
 

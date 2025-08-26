@@ -16,54 +16,52 @@ Deno.test("defineComponent registers component in registry", () => {
   delete registry["test-define"];
 
   defineComponent("test-define", {
-    props: { text: "string" },
-    render: ({ text }) => h("div", null, text)
+    render: (props: { text: string }) => h("div", null, props.text)
   });
 
   assertExists(registry["test-define"]);
   assertEquals(typeof registry["test-define"].render, "function");
 });
 
-Deno.test("defineComponent with enhanced props (defaults)", () => {
+Deno.test("defineComponent with props transformer (defaults)", () => {
   const registry = getRegistry();
   delete registry["test-defaults"];
 
   defineComponent("test-defaults", {
-    props: {
-      name: "string",
-      count: { type: "number", default: 42 },
-      active: { type: "boolean", default: true }
-    },
+    props: (attrs) => ({
+      name: attrs.name,
+      count: parseInt(attrs.count || "42"),
+      active: attrs.hasOwnProperty("active")
+    }),
     render: ({ name, count, active }) => 
       h("div", null, `${name}: ${count}, active: ${active}`)
   });
 
   const result1 = renderComponent("test-defaults", { name: "test" });
-  assertEquals(result1, "<div>test: 42, active: true</div>");
+  assertEquals(result1, "<div>test: 42, active: false</div>");
 
-  const result2 = renderComponent("test-defaults", { name: "test", count: "100" });
+  const result2 = renderComponent("test-defaults", { name: "test", count: "100", active: "" });
   assertEquals(result2, "<div>test: 100, active: true</div>");
 });
 
-Deno.test("defineComponent with explicit required/optional props", () => {
+Deno.test("defineComponent with validation in props transformer", () => {
   const registry = getRegistry();
-  delete registry["test-explicit"];
+  delete registry["test-validation"];
 
-  defineComponent("test-explicit", {
-    props: {
-      title: { type: "string", required: true },
-      subtitle: { type: "string", required: false },
-      count: { type: "number", required: false }
-    },
+  defineComponent("test-validation", {
+    props: (attrs) => ({
+      title: attrs.title || "Untitled",
+      subtitle: attrs.subtitle || undefined,
+      count: attrs.count ? Math.max(0, parseInt(attrs.count)) : 0
+    }),
     render: ({ title, subtitle, count }) => 
-      h("div", null, `${title} ${subtitle || ''} ${count || 0}`)
+      h("div", null, `${title} ${subtitle || ''} ${count}`)
   });
 
-  const result1 = renderComponent("test-explicit", { title: "Hello" });
-  assertStringIncludes(result1, "Hello");
-  assertStringIncludes(result1, "0");
+  const result1 = renderComponent("test-validation", { title: "Hello" });
+  assertEquals(result1, "<div>Hello  0</div>");
 
-  const result2 = renderComponent("test-explicit", { 
+  const result2 = renderComponent("test-validation", { 
     title: "Hello", 
     subtitle: "World", 
     count: "5" 
@@ -71,17 +69,16 @@ Deno.test("defineComponent with explicit required/optional props", () => {
   assertEquals(result2, "<div>Hello World 5</div>");
 });
 
-Deno.test("defineComponent with styles and classes", () => {
+Deno.test("defineComponent with styles and classes (zero config)", () => {
   const registry = getRegistry();
   delete registry["test-styled"];
 
   const css = ".btn { color: red; }";
   defineComponent("test-styled", {
-    props: { text: "string" },
     styles: css,
     classes: { button: "btn" },
-    render: ({ text }, api, classes) => 
-      h("button", { class: classes!.button }, text)
+    render: (props: { text: string }, api, classes) => 
+      h("button", { class: classes!.button }, props.text)
   });
 
   const entry = registry["test-styled"];
@@ -96,7 +93,7 @@ Deno.test("defineComponent with API integration", () => {
   delete registry["test-api"];
 
   defineComponent("test-api", {
-    props: { id: "string" },
+    props: (attrs) => ({ id: attrs.id }),
     api: {
       create: post("/test/:id", () => new Response("created")),
       remove: del("/test/:id", () => new Response("deleted"))
@@ -123,7 +120,7 @@ Deno.test("defineComponent throws error without render function", () => {
   try {
     // @ts-ignore - testing runtime error
     defineComponent("test-no-render", {
-      props: { text: "string" }
+      props: (attrs) => ({ text: attrs.text })
     });
   } catch (error) {
     errorThrown = true;

@@ -6,18 +6,8 @@ import {
   type GeneratedApiMap,
 } from "./api-generator.ts";
 import { appRouter } from "./router.ts";
+import { type PropsSpec, type InferProps } from "./props-simple.ts";
 import "./jsx.d.ts"; // Import JSX types
-
-// Props transformer function type - takes raw attributes, returns whatever the user wants
-export type PropsTransformer<TRawAttrs = Record<string, string>, TProps = any> = 
-  (attrs: TRawAttrs) => TProps;
-
-// Simple prop spec that's just a function or nothing
-export type PropsSpec<TProps = any> = PropsTransformer<Record<string, string>, TProps> | undefined;
-
-// Helper type to infer props type from transformer or default to raw attributes
-export type InferProps<T extends PropsSpec> = 
-  T extends PropsTransformer<any, infer P> ? P : Record<string, string>;
 
 type ClassMap = Record<string, string>;
 
@@ -145,7 +135,7 @@ export function defineComponent<TPropsSpec extends PropsSpec>(
     api: generatedApi,
     render: (rawAttrs, _unusedApi) => {
       // Apply props transformer if provided, otherwise use raw attributes
-      const finalProps = propsTransformer ? propsTransformer(rawAttrs as Record<string, string>) : rawAttrs;
+      const finalProps = propsTransformer ? propsTransformer(rawAttrs) : rawAttrs;
       
       // Pass the correct parameters based on whether API exists
       if (generatedApi) {

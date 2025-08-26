@@ -1,9 +1,8 @@
 /** @jsx h */
 import { defineComponent, h, renderComponent, patch, del } from "../src/index.ts";
 
-// Example 1: Simple component with basic props
+// Example 1: Simple component - zero config (props are just strings)
 defineComponent("simple-button", {
-  props: { text: "string", disabled: "boolean?" },
   styles: `
     .simple-btn {
       padding: 0.5rem 1rem;
@@ -20,21 +19,21 @@ defineComponent("simple-button", {
     }
   `,
   classes: { btn: "simple-btn" },
-  render: ({ text, disabled }, api, classes) => (
-    <button class={classes!.btn} disabled={disabled}>
-      {text}
+  render: (props: { text: string; disabled?: string }, api, classes) => (
+    <button class={classes!.btn} disabled={props.disabled === "true" || props.hasOwnProperty("disabled")}>
+      {props.text}
     </button>
   ),
 });
 
-// Example 2: Component with enhanced props syntax (defaults)
+// Example 2: Component with props transformer (when parsing needed)
 defineComponent("enhanced-counter", {
-  props: {
-    label: "string",
-    initialCount: { type: "number", default: 0 },
-    step: { type: "number", default: 1 },
-    disabled: { type: "boolean", default: false }
-  },
+  props: (attrs) => ({
+    label: attrs.label || "Counter",
+    initialCount: parseInt(attrs.initialCount || "0"),
+    step: parseInt(attrs.step || "1"),
+    disabled: attrs.hasOwnProperty("disabled")
+  }),
   styles: `
     .counter {
       display: inline-flex;
@@ -91,11 +90,11 @@ defineComponent("enhanced-counter", {
 
 // Example 3: Component with API integration
 defineComponent("todo-item", {
-  props: {
-    id: "string",
-    text: "string", 
-    done: { type: "boolean", default: false }
-  },
+  props: (attrs) => ({
+    id: attrs.id,
+    text: attrs.text, 
+    done: attrs.hasOwnProperty("done")
+  }),
   api: {
     toggle: patch("/api/todos/:id/toggle", async (req, params) => {
       const form = await req.formData();
@@ -187,14 +186,14 @@ defineComponent("todo-item", {
   },
 });
 
-// Example 4: Explicit props syntax
+// Example 4: Complex props transformer with validation
 defineComponent("profile-card", {
-  props: {
-    name: { type: "string", required: true },
-    email: { type: "string", required: true },
-    age: { type: "number", required: false },
-    verified: { type: "boolean", required: false }
-  },
+  props: (attrs) => ({
+    name: attrs.name || "Unknown",
+    email: attrs.email && attrs.email.includes("@") ? attrs.email : "no-email",
+    age: attrs.age ? Math.max(0, parseInt(attrs.age)) : undefined,
+    verified: attrs.hasOwnProperty("verified")
+  }),
   styles: `
     .profile {
       max-width: 300px;

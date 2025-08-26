@@ -33,11 +33,11 @@ export { escapeHtml } from "./lib/ssr.ts";
 export type { ComponentAction } from "./lib/actions.ts";
 export type { ApiMap, GeneratedApiMap } from "./lib/component-pipeline.ts";
 export type { 
-  PropConfig, 
-  EnhancedPropSpec, 
-  InferEnhancedProps 
-} from "./lib/props.ts";
-export type { ComponentConfig } from "./lib/define-component.ts";
+  PropsTransformer,
+  PropsSpec,
+  InferProps,
+  ComponentConfig
+} from "./lib/define-component.ts";
 
 // Import JSX types to make them globally available
 import "./lib/jsx.d.ts";
