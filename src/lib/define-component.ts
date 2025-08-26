@@ -9,53 +9,39 @@ import { appRouter } from "./router.ts";
 import "./jsx.d.ts"; // Import JSX types
 
 // Props transformer function type - takes raw attributes, returns whatever the user wants
-export type PropsTransformer<TRawAttrs = Record<string, string>, TProps = unknown> = 
+export type PropsTransformer<TRawAttrs = Record<string, string>, TProps = unknown> =
   (attrs: TRawAttrs) => TProps;
 
-// Simple prop spec that's just a function or nothing
-export type PropsSpec<TProps = unknown> = PropsTransformer<Record<string, string>, TProps> | undefined;
-
-// Helper type to infer props type from transformer or default to raw attributes
-export type InferProps<T extends PropsSpec> = 
-  T extends PropsTransformer<Record<string, string>, infer P> ? P : Record<string, string>;
+// Back-compat helper types (still exported)
+export type PropsSpec<TProps = unknown> =
+  | PropsTransformer<Record<string, string>, TProps>
+  | undefined;
+export type InferProps<T extends PropsSpec> =
+  T extends PropsTransformer<Record<string, string>, infer P> ? P
+  : Record<string, string>;
 
 type ClassMap = Record<string, string>;
 
-// Conditional render function types based on whether API is provided
-type RenderFunctionWithApi<TPropsSpec extends PropsSpec> = (
-  props: InferProps<TPropsSpec>,
-  api: GeneratedApiMap,
-  classes?: ClassMap,
-) => string;
-
-type RenderFunctionWithoutApi<TPropsSpec extends PropsSpec> = (
-  props: InferProps<TPropsSpec>,
-  api?: undefined,
-  classes?: ClassMap,
-) => string;
-
-// Component configuration with API
-export interface ComponentConfigWithApi<TPropsSpec extends PropsSpec> {
-  props?: TPropsSpec;
+// New config types: infer props directly from render parameter or optional transformer
+export interface ComponentConfigWithApi<TProps> {
+  props?: PropsTransformer<Record<string, string>, TProps>;
   styles?: string;
   classes?: ClassMap;
-  api: ApiMap;  // Required when this interface is used
-  render: RenderFunctionWithApi<TPropsSpec>;
+  api: ApiMap; // Required when this interface is used
+  render: (props: TProps, api: GeneratedApiMap, classes?: ClassMap) => string;
 }
 
-// Component configuration without API
-export interface ComponentConfigWithoutApi<TPropsSpec extends PropsSpec> {
-  props?: TPropsSpec;
+export interface ComponentConfigWithoutApi<TProps> {
+  props?: PropsTransformer<Record<string, string>, TProps>;
   styles?: string;
   classes?: ClassMap;
-  api?: never;  // Not allowed when this interface is used
-  render: RenderFunctionWithoutApi<TPropsSpec>;
+  api?: never; // Not allowed when this interface is used
+  render: (props: TProps, api?: undefined, classes?: ClassMap) => string;
 }
 
-// Union type for component configuration
-export type ComponentConfig<TPropsSpec extends PropsSpec> = 
-  | ComponentConfigWithApi<TPropsSpec>
-  | ComponentConfigWithoutApi<TPropsSpec>;
+export type ComponentConfig<TProps> =
+  | ComponentConfigWithApi<TProps>
+  | ComponentConfigWithoutApi<TProps>;
 
 /**
  * Define a component with simplified props system.
@@ -102,11 +88,17 @@ export type ComponentConfig<TPropsSpec extends PropsSpec> =
  * });
  * ```
  */
-export function defineComponent<TPropsSpec extends PropsSpec>(
+export function defineComponent<TProps = Record<string, string>>(
   name: string,
-  config: ComponentConfig<TPropsSpec>,
+  config: ComponentConfig<TProps>,
 ): void {
-  const { props: propsTransformer, styles: css, classes: classMap, api: apiMap, render } = config;
+  const {
+    props: propsTransformer,
+    styles: css,
+    classes: classMap,
+    api: apiMap,
+    render,
+  } = config;
 
   // Validate required configuration
   if (!render) {
@@ -140,25 +132,23 @@ export function defineComponent<TPropsSpec extends PropsSpec>(
   // Register the component in the SSR registry
   const registry = getRegistry();
   registry[name] = {
-    props: undefined, // No longer using complex prop specs
+    props: undefined, // transformer is handled manually here
     css,
     api: generatedApi,
     render: (rawAttrs, _unusedApi) => {
-      // Apply props transformer if provided, otherwise use raw attributes
-      const finalProps = propsTransformer ? propsTransformer(rawAttrs as Record<string, string>) : rawAttrs;
-      
-      // Pass the correct parameters based on whether API exists
+      const finalProps = propsTransformer
+        ? propsTransformer(rawAttrs as Record<string, string>)
+        : (rawAttrs as unknown as TProps);
+
       if (generatedApi) {
-        // Component has API - pass api as required parameter
-        return (render as RenderFunctionWithApi<TPropsSpec>)(
-          finalProps as InferProps<TPropsSpec>,
+        return (render as (p: TProps, a: GeneratedApiMap, c?: ClassMap) => string)(
+          finalProps as TProps,
           generatedApi,
           classMap,
         );
       } else {
-        // Component has no API - don't pass api parameter
-        return (render as RenderFunctionWithoutApi<TPropsSpec>)(
-          finalProps as InferProps<TPropsSpec>,
+        return (render as (p: TProps, a?: undefined, c?: ClassMap) => string)(
+          finalProps as TProps,
           undefined,
           classMap,
         );

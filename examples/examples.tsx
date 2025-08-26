@@ -120,8 +120,7 @@ defineComponent("counter", {
         type="button"
         class={classes!.button}
         onclick={updateParentCounter(`.${classes!.container}`, `.${classes!.display}`, -step)}
-      >
-        -{step}
+      >        -{step}
       </button>
       <span class={classes!.display}>{initialCount}</span>
       <button
