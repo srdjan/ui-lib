@@ -105,11 +105,26 @@ defineComponent("beautiful-button", {
 - **Smart type helpers**: `string()`, `number()`, `boolean()`, `array()`, `object()`
 - **Event handlers**: Return inline handler strings for direct DOM manipulation
 - **Server interactions**: Defined via `api` that automatically generates HTMX attributes
+- **JSON-in, HTML-out**: All htmx requests are JSON-encoded; server returns HTML for swapping
 
 ## Prerequisites
 
 - Root `deno.json` sets `"jsx": "react"` and `"jsxFactory": "h"`
 - Import `h` from `src/index.ts` in any TSX file
+
+### Global htmx JSON setup
+
+Include the json-enc extension and configure JSON encoding at the document level. Responses remain HTML.
+
+```html
+<head>
+  <script src="https://unpkg.com/htmx.org@2.0.6"></script>
+  <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+</head>
+<body hx-ext="json-enc" hx-encoding="json">
+  <!-- app -->
+</body>
+```
 
 ```tsx
 // examples/foo.tsx
@@ -483,3 +498,79 @@ funcwc has evolved through three major improvements:
 3. **✨ Function-Style Props**: Zero duplication between props and render parameters
 
 The result is **the most ergonomic component authoring experience** with minimal syntax, maximum power, and zero runtime overhead.
+### JSON requests, HTML responses
+
+All Unified API helpers are generated with JSON defaults:
+- `hx-ext="json-enc"` and `hx-encoding="json"`
+- `hx-headers` with `Accept: text/html` and `X-Requested-With: XMLHttpRequest`
+- Pass a payload object as the extra argument → becomes the JSON body
+
+Server handlers consume `await req.json()` and return HTML:
+
+```tsx
+export const toggle = patch("/api/items/:id/toggle", async (req, params) => {
+  const body = await req.json() as { done?: boolean };
+  return new Response(
+    renderComponent("todo-item", { id: params.id, done: !!body.done }),
+    { headers: { "content-type": "text/html; charset=utf-8" } },
+  );
+});
+```
+
+Per-call overrides:
+
+```tsx
+<button {...api.toggle(id, { done: true }, { target: "closest .todo", swap: "innerHTML" })}>
+  Toggle
+</button>
+```
+
+### CSRF patterns (recommended)
+
+For production, protect mutating requests with a CSRF token tied to the user session.
+
+Recommended flow:
+
+- Generate a CSRF token on initial page render (persist it in a secure, httpOnly cookie).
+- Inject the same token into all generated `hx-headers` via a request-scoped header context.
+- Validate the token on every mutating handler (compare request header vs cookie/session).
+
+Server (page render) — set cookie and inject per-request header used by the API generator:
+
+```ts
+import { runWithRequestHeaders } from "../src/lib/request-headers.ts";
+
+const token = crypto.randomUUID();
+const headers = new Headers({ "content-type": "text/html; charset=utf-8" });
+headers.append("Set-Cookie", `csrf=${token}; HttpOnly; SameSite=Lax; Path=/`);
+
+const html = runWithRequestHeaders({ "X-CSRF-Token": token }, () => renderFullPage());
+
+return new Response(html, { headers });
+```
+
+API generator automatically merges the current request headers into `hx-headers`, so every generated client action carries `X-CSRF-Token` without extra code in components.
+
+Server (handler) — validate header against cookie:
+
+```ts
+export const toggle = patch("/api/items/:id/toggle", async (req, params) => {
+  const headerToken = req.headers.get("x-csrf-token");
+  const cookies = req.headers.get("cookie") ?? "";
+  const cookieToken = /(?:^|;\s*)csrf=([^;]+)/.exec(cookies)?.[1];
+  if (!headerToken || headerToken !== cookieToken) {
+    return new Response("Forbidden", { status: 403 });
+  }
+
+  const body = await req.json() as { done?: boolean };
+  return new Response(
+    renderComponent("todo-item", { id: params.id, done: !!body.done }),
+    { headers: { "content-type": "text/html; charset=utf-8" } },
+  );
+});
+```
+
+Notes:
+- Use `SameSite=Lax` or `Strict` and `Secure` in production (HTTPS).
+- If you already have a session mechanism, store the CSRF token server-side instead of a cookie comparison.
+- Because funcwc standardizes JSON requests, you can avoid form-based CSRF complexities.

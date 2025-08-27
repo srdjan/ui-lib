@@ -4,20 +4,18 @@ import {
   defineComponent,
   del,
   h,
+  get,
   patch,
   renderComponent,
-  togglec,
+  toggleClasses,
+  escape,
   string,
   number,
   boolean,
 } from "../src/index.ts";
 import type { GeneratedApiMap } from "../src/index.ts";
 
-import {
-  activateTab,
-  resetCounter,
-  updateParentCounter,
-} from "./dom-actions.ts";
+// Tabs loads content via API; no local DOM helpers needed
 
 // 🎉 NEW: Unified Styles API Showcase - Now with function-style props!
 defineComponent("unified-card", {
@@ -64,7 +62,7 @@ defineComponent("theme-toggle", {
     <button
       type="button"
       class={`${c!.button} light`}
-      onclick={togglec(["light", "dark"])}
+      onclick={toggleClasses(["light", "dark"])}
     >
       <span class={c!.lightIcon}>☀️ Light</span>
       <span class={c!.darkIcon}>🌙 Dark</span>
@@ -72,7 +70,7 @@ defineComponent("theme-toggle", {
   ),
 });
 
-// Counter - Now using function-style props! 🎉
+// Counter - Now using function-style props + API! 🎉
 defineComponent("counter", {
   styles: {
     container: `{ display: inline-flex; gap: 0.5rem; padding: 1rem; border: 2px solid #007bff; border-radius: 6px; align-items: center; background: white; }`,
@@ -80,19 +78,26 @@ defineComponent("counter", {
     counterButtonHover: `{ background: #0056b3; }`, // → .counter-button-hover
     display: `{ font-size: 1.5rem; min-width: 3rem; text-align: center; font-weight: bold; color: #007bff; }`
   },
+  api: {
+    adjust: patch("/api/counter/adjust", async (req) => {
+      const body = await req.json() as { current?: number; delta?: number; value?: number; step?: number };
+      const next = typeof body.value === "number" ? body.value : (Number(body.current || 0) + Number(body.delta || 0));
+      const step = typeof body.step === "number" ? body.step : 1;
+      return new Response(
+        renderComponent("counter", { initialCount: next, step }),
+        { headers: { "content-type": "text/html; charset=utf-8" } },
+      );
+    }),
+  },
   render: ({
     initialCount = number(0) as unknown as number,
     step = number(1) as unknown as number
-  }: { initialCount: number; step: number }, _api, c) => (
+  }: { initialCount: number; step: number }, api: GeneratedApiMap, c?: Record<string, string>) => (
     <div class={c!.container} data-count={initialCount}>
       <button
         type="button"
         class={c!.counterButton}
-        onclick={updateParentCounter(
-          `.${c!.container}`,
-          `.${c!.display}`,
-          -step,
-        )}
+        {...(api as GeneratedApiMap).adjust({ current: initialCount, delta: -step, step }, { target: `closest .${c!.container}` })}
       >
         -{step}
       </button>
@@ -100,22 +105,14 @@ defineComponent("counter", {
       <button
         type="button"
         class={c!.counterButton}
-        onclick={updateParentCounter(
-          `.${c!.container}`,
-          `.${c!.display}`,
-          step,
-        )}
+        {...(api as GeneratedApiMap).adjust({ current: initialCount, delta: step, step }, { target: `closest .${c!.container}` })}
       >
         +{step}
       </button>
       <button
         type="button"
         class={c!.counterButton}
-        onclick={resetCounter(
-          `.${c!.display}`,
-          initialCount,
-          `.${c!.container}`,
-        )}
+        {...(api as GeneratedApiMap).adjust({ value: 0, step }, { target: `closest .${c!.container}` })}
       >
         Reset
       </button>
@@ -127,14 +124,15 @@ defineComponent("counter", {
 defineComponent("todo-item", {
   api: {
     toggle: patch("/api/todos/:id/toggle", async (req, params) => {
-      const form = await req.formData();
-      const isDone = form.get("done") === "true";
+      const body = await req.json() as { done?: boolean };
+      const isDone = !!body.done;
       return new Response(
         renderComponent("todo-item", {
           id: params.id,
           text: "Task updated!",
           done: !isDone,
         }),
+        { headers: { "content-type": "text/html; charset=utf-8" } },
       );
     }),
     remove: del("/api/todos/:id", (_req, _params) => {
@@ -163,7 +161,7 @@ defineComponent("todo-item", {
           type="checkbox"
           class={c!.checkbox}
           checked={done}
-          {...api.toggle(id, !done)}
+          {...api.toggle(id, { done: !done })}
           hx-on:change={`this.closest('[data-id]')?.classList.toggle('${c!.itemDone}', this.checked)`}
         />
         <span class={textClass}>{text}</span>
@@ -177,6 +175,27 @@ defineComponent("todo-item", {
 
 // Tabs - Now with function-style props!
 defineComponent("tabs", {
+  api: {
+    load: get("/api/tabs/:tab", (_req, params) => {
+      const tab = params.tab ?? "Home";
+      const safe = escape(tab);
+      const html = `
+        <div>
+          <h3>${safe} Content</h3>
+          <p>
+            This is the content for the ${safe} tab. Each tab can contain different content,
+            components, or interactive elements.
+          </p>
+          ${safe === "Settings" ? `
+            <div>
+              <label><input type=\"checkbox\" /> Enable notifications</label><br />
+              <label><input type=\"checkbox\" /> Auto-save changes</label>
+            </div>
+          ` : ""}
+        </div>`;
+      return new Response(html, { headers: { "content-type": "text/html; charset=utf-8" } });
+    }),
+  },
   styles: {
     container: `{ border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }`,
     nav: `{ display: flex; background: #f8f9fa; border-bottom: 1px solid #ddd; }`,
@@ -188,11 +207,28 @@ defineComponent("tabs", {
     panelActive: `{ display: block; }` // → .panel-active
   },
   render: ({
-    tabs = string("Home,About") as unknown as string,
+    tabs = string("Home,About,Settings") as unknown as string,
     activeTab = string("Home") as unknown as string
-  }: { tabs: string; activeTab: string }, _api, c) => {
+  }: { tabs: string; activeTab: string }, api: GeneratedApiMap, c?: Record<string, string>) => {
     const tabList = tabs.split(",").map((t: string) => t.trim());
     const active = activeTab || tabList[0];
+
+    const initial = (
+      <div>
+        <h3>{active} Content</h3>
+        <p>
+          This is the content for the {active} tab. Each tab can contain different content,
+          components, or interactive elements.
+        </p>
+        {active === "Settings" && (
+          <div>
+            <label><input type="checkbox" /> Enable notifications</label>
+            <br />
+            <label><input type="checkbox" /> Auto-save changes</label>
+          </div>
+        )}
+      </div>
+    );
 
     return (
       <div class={c!.container}>
@@ -201,43 +237,15 @@ defineComponent("tabs", {
             <button
               type="button"
               class={`${c!.button} ${tab === active ? c!.buttonActive : ""}`}
-              onclick={activateTab(
-                `.${c!.container}`,
-                `.${c!.button}`,
-                `.${c!.content}`,
-                c!.buttonActive,
-              )}
-              data-tab={tab}
+              hx-on:click={`const C=this.closest('.${c!.container}');if(!C)return;C.querySelectorAll('.${c!.button}').forEach(b=>b.classList.remove('${c!.buttonActive}'));this.classList.add('${c!.buttonActive}');`}
+              {...(api as GeneratedApiMap).load(tab, { target: `closest .${c!.content}`, swap: "innerHTML" })}
             >
               {tab}
             </button>
           ))}
         </div>
         <div class={c!.content}>
-          {tabList.map((tab: string) => (
-            <div
-              class={`${c!.panel} ${tab === active ? c!.panelActive : ""}`}
-              data-tab-content={tab}
-            >
-              <h3>{tab} Content</h3>
-              <p>
-                This is the content for the {tab}{" "}
-                tab. Each tab can contain different content, components, or
-                interactive elements.
-              </p>
-              {tab === "Settings" && (
-                <div>
-                  <label>
-                    <input type="checkbox" /> Enable notifications
-                  </label>
-                  <br />
-                  <label>
-                    <input type="checkbox" /> Auto-save changes
-                  </label>
-                </div>
-              )}
-            </div>
-          ))}
+          {initial}
         </div>
       </div>
     );

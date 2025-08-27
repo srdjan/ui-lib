@@ -41,13 +41,18 @@
       }
     </style>
   </head>
-  <body>
+  <body hx-ext="json-enc" hx-encoding="json">
     <script src="https://unpkg.com/htmx.org@2.0.6"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
     <h1>funcwc - DOM-Native SSR Components</h1>
     <p style="color: #666; margin-bottom: 2rem">
       Clean <code>defineComponent</code> API with enhanced props, HTMX
       integration, and DOM-as-state architecture. Zero client-side dependencies!
     </p>
+
+    <div style="padding: 0.75rem 1rem; border: 1px solid #e2e8f0; background: #f8fafc; border-radius: 8px; margin-bottom: 1.25rem; color: #334155;">
+      <strong>Note:</strong> All HTMX requests are JSON; responses are server-rendered HTML and swapped in place.
+    </div>
 
     <section style="border: 3px solid #007bff; background: #f8f9ff">
       <h2>🎉 NEW: Ultra-Simplified CSS-Only Format!</h2>
@@ -93,7 +98,7 @@
 
     <section style="margin-top: 2rem">
       <h2>🔢 Counter</h2>
-      <p>Counter value stored in DOM attributes and element content. <strong>Now uses CSS-only format + function-style props!</strong></p>
+      <p>Server-powered updates via HTMX (JSON in, HTML out). <strong>Function-style props + CSS-only format!</strong></p>
       <counter step="3" initialCount="5"></counter>
     </section>
 
@@ -130,8 +135,15 @@
 
     <section style="margin-top: 2rem">
       <h2>📑 Tabs</h2>
-      <p>Active tab state stored as CSS classes and data attributes. <strong>Function-style props + CSS-only styling magic!</strong></p>
+      <p>Loads tab content via API (HTMX). <strong>Function-style props + CSS-only styling magic!</strong></p>
       <tabs tabs="Home,About,Settings,Contact" activeTab="Home"></tabs>
+    </section>
+
+    <section style="margin-top: 2rem">
+      <h2>❤️ Like Card</h2>
+      <p>HTMX-powered server actions with function-style props. Toggle like and remove items.</p>
+      <like-card id="101" title="First Item" liked="false"></like-card>
+      <like-card id="102" title="Second Item" liked="true"></like-card>
     </section>
 
     <section style="margin-top: 2rem; border: 2px solid #007bff; background: #f0f8ff">

@@ -1,14 +1,12 @@
 // Auto-generation of client attributes from API route definitions
 
 import { type RouteHandler } from "./router.ts";
+import { currentRequestHeaders } from "./request-headers.ts";
 
 // Type-safe tuple format: functionName -> [method, path, handler]
 export type ApiDefinition = readonly [string, string, RouteHandler]; // [method, path, handler]
 export type ApiMap = Record<string, ApiDefinition>;
-export type GeneratedApiMap = Record<
-  string,
-  (...args: unknown[]) => Record<string, unknown>
->;
+export type GeneratedApiMap = Record<string, (...args: unknown[]) => Record<string, string>>;
 
 /**
  * Auto-generates client attribute functions from type-safe API definitions
@@ -51,7 +49,56 @@ export function generateClientApi(apiMap: ApiMap): GeneratedApiMap {
         }
       });
 
-      return { [htmxMethod]: finalPath };
+      const attrs: Record<string, string> = { [htmxMethod]: finalPath };
+
+      // Prefer HTML swaps for SSR responses
+      if (method !== "GET") attrs["hx-swap"] = "outerHTML";
+
+      // Standardize on JSON requests
+      attrs["hx-ext"] = "json-enc";
+      attrs["hx-encoding"] = "json";
+
+      // Default headers to advertise HTML response and mark AJAX
+      const defaultHeaders: Record<string, string> = {
+        Accept: "text/html; charset=utf-8",
+        "X-Requested-With": "XMLHttpRequest",
+      };
+
+      // Merge request-scoped headers (e.g., CSRF token)
+      Object.assign(defaultHeaders, currentRequestHeaders());
+
+      // Support payload after path params, plus optional options object
+      if (args.length > paramNames.length) {
+        const payload = args[paramNames.length];
+        const maybeOpts = args[paramNames.length + 1];
+
+        if (payload !== undefined) {
+          try {
+            attrs["hx-vals"] = JSON.stringify(payload as unknown);
+          } catch {
+            // ignore non-serializable payloads
+          }
+        }
+
+        if (maybeOpts && typeof maybeOpts === "object") {
+          const opts = maybeOpts as {
+            headers?: Record<string, string>;
+            target?: string;
+            swap?: string;
+          };
+          if (opts.swap) attrs["hx-swap"] = opts.swap;
+          if (opts.target) attrs["hx-target"] = opts.target;
+          if (opts.headers) Object.assign(defaultHeaders, opts.headers);
+        }
+      }
+
+      try {
+        attrs["hx-headers"] = JSON.stringify(defaultHeaders);
+      } catch {
+        // ignore if we cannot serialize headers
+      }
+
+      return attrs;
     };
   }
 

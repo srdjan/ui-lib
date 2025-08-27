@@ -583,3 +583,34 @@ defineComponent("typed-example", {
 ```
 
 See also: AUTHORING.md → “Typing function‑style props in TypeScript”.
+
+## JSON-in, HTML-out (standard)
+
+funcwc standardizes on JSON requests for all htmx interactions, while responses are server-rendered HTML for swapping. The Unified API helpers:
+- include `hx-ext="json-enc"` and `hx-encoding="json"`
+- set `hx-headers` with `Accept: text/html; charset=utf-8` and `X-Requested-With: XMLHttpRequest`
+- accept a payload object that becomes the JSON body via `hx-vals`
+
+Client:
+
+```tsx
+<button {...api.toggleLike(id, { liked: !liked, note: "from-card" })}>Like</button>
+```
+
+Server:
+
+```ts
+export const toggleLike = patch("/api/items/:id/like", async (req, params) => {
+  const body = await req.json() as { liked?: boolean; note?: string };
+  return new Response(
+    renderComponent("like-card", { id: params.id, liked: !!body.liked }),
+    { headers: { "content-type": "text/html; charset=utf-8" } },
+  );
+});
+```
+
+Per-request headers (e.g., CSRF) can be injected server-side and are merged by the API generator into `hx-headers`. You can also override per call:
+
+```tsx
+<button {...api.toggleLike(id, { liked: true }, { headers: { "X-CSRF-Token": token }, target: "closest .card" })}>Like</button>
+```

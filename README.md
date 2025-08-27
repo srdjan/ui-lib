@@ -57,6 +57,7 @@ defineComponent("beautiful-card", {
 - **🔄 HTMX Ready**: Built-in server actions for dynamic updates
 - **📦 Zero Runtime**: No client-side framework dependencies
 - **🎭 SSR-First**: Render on server, send optimized HTML
+- **🧾 JSON Requests, HTML Responses**: Standardized JSON-encoded htmx requests; server returns HTML snippets for swapping
 
 ## 🚀 Quick Start
 
@@ -87,6 +88,21 @@ Run `deno task serve` and visit http://localhost:8080 to see all examples workin
 - **✅ Todo Items**: HTMX integration + auto-generated classes
 - **📁 Accordion**: Pure CSS transitions + function-style props
 - **📑 Tabs**: Multi-element state coordination
+- **❤️ Like Card**: HTMX payloads (hx-vals) with server inspection
+
+### Global HTMX setup (JSON requests)
+
+Add the json-enc extension and configure JSON encoding at the page level. Responses remain HTML and are swapped by htmx.
+
+```html
+<head>
+  <script src="https://unpkg.com/htmx.org@2.0.6"></script>
+  <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+</head>
+<body hx-ext="json-enc" hx-encoding="json">
+  <!-- your markup -->
+</body>
+```
 
 ## 📋 Complete Examples
 
@@ -124,7 +140,15 @@ defineComponent("smart-card", {
 - ✅ **Zero Duplication**: Props defined once in function signature
 - ✅ **Auto-Generated Classes**: `.card`, `.title`, `.highlight` from CSS keys
 - ✅ **Smart Type Helpers**: `string()`, `number()`, `boolean()` with defaults
-- ✅ **Perfect TypeScript**: Full type inference, no casting needed
+- ✅ **Great TypeScript DX**: For strict typing inside render, add an inline cast to each default and annotate the parameter type:
+
+  ```tsx
+  render: ({
+    title = string("Hello") as unknown as string,
+    count = number(0) as unknown as number,
+    enabled = boolean(false) as unknown as boolean,
+  }: { title: string; count: number; enabled: boolean }) => /* ... */
+  ```
 
 ### 🔢 Counter - CSS-Only Format Demo
 
@@ -228,6 +252,43 @@ defineComponent("todo-item", {
     );
   }
 });
+```
+
+### 🔧 JSON in, HTML out (standard)
+
+We standardize on JSON requests and HTML responses. The Unified API helpers:
+- add `hx-ext="json-enc"` and `hx-encoding="json"`
+- set `hx-headers` with `Accept: text/html` and `X-Requested-With: XMLHttpRequest`
+- accept a payload object that becomes the JSON body (via `hx-vals`)
+
+Client (payload as object):
+
+```tsx
+<button {...api.toggleLike(id, { liked: !liked, note: "from-card" })}>Toggle</button>
+```
+
+Server (parse JSON; return HTML with content-type):
+
+```tsx
+export const toggleLike = patch("/api/items/:id/like", async (req, params) => {
+  const body = await req.json() as { liked?: boolean; note?: string };
+  return new Response(
+    renderComponent("like-card", {
+      id: params.id,
+      title: body.note ? `Note: ${body.note}` : "Item updated!",
+      liked: !!body.liked,
+    }),
+    { headers: { "content-type": "text/html; charset=utf-8" } },
+  );
+});
+```
+
+Per-request headers (e.g., CSRF) are merged in server-side; you can also pass overrides per call:
+
+```tsx
+<button {...api.toggleLike(id, { liked: true }, { headers: { "X-CSRF-Token": token }, target: "closest .card" })}>
+  Like
+</button>
 ```
 
 **Hybrid State Management:**

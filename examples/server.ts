@@ -2,6 +2,7 @@
 import { renderComponent } from "../src/index.ts";
 import { getRegistry } from "../src/lib/registry.ts";
 import { appRouter } from "../src/lib/router.ts";
+import { runWithRequestHeaders } from "../src/lib/request-headers.ts";
 
 /**
  * Generic development server with component-defined routes.
@@ -29,7 +30,7 @@ const parseAttributes = (attrString: string): Record<string, string> => {
 };
 
 // Load all examples to register components and their routes
-const modUrl = new URL(`./example.tsx`, `file://${Deno.cwd()}/`).href;
+const modUrl = new URL(`./main.ts`, `file://${Deno.cwd()}/`).href;
 await import(modUrl);
 
 Deno.serve({
@@ -61,7 +62,7 @@ Deno.serve({
     try {
       // 3. Handle root path (index.html rendering)
       if (url.pathname === "/") {
-        let html = await Deno.readTextFile("./index.html");
+        const htmlTemplate = await Deno.readTextFile("./index.html");
         const componentRegistry = getRegistry();
         const componentNames = Object.keys(componentRegistry);
         const componentRegex = new RegExp(
@@ -69,16 +70,21 @@ Deno.serve({
           "g",
         );
 
-        html = html.replace(
-          componentRegex,
-          (_match, _openTag, tagName, attrString) => {
-            console.log(`[Server] Rendering component: <${tagName}>`);
-            const props = parseAttributes(attrString.trim());
-            return renderComponent(tagName, props);
-          },
+        const csrfToken = crypto.randomUUID();
+        const rendered = runWithRequestHeaders({
+          "X-CSRF-Token": csrfToken,
+        }, () =>
+          htmlTemplate.replace(
+            componentRegex,
+            (_match, _openTag, tagName, attrString) => {
+              console.log(`[Server] Rendering component: <${tagName}>`);
+              const props = parseAttributes(attrString.trim());
+              return renderComponent(tagName, props);
+            },
+          )
         );
 
-        return new Response(html, {
+        return new Response(rendered, {
           headers: { "content-type": "text/html; charset=utf-8" },
         });
       }
