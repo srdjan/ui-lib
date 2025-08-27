@@ -13,11 +13,13 @@ Instead of writing server routes in one place and HTMX attributes in another,
 you define everything together:
 
 ```tsx
+import { defineComponent, h, string, boolean, patch, del, renderComponent } from "../src/index.ts";
+
 defineComponent("todo-item", {
-  props: { id: "string", text: "string", done: "boolean?" },
+  // ✨ Function-style props - no duplication!
   api: {
     // ✨ These are actual server handlers that will process requests
-    "PATCH /api/todos/:id/toggle": async (req, params) => {
+    toggle: patch("/api/todos/:id/toggle", async (req, params) => {
       const form = await req.formData();
       const isDone = form.get("done") === "true";
 
@@ -32,26 +34,29 @@ defineComponent("todo-item", {
           done: !isDone,
         }),
       );
-    },
+    }),
 
-    "DELETE /api/todos/:id": async (req, params) => {
+    remove: del("/api/todos/:id", async (req, params) => {
       // Delete from database here...
       await deleteTodoFromDB(params.id);
 
       return new Response(null, { status: 204 });
-    },
+    }),
   },
 
-  render: ({ id, text, done }, api, classes) => (
+  render: ({ 
+    id = string("1"),
+    text = string("Todo item"), 
+    done = boolean(false) 
+  }, api, classes) => (
     <div class="todo" data-id={id}>
       <input
         type="checkbox"
         checked={done}
         {...api.toggle(id)}
-      />{" "}
-      // ← Magic happens here!
+      /> {/* ← Magic happens here! */}
       <span>{text}</span>
-      <button {...api.delete(id)}>Delete</button>
+      <button {...api.remove(id)}>Delete</button>
     </div>
   ),
 });
@@ -61,42 +66,38 @@ defineComponent("todo-item", {
 
 funcwc analyzes your routes and creates client functions automatically:
 
-| Server Route                  | Generated Function | What It Returns                                                                           |
+| Server Route Definition       | Generated Function | What It Returns                                                                           |
 | ----------------------------- | ------------------ | ----------------------------------------------------------------------------------------- |
-| `PATCH /api/todos/:id/toggle` | `api.toggle(id)`   | `{ "hx-patch": "/api/todos/123/toggle", "hx-target": "closest .todo" }`                   |
-| `DELETE /api/todos/:id`       | `api.delete(id)`   | `{ "hx-delete": "/api/todos/123", "hx-target": "closest .todo", "hx-swap": "outerHTML" }` |
-| `POST /api/todos`             | `api.create()`     | `{ "hx-post": "/api/todos" }`                                                             |
-| `GET /api/todos/:id`          | `api.get(id)`      | `{ "hx-get": "/api/todos/123" }`                                                          |
+| `patch("/api/todos/:id/toggle", handler)` | `api.toggle(id)`   | `{ "hx-patch": "/api/todos/123/toggle", "hx-target": "closest .todo" }`                   |
+| `del("/api/todos/:id", handler)` | `api.remove(id)`   | `{ "hx-delete": "/api/todos/123", "hx-target": "closest .todo", "hx-swap": "outerHTML" }` |
+| `post("/api/todos", handler)`             | `api.create()`     | `{ "hx-post": "/api/todos" }`                                                             |
+| `get("/api/todos/:id", handler)`          | `api.get(id)`      | `{ "hx-get": "/api/todos/123" }`                                                          |
 
 ### 3. **Route-to-Function Mapping Logic**
 
-The function names are intelligently generated based on HTTP methods and paths:
+The function names are intelligently generated based on the key you use in the `api` object:
 
 ```tsx
-// Route pattern → Generated function name
-"POST /api/items"              → api.create()
-"GET /api/items/:id"           → api.get(id)  
-"PUT /api/items/:id"           → api.update(id)
-"PATCH /api/items/:id"         → api.update(id)
-"PATCH /api/todos/:id/toggle"  → api.toggle(id)  // Special case: action in path
-"DELETE /api/items/:id"        → api.delete(id)
-"POST /api/users/:id/follow"   → api.follow(id)  // Action becomes function name
+// API key → Generated function name
+api: {
+  create: post("/api/items", handler),        → api.create()
+  get: get("/api/items/:id", handler),        → api.get(id)
+  update: patch("/api/items/:id", handler),   → api.update(id)
+  toggle: patch("/api/todos/:id/toggle", handler), → api.toggle(id)
+  remove: del("/api/items/:id", handler),     → api.remove(id)
+  follow: post("/api/users/:id/follow", handler), → api.follow(id)
+}
 ```
 
 ## Real-World Example: Shopping Cart
 
 ```tsx
-defineComponent("cart-item", {
-  props: {
-    productId: "string",
-    name: "string",
-    quantity: { type: "number", default: 1 },
-    price: { type: "number", default: 0 },
-  },
+import { defineComponent, h, string, number, patch, del, post, renderComponent } from "../src/index.ts";
 
+defineComponent("cart-item", {
   api: {
     // Server handlers - these actually run on the server
-    "PATCH /api/cart/:productId/quantity": async (req, params) => {
+    updateQuantity: patch("/api/cart/:productId/quantity", async (req, params) => {
       const form = await req.formData();
       const newQuantity = parseInt(form.get("quantity") as string);
 
@@ -112,14 +113,14 @@ defineComponent("cart-item", {
           price: await getProductPrice(params.productId),
         }),
       );
-    },
+    }),
 
-    "DELETE /api/cart/:productId": async (req, params) => {
+    remove: del("/api/cart/:productId", async (req, params) => {
       await removeFromCart(params.productId);
       return new Response("", { status: 200 });
-    },
+    }),
 
-    "POST /api/cart/:productId/favorite": async (req, params) => {
+    favorite: post("/api/cart/:productId/favorite", async (req, params) => {
       await addToFavorites(params.productId);
       return new Response(
         renderComponent("cart-item", {
@@ -127,10 +128,15 @@ defineComponent("cart-item", {
           // ... other props with favorite: true
         }),
       );
-    },
+    }),
   },
 
-  render: ({ productId, name, quantity, price }, api) => (
+  render: ({ 
+    productId = string("1"),
+    name = string("Product"),
+    quantity = number(1),
+    price = number(0)
+  }, api) => (
     <div class="cart-item" data-product-id={productId}>
       <h3>{name}</h3>
       <div class="quantity-controls">
@@ -138,16 +144,15 @@ defineComponent("cart-item", {
           type="number"
           name="quantity"
           value={quantity}
-          {...api.update(productId)}
-        />{" "}
-        // ← PATCH /api/cart/:id/quantity
+          {...api.updateQuantity(productId)}
+        /> {/* ← PATCH /api/cart/:id/quantity */}
       </div>
       <div class="price">${price}</div>
       <div class="actions">
         <button {...api.favorite(productId)}>
           ❤️ Favorite
         </button>
-        <button {...api.delete(productId)}>
+        <button {...api.remove(productId)}>
           🗑️ Remove
         </button>
       </div>
@@ -233,16 +238,18 @@ hx-target="closest .todo" hx-include="closest .todo" />
 ### ✅ **funcwc's Unified Approach (No Duplication):**
 
 ```tsx
+import { defineComponent, h, string, patch, del } from "../src/index.ts";
+
 defineComponent("todo-item", {
   api: {
     // Single source of truth - defines both server logic AND client attributes
-    "PATCH /api/todos/:id/toggle": async (req, params) => { /* logic */ },
-    "DELETE /api/todos/:id": async (req, params) => { /* logic */ }
+    toggle: patch("/api/todos/:id/toggle", async (req, params) => { /* logic */ }),
+    remove: del("/api/todos/:id", async (req, params) => { /* logic */ })
   },
-  render: ({ id }, api) => (
+  render: ({ id = string("1") }, api) => (
     <div>
-      <input {...api.toggle(id)} />  {/* Auto-generated */
-      <button {...api.delete(id)}>Delete</button>
+      <input {...api.toggle(id)} />  {/* Auto-generated */}
+      <button {...api.remove(id)}>Delete</button>
     </div>
   )
 })
@@ -253,16 +260,11 @@ defineComponent("todo-item", {
 ### Multi-Action Component
 
 ```tsx
-defineComponent("user-profile", {
-  props: {
-    userId: "string",
-    name: "string",
-    isFollowing: { type: "boolean", default: false },
-    isBlocked: { type: "boolean", default: false },
-  },
+import { defineComponent, h, string, boolean, post, del, put, renderComponent } from "../src/index.ts";
 
+defineComponent("user-profile", {
   api: {
-    "POST /api/users/:userId/follow": async (req, params) => {
+    follow: post("/api/users/:userId/follow", async (req, params) => {
       await followUser(params.userId);
       return new Response(
         renderComponent("user-profile", {
@@ -272,9 +274,9 @@ defineComponent("user-profile", {
           isBlocked: false,
         }),
       );
-    },
+    }),
 
-    "DELETE /api/users/:userId/follow": async (req, params) => {
+    unfollow: del("/api/users/:userId/follow", async (req, params) => {
       await unfollowUser(params.userId);
       return new Response(
         renderComponent("user-profile", {
@@ -284,9 +286,9 @@ defineComponent("user-profile", {
           isBlocked: false,
         }),
       );
-    },
+    }),
 
-    "POST /api/users/:userId/block": async (req, params) => {
+    block: post("/api/users/:userId/block", async (req, params) => {
       await blockUser(params.userId);
       await unfollowUser(params.userId); // Auto-unfollow when blocking
       return new Response(
@@ -297,9 +299,9 @@ defineComponent("user-profile", {
           isBlocked: true,
         }),
       );
-    },
+    }),
 
-    "PUT /api/users/:userId/profile": async (req, params) => {
+    update: put("/api/users/:userId/profile", async (req, params) => {
       const form = await req.formData();
       const newName = form.get("name") as string;
 
@@ -312,10 +314,15 @@ defineComponent("user-profile", {
           isBlocked: false,
         }),
       );
-    },
+    }),
   },
 
-  render: ({ userId, name, isFollowing, isBlocked }, api) => (
+  render: ({ 
+    userId = string("1"),
+    name = string("User"),
+    isFollowing = boolean(false),
+    isBlocked = boolean(false)
+  }, api) => (
     <div class="user-profile">
       <h3>{name}</h3>
 
@@ -331,7 +338,7 @@ defineComponent("user-profile", {
           <button
             {...(
               isFollowing
-                ? api.delete(userId) // Unfollow (DELETE)
+                ? api.unfollow(userId) // Unfollow (DELETE)
                 : api.follow(userId) // Follow (POST)
             )}
           >
@@ -351,14 +358,11 @@ defineComponent("user-profile", {
 ### Batch Operations
 
 ```tsx
-defineComponent("task-list", {
-  props: {
-    tasks: "string", // JSON string of tasks
-    selectedCount: { type: "number", default: 0 },
-  },
+import { defineComponent, h, string, number, post, del, renderComponent } from "../src/index.ts";
 
+defineComponent("task-list", {
   api: {
-    "POST /api/tasks/batch/complete": async (req) => {
+    completeBatch: post("/api/tasks/batch/complete", async (req) => {
       const form = await req.formData();
       const taskIds = form.getAll("taskId") as string[];
 
@@ -370,9 +374,9 @@ defineComponent("task-list", {
           selectedCount: 0,
         }),
       );
-    },
+    }),
 
-    "DELETE /api/tasks/batch": async (req) => {
+    deleteBatch: del("/api/tasks/batch", async (req) => {
       const form = await req.formData();
       const taskIds = form.getAll("taskId") as string[];
 
@@ -384,10 +388,13 @@ defineComponent("task-list", {
           selectedCount: 0,
         }),
       );
-    },
+    }),
   },
 
-  render: ({ tasks, selectedCount }, api) => {
+  render: ({ 
+    tasks = string("[]"), // JSON string of tasks
+    selectedCount = number(0)
+  }, api) => {
     const taskList = JSON.parse(tasks);
 
     return (
@@ -396,14 +403,14 @@ defineComponent("task-list", {
           class="batch-actions"
           style={selectedCount > 0 ? "" : "display: none"}
         >
-          <form {...api.create()}>
+          <form {...api.completeBatch()}>
             {taskList.filter((t) => t.selected).map((task) => (
               <input type="hidden" name="taskId" value={task.id} />
             ))}
             <button type="submit">Complete Selected ({selectedCount})</button>
           </form>
 
-          <form {...api.delete()}>
+          <form {...api.deleteBatch()}>
             {taskList.filter((t) => t.selected).map((task) => (
               <input type="hidden" name="taskId" value={task.id} />
             ))}
@@ -513,18 +520,18 @@ Choose HTTP methods that match your intent:
 
 ```tsx
 api: {
-  "GET /api/items/:id":    () => { /* fetch */ },
-  "POST /api/items":       () => { /* create */ },
-  "PUT /api/items/:id":    () => { /* replace */ },
-  "PATCH /api/items/:id":  () => { /* update */ },
-  "DELETE /api/items/:id": () => { /* remove */ }
+  get: get("/api/items/:id", () => { /* fetch */ }),
+  create: post("/api/items", () => { /* create */ }),
+  replace: put("/api/items/:id", () => { /* replace */ }),
+  update: patch("/api/items/:id", () => { /* update */ }),
+  remove: del("/api/items/:id", () => { /* remove */ })
 }
 ```
 
 ### 3. **Handle Errors Gracefully**
 
 ```tsx
-"DELETE /api/items/:id": async (req, params) => {
+remove: del("/api/items/:id", async (req, params) => {
   try {
     await deleteItem(params.id);
     return new Response("", { status: 200 });
@@ -534,7 +541,7 @@ api: {
       { status: 400 }
     );
   }
-}
+})
 ```
 
 ### 4. **Use Path Parameters for Actions**
@@ -543,9 +550,9 @@ Include action names in the path for clearer function names:
 
 ```tsx
 api: {
-  "POST /api/users/:id/follow":   () => { /* api.follow(id) */ },
-  "POST /api/posts/:id/like":     () => { /* api.like(id) */ },
-  "POST /api/items/:id/archive":  () => { /* api.archive(id) */ }
+  follow: post("/api/users/:id/follow", () => { /* api.follow(id) */ }),
+  like: post("/api/posts/:id/like", () => { /* api.like(id) */ }),
+  archive: post("/api/items/:id/archive", () => { /* api.archive(id) */ })
 }
 ```
 

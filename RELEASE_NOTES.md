@@ -1,3 +1,44 @@
+# funcwc v0.5.0 — Revolutionary Ergonomics: Function-Style Props + CSS-Only Format
+
+Release date: 2025-08-26
+
+## 🎉 Revolutionary Features
+
+- **✨ Function-Style Props**: Zero duplication between props definition and render parameters! Props are auto-generated from render function signature using smart type helpers (`string()`, `number()`, `boolean()`, `array()`, `object()`)
+- **🎨 CSS-Only Format**: Auto-generated class names from CSS properties! Just write CSS properties and funcwc generates `.container`, `.button-primary`, etc. automatically
+- **🔄 Enhanced Unified API**: Cleaner API helper functions (`post()`, `get()`, `patch()`, `del()`) with better route-to-function mapping
+- **📚 Updated Documentation**: All docs updated with latest patterns and comprehensive examples
+
+## Game-Changing Developer Experience
+
+**Before (v0.4.0):**
+```tsx
+defineComponent("my-card", {
+  props: { title: "string", count: "number?" },  // Duplication!
+  classes: { card: "my-card", title: "card-title" },  // Manual class names
+  styles: `.my-card { border: 1px solid #ddd; }`,
+  render: ({ title, count }, api, classes) => (/* JSX */)
+});
+```
+
+**After (v0.5.0):**
+```tsx
+defineComponent("my-card", {
+  styles: {
+    // ✨ Auto-generated class names!
+    card: `{ border: 1px solid #ddd; }`,     // → .card
+    title: `{ font-weight: bold; }`          // → .title
+  },
+  render: ({ 
+    // ✨ Zero duplication - props auto-generated!
+    title = string("My Card"),
+    count = number(0)
+  }, api, classes) => (/* JSX */)
+});
+```
+
+---
+
 # funcwc v0.4.0 — Production-Ready: Enhanced Developer Experience & Performance
 
 Release date: 2025-08-25

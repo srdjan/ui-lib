@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**funcwc** is a lightweight, functional programming library for building **SSR-first components** with TypeScript/Deno. It renders components to HTML strings on the server using a custom JSX runtime, with client-side interactivity powered by HTMX. The library features an ultra-succinct Pipeline API with immutable state, pure functions, and intelligent type inference, following Light Functional Programming principles.
+**funcwc** is a revolutionary, ultra-lightweight library for building **SSR-first components** with TypeScript/Deno. It features **function-style props** (zero duplication), **CSS-only format** (auto-generated class names), and the **Unified API System** (HTMX attributes auto-generated from server routes). Components render to HTML strings using a custom JSX runtime, with the DOM as the single source of truth for state management.
 
 ## Development Commands
 
@@ -78,7 +78,32 @@ The codebase follows a functional, modular architecture built around SSR-compati
 
 **Component Definition Approaches:**
 
-1. **defineComponent API (New & Recommended)** - Clean, object-based configuration:
+1. **defineComponent API (Recommended)** - Modern approach with **function-style props** and **CSS-only format**:
+
+```tsx
+import { defineComponent, h, string, number } from "../src/index.ts";
+
+defineComponent("my-counter", {
+  styles: {
+    // ✨ CSS-only format - class names auto-generated!
+    button: `{ padding: 0.5rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }`,
+    display: `{ font-size: 1.5rem; font-weight: bold; margin: 0 0.5rem; }`
+  },
+  render: ({ 
+    // ✨ Function-style props - no duplication!
+    step = number(1),
+    initialCount = number(0)
+  }, api, classes) => (
+    <div>
+      <button class={classes!.button}>-{step}</button>
+      <span class={classes!.display}>{initialCount}</span>
+      <button class={classes!.button}>+{step}</button>
+    </div>
+  ),
+});
+```
+
+2. **Legacy Props System** - Traditional approach (still supported):
 
 ```tsx
 defineComponent("my-counter", {
@@ -94,38 +119,26 @@ defineComponent("my-counter", {
 });
 ```
 
-2. **Pipeline API** - Chainable, fluent API (maintained for backward compatibility):
-
-```tsx
-component("my-counter")
-  .props({ step: "number?" })
-  .classes({ button: "counter-btn", label: "counter-label" })
-  .view((props, api, classes) => (
-    <button class={classes!.button}>Count</button>
-  ));
-```
-
 ### File Organization
 
 ```
 src/
 ├── index.ts                    # Main exports
 ├── lib/
-│   ├── define-component.ts     # Primary defineComponent API
-│   ├── component-pipeline.ts   # Legacy Pipeline API implementation  
-│   ├── component-state.ts      # SSR rendering engine
-│   ├── api-generator.ts        # Unified API system (HTMX generation)
-│   ├── jsx-runtime.ts          # JSX runtime integration
-│   ├── dom-helpers.ts          # Type-safe DOM manipulation helpers
-│   ├── props.ts                # Props parsing and validation
+│   ├── define-component.ts     # Primary defineComponent API with function-style props
+│   ├── component-pipeline.ts   # Legacy Pipeline API (maintained for compatibility)
+│   ├── component-state.ts      # SSR rendering engine with renderComponent()
+│   ├── api-generator.ts        # Unified API system (auto-generates HTMX from routes)
+│   ├── api-helpers.ts          # HTTP method helpers (post, get, patch, del)
+│   ├── jsx-runtime.ts          # Custom JSX runtime for HTML string rendering
+│   ├── props.ts                # Smart type helpers and props parsing
 │   ├── router.ts               # HTTP router for API endpoints
-│   ├── result.ts               # Result<T,E> type and utilities
-│   └── ssr.ts                  # SSR utilities and HTML escaping
+│   └── registry.ts             # Global component registry for SSR
 examples/
-├── example.tsx                 # Main example components
-├── dom-actions.ts              # App-level DOM helper functions
-├── main.ts                     # Example imports
-└── index.html                  # Demo page
+├── example.tsx                 # Showcase of all modern features (function-style props, CSS-only format, Unified API)
+├── dom-actions.ts              # App-level DOM helper functions (updateParentCounter, etc.)
+├── server.ts                   # Development server with SSR and API routing
+└── index.html                  # Demo page displaying all components
 ```
 
 ## TypeScript Configuration
@@ -149,36 +162,63 @@ import { h } from "../src/index.ts";
 
 ## Key Development Patterns
 
-### Enhanced Props System
+### Revolutionary Component Ergonomics
 
-The new `defineComponent` API supports multiple prop definition styles:
+**1. Function-Style Props (Zero Duplication!):**
 
-**Basic String Syntax:**
 ```tsx
+import { defineComponent, h, string, number, boolean, array, object } from "../src/index.ts";
+
+defineComponent("modern-card", {
+  render: ({
+    // ✨ Props auto-generated from function signature - no duplication!
+    title = string("Card Title"),        // Required string with default
+    count = number(0),                   // Required number with default  
+    enabled = boolean(true),             // Required boolean with default
+    items = array([]),                   // Required array with default
+    config = object({ theme: "light" })  // Required object with default
+  }, api, classes) => (
+    <div class={classes!.container}>
+      <h3>{title}</h3>
+      <p>Count: {count}, Enabled: {enabled ? "Yes" : "No"}</p>
+    </div>
+  )
+});
+```
+
+**2. CSS-Only Format (Auto-Generated Classes!):**
+
+```tsx
+styles: {
+  // ✨ Just CSS properties - class names auto-generated!
+  container: `{ border: 1px solid #ddd; padding: 1rem; border-radius: 6px; }`,     // → .container
+  buttonPrimary: `{ background: #007bff; color: white; padding: 0.5rem 1rem; }`,  // → .button-primary
+  textLarge: `{ font-size: 1.5rem; font-weight: bold; }`                          // → .text-large
+}
+```
+
+**3. Legacy Props System (Still Supported):**
+
+```tsx
+// Basic string syntax
 props: { 
   name: "string", 
   age: "number?", 
   active: "boolean?" 
 }
-```
 
-**Enhanced Syntax with Defaults:**
-```tsx
+// Enhanced syntax with defaults
 props: {
   name: "string",
   age: { type: "number", default: 18 },
   active: { type: "boolean", default: true }
 }
-```
 
-**Custom Props Transformer:**
-```tsx
-props: (attrs: Record<string, string>) => {
-  return {
-    count: parseInt(attrs.count || "0"),
-    label: attrs.label || "Default Label"
-  };
-}
+// Custom transformer function
+props: (attrs: Record<string, string>) => ({
+  count: parseInt(attrs.count || "0"),
+  label: attrs.label || "Default Label"
+})
 ```
 
 ### Unified API System
@@ -186,29 +226,35 @@ props: (attrs: Record<string, string>) => {
 Define server endpoints once - HTMX attributes generated automatically:
 
 ```tsx
-api: {
-  'POST /api/items': async (req) => {
-    const data = await req.formData();
-    return new Response(renderComponent("item", { id: newId, ...data }));
-  },
-  'DELETE /api/items/:id': async (req, params) => {
-    return new Response(null, { status: 204 });
-  }
-}
+import { defineComponent, h, string, post, del, renderComponent } from "../src/index.ts";
 
-// Usage in render function:
-render: ({ id }, api) => (
-  <div>
-    <button {...(api?.create?.() || {})}>Add Item</button>
-    <button {...(api?.delete?.(id) || {})}>Delete</button>
-  </div>
-)
+defineComponent("todo-item", {
+  api: {
+    // ✨ Define server handlers - client functions auto-generated!
+    create: post("/api/items", async (req) => {
+      const data = await req.formData();
+      return new Response(renderComponent("item", { id: newId, ...data }));
+    }),
+    remove: del("/api/items/:id", async (req, params) => {
+      return new Response(null, { status: 204 });
+    })
+  },
+  render: ({ 
+    id = string("1")
+  }, api, classes) => (
+    <div>
+      <button {...api.create()}>Add Item</button>      {/* Auto-generated HTMX */}
+      <button {...api.remove(id)}>Delete</button>     {/* Auto-generated HTMX */}
+    </div>
+  )
+});
 ```
 
-**Route-to-Function Mapping:**
-- `POST /api/items` → `api.create()`
-- `DELETE /api/items/:id` → `api.delete(id)`
-- `PATCH /api/todos/:id/toggle` → `api.toggle(id)`
+**API Helper Functions:**
+- `post(path, handler)` → `api.create()` or custom key
+- `get(path, handler)` → `api.get(id)` or custom key  
+- `patch(path, handler)` → `api.update(id)` or custom key
+- `del(path, handler)` → `api.remove(id)` or custom key
 
 ### DOM-Native State Management
 
@@ -296,9 +342,21 @@ The library follows functional error handling patterns:
 **Core helpers shipped by the library:**
 
 ```tsx
-toggleClass("active"); // Toggle single class
-toggleClasses(["open", "visible"]); // Toggle multiple classes
+// Class manipulation
+toggleClass("active");                    // Toggle single class
+toggleClasses(["open", "visible"]);      // Toggle multiple classes
 conditionalClass(isOpen, "open", "closed"); // Conditional CSS classes
+
+// Template utilities
+spreadAttrs({ "hx-get": "/api/data" });     // Spread HTMX attributes
+dataAttrs({ userId: 123, role: "admin" }); // Generate data-* attributes
+
+// Smart type helpers (for function-style props)
+string(defaultValue?)   // "hello" → "hello", undefined → defaultValue
+number(defaultValue?)   // "42" → 42, "invalid" → throws, undefined → defaultValue  
+boolean(defaultValue?)  // presence-based: attribute exists = true
+array(defaultValue?)    // '["a","b"]' → ["a","b"], undefined → defaultValue
+object(defaultValue?)   // '{"x":1}' → {x:1}, undefined → defaultValue
 ```
 
 **Example-only helpers** (in `examples/dom-actions.ts`):
@@ -308,21 +366,73 @@ conditionalClass(isOpen, "open", "closed"); // Conditional CSS classes
 - `syncCheckboxToClass()` - Checkbox state → CSS class
 - `activateTab()` - Tab activation
 
-### Prop Validation
+### Modern Component Examples
 
-Smart prop parsing handles type conversion automatically:
+**Function-Style Props + CSS-Only Format:**
 
 ```tsx
-props: { max: "number?", disabled: "boolean?" }
-// Usage: <my-component max="100" disabled></my-component>
+import { defineComponent, h, string, number, boolean } from "../src/index.ts";
+import { updateParentCounter, resetCounter } from "../examples/dom-actions.ts";
+
+defineComponent("smart-counter", {
+  styles: {
+    // ✨ CSS-only format - class names auto-generated!
+    container: `{ display: inline-flex; gap: 0.5rem; padding: 1rem; border: 2px solid #007bff; border-radius: 6px; }`,
+    button: `{ padding: 0.5rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }`,
+    display: `{ font-size: 1.5rem; min-width: 3rem; text-align: center; font-weight: bold; color: #007bff; }`
+  },
+  render: ({
+    // ✨ Function-style props - zero duplication!
+    initialCount = number(0),
+    step = number(1)
+  }, api, classes) => (
+    <div class={classes!.container} data-count={initialCount}>
+      <button 
+        class={classes!.button}
+        onclick={updateParentCounter(`.${classes!.container}`, `.${classes!.display}`, -step)}
+      >
+        -{step}
+      </button>
+      <span class={classes!.display}>{initialCount}</span>
+      <button 
+        class={classes!.button}
+        onclick={updateParentCounter(`.${classes!.container}`, `.${classes!.display}`, step)}
+      >
+        +{step}
+      </button>
+    </div>
+  )
+});
+
+// Usage: <smart-counter initial-count="10" step="5"></smart-counter>
 ```
 
-### Component State Design
+### Best Practices
 
-Keep state in DOM attributes and classes:
+**Modern Approach (Recommended):**
+1. ✅ Use **function-style props** for zero duplication
+2. ✅ Use **CSS-only format** for auto-generated class names
+3. ✅ Use **smart type helpers** (`string()`, `number()`, `boolean()`)
+4. ✅ Keep state in DOM (classes, attributes, content)
+5. ✅ Use **Unified API System** for HTMX integration
 
+**Component State in DOM:**
 ```tsx
-<div class="counter open" data-count="5" data-max="100">
-  <span class="display">5</span>
+// State stored in DOM attributes and classes
+<div class="counter active" data-count="5" data-max="100">
+  <span class="display">5</span>     {/* Display value in content */}
 </div>
+
+// CSS classes represent UI state
+.counter.active { border-color: #007bff; }
+.counter.disabled { opacity: 0.5; pointer-events: none; }
 ```
+
+**Evolution Summary:**
+funcwc has evolved through three major ergonomic improvements:
+
+1. **🔧 defineComponent API**: Clean object-based configuration
+2. **🎨 CSS-Only Format**: Auto-generated class names from CSS properties  
+3. **✨ Function-Style Props**: Zero duplication between props and render parameters
+
+The result is **the most ergonomic component library ever built** - minimal syntax, maximum power, zero runtime overhead.
