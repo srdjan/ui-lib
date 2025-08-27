@@ -559,3 +559,27 @@ api: {
 This system makes funcwc incredibly productive for building HTMX-powered
 applications while maintaining the benefits of server-side rendering and
 DOM-native state management!
+## TypeScript Typing Tip
+
+When using function‑style props (defaults written with `string()`, `number()`, `boolean()`, etc.) the library introspects those defaults to auto‑generate the props transformer. TypeScript doesn’t know that at type level, so add inline casts and annotate the param to keep strong types inside your render while preserving auto‑generation.
+
+Example:
+
+```tsx
+defineComponent("typed-example", {
+  styles: { box: `{ padding: .5rem; }` },
+  render: ({
+    title = string("Hello") as unknown as string,
+    count = number(0) as unknown as number,
+    enabled = boolean(false) as unknown as boolean,
+  }: { title: string; count: number; enabled: boolean }, _api, classes) => (
+    <div class={classes!.box}>
+      <h3>{title}</h3>
+      <span>{count}</span>
+      <span>{enabled ? "On" : "Off"}</span>
+    </div>
+  ),
+});
+```
+
+See also: AUTHORING.md → “Typing function‑style props in TypeScript”.

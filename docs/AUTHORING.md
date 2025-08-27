@@ -42,6 +42,33 @@ defineComponent("smart-card", {
 // <smart-card title="Hello World" count="100" highlighted></smart-card>
 ```
 
+#### Typing function‑style props in TypeScript
+
+The helper calls like `string()`, `number()`, and `boolean()` deliberately return PropHelper objects so the library can auto‑generate a typed props transformer by inspecting your render function defaults. TypeScript, however, does not know that these will be converted into primitive values at runtime. To keep both worlds happy (auto‑generation + strong types inside your render), add an inline cast on each default and annotate the destructured parameter type:
+
+```tsx
+defineComponent("typed-card", {
+  styles: { container: `{ padding: 1rem; }` },
+  render: ({
+    title = string("Hello") as unknown as string,
+    count = number(0) as unknown as number,
+    enabled = boolean(false) as unknown as boolean,
+  }: { title: string; count: number; enabled: boolean }, _api, classes) => (
+    <div class={classes!.container}>
+      <h3>{title}</h3>
+      <p>Count: {count}</p>
+      <p>Enabled: {enabled ? "Yes" : "No"}</p>
+    </div>
+  ),
+});
+```
+
+Why this works:
+- The defaults remain helper calls, so the library can parse them and build the prop schema (validation, defaults, type info).
+- The `as unknown as T` cast teaches TypeScript that your local variables are primitives, so JSX usage stays fully typed.
+- You only write the types once, in the parameter annotation — no duplication.
+
+
 ### 🎨 CSS-Only Format (Auto-Generated Classes!)
 
 Just write CSS properties - class names auto-generated! No selectors, no duplication:

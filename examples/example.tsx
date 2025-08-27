@@ -6,7 +6,7 @@ import {
   h,
   patch,
   renderComponent,
-  toggleClasses,
+  togglec,
   string,
   number,
   boolean,
@@ -16,7 +16,6 @@ import type { GeneratedApiMap } from "../src/index.ts";
 import {
   activateTab,
   resetCounter,
-  syncCheckboxToClass,
   updateParentCounter,
 } from "./dom-actions.ts";
 
@@ -29,23 +28,19 @@ defineComponent("unified-card", {
     highlight: `{ border-color: #007bff !important; background: #f8f9ff; box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15); }`,
   },
   render: ({ 
-    title = string("Unified Styles"),
-    highlighted = boolean(false)
-  }, _api: undefined, classes?: Record<string, string>) => {
-    const titleStr = title as unknown as string;
-    const highlightedBool = highlighted as unknown as boolean;
-    return (
-      <div class={`${classes!.card} ${highlightedBool ? classes!.highlight : ""}`}>
-        <h3 class={classes!.title}>{titleStr}</h3>
-        <div class={classes!.content}>
-          <p>🚀 This component uses the new unified styles API!</p>
-          <p>✅ No more duplication between classes and styles</p>
-          <p>🎯 Class names are automatically extracted from CSS selectors</p>
-          <p>💡 Much cleaner and more maintainable</p>
-        </div>
+    title = string("Unified Styles") as unknown as string,
+    highlighted = boolean(false) as unknown as boolean
+  }: { title: string; highlighted: boolean }, _api, c) => (
+    <div class={`${c!.card} ${highlighted ? c!.highlight : ""}`}>
+      <h3 class={c!.title}>{title}</h3>
+      <div class={c!.content}>
+        <p>🚀 This component uses the new unified styles API!</p>
+        <p>✅ No more duplication between c and styles</p>
+        <p>🎯 Class names are automatically extracted from CSS selectors</p>
+        <p>💡 Much cleaner and more maintainable</p>
       </div>
-    );
-  },
+    </div>
+  ),
 });
 
 // Theme Toggle - Pure DOM State (uses complex selectors)
@@ -64,15 +59,15 @@ defineComponent("theme-toggle", {
   render: (
     _props: Record<string, never>,
     _api: undefined,
-    classes?: Record<string, string>,
+    c?: Record<string, string>,
   ) => (
     <button
       type="button"
-      class={`${classes!.button} light`}
-      onclick={toggleClasses(["light", "dark"])}
+      class={`${c!.button} light`}
+      onclick={togglec(["light", "dark"])}
     >
-      <span class={classes!.lightIcon}>☀️ Light</span>
-      <span class={classes!.darkIcon}>🌙 Dark</span>
+      <span class={c!.lightIcon}>☀️ Light</span>
+      <span class={c!.darkIcon}>🌙 Dark</span>
     </button>
   ),
 });
@@ -86,50 +81,46 @@ defineComponent("counter", {
     display: `{ font-size: 1.5rem; min-width: 3rem; text-align: center; font-weight: bold; color: #007bff; }`
   },
   render: ({
-    initialCount = number(0),
-    step = number(1)
-  }, _api: undefined, classes?: Record<string, string>) => {
-    const initial = initialCount as unknown as number;
-    const stepN = step as unknown as number;
-    return (
-      <div class={classes!.container} data-count={initial}>
-        <button
-          type="button"
-          class={classes!.counterButton}
-          onclick={updateParentCounter(
-            `.${classes!.container}`,
-            `.${classes!.display}`,
-            -stepN,
-          )}
-        >
-          -{stepN}
-        </button>
-        <span class={classes!.display}>{initial}</span>
-        <button
-          type="button"
-          class={classes!.counterButton}
-          onclick={updateParentCounter(
-            `.${classes!.container}`,
-            `.${classes!.display}`,
-            stepN,
-          )}
-        >
-          +{stepN}
-        </button>
-        <button
-          type="button"
-          class={classes!.counterButton}
-          onclick={resetCounter(
-            `.${classes!.display}`,
-            initial,
-            `.${classes!.container}`,
-          )}
-        >
-          Reset
-        </button>
-      </div>
-    );
-  },
+    initialCount = number(0) as unknown as number,
+    step = number(1) as unknown as number
+  }: { initialCount: number; step: number }, _api, c) => (
+    <div class={c!.container} data-count={initialCount}>
+      <button
+        type="button"
+        class={c!.counterButton}
+        onclick={updateParentCounter(
+          `.${c!.container}`,
+          `.${c!.display}`,
+          -step,
+        )}
+      >
+        -{step}
+      </button>
+      <span class={c!.display}>{initialCount}</span>
+      <button
+        type="button"
+        class={c!.counterButton}
+        onclick={updateParentCounter(
+          `.${c!.container}`,
+          `.${c!.display}`,
+          step,
+        )}
+      >
+        +{step}
+      </button>
+      <button
+        type="button"
+        class={c!.counterButton}
+        onclick={resetCounter(
+          `.${c!.display}`,
+          initialCount,
+          `.${c!.container}`,
+        )}
+      >
+        Reset
+      </button>
+    </div>
+  ),
 });
 
 // Todo Item - HTMX Integration + Function-style props!
@@ -160,26 +151,23 @@ defineComponent("todo-item", {
     deleteBtnHover: `{ background: #c82333; }` // → .delete-btn-hover
   },
   render: ({
-    id = string("1"),
-    text = string("Todo item"),
-    done = boolean(false)
-  }, api: GeneratedApiMap, classes?: Record<string, string>) => {
-    const idStr = id as unknown as string;
-    const doneBool = done as unknown as boolean;
-    const textStr = text as unknown as string;
-    const itemClass = `${classes!.item} ${doneBool ? classes!.itemDone : ""}`;
-    const textClass = `${classes!.text} ${doneBool ? classes!.textDone : ""}`;
+    id = string("1") as unknown as string,
+    text = string("Todo item") as unknown as string,
+    done = boolean(false) as unknown as boolean
+  }: { id: string; text: string; done: boolean }, api: GeneratedApiMap, c?: Record<string, string>) => {
+    const itemClass = `${c!.item} ${done ? c!.itemDone : ""}`;
+    const textClass = `${c!.text} ${done ? c!.textDone : ""}`;
     return (
-      <div class={itemClass} data-id={idStr}>
+      <div class={itemClass} data-id={id}>
         <input
           type="checkbox"
-          class={classes!.checkbox}
-          checked={doneBool}
-          onChange={syncCheckboxToClass(classes!.itemDone)} // Use the generated class name
-          {...api.toggle(idStr)}
+          class={c!.checkbox}
+          checked={done}
+          {...api.toggle(id, !done)}
+          hx-on:change={`this.closest('[data-id]')?.classList.toggle('${c!.itemDone}', this.checked)`}
         />
-        <span class={textClass}>{textStr}</span>
-        <button type="button" class={classes!.deleteBtn} {...api.remove(idStr)}>
+        <span class={textClass}>{text}</span>
+        <button type="button" class={c!.deleteBtn} {...api.remove(id)}>
           ×
         </button>
       </div>
@@ -200,26 +188,24 @@ defineComponent("tabs", {
     panelActive: `{ display: block; }` // → .panel-active
   },
   render: ({
-    tabs = string("Home,About"),
-    activeTab = string("Home")
-  }, _api: undefined, classes?: Record<string, string>) => {
-    const tabsStr = tabs as unknown as string;
-    const activeStr = activeTab as unknown as string;
-    const tabList = tabsStr.split(",").map((t: string) => t.trim());
-    const active = activeStr || tabList[0];
+    tabs = string("Home,About") as unknown as string,
+    activeTab = string("Home") as unknown as string
+  }: { tabs: string; activeTab: string }, _api, c) => {
+    const tabList = tabs.split(",").map((t: string) => t.trim());
+    const active = activeTab || tabList[0];
 
     return (
-      <div class={classes!.container}>
-        <div class={classes!.nav}>
+      <div class={c!.container}>
+        <div class={c!.nav}>
           {tabList.map((tab: string) => (
             <button
               type="button"
-              class={`${classes!.button} ${tab === active ? classes!.buttonActive : ""}`}
+              class={`${c!.button} ${tab === active ? c!.buttonActive : ""}`}
               onclick={activateTab(
-                `.${classes!.container}`,
-                `.${classes!.button}`,
-                `.${classes!.content}`,
-                classes!.buttonActive,
+                `.${c!.container}`,
+                `.${c!.button}`,
+                `.${c!.content}`,
+                c!.buttonActive,
               )}
               data-tab={tab}
             >
@@ -227,10 +213,10 @@ defineComponent("tabs", {
             </button>
           ))}
         </div>
-        <div class={classes!.content}>
+        <div class={c!.content}>
           {tabList.map((tab: string) => (
             <div
-              class={`${classes!.panel} ${tab === active ? classes!.panelActive : ""}`}
+              class={`${c!.panel} ${tab === active ? c!.panelActive : ""}`}
               data-tab-content={tab}
             >
               <h3>{tab} Content</h3>
@@ -267,26 +253,21 @@ defineComponent("function-style-card", {
     highlight: `{ background: #d4edda; padding: 0.5rem; border-radius: 4px; font-family: monospace; }`
   },
   render: ({ 
-    title = string("Function-Style Props"),
-    count = number(42),
-    enabled = boolean(true)
-  }, _api: undefined, classes?: Record<string, string>) => {
-    const titleStr = title as unknown as string;
-    const countN = count as unknown as number;
-    const enabledB = enabled as unknown as boolean;
-    return (
-      <div class={classes!.container}>
-        <h3 class={classes!.title}>{titleStr}</h3>
-        <div class={classes!.content}>
-          <p>🎉 <strong>This component uses function-style props!</strong></p>
-          <p>✨ No props transformer defined - props auto-generated from render function parameters</p>
-          <p>🔢 Count prop: <span class={classes!.highlight}>{countN}</span></p>
-          <p>🎯 Enabled prop: <span class={classes!.highlight}>{enabledB ? "Yes" : "No"}</span></p>
-          <p>📝 Title prop: <span class={classes!.highlight}>"{titleStr}"</span></p>
-        </div>
+    title = string("Function-Style Props") as unknown as string,
+    count = number(42) as unknown as number,
+    enabled = boolean(true) as unknown as boolean
+  }: { title: string; count: number; enabled: boolean }, _api, c) => (
+    <div class={c!.container}>
+      <h3 class={c!.title}>{title}</h3>
+      <div class={c!.content}>
+        <p>🎉 <strong>This component uses function-style props!</strong></p>
+        <p>✨ No props transformer defined - props auto-generated from render function parameters</p>
+        <p>🔢 Count prop: <span class={c!.highlight}>{count}</span></p>
+        <p>🎯 Enabled prop: <span class={c!.highlight}>{enabled ? "Yes" : "No"}</span></p>
+        <p>📝 Title prop: <span class={c!.highlight}>"{title}"</span></p>
       </div>
-    );
-  },
+    </div>
+  ),
 });
 
 console.log("✅ All examples registered from example.tsx");
