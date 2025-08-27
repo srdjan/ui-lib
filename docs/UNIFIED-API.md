@@ -614,3 +614,29 @@ Per-request headers (e.g., CSRF) can be injected server-side and are merged by t
 ```tsx
 <button {...api.toggleLike(id, { liked: true }, { headers: { "X-CSRF-Token": token }, target: "closest .card" })}>Like</button>
 ```
+
+## Utilities
+
+- `UnwrapHelpers<T>`: Maps a record of `PropHelper<*>` to its unwrapped primitive types. Useful for strongly typed render props when using helper defaults.
+- `PropsOf<T extends Record<string, PropHelper<any>>>`: Alias for `UnwrapHelpers<T>` when you keep your defaults in a constant object.
+
+Example:
+
+```ts
+import { string, number, boolean } from "../src/index.ts";
+import type { PropsOf } from "../src/index.ts";
+
+const defaults = {
+  title: string("Hello"),
+  count: number(0),
+  enabled: boolean(false),
+} satisfies Record<string, import("../src/index.ts").PropHelper<any>>;
+
+render: (
+  props: PropsOf<typeof defaults> = (defaults as unknown as PropsOf<typeof defaults>),
+  api,
+  classes,
+) => {
+  // props.title: string; props.count: number; props.enabled: boolean
+}
+```

@@ -44,7 +44,10 @@ defineComponent("smart-card", {
 
 #### Typing function‑style props in TypeScript
 
-The helper calls like `string()`, `number()`, and `boolean()` deliberately return PropHelper objects so the library can auto‑generate a typed props transformer by inspecting your render function defaults. TypeScript, however, does not know that these will be converted into primitive values at runtime. To keep both worlds happy (auto‑generation + strong types inside your render), add an inline cast on each default and annotate the destructured parameter type:
+The helper calls like `string()`, `number()`, and `boolean()` deliberately return PropHelper objects so the library can auto‑generate a typed props transformer by inspecting your render function defaults. TypeScript, however, does not know that these will be converted into primitive values at runtime.
+
+Option A — inline casts (simple):
+Add a cast on each default and annotate the parameter type:
 
 ```tsx
 defineComponent("typed-card", {
@@ -63,10 +66,39 @@ defineComponent("typed-card", {
 });
 ```
 
+Option B — UnwrapHelpers + defaults object (recommended):
+Use a single defaults object and the `UnwrapHelpers<T>` utility type exported by the library. Cleaner, no per‑field casts, still auto‑generates the schema.
+
+```tsx
+import { string, number, boolean } from "../src/index.ts";
+import type { UnwrapHelpers } from "../src/index.ts";
+
+defineComponent("typed-card", {
+  styles: { container: `{ padding: 1rem; }` },
+  render: (
+    props: UnwrapHelpers<{ title: ReturnType<typeof string>; count: ReturnType<typeof number>; enabled: ReturnType<typeof boolean> }> = (
+      { title: string("Hello"), count: number(0), enabled: boolean(false) } as unknown as UnwrapHelpers<{
+        title: ReturnType<typeof string>;
+        count: ReturnType<typeof number>;
+        enabled: ReturnType<typeof boolean>;
+      }>
+    ),
+    _api,
+    classes,
+  ) => (
+    <div class={classes!.container}>
+      <h3>{props.title}</h3>
+      <p>Count: {props.count}</p>
+      <p>Enabled: {props.enabled ? "Yes" : "No"}</p>
+    </div>
+  ),
+});
+```
+
 Why this works:
 - The defaults remain helper calls, so the library can parse them and build the prop schema (validation, defaults, type info).
-- The `as unknown as T` cast teaches TypeScript that your local variables are primitives, so JSX usage stays fully typed.
-- You only write the types once, in the parameter annotation — no duplication.
+- With UnwrapHelpers, TypeScript sees primitives inside render, without per‑field casts.
+- Defaults are the single source of truth and stay close to the render.
 
 
 ### 🎨 CSS-Only Format (Auto-Generated Classes!)

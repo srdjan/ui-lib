@@ -15,9 +15,6 @@ import {
 } from "../src/index.ts";
 import type { GeneratedApiMap } from "../src/index.ts";
 
-// Tabs loads content via API; no local DOM helpers needed
-
-// 🎉 NEW: Unified Styles API Showcase - Now with function-style props!
 defineComponent("unified-card", {
   styles: {
     card: `{ border: 2px solid #e9ecef; border-radius: 8px; padding: 1.5rem; margin: 1rem 0; background: white; transition: all 0.2s ease; }`,
@@ -25,10 +22,10 @@ defineComponent("unified-card", {
     content: `{ color: #6c757d; line-height: 1.5; }`,
     highlight: `{ border-color: #007bff !important; background: #f8f9ff; box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15); }`,
   },
-  render: ({ 
-    title = string("Unified Styles") as unknown as string,
-    highlighted = boolean(false) as unknown as boolean
-  }: { title: string; highlighted: boolean }, _api, c) => (
+  render: ({
+    title = string("Unified Styles"),
+    highlighted = boolean(false),
+  }: any, _api: undefined, c?: Record<string, string>) => (
     <div class={`${c!.card} ${highlighted ? c!.highlight : ""}`}>
       <h3 class={c!.title}>{title}</h3>
       <div class={c!.content}>
@@ -71,11 +68,12 @@ defineComponent("theme-toggle", {
 });
 
 // Counter - Now using function-style props + API! 🎉
+
 defineComponent("counter", {
   styles: {
     container: `{ display: inline-flex; gap: 0.5rem; padding: 1rem; border: 2px solid #007bff; border-radius: 6px; align-items: center; background: white; }`,
     counterButton: `{ padding: 0.5rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; min-width: 2rem; font-weight: bold; }`,
-    counterButtonHover: `{ background: #0056b3; }`, // → .counter-button-hover
+    counterButtonHover: `{ background: #0056b3; }`,
     display: `{ font-size: 1.5rem; min-width: 3rem; text-align: center; font-weight: bold; color: #007bff; }`
   },
   api: {
@@ -89,15 +87,12 @@ defineComponent("counter", {
       );
     }),
   },
-  render: ({
-    initialCount = number(0) as unknown as number,
-    step = number(1) as unknown as number
-  }: { initialCount: number; step: number }, api: GeneratedApiMap, c?: Record<string, string>) => (
+  render: ({ initialCount = number(0), step = number(1) }, api: GeneratedApiMap, c?: Record<string, string>) => (
     <div class={c!.container} data-count={initialCount}>
       <button
         type="button"
         class={c!.counterButton}
-        {...(api as GeneratedApiMap).adjust({ current: initialCount, delta: -step, step }, { target: `closest .${c!.container}` })}
+        {...api.adjust({ current: initialCount, delta: -step, step }, { target: `closest .${c!.container}` })}
       >
         -{step}
       </button>
@@ -105,14 +100,14 @@ defineComponent("counter", {
       <button
         type="button"
         class={c!.counterButton}
-        {...(api as GeneratedApiMap).adjust({ current: initialCount, delta: step, step }, { target: `closest .${c!.container}` })}
+        {...api.adjust({ current: initialCount, delta: step, step }, { target: `closest .${c!.container}` })}
       >
         +{step}
       </button>
       <button
         type="button"
         class={c!.counterButton}
-        {...(api as GeneratedApiMap).adjust({ value: 0, step }, { target: `closest .${c!.container}` })}
+        {...api.adjust({ value: 0, step }, { target: `closest .${c!.container}` })}
       >
         Reset
       </button>
@@ -148,11 +143,13 @@ defineComponent("todo-item", {
     deleteBtn: `{ background: #dc3545; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; line-height: 1; }`,
     deleteBtnHover: `{ background: #c82333; }` // → .delete-btn-hover
   },
-  render: ({
-    id = string("1") as unknown as string,
-    text = string("Todo item") as unknown as string,
-    done = boolean(false) as unknown as boolean
-  }: { id: string; text: string; done: boolean }, api: GeneratedApiMap, c?: Record<string, string>) => {
+  render: ({ 
+             id = string("1"), 
+             text = string("Todo item"), 
+             done = boolean(false) 
+            }, 
+            api: GeneratedApiMap, 
+            c?: Record<string, string>) => {
     const itemClass = `${c!.item} ${done ? c!.itemDone : ""}`;
     const textClass = `${c!.text} ${done ? c!.textDone : ""}`;
     return (
@@ -206,10 +203,7 @@ defineComponent("tabs", {
     panel: `{ display: none; }`,
     panelActive: `{ display: block; }` // → .panel-active
   },
-  render: ({
-    tabs = string("Home,About,Settings") as unknown as string,
-    activeTab = string("Home") as unknown as string
-  }: { tabs: string; activeTab: string }, api: GeneratedApiMap, c?: Record<string, string>) => {
+  render: ({ tabs = string("Home,About,Settings"), activeTab = string("Home") }, api: GeneratedApiMap, c?: Record<string, string>) => {
     const tabList = tabs.split(",").map((t: string) => t.trim());
     const active = activeTab || tabList[0];
 
@@ -260,11 +254,7 @@ defineComponent("function-style-card", {
     content: `{ color: #155724; line-height: 1.5; }`,
     highlight: `{ background: #d4edda; padding: 0.5rem; border-radius: 4px; font-family: monospace; }`
   },
-  render: ({ 
-    title = string("Function-Style Props") as unknown as string,
-    count = number(42) as unknown as number,
-    enabled = boolean(true) as unknown as boolean
-  }: { title: string; count: number; enabled: boolean }, _api, c) => (
+  render: ({ title = string("Function-Style Props"), count = number(42), enabled = boolean(true) }, _api, c) => (
     <div class={c!.container}>
       <h3 class={c!.title}>{title}</h3>
       <div class={c!.content}>

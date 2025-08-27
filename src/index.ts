@@ -63,3 +63,6 @@ export {
   type PropHelper,
   isPropHelper 
 } from "./lib/prop-helpers.ts";
+
+// Utility TS types
+export type { UnwrapHelpers, PropsOf } from "./lib/types.ts";

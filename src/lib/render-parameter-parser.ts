@@ -27,40 +27,48 @@ export function parseRenderParameters(renderFunction: StringifiableFunction): Pa
   const paramList = paramMatch[1] || paramMatch[2] || '';
   const firstParam = paramList.split(',')[0]?.trim();
   
-  if (!firstParam || !firstParam.startsWith('{')) {
-    // No destructured props parameter
-    return { propHelpers: {}, hasProps: false };
-  }
-  
-  // Extract the destructured parameter content
-  const destructuredMatch = firstParam.match(/^\{\s*([^}]*)\s*\}/);
-  if (!destructuredMatch) {
-    return { propHelpers: {}, hasProps: false };
-  }
-  
-  const destructuredContent = destructuredMatch[1];
-  const propHelpers: Record<string, PropHelper> = {};
-  
-  // Parse individual property assignments
-  // Handle patterns like: name = string("default"), age = number(0)
-  const properties = parseDestructuredProperties(destructuredContent);
-  
-  for (const prop of properties) {
-    const { name, defaultExpression } = prop;
-    
-    if (defaultExpression) {
-      // Try to evaluate the default expression to get the prop helper
-      const propHelper = evaluateHelperExpression(defaultExpression);
-      if (propHelper) {
-        propHelpers[name] = propHelper;
+  if (firstParam) {
+    // Case 1: Destructured parameter with defaults
+    if (firstParam.startsWith('{')) {
+      const destructuredMatch = firstParam.match(/^\{\s*([^}]*)\s*\}/);
+      if (!destructuredMatch) return { propHelpers: {}, hasProps: false };
+
+      const destructuredContent = destructuredMatch[1];
+      const propHelpers: Record<string, PropHelper> = {};
+      const properties = parseDestructuredProperties(destructuredContent);
+      for (const prop of properties) {
+        const { name, defaultExpression } = prop;
+        if (defaultExpression) {
+          const propHelper = evaluateHelperExpression(defaultExpression);
+          if (propHelper) propHelpers[name] = propHelper;
+        }
+      }
+      return { propHelpers, hasProps: Object.keys(propHelpers).length > 0 };
+    }
+
+    // Case 2: Parameter with initializer to an object literal
+    // e.g. `props: Props = { title: string(".."), count: number(0) }`
+    const eqIdx = firstParam.indexOf('=');
+    if (eqIdx !== -1) {
+      const initExpr = firstParam.slice(eqIdx + 1).trim();
+      if (initExpr.startsWith('{')) {
+        // Extract object literal content with balanced braces
+        const content = extractBalancedBraces(initExpr);
+        if (content) {
+          const propHelpers: Record<string, PropHelper> = {};
+          const objectProps = parseObjectLiteralHelperProperties(content.inner);
+          for (const { name, expr } of objectProps) {
+            const helper = evaluateHelperExpression(expr);
+            if (helper) propHelpers[name] = helper;
+          }
+          return { propHelpers, hasProps: Object.keys(propHelpers).length > 0 };
+        }
       }
     }
   }
-  
-  return { 
-    propHelpers, 
-    hasProps: Object.keys(propHelpers).length > 0 
-  };
+
+  // No recognizable props pattern
+  return { propHelpers: {}, hasProps: false };
 }
 
 interface DestructuredProperty {
@@ -119,6 +127,59 @@ function parseDestructuredProperties(content: string): DestructuredProperty[] {
 interface Token {
   type: 'identifier' | 'operator' | 'literal' | 'punctuation';
   value: string;
+}
+
+// Extracts the inner content of a balanced brace object literal at the start of the string
+function extractBalancedBraces(source: string): { inner: string; endIndex: number } | null {
+  if (!source.startsWith('{')) return null;
+  let depth = 0;
+  for (let i = 0; i < source.length; i++) {
+    const ch = source[i];
+    if (ch === '{') depth++;
+    else if (ch === '}') {
+      depth--;
+      if (depth === 0) {
+        const inner = source.slice(1, i);
+        return { inner, endIndex: i };
+      }
+    }
+  }
+  return null;
+}
+
+// Parse object literal properties of the form: key: helperCall(...)
+function parseObjectLiteralHelperProperties(content: string): Array<{ name: string; expr: string }> {
+  const tokens = tokenizeDestructured(content);
+  const props: Array<{ name: string; expr: string }> = [];
+  let i = 0;
+  while (i < tokens.length) {
+    const t = tokens[i];
+    if (t.type === 'identifier') {
+      const name = t.value;
+      // Expect ':'
+      let j = i + 1;
+      while (j < tokens.length && tokens[j].value.trim() === '') j++;
+      if (j < tokens.length && tokens[j].value === ':') {
+        j++;
+        // Collect until top-level comma
+        const exprTokens: string[] = [];
+        let paren = 0;
+        while (j < tokens.length) {
+          const v = tokens[j].value;
+          if (v === '(') paren++;
+          if (v === ')') paren--;
+          if (v === ',' && paren === 0) break;
+          exprTokens.push(v);
+          j++;
+        }
+        const expr = exprTokens.join('').trim();
+        if (expr) props.push({ name, expr });
+        i = j;
+      }
+    }
+    i++;
+  }
+  return props;
 }
 
 /**

@@ -44,11 +44,7 @@ defineComponent("like-card", {
     likeBtnActive: `{ background: #ffe4ea; }`,
     deleteBtn: `{ padding: .25rem .5rem; border-radius: 4px; border: 1px solid #6c757d; color: #6c757d; background: #f8f9fa; cursor: pointer; }`,
   },
-  render: ({
-    id = string("1") as unknown as string,
-    title = string("My Item") as unknown as string,
-    liked = boolean(false) as unknown as boolean,
-  }: { id: string; title: string; liked: boolean }, api: GeneratedApiMap, classes?: Record<string, string>) => (
+  render: ({ id = string("1"), title = string("My Item"), liked = boolean(false) }: any, api: GeneratedApiMap, classes?: Record<string, string>) => (
     <div class={classes!.card} data-id={id}>
       <h3 class={classes!.title}>{title}</h3>
       <div class={classes!.actions}>
