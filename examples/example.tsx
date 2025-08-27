@@ -1,4 +1,5 @@
 /** @jsx h */
+/// <reference path="../src/lib/jsx.d.ts" />
 import {
   defineComponent,
   del,
@@ -10,6 +11,7 @@ import {
   number,
   boolean,
 } from "../src/index.ts";
+import type { GeneratedApiMap } from "../src/index.ts";
 
 import {
   activateTab,
@@ -20,9 +22,7 @@ import {
 
 // 🎉 NEW: Unified Styles API Showcase - Now with function-style props!
 defineComponent("unified-card", {
-  // ✨ Function-style props - no duplication between props and render parameters!
   styles: {
-    // ✨ New ultra-simplified CSS-only format!
     card: `{ border: 2px solid #e9ecef; border-radius: 8px; padding: 1.5rem; margin: 1rem 0; background: white; transition: all 0.2s ease; }`,
     title: `{ font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem; color: #495057; }`,
     content: `{ color: #6c757d; line-height: 1.5; }`,
@@ -31,17 +31,21 @@ defineComponent("unified-card", {
   render: ({ 
     title = string("Unified Styles"),
     highlighted = boolean(false)
-  }, _api, classes) => (
-    <div class={`${classes!.card} ${highlighted ? classes!.highlight : ""}`}>
-      <h3 class={classes!.title}>{title}</h3>
-      <div class={classes!.content}>
-        <p>🚀 This component uses the new unified styles API!</p>
-        <p>✅ No more duplication between classes and styles</p>
-        <p>🎯 Class names are automatically extracted from CSS selectors</p>
-        <p>💡 Much cleaner and more maintainable</p>
+  }, _api: undefined, classes?: Record<string, string>) => {
+    const titleStr = title as unknown as string;
+    const highlightedBool = highlighted as unknown as boolean;
+    return (
+      <div class={`${classes!.card} ${highlightedBool ? classes!.highlight : ""}`}>
+        <h3 class={classes!.title}>{titleStr}</h3>
+        <div class={classes!.content}>
+          <p>🚀 This component uses the new unified styles API!</p>
+          <p>✅ No more duplication between classes and styles</p>
+          <p>🎯 Class names are automatically extracted from CSS selectors</p>
+          <p>💡 Much cleaner and more maintainable</p>
+        </div>
       </div>
-    </div>
-  ),
+    );
+  },
 });
 
 // Theme Toggle - Pure DOM State (uses complex selectors)
@@ -75,9 +79,7 @@ defineComponent("theme-toggle", {
 
 // Counter - Now using function-style props! 🎉
 defineComponent("counter", {
-  // ✨ No props transformer needed - auto-generated from render parameters!
   styles: {
-    // ✨ CSS-only format - class names auto-generated from keys!
     container: `{ display: inline-flex; gap: 0.5rem; padding: 1rem; border: 2px solid #007bff; border-radius: 6px; align-items: center; background: white; }`,
     counterButton: `{ padding: 0.5rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; min-width: 2rem; font-weight: bold; }`,
     counterButtonHover: `{ background: #0056b3; }`, // → .counter-button-hover
@@ -86,49 +88,52 @@ defineComponent("counter", {
   render: ({
     initialCount = number(0),
     step = number(1)
-  }, _api, classes) => (
-    <div class={classes!.container} data-count={initialCount}>
-      <button
-        type="button"
-        class={classes!.counterButton}
-        onclick={updateParentCounter(
-          `.${classes!.container}`,
-          `.${classes!.display}`,
-          -step,
-        )}
-      >
-        -{step}
-      </button>
-      <span class={classes!.display}>{initialCount}</span>
-      <button
-        type="button"
-        class={classes!.counterButton}
-        onclick={updateParentCounter(
-          `.${classes!.container}`,
-          `.${classes!.display}`,
-          step,
-        )}
-      >
-        +{step}
-      </button>
-      <button
-        type="button"
-        class={classes!.counterButton}
-        onclick={resetCounter(
-          `.${classes!.display}`,
-          initialCount,
-          `.${classes!.container}`,
-        )}
-      >
-        Reset
-      </button>
-    </div>
-  ),
+  }, _api: undefined, classes?: Record<string, string>) => {
+    const initial = initialCount as unknown as number;
+    const stepN = step as unknown as number;
+    return (
+      <div class={classes!.container} data-count={initial}>
+        <button
+          type="button"
+          class={classes!.counterButton}
+          onclick={updateParentCounter(
+            `.${classes!.container}`,
+            `.${classes!.display}`,
+            -stepN,
+          )}
+        >
+          -{stepN}
+        </button>
+        <span class={classes!.display}>{initial}</span>
+        <button
+          type="button"
+          class={classes!.counterButton}
+          onclick={updateParentCounter(
+            `.${classes!.container}`,
+            `.${classes!.display}`,
+            stepN,
+          )}
+        >
+          +{stepN}
+        </button>
+        <button
+          type="button"
+          class={classes!.counterButton}
+          onclick={resetCounter(
+            `.${classes!.display}`,
+            initial,
+            `.${classes!.container}`,
+          )}
+        >
+          Reset
+        </button>
+      </div>
+    );
+  },
 });
 
 // Todo Item - HTMX Integration + Function-style props!
 defineComponent("todo-item", {
-  // ✨ No props transformer needed - auto-generated from render parameters!
   api: {
     toggle: patch("/api/todos/:id/toggle", async (req, params) => {
       const form = await req.formData();
@@ -146,7 +151,6 @@ defineComponent("todo-item", {
     }),
   },
   styles: {
-    // ✨ CSS-only format for todo items!
     item: `{ display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 0.5rem; background: white; transition: background-color 0.2s; }`,
     itemDone: `{ background: #f8f9fa; opacity: 0.8; }`, // Applied conditionally  
     checkbox: `{ margin-right: 0.5rem; }`,
@@ -159,20 +163,23 @@ defineComponent("todo-item", {
     id = string("1"),
     text = string("Todo item"),
     done = boolean(false)
-  }, api, classes) => {
-    const itemClass = `${classes!.item} ${(done as boolean) ? classes!.itemDone : ""}`;
-    const textClass = `${classes!.text} ${(done as boolean) ? classes!.textDone : ""}`;
+  }, api: GeneratedApiMap, classes?: Record<string, string>) => {
+    const idStr = id as unknown as string;
+    const doneBool = done as unknown as boolean;
+    const textStr = text as unknown as string;
+    const itemClass = `${classes!.item} ${doneBool ? classes!.itemDone : ""}`;
+    const textClass = `${classes!.text} ${doneBool ? classes!.textDone : ""}`;
     return (
-      <div class={itemClass} data-id={id as string}>
+      <div class={itemClass} data-id={idStr}>
         <input
           type="checkbox"
           class={classes!.checkbox}
-          checked={done as boolean}
+          checked={doneBool}
           onChange={syncCheckboxToClass(classes!.itemDone)} // Use the generated class name
-          {...api.toggle(id as string)}
+          {...api.toggle(idStr)}
         />
-        <span class={textClass}>{text as string}</span>
-        <button type="button" class={classes!.deleteBtn} {...api.remove(id as string)}>
+        <span class={textClass}>{textStr}</span>
+        <button type="button" class={classes!.deleteBtn} {...api.remove(idStr)}>
           ×
         </button>
       </div>
@@ -182,7 +189,6 @@ defineComponent("todo-item", {
 
 // Tabs - Now with function-style props!
 defineComponent("tabs", {
-  // ✨ Function-style props eliminate props/render parameter duplication!
   styles: {
     container: `{ border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }`,
     nav: `{ display: flex; background: #f8f9fa; border-bottom: 1px solid #ddd; }`,
@@ -196,9 +202,11 @@ defineComponent("tabs", {
   render: ({
     tabs = string("Home,About"),
     activeTab = string("Home")
-  }, _api, classes) => {
-    const tabList = (tabs as string).split(",").map((t: string) => t.trim());
-    const active = (activeTab as string) || tabList[0];
+  }, _api: undefined, classes?: Record<string, string>) => {
+    const tabsStr = tabs as unknown as string;
+    const activeStr = activeTab as unknown as string;
+    const tabList = tabsStr.split(",").map((t: string) => t.trim());
+    const active = activeStr || tabList[0];
 
     return (
       <div class={classes!.container}>
@@ -258,23 +266,27 @@ defineComponent("function-style-card", {
     content: `{ color: #155724; line-height: 1.5; }`,
     highlight: `{ background: #d4edda; padding: 0.5rem; border-radius: 4px; font-family: monospace; }`
   },
-  // ✨ NEW: No props transformer needed! Props auto-generated from render function parameters
   render: ({ 
     title = string("Function-Style Props"),
     count = number(42),
     enabled = boolean(true)
-  }, _api, classes) => (
-    <div class={classes!.container}>
-      <h3 class={classes!.title}>{title}</h3>
-      <div class={classes!.content}>
-        <p>🎉 <strong>This component uses function-style props!</strong></p>
-        <p>✨ No props transformer defined - props auto-generated from render function parameters</p>
-        <p>🔢 Count prop: <span class={classes!.highlight}>{count}</span></p>
-        <p>🎯 Enabled prop: <span class={classes!.highlight}>{enabled ? "Yes" : "No"}</span></p>
-        <p>📝 Title prop: <span class={classes!.highlight}>"{title}"</span></p>
+  }, _api: undefined, classes?: Record<string, string>) => {
+    const titleStr = title as unknown as string;
+    const countN = count as unknown as number;
+    const enabledB = enabled as unknown as boolean;
+    return (
+      <div class={classes!.container}>
+        <h3 class={classes!.title}>{titleStr}</h3>
+        <div class={classes!.content}>
+          <p>🎉 <strong>This component uses function-style props!</strong></p>
+          <p>✨ No props transformer defined - props auto-generated from render function parameters</p>
+          <p>🔢 Count prop: <span class={classes!.highlight}>{countN}</span></p>
+          <p>🎯 Enabled prop: <span class={classes!.highlight}>{enabledB ? "Yes" : "No"}</span></p>
+          <p>📝 Title prop: <span class={classes!.highlight}>"{titleStr}"</span></p>
+        </div>
       </div>
-    </div>
-  ),
+    );
+  },
 });
 
 console.log("✅ All examples registered from example.tsx");

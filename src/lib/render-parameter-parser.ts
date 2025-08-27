@@ -12,7 +12,9 @@ export interface ParsedRenderParameters {
  * Supports destructured parameters like:
  * ({ name = string("default"), age = number(0) }, api, classes) => { ... }
  */
-export function parseRenderParameters(renderFunction: Function): ParsedRenderParameters {
+type StringifiableFunction = { toString(): string };
+
+export function parseRenderParameters(renderFunction: StringifiableFunction): ParsedRenderParameters {
   const funcStr = renderFunction.toString();
   
   // Extract the parameter list from the function string
@@ -214,7 +216,8 @@ function evaluateHelperExpression(expression: string): PropHelper | null {
     }
     
     const [, helperName, argsStr] = helperMatch;
-    const helperFn = context[helperName as keyof typeof context];
+    type AnyHelper = (arg?: unknown) => PropHelper;
+    const helperFn = context[helperName as keyof typeof context] as unknown as AnyHelper;
     
     if (!helperFn) {
       return null;
@@ -247,7 +250,7 @@ function evaluateHelperExpression(expression: string): PropHelper | null {
       }
     }
     
-    const result = args.length > 0 ? helperFn(args[0] as any) : helperFn();
+    const result = args.length > 0 ? helperFn(args[0]) : helperFn();
     
     return isPropHelper(result) ? result : null;
   } catch (error) {

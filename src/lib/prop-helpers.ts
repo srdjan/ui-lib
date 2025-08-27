@@ -111,7 +111,7 @@ export function array<T = unknown>(defaultValue?: T[]): PropHelper<T[]> {
           throw new Error(`Prop '${key}' must be a valid JSON array`);
         }
         return parsed as T[];
-      } catch (error) {
+      } catch (_error) {
         throw new Error(`Invalid JSON array for prop '${key}': ${value}`);
       }
     }
@@ -143,7 +143,7 @@ export function object<T = Record<string, unknown>>(defaultValue?: T): PropHelpe
           throw new Error(`Prop '${key}' must be a valid JSON object`);
         }
         return parsed as T;
-      } catch (error) {
+      } catch (_error) {
         throw new Error(`Invalid JSON object for prop '${key}': ${value}`);
       }
     }
@@ -156,8 +156,7 @@ export function object<T = Record<string, unknown>>(defaultValue?: T): PropHelpe
 export function isPropHelper(value: unknown): value is PropHelper {
   return typeof value === 'object' && 
          value !== null && 
-         '__propHelper' in value && 
-         (value as any).__propHelper === true;
+         (value as { __propHelper?: unknown }).__propHelper === true;
 }
 
 /**

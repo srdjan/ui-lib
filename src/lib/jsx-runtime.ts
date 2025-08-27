@@ -55,8 +55,8 @@ export function h(
   for (const [key, value] of Object.entries(props)) {
     if (key === "children" || value == null || value === false) continue;
     
-    if (key === "dangerouslySetInnerHTML" && typeof value === "object" && value && "__html" in value) {
-      dangerousInnerHTML = String((value as any).__html);
+    if (key === "dangerouslySetInnerHTML" && isDangerousInnerHTML(value)) {
+      dangerousInnerHTML = String(value.__html);
       continue;
     }
 
@@ -124,6 +124,11 @@ export function h(
     .join("");
 
   return `${openTag}${childrenHtml}</${tag}>`;
+}
+
+// Narrowing helper for dangerouslySetInnerHTML objects
+function isDangerousInnerHTML(value: unknown): value is { __html: unknown } {
+  return typeof value === "object" && value !== null && "__html" in value;
 }
 
 // Helper function to render ComponentActions to strings
