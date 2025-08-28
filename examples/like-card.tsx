@@ -14,6 +14,8 @@ import type { GeneratedApiMap } from "../src/index.ts";
 // Like Card – function-style props + API usage
 defineComponent("like-card", {
   api: {
+    // JSON in, HTML out: request body is JSON (via json-enc), response is HTML swapped by htmx
+    // The API generator also injects default hx-headers (Accept, X-Requested-With)
     toggleLike: patch("/api/items/:id/like", async (req, params) => {
       let nextLiked = false;
       let note: string | undefined;
@@ -51,6 +53,7 @@ defineComponent("like-card", {
         <button
           type="button"
           class={`${classes!.likeBtn} ${liked ? classes!.likeBtnActive : ""}`}
+          // Sends JSON payload; defaults include hx-ext=json-enc, hx-encoding=json, Accept header, and X-Requested-With
           {...api.toggleLike(id, { liked: !liked, note: "from-card" })}
         >
           {liked ? "❤️ Liked" : "♡ Like"}

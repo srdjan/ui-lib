@@ -118,22 +118,6 @@
     </section>
 
     <section style="margin-top: 2rem">
-      <h2>📁 Accordion</h2>
-      <p>Open/closed state managed with CSS classes and transitions. <strong>Function-style props + CSS-only format!</strong></p>
-      <accordion
-        title="What is DOM-native development?"
-        content="DOM-native development uses the browser's built-in state mechanisms (CSS classes, form values, data attributes) instead of JavaScript object state management. This results in simpler, more performant, and more accessible components."
-        initiallyOpen="false"
-      ></accordion>
-
-      <accordion
-        title="Benefits of this approach"
-        content="• Simpler API with fewer concepts<br>• Better performance (no JS state synchronization)<br>• More accessible by default<br>• Works great with HTMX<br>• Easier debugging (state visible in DOM inspector)"
-        initiallyOpen="true"
-      ></accordion>
-    </section>
-
-    <section style="margin-top: 2rem">
       <h2>📑 Tabs</h2>
       <p>Loads tab content via API (HTMX). <strong>Function-style props + CSS-only styling magic!</strong></p>
       <tabs tabs="Home,About,Settings,Contact" activeTab="Home"></tabs>
@@ -144,6 +128,13 @@
       <p>HTMX-powered server actions with function-style props. Toggle like and remove items.</p>
       <like-card id="101" title="First Item" liked="false"></like-card>
       <like-card id="102" title="Second Item" liked="true"></like-card>
+    </section>
+
+    <section style="margin-top: 2rem">
+      <h2>🛒 Cart Items</h2>
+      <p>Simple cart item with server-powered quantity updates and actions.</p>
+      <cart-item productId="123" name="Widget" quantity="2" price="19.99"></cart-item>
+      <cart-item productId="456" name="Gadget" quantity="1" price="29.99"></cart-item>
     </section>
 
     <section style="margin-top: 2rem; border: 2px solid #007bff; background: #f0f8ff">

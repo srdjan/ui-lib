@@ -150,11 +150,10 @@ defineComponent("smart-card", {
   }: { title: string; count: number; enabled: boolean }) => /* ... */
   ```
 
-### 🔢 Counter - CSS-Only Format Demo
+### 🔢 Counter - API Updates (JSON in, HTML out)
 
 ```tsx
-import { defineComponent, h, number } from "./src/index.ts";
-import { updateParentCounter, resetCounter } from "./examples/dom-actions.ts";
+import { defineComponent, h, number, patch, renderComponent } from "./src/index.ts";
 
 defineComponent("counter", {
   styles: {
@@ -164,32 +163,101 @@ defineComponent("counter", {
     counterButtonHover: `{ background: #0056b3; }`, // → .counter-button-hover
     display: `{ font-size: 1.5rem; min-width: 3rem; text-align: center; font-weight: bold; color: #007bff; }`
   },
-  render: ({
-    initialCount = number(0),
-    step = number(1)
-  }, api, classes) => (
+  render: ({ initialCount = number(0), step = number(1) }, api, classes) => (
     <div class={classes!.container} data-count={initialCount}>
-      <button
-        class={classes!.counterButton}
-        onclick={updateParentCounter(`.${classes!.container}`, `.${classes!.display}`, -step)}
-      >
+      <button class={classes!.counterButton} {...api.adjust({ current: initialCount, delta: -step, step }, { target: `closest .${classes!.container}` })}>
         -{step}
       </button>
       <span class={classes!.display}>{initialCount}</span>
-      <button
-        class={classes!.counterButton}
-        onclick={updateParentCounter(`.${classes!.container}`, `.${classes!.display}`, step)}
-      >
+      <button class={classes!.counterButton} {...api.adjust({ current: initialCount, delta: step, step }, { target: `closest .${classes!.container}` })}>
         +{step}
       </button>
-      <button
-        class={classes!.counterButton}
-        onclick={resetCounter(`.${classes!.display}`, initialCount, `.${classes!.container}`)}
-      >
+      <button class={classes!.counterButton} {...api.adjust({ value: 0, step }, { target: `closest .${classes!.container}` })}>
         Reset
       </button>
     </div>
   )
+});
+```
+
+### 🛒 Cart Item — Server Actions (JSON in, HTML out)
+
+```tsx
+import { defineComponent, h, string, number, patch, del, post, renderComponent } from "./src/index.ts";
+
+defineComponent("cart-item", {
+  api: {
+    updateQuantity: patch("/api/cart/:productId/quantity", async (req, params) => {
+      const body = await req.json() as { quantity?: number };
+      const newQuantity = Number(body.quantity ?? 0);
+      // Update cart in database/session …
+      return new Response(
+        renderComponent("cart-item", {
+          productId: params.productId,
+          name: "Product", // ← load from DB
+          quantity: newQuantity,
+          price: 19.99,     // ← load from DB
+        }),
+        { headers: { "content-type": "text/html; charset=utf-8" } },
+      );
+    }),
+    remove: del("/api/cart/:productId", async () => new Response("", { status: 200 })),
+    favorite: post("/api/cart/:productId/favorite", async (req, params) => new Response(
+      renderComponent("cart-item", { productId: params.productId, name: "Product", quantity: 1, price: 19.99 }),
+      { headers: { "content-type": "text/html; charset=utf-8" } },
+    )),
+  },
+  render: ({ productId = string("1"), name = string("Product"), quantity = number(1), price = number(0) }, api) => (
+    <div class="cart-item" data-product-id={productId}>
+      <h3>{name}</h3>
+      <div class="quantity-controls">
+        <input type="number" name="quantity" value={quantity} hx-trigger="change" {...api.updateQuantity(productId, {}, { target: "closest .cart-item" })} />
+      </div>
+      <div class="price">${price}</div>
+      <div class="actions">
+        <button {...api.favorite(productId)}>❤️ Favorite</button>
+        <button {...api.remove(productId)}>🗑️ Remove</button>
+      </div>
+    </div>
+  ),
+});
+```
+
+### 📑 Tabs — API-loaded Content
+
+```tsx
+import { defineComponent, h, string, get, escape } from "./src/index.ts";
+
+defineComponent("tabs", {
+  api: {
+    load: get("/api/tabs/:tab", (_req, params) => {
+      const safe = escape(params.tab ?? "Home");
+      const html = `<div><h3>${safe} Content</h3><p>This is the content for the ${safe} tab.</p></div>`;
+      return new Response(html, { headers: { "content-type": "text/html; charset=utf-8" } });
+    }),
+  },
+  styles: { /* … */ },
+  render: ({ tabs = string("Home,About,Settings"), activeTab = string("Home") }, api, classes) => {
+    const tabList = tabs.split(",").map(t => t.trim());
+    const active = activeTab || tabList[0];
+    return (
+      <div class={classes!.container}>
+        <div class={classes!.nav}>
+          {tabList.map((tab) => (
+            <button
+              class={`${classes!.button} ${tab === active ? classes!.buttonActive : ""}`}
+              hx-on:click={`const C=this.closest('.${classes!.container}');if(!C)return;C.querySelectorAll('.${classes!.button}').forEach(b=>b.classList.remove('${classes!.buttonActive}'));this.classList.add('${classes!.buttonActive}');`}
+              {...api.load(tab, { target: `closest .${classes!.content}`, swap: "innerHTML" })}
+            >{tab}</button>
+          ))}
+        </div>
+        <div class={classes!.content}>
+          <h3>{active} Content</h3>
+          <p>This is the content for the {active} tab.</p>
+        </div>
+      </div>
+    );
+  }
 });
 ```
 
@@ -198,24 +266,23 @@ defineComponent("counter", {
 - Display synced with element `.textContent`
 - No JavaScript variables to manage!
 
-### ✅ Todo Item - HTMX + Function-Style Props
+### ✅ Todo Item - HTMX + Function-Style Props (JSON in, HTML out)
 
 ```tsx
-import { defineComponent, h, string, boolean } from "./src/index.ts";
-import { patch, del } from "./src/index.ts";
-import { syncCheckboxToClass } from "./examples/dom-actions.ts";
+import { defineComponent, h, string, boolean, patch, del, renderComponent } from "./src/index.ts";
 
 defineComponent("todo-item", {
   api: {
     toggle: patch("/api/todos/:id/toggle", async (req, params) => {
-      const form = await req.formData();
-      const isDone = form.get("done") === "true";
+      const body = await req.json() as { done?: boolean };
+      const isDone = !!body.done;
       return new Response(
         renderComponent("todo-item", {
           id: params.id,
           text: "Task updated!",
           done: !isDone,
-        })
+        }),
+        { headers: { "content-type": "text/html; charset=utf-8" } },
       );
     }),
     remove: del("/api/todos/:id", () => new Response(null, { status: 200 }))
@@ -229,11 +296,7 @@ defineComponent("todo-item", {
     textDone: `{ text-decoration: line-through; color: #6c757d; }`,
     deleteBtn: `{ background: #dc3545; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; line-height: 1; }`
   },
-  render: ({
-    id = string("1"),
-    text = string("Todo item"),
-    done = boolean(false)
-  }, api, classes) => {
+  render: ({ id = string("1"), text = string("Todo item"), done = boolean(false) }, api, classes) => {
     const itemClass = `${classes!.item} ${done ? classes!.itemDone : ""}`;
     const textClass = `${classes!.text} ${done ? classes!.textDone : ""}`;
     
@@ -243,9 +306,8 @@ defineComponent("todo-item", {
           type="checkbox"
           class={classes!.checkbox}
           checked={done}
-          onChange={syncCheckboxToClass(classes!.itemDone)}
-          {...api.toggle(id)}
-        />
+          {...api.toggle(id, { done: !done })}
+          />
         <span class={textClass}>{text}</span>
         <button type="button" class={classes!.deleteBtn} {...api.remove(id)}>×</button>
       </div>

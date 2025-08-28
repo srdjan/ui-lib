@@ -25,7 +25,7 @@ defineComponent("unified-card", {
   render: ({
     title = string("Unified Styles"),
     highlighted = boolean(false),
-  }: any, _api: undefined, c?: Record<string, string>) => (
+    }, _api: undefined, c?: Record<string, string>) => (
     <div class={`${c!.card} ${highlighted ? c!.highlight : ""}`}>
       <h3 class={c!.title}>{title}</h3>
       <div class={c!.content}>
@@ -77,6 +77,8 @@ defineComponent("counter", {
     display: `{ font-size: 1.5rem; min-width: 3rem; text-align: center; font-weight: bold; color: #007bff; }`
   },
   api: {
+    // JSON in, HTML out: request body is JSON (via json-enc), response is HTML swapped by htmx
+    // The API generator also injects default hx-headers (Accept, X-Requested-With)
     adjust: patch("/api/counter/adjust", async (req) => {
       const body = await req.json() as { current?: number; delta?: number; value?: number; step?: number };
       const next = typeof body.value === "number" ? body.value : (Number(body.current || 0) + Number(body.delta || 0));
@@ -92,6 +94,7 @@ defineComponent("counter", {
       <button
         type="button"
         class={c!.counterButton}
+        // Sends JSON payload and swaps outerHTML on the closest counter container
         {...api.adjust({ current: initialCount, delta: -step, step }, { target: `closest .${c!.container}` })}
       >
         -{step}
@@ -100,6 +103,7 @@ defineComponent("counter", {
       <button
         type="button"
         class={c!.counterButton}
+        // Sends JSON payload and swaps outerHTML on the closest counter container
         {...api.adjust({ current: initialCount, delta: step, step }, { target: `closest .${c!.container}` })}
       >
         +{step}
@@ -107,6 +111,7 @@ defineComponent("counter", {
       <button
         type="button"
         class={c!.counterButton}
+        // Resets to 0 using JSON body; swaps outerHTML on the closest counter container
         {...api.adjust({ value: 0, step }, { target: `closest .${c!.container}` })}
       >
         Reset
@@ -118,6 +123,7 @@ defineComponent("counter", {
 // Todo Item - HTMX Integration + Function-style props!
 defineComponent("todo-item", {
   api: {
+    // JSON in, HTML out: request body is JSON; response is HTML that replaces the item
     toggle: patch("/api/todos/:id/toggle", async (req, params) => {
       const body = await req.json() as { done?: boolean };
       const isDone = !!body.done;
@@ -203,9 +209,12 @@ defineComponent("tabs", {
     panel: `{ display: none; }`,
     panelActive: `{ display: block; }` // → .panel-active
   },
-  render: ({ tabs = string("Home,About,Settings"), activeTab = string("Home") }, api: GeneratedApiMap, c?: Record<string, string>) => {
-    const tabList = tabs.split(",").map((t: string) => t.trim());
-    const active = activeTab || tabList[0];
+  render: ({ 
+            tabs = string("Home,About,Settings"), 
+            activeTab = string("Home") 
+          }, api: GeneratedApiMap, c?: Record<string, string>) => {
+    const tabList = String(tabs).split(",").map((t: string) => t.trim());
+    const active = String(activeTab) || tabList[0];
 
     const initial = (
       <div>
@@ -232,6 +241,7 @@ defineComponent("tabs", {
               type="button"
               class={`${c!.button} ${tab === active ? c!.buttonActive : ""}`}
               hx-on:click={`const C=this.closest('.${c!.container}');if(!C)return;C.querySelectorAll('.${c!.button}').forEach(b=>b.classList.remove('${c!.buttonActive}'));this.classList.add('${c!.buttonActive}');`}
+              // Loads HTML for the given tab via GET; injects into content container
               {...(api as GeneratedApiMap).load(tab, { target: `closest .${c!.content}`, swap: "innerHTML" })}
             >
               {tab}
