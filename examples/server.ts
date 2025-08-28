@@ -81,8 +81,7 @@ Deno.serve({
               const props = parseAttributes(attrString.trim());
               return renderComponent(tagName, props);
             },
-          )
-        );
+          ));
 
         return new Response(rendered, {
           headers: { "content-type": "text/html; charset=utf-8" },

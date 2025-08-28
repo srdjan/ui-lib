@@ -1,5 +1,13 @@
 // Parser for extracting prop helpers from render function parameters
-import { type PropHelper, isPropHelper, string, number, boolean, array, object } from "./prop-helpers.ts";
+import {
+  array,
+  boolean,
+  isPropHelper,
+  number,
+  object,
+  type PropHelper,
+  string,
+} from "./prop-helpers.ts";
 
 export interface ParsedRenderParameters {
   propHelpers: Record<string, PropHelper>;
@@ -8,28 +16,32 @@ export interface ParsedRenderParameters {
 
 /**
  * Parses render function parameters to extract prop helper calls
- * 
+ *
  * Supports destructured parameters like:
  * ({ name = string("default"), age = number(0) }, api, classes) => { ... }
  */
 type StringifiableFunction = { toString(): string };
 
-export function parseRenderParameters(renderFunction: StringifiableFunction): ParsedRenderParameters {
+export function parseRenderParameters(
+  renderFunction: StringifiableFunction,
+): ParsedRenderParameters {
   const funcStr = renderFunction.toString();
-  
+
   // Extract the parameter list from the function string
-  const paramMatch = funcStr.match(/^\s*(?:async\s+)?(?:\w+\s*=>|\(([^)]*)\)\s*=>|function[^(]*\(([^)]*)\))/);
+  const paramMatch = funcStr.match(
+    /^\s*(?:async\s+)?(?:\w+\s*=>|\(([^)]*)\)\s*=>|function[^(]*\(([^)]*)\))/,
+  );
   if (!paramMatch) {
     return { propHelpers: {}, hasProps: false };
   }
-  
+
   // Get the first parameter (should be the props parameter)
-  const paramList = paramMatch[1] || paramMatch[2] || '';
-  const firstParam = paramList.split(',')[0]?.trim();
-  
+  const paramList = paramMatch[1] || paramMatch[2] || "";
+  const firstParam = paramList.split(",")[0]?.trim();
+
   if (firstParam) {
     // Case 1: Destructured parameter with defaults
-    if (firstParam.startsWith('{')) {
+    if (firstParam.startsWith("{")) {
       const destructuredMatch = firstParam.match(/^\{\s*([^}]*)\s*\}/);
       if (!destructuredMatch) return { propHelpers: {}, hasProps: false };
 
@@ -48,10 +60,10 @@ export function parseRenderParameters(renderFunction: StringifiableFunction): Pa
 
     // Case 2: Parameter with initializer to an object literal
     // e.g. `props: Props = { title: string(".."), count: number(0) }`
-    const eqIdx = firstParam.indexOf('=');
+    const eqIdx = firstParam.indexOf("=");
     if (eqIdx !== -1) {
       const initExpr = firstParam.slice(eqIdx + 1).trim();
-      if (initExpr.startsWith('{')) {
+      if (initExpr.startsWith("{")) {
         // Extract object literal content with balanced braces
         const content = extractBalancedBraces(initExpr);
         if (content) {
@@ -83,60 +95,62 @@ interface DestructuredProperty {
 function parseDestructuredProperties(content: string): DestructuredProperty[] {
   const properties: DestructuredProperty[] = [];
   const tokens = tokenizeDestructured(content);
-  
+
   let i = 0;
   while (i < tokens.length) {
     const token = tokens[i];
-    
-    if (token.type === 'identifier') {
+
+    if (token.type === "identifier") {
       const prop: DestructuredProperty = { name: token.value };
-      
+
       // Check if next token is '='
-      if (i + 1 < tokens.length && tokens[i + 1].value === '=') {
+      if (i + 1 < tokens.length && tokens[i + 1].value === "=") {
         // Skip the '=' token
         i += 2;
-        
+
         // Collect tokens until comma or end
         const defaultTokens: string[] = [];
         let parenLevel = 0;
-        
+
         while (i < tokens.length) {
           const t = tokens[i];
-          if (t.value === ',' && parenLevel === 0) {
+          if (t.value === "," && parenLevel === 0) {
             break;
           }
-          if (t.value === '(') parenLevel++;
-          if (t.value === ')') parenLevel--;
-          
+          if (t.value === "(") parenLevel++;
+          if (t.value === ")") parenLevel--;
+
           defaultTokens.push(t.value);
           i++;
         }
-        
-        prop.defaultExpression = defaultTokens.join('').trim();
+
+        prop.defaultExpression = defaultTokens.join("").trim();
       }
-      
+
       properties.push(prop);
     }
-    
+
     i++;
   }
-  
+
   return properties;
 }
 
 interface Token {
-  type: 'identifier' | 'operator' | 'literal' | 'punctuation';
+  type: "identifier" | "operator" | "literal" | "punctuation";
   value: string;
 }
 
 // Extracts the inner content of a balanced brace object literal at the start of the string
-function extractBalancedBraces(source: string): { inner: string; endIndex: number } | null {
-  if (!source.startsWith('{')) return null;
+function extractBalancedBraces(
+  source: string,
+): { inner: string; endIndex: number } | null {
+  if (!source.startsWith("{")) return null;
   let depth = 0;
   for (let i = 0; i < source.length; i++) {
     const ch = source[i];
-    if (ch === '{') depth++;
-    else if (ch === '}') {
+    if (ch === "{") depth++;
+    else if (ch === "}") {
       depth--;
       if (depth === 0) {
         const inner = source.slice(1, i);
@@ -148,31 +162,33 @@ function extractBalancedBraces(source: string): { inner: string; endIndex: numbe
 }
 
 // Parse object literal properties of the form: key: helperCall(...)
-function parseObjectLiteralHelperProperties(content: string): Array<{ name: string; expr: string }> {
+function parseObjectLiteralHelperProperties(
+  content: string,
+): Array<{ name: string; expr: string }> {
   const tokens = tokenizeDestructured(content);
   const props: Array<{ name: string; expr: string }> = [];
   let i = 0;
   while (i < tokens.length) {
     const t = tokens[i];
-    if (t.type === 'identifier') {
+    if (t.type === "identifier") {
       const name = t.value;
       // Expect ':'
       let j = i + 1;
-      while (j < tokens.length && tokens[j].value.trim() === '') j++;
-      if (j < tokens.length && tokens[j].value === ':') {
+      while (j < tokens.length && tokens[j].value.trim() === "") j++;
+      if (j < tokens.length && tokens[j].value === ":") {
         j++;
         // Collect until top-level comma
         const exprTokens: string[] = [];
         let paren = 0;
         while (j < tokens.length) {
           const v = tokens[j].value;
-          if (v === '(') paren++;
-          if (v === ')') paren--;
-          if (v === ',' && paren === 0) break;
+          if (v === "(") paren++;
+          if (v === ")") paren--;
+          if (v === "," && paren === 0) break;
           exprTokens.push(v);
           j++;
         }
-        const expr = exprTokens.join('').trim();
+        const expr = exprTokens.join("").trim();
         if (expr) props.push({ name, expr });
         i = j;
       }
@@ -188,24 +204,24 @@ function parseObjectLiteralHelperProperties(content: string): Array<{ name: stri
 function tokenizeDestructured(content: string): Token[] {
   const tokens: Token[] = [];
   let i = 0;
-  
+
   while (i < content.length) {
     const char = content[i];
-    
+
     // Skip whitespace
     if (/\s/.test(char)) {
       i++;
       continue;
     }
-    
+
     // Handle string literals
-    if (char === '"' || char === "'" || char === '`') {
+    if (char === '"' || char === "'" || char === "`") {
       const quote = char;
       let value = char;
       i++;
-      
+
       while (i < content.length && content[i] !== quote) {
-        if (content[i] === '\\' && i + 1 < content.length) {
+        if (content[i] === "\\" && i + 1 < content.length) {
           value += content[i] + content[i + 1];
           i += 2;
         } else {
@@ -213,46 +229,46 @@ function tokenizeDestructured(content: string): Token[] {
           i++;
         }
       }
-      
+
       if (i < content.length) {
         value += content[i];
         i++;
       }
-      
-      tokens.push({ type: 'literal', value });
+
+      tokens.push({ type: "literal", value });
       continue;
     }
-    
+
     // Handle identifiers
     if (/[a-zA-Z_$]/.test(char)) {
-      let value = '';
+      let value = "";
       while (i < content.length && /[a-zA-Z0-9_$]/.test(content[i])) {
         value += content[i];
         i++;
       }
-      tokens.push({ type: 'identifier', value });
+      tokens.push({ type: "identifier", value });
       continue;
     }
-    
+
     // Handle numbers
     if (/[0-9]/.test(char)) {
-      let value = '';
+      let value = "";
       while (i < content.length && /[0-9.]/.test(content[i])) {
         value += content[i];
         i++;
       }
-      tokens.push({ type: 'literal', value });
+      tokens.push({ type: "literal", value });
       continue;
     }
-    
+
     // Handle punctuation and operators
-    tokens.push({ 
-      type: /[=,()]/.test(char) ? 'punctuation' : 'operator', 
-      value: char 
+    tokens.push({
+      type: /[=,()]/.test(char) ? "punctuation" : "operator",
+      value: char,
     });
     i++;
   }
-  
+
   return tokens;
 }
 
@@ -264,44 +280,50 @@ function evaluateHelperExpression(expression: string): PropHelper | null {
     // Create a safe evaluation context with only our helper functions
     const context = {
       string,
-      number, 
+      number,
       boolean,
       array,
-      object
+      object,
     };
-    
+
     // Simple pattern matching for helper calls
-    const helperMatch = expression.match(/^(string|number|boolean|array|object)\s*\(\s*(.*?)\s*\)$/);
+    const helperMatch = expression.match(
+      /^(string|number|boolean|array|object)\s*\(\s*(.*?)\s*\)$/,
+    );
     if (!helperMatch) {
       return null;
     }
-    
+
     const [, helperName, argsStr] = helperMatch;
     type AnyHelper = (arg?: unknown) => PropHelper;
-    const helperFn = context[helperName as keyof typeof context] as unknown as AnyHelper;
-    
+    const helperFn =
+      context[helperName as keyof typeof context] as unknown as AnyHelper;
+
     if (!helperFn) {
       return null;
     }
-    
+
     // Parse arguments safely
     let args: unknown[] = [];
     if (argsStr.trim()) {
       // For now, handle simple cases: string literals, numbers, booleans
-      if (argsStr.startsWith('"') || argsStr.startsWith("'") || argsStr.startsWith('`')) {
+      if (
+        argsStr.startsWith('"') || argsStr.startsWith("'") ||
+        argsStr.startsWith("`")
+      ) {
         // String literal
         args = [JSON.parse(argsStr.replace(/`/g, '"'))];
       } else if (/^-?\d+(\.\d+)?$/.test(argsStr)) {
         // Number literal
         args = [Number(argsStr)];
-      } else if (argsStr === 'true' || argsStr === 'false') {
+      } else if (argsStr === "true" || argsStr === "false") {
         // Boolean literal
-        args = [argsStr === 'true'];
-      } else if (argsStr === 'null') {
+        args = [argsStr === "true"];
+      } else if (argsStr === "null") {
         args = [null];
-      } else if (argsStr === 'undefined' || argsStr === '') {
+      } else if (argsStr === "undefined" || argsStr === "") {
         args = [];
-      } else if (argsStr.startsWith('[') || argsStr.startsWith('{')) {
+      } else if (argsStr.startsWith("[") || argsStr.startsWith("{")) {
         // JSON literal
         try {
           args = [JSON.parse(argsStr)];
@@ -310,9 +332,9 @@ function evaluateHelperExpression(expression: string): PropHelper | null {
         }
       }
     }
-    
+
     const result = args.length > 0 ? helperFn(args[0]) : helperFn();
-    
+
     return isPropHelper(result) ? result : null;
   } catch (error) {
     console.warn(`Failed to evaluate helper expression: ${expression}`, error);

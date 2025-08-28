@@ -6,7 +6,10 @@ import { currentRequestHeaders } from "./request-headers.ts";
 // Type-safe tuple format: functionName -> [method, path, handler]
 export type ApiDefinition = readonly [string, string, RouteHandler]; // [method, path, handler]
 export type ApiMap = Record<string, ApiDefinition>;
-export type GeneratedApiMap = Record<string, (...args: unknown[]) => Record<string, string>>;
+export type GeneratedApiMap = Record<
+  string,
+  (...args: unknown[]) => Record<string, string>
+>;
 
 /**
  * Auto-generates client attribute functions from type-safe API definitions

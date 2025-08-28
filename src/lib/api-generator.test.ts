@@ -48,7 +48,7 @@ Deno.test("generateClientApi handles edge cases", () => {
     update: put("/api/users/:id", () => new Response("updated")),
     invalid: "not a tuple", // Invalid format
     root: get("/api", () => new Response("root")),
-  // deno-lint-ignore no-explicit-any -- allow invalid entry shape for negative test
+    // deno-lint-ignore no-explicit-any -- allow invalid entry shape for negative test
   } as any; // Type assertion to allow invalid entry for testing
 
   const clientApi = generateClientApi(apiMap);

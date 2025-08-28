@@ -13,7 +13,15 @@ Instead of writing server routes in one place and HTMX attributes in another,
 you define everything together:
 
 ```tsx
-import { defineComponent, h, string, boolean, patch, del, renderComponent } from "../src/index.ts";
+import {
+  boolean,
+  defineComponent,
+  del,
+  h,
+  patch,
+  renderComponent,
+  string,
+} from "../src/index.ts";
 
 defineComponent("todo-item", {
   // ✨ Function-style props - no duplication!
@@ -44,17 +52,22 @@ defineComponent("todo-item", {
     }),
   },
 
-  render: ({ 
-    id = string("1"),
-    text = string("Todo item"), 
-    done = boolean(false) 
-  }, api, classes) => (
+  render: (
+    {
+      id = string("1"),
+      text = string("Todo item"),
+      done = boolean(false),
+    },
+    api,
+    classes,
+  ) => (
     <div class="todo" data-id={id}>
       <input
         type="checkbox"
         checked={done}
         {...api.toggle(id)}
-      /> {/* ← Magic happens here! */}
+      />{" "}
+      {/* ← Magic happens here! */}
       <span>{text}</span>
       <button {...api.remove(id)}>Delete</button>
     </div>
@@ -66,16 +79,17 @@ defineComponent("todo-item", {
 
 funcwc analyzes your routes and creates client functions automatically:
 
-| Server Route Definition       | Generated Function | What It Returns                                                                           |
-| ----------------------------- | ------------------ | ----------------------------------------------------------------------------------------- |
+| Server Route Definition                   | Generated Function | What It Returns                                                                           |
+| ----------------------------------------- | ------------------ | ----------------------------------------------------------------------------------------- |
 | `patch("/api/todos/:id/toggle", handler)` | `api.toggle(id)`   | `{ "hx-patch": "/api/todos/123/toggle", "hx-target": "closest .todo" }`                   |
-| `del("/api/todos/:id", handler)` | `api.remove(id)`   | `{ "hx-delete": "/api/todos/123", "hx-target": "closest .todo", "hx-swap": "outerHTML" }` |
+| `del("/api/todos/:id", handler)`          | `api.remove(id)`   | `{ "hx-delete": "/api/todos/123", "hx-target": "closest .todo", "hx-swap": "outerHTML" }` |
 | `post("/api/todos", handler)`             | `api.create()`     | `{ "hx-post": "/api/todos" }`                                                             |
 | `get("/api/todos/:id", handler)`          | `api.get(id)`      | `{ "hx-get": "/api/todos/123" }`                                                          |
 
 ### 3. **Route-to-Function Mapping Logic**
 
-The function names are intelligently generated based on the key you use in the `api` object:
+The function names are intelligently generated based on the key you use in the
+`api` object:
 
 ```tsx
 // API key → Generated function name
@@ -92,28 +106,40 @@ api: {
 ## Real-World Example: Shopping Cart
 
 ```tsx
-import { defineComponent, h, string, number, patch, del, post, renderComponent } from "../src/index.ts";
+import {
+  defineComponent,
+  del,
+  h,
+  number,
+  patch,
+  post,
+  renderComponent,
+  string,
+} from "../src/index.ts";
 
 defineComponent("cart-item", {
   api: {
     // Server handlers - these actually run on the server
-    updateQuantity: patch("/api/cart/:productId/quantity", async (req, params) => {
-      const form = await req.formData();
-      const newQuantity = parseInt(form.get("quantity") as string);
+    updateQuantity: patch(
+      "/api/cart/:productId/quantity",
+      async (req, params) => {
+        const form = await req.formData();
+        const newQuantity = parseInt(form.get("quantity") as string);
 
-      // Update cart in database/session
-      await updateCartQuantity(params.productId, newQuantity);
+        // Update cart in database/session
+        await updateCartQuantity(params.productId, newQuantity);
 
-      // Return updated component
-      return new Response(
-        renderComponent("cart-item", {
-          productId: params.productId,
-          name: await getProductName(params.productId),
-          quantity: newQuantity,
-          price: await getProductPrice(params.productId),
-        }),
-      );
-    }),
+        // Return updated component
+        return new Response(
+          renderComponent("cart-item", {
+            productId: params.productId,
+            name: await getProductName(params.productId),
+            quantity: newQuantity,
+            price: await getProductPrice(params.productId),
+          }),
+        );
+      },
+    ),
 
     remove: del("/api/cart/:productId", async (req, params) => {
       await removeFromCart(params.productId);
@@ -131,11 +157,11 @@ defineComponent("cart-item", {
     }),
   },
 
-  render: ({ 
+  render: ({
     productId = string("1"),
     name = string("Product"),
     quantity = number(1),
-    price = number(0)
+    price = number(0),
   }, api) => (
     <div class="cart-item" data-product-id={productId}>
       <h3>{name}</h3>
@@ -145,7 +171,8 @@ defineComponent("cart-item", {
           name="quantity"
           value={quantity}
           {...api.updateQuantity(productId)}
-        /> {/* ← PATCH /api/cart/:id/quantity */}
+        />{" "}
+        {/* ← PATCH /api/cart/:id/quantity */}
       </div>
       <div class="price">${price}</div>
       <div class="actions">
@@ -194,73 +221,23 @@ defineComponent("cart-item", {
 </div>
 ```
 
-## Traditional Approach vs funcwc's Unified API
-
-### ❌ **Traditional Approach (Duplication):**
-
-**Server routes (separate file):**
-
-```tsx
-// routes/todos.ts
-app.patch("/api/todos/:id/toggle", async (req, res) => {
-  // Handle toggle logic...
-});
-
-app.delete("/api/todos/:id", async (req, res) => {
-  // Handle delete logic...
-});
-```
-
-**Client HTMX attributes (separate, manually written):**
-
-```html
-<!-- You have to manually write these attributes -->
-<input
-  type="checkbox"
-  hx-patch="/api/todos/123/toggle"
-  <!--
-  Manual
-  duplication
-  --
->
-hx-target="closest .todo" hx-include="closest .todo" />
-<button
-  hx-delete="/api/todos/123"
-  <!--
-  Manual
-  duplication
-  --
->
-  hx-target="closest .todo" hx-swap="outerHTML" >Delete
-</button>
-```
-
-### ✅ **funcwc's Unified Approach (No Duplication):**
-
-```tsx
-import { defineComponent, h, string, patch, del } from "../src/index.ts";
-
-defineComponent("todo-item", {
-  api: {
-    // Single source of truth - defines both server logic AND client attributes
-    toggle: patch("/api/todos/:id/toggle", async (req, params) => { /* logic */ }),
-    remove: del("/api/todos/:id", async (req, params) => { /* logic */ })
-  },
-  render: ({ id = string("1") }, api) => (
-    <div>
-      <input {...api.toggle(id)} />  {/* Auto-generated */}
-      <button {...api.remove(id)}>Delete</button>
-    </div>
-  )
-})
-```
+<!-- Comparison with traditional approaches removed to focus on current usage. -->
 
 ## Advanced Examples
 
 ### Multi-Action Component
 
 ```tsx
-import { defineComponent, h, string, boolean, post, del, put, renderComponent } from "../src/index.ts";
+import {
+  boolean,
+  defineComponent,
+  del,
+  h,
+  post,
+  put,
+  renderComponent,
+  string,
+} from "../src/index.ts";
 
 defineComponent("user-profile", {
   api: {
@@ -317,11 +294,11 @@ defineComponent("user-profile", {
     }),
   },
 
-  render: ({ 
+  render: ({
     userId = string("1"),
     name = string("User"),
     isFollowing = boolean(false),
-    isBlocked = boolean(false)
+    isBlocked = boolean(false),
   }, api) => (
     <div class="user-profile">
       <h3>{name}</h3>
@@ -358,7 +335,15 @@ defineComponent("user-profile", {
 ### Batch Operations
 
 ```tsx
-import { defineComponent, h, string, number, post, del, renderComponent } from "../src/index.ts";
+import {
+  defineComponent,
+  del,
+  h,
+  number,
+  post,
+  renderComponent,
+  string,
+} from "../src/index.ts";
 
 defineComponent("task-list", {
   api: {
@@ -391,9 +376,9 @@ defineComponent("task-list", {
     }),
   },
 
-  render: ({ 
+  render: ({
     tasks = string("[]"), // JSON string of tasks
-    selectedCount = number(0)
+    selectedCount = number(0),
   }, api) => {
     const taskList = JSON.parse(tasks);
 
@@ -538,10 +523,10 @@ remove: del("/api/items/:id", async (req, params) => {
   } catch (error) {
     return new Response(
       `<div class="error">Failed to delete: ${error.message}</div>`,
-      { status: 400 }
+      { status: 400 },
     );
   }
-})
+});
 ```
 
 ### 4. **Use Path Parameters for Actions**
@@ -559,20 +544,29 @@ api: {
 This system makes funcwc incredibly productive for building HTMX-powered
 applications while maintaining the benefits of server-side rendering and
 DOM-native state management!
+
 ## TypeScript Typing Tip
 
-When using function‑style props (defaults written with `string()`, `number()`, `boolean()`, etc.) the library introspects those defaults to auto‑generate the props transformer. TypeScript doesn’t know that at type level, so add inline casts and annotate the param to keep strong types inside your render while preserving auto‑generation.
+When using function‑style props (defaults written with `string()`, `number()`,
+`boolean()`, etc.) the library introspects those defaults to auto‑generate the
+props transformer. TypeScript doesn’t know that at type level, so add inline
+casts and annotate the param to keep strong types inside your render while
+preserving auto‑generation.
 
 Example:
 
 ```tsx
 defineComponent("typed-example", {
   styles: { box: `{ padding: .5rem; }` },
-  render: ({
-    title = string("Hello") as unknown as string,
-    count = number(0) as unknown as number,
-    enabled = boolean(false) as unknown as boolean,
-  }: { title: string; count: number; enabled: boolean }, _api, classes) => (
+  render: (
+    {
+      title = string("Hello") as unknown as string,
+      count = number(0) as unknown as number,
+      enabled = boolean(false) as unknown as boolean,
+    }: { title: string; count: number; enabled: boolean },
+    _api,
+    classes,
+  ) => (
     <div class={classes!.box}>
       <h3>{title}</h3>
       <span>{count}</span>
@@ -586,15 +580,20 @@ See also: AUTHORING.md → “Typing function‑style props in TypeScript”.
 
 ## JSON-in, HTML-out (standard)
 
-funcwc standardizes on JSON requests for all htmx interactions, while responses are server-rendered HTML for swapping. The Unified API helpers:
+funcwc standardizes on JSON requests for all htmx interactions, while responses
+are server-rendered HTML for swapping. The Unified API helpers:
+
 - include `hx-ext="json-enc"` and `hx-encoding="json"`
-- set `hx-headers` with `Accept: text/html; charset=utf-8` and `X-Requested-With: XMLHttpRequest`
+- set `hx-headers` with `Accept: text/html; charset=utf-8` and
+  `X-Requested-With: XMLHttpRequest`
 - accept a payload object that becomes the JSON body via `hx-vals`
 
 Client:
 
 ```tsx
-<button {...api.toggleLike(id, { liked: !liked, note: "from-card" })}>Like</button>
+<button {...api.toggleLike(id, { liked: !liked, note: "from-card" })}>
+  Like
+</button>;
 ```
 
 Server:
@@ -609,21 +608,32 @@ export const toggleLike = patch("/api/items/:id/like", async (req, params) => {
 });
 ```
 
-Per-request headers (e.g., CSRF) can be injected server-side and are merged by the API generator into `hx-headers`. You can also override per call:
+Per-request headers (e.g., CSRF) can be injected server-side and are merged by
+the API generator into `hx-headers`. You can also override per call:
 
 ```tsx
-<button {...api.toggleLike(id, { liked: true }, { headers: { "X-CSRF-Token": token }, target: "closest .card" })}>Like</button>
+<button
+  {...api.toggleLike(id, { liked: true }, {
+    headers: { "X-CSRF-Token": token },
+    target: "closest .card",
+  })}
+>
+  Like
+</button>;
 ```
 
 ## Utilities
 
-- `UnwrapHelpers<T>`: Maps a record of `PropHelper<*>` to its unwrapped primitive types. Useful for strongly typed render props when using helper defaults.
-- `PropsOf<T extends Record<string, PropHelper<any>>>`: Alias for `UnwrapHelpers<T>` when you keep your defaults in a constant object.
+- `UnwrapHelpers<T>`: Maps a record of `PropHelper<*>` to its unwrapped
+  primitive types. Useful for strongly typed render props when using helper
+  defaults.
+- `PropsOf<T extends Record<string, PropHelper<any>>>`: Alias for
+  `UnwrapHelpers<T>` when you keep your defaults in a constant object.
 
 Example:
 
 ```ts
-import { string, number, boolean } from "../src/index.ts";
+import { boolean, number, string } from "../src/index.ts";
 import type { PropsOf } from "../src/index.ts";
 
 const defaults = {
@@ -632,11 +642,12 @@ const defaults = {
   enabled: boolean(false),
 } satisfies Record<string, import("../src/index.ts").PropHelper<any>>;
 
-render: (
-  props: PropsOf<typeof defaults> = (defaults as unknown as PropsOf<typeof defaults>),
+render: ((
+  props: PropsOf<typeof defaults> =
+    (defaults as unknown as PropsOf<typeof defaults>),
   api,
   classes,
 ) => {
   // props.title: string; props.count: number; props.enabled: boolean
-}
+});
 ```

@@ -16,4 +16,3 @@ export function runWithRequestHeaders<T>(headers: HeaderMap, fn: () => T): T {
 export function currentRequestHeaders(): HeaderMap {
   return headerStack[headerStack.length - 1] ?? {};
 }
-

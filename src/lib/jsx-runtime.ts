@@ -54,7 +54,7 @@ export function h(
   let dangerousInnerHTML = "";
   for (const [key, value] of Object.entries(props)) {
     if (key === "children" || value == null || value === false) continue;
-    
+
     if (key === "dangerouslySetInnerHTML" && isDangerousInnerHTML(value)) {
       dangerousInnerHTML = String(value.__html);
       continue;
@@ -94,7 +94,7 @@ export function h(
   if (dangerousInnerHTML) {
     return `${openTag}${dangerousInnerHTML}</${tag}>`;
   }
-  
+
   const flattenedChildren = children.flat(Infinity);
   const childrenHtml = flattenedChildren
     .map((child) => {

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="ut8" />
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>funcwc - DOM-Native SSR Components</title>
     <style>
@@ -50,44 +50,21 @@
       integration, and DOM-as-state architecture. Zero client-side dependencies!
     </p>
 
-    <div style="padding: 0.75rem 1rem; border: 1px solid #e2e8f0; background: #f8fafc; border-radius: 8px; margin-bottom: 1.25rem; color: #334155;">
-      <strong>Note:</strong> All HTMX requests are JSON; responses are server-rendered HTML and swapped in place.
+    <div
+      style="padding: 0.75rem 1rem; border: 1px solid #e2e8f0; background: #f8fafc; border-radius: 8px; margin-bottom: 1.25rem; color: #334155"
+    >
+      <strong>Note:</strong> All HTMX requests are JSON; responses are
+      server-rendered HTML and swapped in place.
     </div>
 
-    <section style="border: 3px solid #007bff; background: #f8f9ff">
-      <h2>🎉 NEW: Ultra-Simplified CSS-Only Format!</h2>
-      <p style="color: #0056b3; font-weight: 500">
-        Just write CSS properties - class names auto-generated! No selectors, no duplication, pure magic! ✨
+    <section style="border: 1px solid #e2e8f0; background: #f8fafc">
+      <h2>🎨 Unified Styles</h2>
+      <p style="color: #334155">
+        Write CSS properties inline; class names are auto-generated. No
+        selectors, no duplication.
       </p>
-      <unified-card title="Amazing!" highlighted></unified-card>
-      <unified-card title="Traditional Approach" ></unified-card>
-      
-      <details style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 6px;">
-        <summary style="font-weight: 500; cursor: pointer; color: #007bff;">
-          💫 See The Magic: CSS-Only vs Old Way
-        </summary>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
-          <div>
-            <h4 style="color: #28a745; margin: 0 0 0.5rem 0">✨ New CSS-Only Format</h4>
-            <pre style="background: #f8fff9; padding: 1rem; border-radius: 4px; font-size: 0.8rem; margin: 0;"><code>styles: {
-  card: \`{ border: 2px solid #ddd; }\`,
-  title: \`{ font-size: 1.2rem; }\`,
-  buttonPrimary: \`{ background: blue; }\`
-}
-// Auto-generates:
-// .card, .title, .button-primary</code></pre>
-          </div>
-          <div>
-            <h4 style="color: #dc3545; margin: 0 0 0.5rem 0">🔄 Old Unified Format</h4>
-            <pre style="background: #fff5f5; padding: 1rem; border-radius: 4px; font-size: 0.8rem; margin: 0;"><code>styles: {
-  card: \`.card { border: 2px solid #ddd; }\`,
-  title: \`.title { font-size: 1.2rem; }\`,
-  btn: \`.button-primary { background: blue; }\`
-}
-// Still works but more verbose</code></pre>
-          </div>
-        </div>
-      </details>
+      <unified-card title="Unified Styles" highlighted></unified-card>
+      <unified-card title="Simple Card"></unified-card>
     </section>
 
     <section>
@@ -98,13 +75,19 @@
 
     <section style="margin-top: 2rem">
       <h2>🔢 Counter</h2>
-      <p>Server-powered updates via HTMX (JSON in, HTML out). <strong>Function-style props + CSS-only format!</strong></p>
+      <p>
+        Server-powered updates via HTMX (JSON in, HTML out). <strong
+        >Function-style props + CSS-only format!</strong>
+      </p>
       <counter step="3" initialCount="5"></counter>
     </section>
 
     <section style="margin-top: 2rem">
       <h2>✅ Todo Item</h2>
-      <p>Local UI state (checkbox) + Server persistence via HTMX. <strong>Function-style props + CSS-only format + API integration!</strong></p>
+      <p>
+        Local UI state (checkbox) + Server persistence via HTMX. <strong
+        >Function-style props + CSS-only format + API integration!</strong>
+      </p>
       <todo-item
         id="1"
         text="Learn DOM-native development"
@@ -119,13 +102,19 @@
 
     <section style="margin-top: 2rem">
       <h2>📑 Tabs</h2>
-      <p>Loads tab content via API (HTMX). <strong>Function-style props + CSS-only styling magic!</strong></p>
+      <p>
+        Loads tab content via API (HTMX). <strong>Function-style props +
+          CSS-only styling magic!</strong>
+      </p>
       <tabs tabs="Home,About,Settings,Contact" activeTab="Home"></tabs>
     </section>
 
     <section style="margin-top: 2rem">
       <h2>❤️ Like Card</h2>
-      <p>HTMX-powered server actions with function-style props. Toggle like and remove items.</p>
+      <p>
+        HTMX-powered server actions with function-style props. Toggle like and
+        remove items.
+      </p>
       <like-card id="101" title="First Item" liked="false"></like-card>
       <like-card id="102" title="Second Item" liked="true"></like-card>
     </section>
@@ -133,123 +122,35 @@
     <section style="margin-top: 2rem">
       <h2>🛒 Cart Items</h2>
       <p>Simple cart item with server-powered quantity updates and actions.</p>
-      <cart-item productId="123" name="Widget" quantity="2" price="19.99"></cart-item>
-      <cart-item productId="456" name="Gadget" quantity="1" price="29.99"></cart-item>
-    </section>
-
-    <section style="margin-top: 2rem; border: 2px solid #007bff; background: #f0f8ff">
-      <h2>🎉 NEW: Function-Style Props!</h2>
-      <p style="color: #0056b3; font-weight: 500">
-        Zero duplication between props and render parameters! Props auto-generated from function signature! 🚀
-      </p>
-      <function-style-card title="Amazing Innovation!" count="100" enabled></function-style-card>
-      
-      <details style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 6px;">
-        <summary style="font-weight: 500; cursor: pointer; color: #007bff;">
-          ✨ See The Function-Style Magic
-        </summary>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
-          <div>
-            <h4 style="color: #28a745; margin: 0 0 0.5rem 0">✨ NEW: Function-Style Props</h4>
-            <pre style="background: #f8fff9; padding: 1rem; border-radius: 4px; font-size: 0.8rem; margin: 0;"><code>// Zero duplication - props in function signature!
-defineComponent("counter", {
-  render: ({ 
-    initialCount = number(0),
-    step = number(1)
-  }, api, classes) => (
-    &lt;div&gt;Count: {initialCount}&lt;/div&gt;
-  )
-});</code></pre>
-          </div>
-          <div>
-            <h4 style="color: #dc3545; margin: 0 0 0.5rem 0">🔄 Old Approach</h4>
-            <pre style="background: #fff5f5; padding: 1rem; border-radius: 4px; font-size: 0.8rem; margin: 0;"><code>// Duplication between props and render params
-defineComponent("counter", {
-  props: (attrs) => ({
-    initialCount: parseInt(attrs.initialCount || "0"),
-    step: parseInt(attrs.step || "1")
-  }),
-  render: ({ initialCount, step }) => (
-    &lt;div&gt;Count: {initialCount}&lt;/div&gt;
-  )
-});</code></pre>
-          </div>
-        </div>
-      </details>
+      <cart-item
+        productId="123"
+        name="Widget"
+        quantity="2"
+        price="19.99"
+      ></cart-item>
+      <cart-item
+        productId="456"
+        name="Gadget"
+        quantity="1"
+        price="29.99"
+      ></cart-item>
     </section>
 
     <section
-      style="margin-top: 2rem; border: 2px solid #28a745; background: #f8fff9"
+      style="margin-top: 2rem; border: 1px solid #e2e8f0; background: #f8fafc"
     >
-      <h2>🚀 Unified Styles API</h2>
-      <p style="color: #155724; font-weight: 500">
-        All examples now use the revolutionary <strong>unified styles</strong> approach - 
-        no more duplication between classes and styles!
+      <h2>⚙️ Function-Style Props</h2>
+      <p style="color: #334155">
+        Props are inferred from render parameters and defaults.
       </p>
-
-      <h3>Zero Duplication</h3>
-      <p>
-        Define class names and their styles together in one place. The old approach required 
-        defining class names twice - once in <code>classes</code> and again in <code>styles</code>.
-      </p>
-
-      <details
-        style="margin-top: 1rem; padding: 1rem; background: white; border: 1px solid #ddd; border-radius: 4px"
-      >
-        <summary style="font-weight: 500; cursor: pointer">
-          ✨ View New Unified Styles API
-        </summary>
-        <pre
-          style="margin-top: 1rem; padding: 1rem; background: #f8f9ff; border: 2px solid #007bff; border-radius: 4px; overflow-x: auto; font-size: 0.9rem"
-        >
-<code>// 🎉 NEW: Ultra-Simplified CSS-Only Format!
-defineComponent("smart-counter", {
-  props: (attrs) => ({
-    initialCount: parseInt(attrs.initialCount || "0"),
-    step: parseInt(attrs.step || "1")
-  }),
-  styles: {
-    // ✨ Just CSS properties - class names auto-generated!
-    container: \`{ display: flex; gap: 0.5rem; border: 2px solid #007bff; }\`,
-    button: \`{ background: #007bff; color: white; padding: 0.5rem; }\`,
-    buttonHover: \`{ background: #0056b3; }\`, // → .button-hover
-    display: \`{ font-size: 1.5rem; font-weight: bold; }\`
-  },
-  render: ({ initialCount, step }, api, classes) => (
-    &lt;div class={classes.container}&gt; {/* .container */}
-      &lt;button class={classes.button}&gt;-{step}&lt;/button&gt; {/* .button */}
-      &lt;span class={classes.display}&gt;{initialCount}&lt;/span&gt; {/* .display */}
-      &lt;button class={classes.button}&gt;+{step}&lt;/button&gt;
-    &lt;/div&gt;
-  )
-});</code></pre>
-      </details>
-
-      <details
-        style="margin-top: 1rem; padding: 1rem; background: white; border: 1px solid #ddd; border-radius: 4px"
-      >
-        <summary style="font-weight: 500; cursor: pointer; color: #6c757d">
-          📚 Compare: Old vs New Approach
-        </summary>
-        <div style="margin-top: 1rem;">
-          <h4 style="color: #dc3545; margin-bottom: 0.5rem">❌ Old Way (Duplication)</h4>
-          <pre style="padding: 1rem; background: #fff5f5; border: 1px solid #dc3545; border-radius: 4px; font-size: 0.85rem; margin-bottom: 1rem"><code>classes: {
-  container: "counter",        // ← Define class name here
-  button: "counter-btn"        // ← And here
-},
-styles: \`
-  .counter { display: flex; }     // ← Then repeat in CSS
-  .counter-btn { padding: 1rem; } // ← More repetition
-\`</code></pre>
-
-          <h4 style="color: #28a745; margin-bottom: 0.5rem">✅ New Way (CSS-Only!)</h4>
-          <pre style="padding: 1rem; background: #f8fff9; border: 1px solid #28a745; border-radius: 4px; font-size: 0.85rem"><code>styles: {
-  container: \`{ display: flex; }\`,               // ← Just CSS properties!
-  buttonPrimary: \`{ padding: 1rem; color: white; }\` // → .button-primary
-}</code></pre>
-        </div>
-      </details>
+      <function-style-card
+        title="Typed + Inferred"
+        count="100"
+        enabled
+      ></function-style-card>
     </section>
+
+    <!-- No comparisons or code snippets below; just current usage examples. -->
 
     <!-- Components are server-rendered, no client-side script needed -->
   </body>

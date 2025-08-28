@@ -1,41 +1,49 @@
 # Component Authoring with TSX (Custom JSX Runtime)
 
-This project uses a custom JSX runtime for components so you can author views in TSX while keeping zero client-side dependencies and SSR-first output.
+This project uses a custom JSX runtime for components so you can author views in
+TSX while keeping zero client-side dependencies and SSR-first output.
 
-## 🎉 NEW: Revolutionary Ergonomics
+## Authoring Overview
 
-funcwc has evolved through three major ergonomic improvements that eliminate all duplication:
+funcwc focuses on a clean authoring model that eliminates duplication:
 
-1. **🔧 defineComponent API**: Clean object-based configuration (vs complex pipeline)
-2. **🎨 CSS-Only Format**: Auto-generated class names from CSS properties  
-3. **✨ Function-Style Props**: Zero duplication between props and render parameters
+1. **🔧 defineComponent API**: Clean object-based configuration
+2. **🎨 CSS-Only Format**: Auto-generated class names from CSS properties
+3. **✨ Function-Style Props**: Zero duplication between props and render
+   parameters
 
 ### ✨ Function-Style Props (Zero Duplication!)
 
-The most ergonomic way to define props - no more duplication between props definition and render function parameters:
+The most ergonomic way to define props - no more duplication between props
+definition and render function parameters:
 
 ```tsx
-import { defineComponent, h, string, number, boolean } from "../src/index.ts";
+import { boolean, defineComponent, h, number, string } from "../src/index.ts";
 
 // ✨ NO props definition needed - extracted from render function!
 defineComponent("smart-card", {
   styles: {
     // 🎨 CSS-only format - class names auto-generated!
-    card: `{ border: 2px solid #e9ecef; border-radius: 8px; padding: 1.5rem; background: white; }`,
+    card:
+      `{ border: 2px solid #e9ecef; border-radius: 8px; padding: 1.5rem; background: white; }`,
     title: `{ font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem; }`,
-    highlight: `{ border-color: #007bff !important; background: #f8f9ff; }`
+    highlight: `{ border-color: #007bff !important; background: #f8f9ff; }`,
   },
-  render: ({ 
-    title = string("Amazing Card"),  // Smart type helpers with defaults
-    count = number(42),             // Auto-parsed from HTML attributes  
-    highlighted = boolean(false)    // Type-safe boolean handling
-  }, api, classes) => (
+  render: (
+    {
+      title = string("Amazing Card"), // Smart type helpers with defaults
+      count = number(42), // Auto-parsed from HTML attributes
+      highlighted = boolean(false), // Type-safe boolean handling
+    },
+    api,
+    classes,
+  ) => (
     <div class={`${classes!.card} ${highlighted ? classes!.highlight : ""}`}>
       <h3 class={classes!.title}>{title}</h3>
       <p>Count: {count}</p>
       <p>Highlighted: {highlighted ? "Yes" : "No"}</p>
     </div>
-  )
+  ),
 });
 
 // Usage in HTML:
@@ -44,19 +52,26 @@ defineComponent("smart-card", {
 
 #### Typing function‑style props in TypeScript
 
-The helper calls like `string()`, `number()`, and `boolean()` deliberately return PropHelper objects so the library can auto‑generate a typed props transformer by inspecting your render function defaults. TypeScript, however, does not know that these will be converted into primitive values at runtime.
+The helper calls like `string()`, `number()`, and `boolean()` deliberately
+return PropHelper objects so the library can auto‑generate a typed props
+transformer by inspecting your render function defaults. TypeScript, however,
+does not know that these will be converted into primitive values at runtime.
 
-Option A — inline casts (simple):
-Add a cast on each default and annotate the parameter type:
+Option A — inline casts (simple): Add a cast on each default and annotate the
+parameter type:
 
 ```tsx
 defineComponent("typed-card", {
   styles: { container: `{ padding: 1rem; }` },
-  render: ({
-    title = string("Hello") as unknown as string,
-    count = number(0) as unknown as number,
-    enabled = boolean(false) as unknown as boolean,
-  }: { title: string; count: number; enabled: boolean }, _api, classes) => (
+  render: (
+    {
+      title = string("Hello") as unknown as string,
+      count = number(0) as unknown as number,
+      enabled = boolean(false) as unknown as boolean,
+    }: { title: string; count: number; enabled: boolean },
+    _api,
+    classes,
+  ) => (
     <div class={classes!.container}>
       <h3>{title}</h3>
       <p>Count: {count}</p>
@@ -66,18 +81,29 @@ defineComponent("typed-card", {
 });
 ```
 
-Option B — UnwrapHelpers + defaults object (recommended):
-Use a single defaults object and the `UnwrapHelpers<T>` utility type exported by the library. Cleaner, no per‑field casts, still auto‑generates the schema.
+Option B — UnwrapHelpers + defaults object (recommended): Use a single defaults
+object and the `UnwrapHelpers<T>` utility type exported by the library. Cleaner,
+no per‑field casts, still auto‑generates the schema.
 
 ```tsx
-import { string, number, boolean } from "../src/index.ts";
+import { boolean, number, string } from "../src/index.ts";
 import type { UnwrapHelpers } from "../src/index.ts";
 
 defineComponent("typed-card", {
   styles: { container: `{ padding: 1rem; }` },
   render: (
-    props: UnwrapHelpers<{ title: ReturnType<typeof string>; count: ReturnType<typeof number>; enabled: ReturnType<typeof boolean> }> = (
-      { title: string("Hello"), count: number(0), enabled: boolean(false) } as unknown as UnwrapHelpers<{
+    props: UnwrapHelpers<
+      {
+        title: ReturnType<typeof string>;
+        count: ReturnType<typeof number>;
+        enabled: ReturnType<typeof boolean>;
+      }
+    > = (
+      {
+        title: string("Hello"),
+        count: number(0),
+        enabled: boolean(false),
+      } as unknown as UnwrapHelpers<{
         title: ReturnType<typeof string>;
         count: ReturnType<typeof number>;
         enabled: ReturnType<typeof boolean>;
@@ -96,36 +122,44 @@ defineComponent("typed-card", {
 ```
 
 Why this works:
-- The defaults remain helper calls, so the library can parse them and build the prop schema (validation, defaults, type info).
-- With UnwrapHelpers, TypeScript sees primitives inside render, without per‑field casts.
-- Defaults are the single source of truth and stay close to the render.
 
+- The defaults remain helper calls, so the library can parse them and build the
+  prop schema (validation, defaults, type info).
+- With UnwrapHelpers, TypeScript sees primitives inside render, without
+  per‑field casts.
+- Defaults are the single source of truth and stay close to the render.
 
 ### 🎨 CSS-Only Format (Auto-Generated Classes!)
 
-Just write CSS properties - class names auto-generated! No selectors, no duplication:
+Just write CSS properties - class names auto-generated! No selectors, no
+duplication:
 
 ```tsx
 defineComponent("beautiful-button", {
   styles: {
     // ✨ Just CSS properties - class names auto-generated!
-    button: `{ padding: 0.5rem 1rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }`,
-    buttonHover: `{ background: #0056b3; }`,        // → .button-hover
-    buttonActive: `{ transform: translateY(1px); }` // → .button-active
+    button:
+      `{ padding: 0.5rem 1rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }`,
+    buttonHover: `{ background: #0056b3; }`, // → .button-hover
+    buttonActive: `{ transform: translateY(1px); }`, // → .button-active
     // Auto-generates: .button, .button-hover, .button-active
   },
-  render: ({ 
-    text = string("Click me"),
-    disabled = boolean(false)
-  }, api, classes) => (
-    <button 
-      class={classes!.button} 
+  render: (
+    {
+      text = string("Click me"),
+      disabled = boolean(false),
+    },
+    api,
+    classes,
+  ) => (
+    <button
+      class={classes!.button}
       disabled={disabled}
       onclick="/* DOM action */"
     >
       {text}
     </button>
-  )
+  ),
 });
 ```
 
@@ -134,10 +168,13 @@ defineComponent("beautiful-button", {
 - **The DOM is the state**: Use classes, attributes, and text for UI state
 - **Function-style props**: Props defined directly in render function signature
 - **CSS-only format**: Auto-generated class names from CSS properties
-- **Smart type helpers**: `string()`, `number()`, `boolean()`, `array()`, `object()`
+- **Smart type helpers**: `string()`, `number()`, `boolean()`, `array()`,
+  `object()`
 - **Event handlers**: Return inline handler strings for direct DOM manipulation
-- **Server interactions**: Defined via `api` that automatically generates HTMX attributes
-- **JSON-in, HTML-out**: All htmx requests are JSON-encoded; server returns HTML for swapping
+- **Server interactions**: Defined via `api` that automatically generates HTMX
+  attributes
+- **JSON-in, HTML-out**: All htmx requests are JSON-encoded; server returns HTML
+  for swapping
 
 ## Prerequisites
 
@@ -146,7 +183,8 @@ defineComponent("beautiful-button", {
 
 ### Global htmx JSON setup
 
-Include the json-enc extension and configure JSON encoding at the document level. Responses remain HTML.
+Include the json-enc extension and configure JSON encoding at the document
+level. Responses remain HTML.
 
 ```html
 <head>
@@ -168,58 +206,36 @@ import { defineComponent, h } from "../src/index.ts";
 ### 🚀 Modern Approach: Function-Style Props + CSS-Only
 
 ```tsx
-import { defineComponent, h, string, number, boolean } from "../src/index.ts";
+import { boolean, defineComponent, h, number, string } from "../src/index.ts";
 
 defineComponent("modern-card", {
   styles: {
     // ✨ CSS-only format - no selectors needed!
-    container: `{ border: 1px solid #ddd; padding: 1rem; border-radius: 6px; background: white; }`,
-    title: `{ font-size: 1.2rem; font-weight: bold; margin-bottom: 0.5rem; color: #333; }`,
-    counter: `{ color: #666; font-size: 0.9rem; }`
+    container:
+      `{ border: 1px solid #ddd; padding: 1rem; border-radius: 6px; background: white; }`,
+    title:
+      `{ font-size: 1.2rem; font-weight: bold; margin-bottom: 0.5rem; color: #333; }`,
+    counter: `{ color: #666; font-size: 0.9rem; }`,
   },
-  render: ({ 
-    // ✨ Props auto-generated from function signature!
-    title = string("Card Title"),
-    count = number(0),
-    highlighted = boolean(false)
-  }, api, classes) => (
+  render: (
+    {
+      // ✨ Props auto-generated from function signature!
+      title = string("Card Title"),
+      count = number(0),
+      highlighted = boolean(false),
+    },
+    api,
+    classes,
+  ) => (
     <div class={`${classes!.container} ${highlighted ? "highlight" : ""}`}>
       <h3 class={classes!.title}>{title}</h3>
       <span class={classes!.counter}>Count: {count}</span>
     </div>
-  )
+  ),
 });
 ```
 
-### 🔄 Legacy Approach: Traditional Props + Classes
-
-Still supported for complex cases:
-
-```tsx
-defineComponent("legacy-card", {
-  props: {
-    title: "string",
-    count: { type: "number", default: 0 },
-    highlighted: { type: "boolean", default: false }
-  },
-  classes: {
-    container: "card-box",
-    title: "card-title", 
-    counter: "card-count"
-  },
-  styles: `
-    .card-box { border: 1px solid #ddd; padding: 1rem; border-radius: 6px; }
-    .card-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 0.5rem; }
-    .card-count { color: #666; }
-  `,
-  render: ({ title, count, highlighted }, api, classes) => (
-    <div class={`${classes!.container} ${highlighted ? "highlight" : ""}`}>
-      <h3 class={classes!.title}>{title}</h3>
-      <span class={classes!.counter}>Count: {count}</span>
-    </div>
-  )
-});
-```
+<!-- Legacy props/classes approach removed to keep docs focused on the current model. -->
 
 ## Smart Type Helpers
 
@@ -254,22 +270,7 @@ styles: {
 }
 ```
 
-### 🔄 Traditional Format
-
-```tsx
-// Full CSS selectors (for complex cases needing pseudo-selectors, etc.)
-styles: {
-  button: `.my-btn { background: blue; }`,
-  hover: `.my-btn:hover { background: darkblue; }`,
-  focus: `.my-btn:focus { outline: 2px solid blue; }`
-}
-
-// Or traditional string styles:
-styles: `
-  .my-button { background: blue; color: white; }
-  .my-button:hover { background: darkblue; }
-`
-```
+<!-- Traditional styling examples removed to emphasize CSS-only format. -->
 
 ## DOM-Native Events
 
@@ -298,36 +299,45 @@ import { toggleClass, toggleClasses } from "../src/index.ts";
 Small, copyable helpers in `examples/dom-actions.ts`:
 
 ```tsx
-import { 
-  updateParentCounter, 
-  resetCounter, 
-  toggleParentClass, 
+import {
+  activateTab,
+  resetCounter,
   syncCheckboxToClass,
-  activateTab 
+  toggleParentClass,
+  updateParentCounter,
 } from "../examples/dom-actions.ts";
 
 // Counter manipulation
-updateParentCounter(".container", ".display", 5)  // Increment by 5
-resetCounter(".display", 0, ".container")         // Reset to initial
+updateParentCounter(".container", ".display", 5); // Increment by 5
+resetCounter(".display", 0, ".container"); // Reset to initial
 
-// Class manipulation  
-toggleParentClass("expanded")                     // Toggle on parent
-syncCheckboxToClass("completed")                  // Checkbox → CSS class
+// Class manipulation
+toggleParentClass("expanded"); // Toggle on parent
+syncCheckboxToClass("completed"); // Checkbox → CSS class
 
 // Tab activation
-activateTab(".tabs", ".tab-btn", ".content", "active") // Complex tab logic
+activateTab(".tabs", ".tab-btn", ".content", "active"); // Complex tab logic
 ```
 
-These are app-specific conveniences that live outside the core library to keep it clean and framework-agnostic.
+These are app-specific conveniences that live outside the core library to keep
+it clean and framework-agnostic.
 
 ## Unified API System (HTMX Integration)
 
-The `api` property is funcwc's revolutionary unified API system that eliminates duplication between server route definitions and client-side HTMX attributes.
+The `api` property is funcwc's revolutionary unified API system that eliminates
+duplication between server route definitions and client-side HTMX attributes.
 
 ### Function-Style Props + HTMX Example
 
 ```tsx
-import { defineComponent, h, string, boolean, patch, del } from "../src/index.ts";
+import {
+  boolean,
+  defineComponent,
+  del,
+  h,
+  patch,
+  string,
+} from "../src/index.ts";
 import { syncCheckboxToClass } from "../examples/dom-actions.ts";
 
 defineComponent("todo-item", {
@@ -341,29 +351,35 @@ defineComponent("todo-item", {
           id: params.id,
           text: "Updated task!",
           done: !isDone,
-        })
+        }),
       );
     }),
-    remove: del("/api/todos/:id", () => new Response(null, { status: 200 }))
+    remove: del("/api/todos/:id", () => new Response(null, { status: 200 })),
   },
   styles: {
     // ✨ CSS-only format for todo items!
-    item: `{ display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 0.5rem; background: white; }`,
+    item:
+      `{ display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 0.5rem; background: white; }`,
     itemDone: `{ background: #f8f9fa; opacity: 0.8; }`,
     checkbox: `{ margin-right: 0.5rem; }`,
     text: `{ flex: 1; font-size: 1rem; }`,
     textDone: `{ text-decoration: line-through; color: #6c757d; }`,
-    deleteBtn: `{ background: #dc3545; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; }`
+    deleteBtn:
+      `{ background: #dc3545; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; }`,
   },
-  render: ({
-    // ✨ Function-style props - no duplication!
-    id = string("1"),
-    text = string("Todo item"),
-    done = boolean(false)
-  }, api, classes) => {
+  render: (
+    {
+      // ✨ Function-style props - no duplication!
+      id = string("1"),
+      text = string("Todo item"),
+      done = boolean(false),
+    },
+    api,
+    classes,
+  ) => {
     const itemClass = `${classes!.item} ${done ? classes!.itemDone : ""}`;
     const textClass = `${classes!.text} ${done ? classes!.textDone : ""}`;
-    
+
     return (
       <div class={itemClass} data-id={id}>
         <input
@@ -371,27 +387,32 @@ defineComponent("todo-item", {
           class={classes!.checkbox}
           checked={done}
           onChange={syncCheckboxToClass(classes!.itemDone)}
-          {...api.toggle(id)}  // ✨ Auto-generated HTMX attributes!
-        />
+          {...api.toggle(id)}
+        />{" "}
+        // ✨ Auto-generated HTMX attributes!
         <span class={textClass}>{text}</span>
         <button type="button" class={classes!.deleteBtn} {...api.remove(id)}>
           ×
         </button>
       </div>
     );
-  }
+  },
 });
 ```
 
 ### How Unified API Works
 
-1. **Define Routes**: Write actual HTTP handlers in `api` using standard Web API patterns
-2. **Auto-Generation**: funcwc analyzes your routes and creates client functions:
+1. **Define Routes**: Write actual HTTP handlers in `api` using standard Web API
+   patterns
+2. **Auto-Generation**: funcwc analyzes your routes and creates client
+   functions:
    - `patch("/api/todos/:id/toggle", handler)` → `api.toggle(id)`
    - `del("/api/todos/:id", handler)` → `api.remove(id)`
 3. **HTMX Attributes**: Client functions return proper `hx-*` attributes:
-   - `api.toggle(id)` → `{ "hx-patch": "/api/todos/123/toggle", "hx-target": "closest .item" }`
-   - `api.remove(id)` → `{ "hx-delete": "/api/todos/123", "hx-target": "closest .item", "hx-swap": "outerHTML" }`
+   - `api.toggle(id)` →
+     `{ "hx-patch": "/api/todos/123/toggle", "hx-target": "closest .item" }`
+   - `api.remove(id)` →
+     `{ "hx-delete": "/api/todos/123", "hx-target": "closest .item", "hx-swap": "outerHTML" }`
 4. **Type Safety**: All generated functions are fully typed
 
 ### Route-to-Function Mapping
@@ -402,7 +423,8 @@ defineComponent("todo-item", {
 - `patch("/api/items/:id", handler)` → `api.update(id)`
 - `del("/api/items/:id", handler)` → `api.remove(id)`
 
-This eliminates the need to manually define client-side HTMX attributes and ensures your client and server stay in sync automatically.
+This eliminates the need to manually define client-side HTMX attributes and
+ensures your client and server stay in sync automatically.
 
 ## Advanced Patterns
 
@@ -410,73 +432,108 @@ This eliminates the need to manually define client-side HTMX attributes and ensu
 
 ```tsx
 import { defineComponent, h, number } from "../src/index.ts";
-import { updateParentCounter, resetCounter } from "../examples/dom-actions.ts";
+import { resetCounter, updateParentCounter } from "../examples/dom-actions.ts";
 
 defineComponent("smart-counter", {
   styles: {
-    container: `{ display: inline-flex; align-items: center; gap: 0.5rem; padding: 1rem; border: 2px solid #007bff; border-radius: 6px; background: white; }`,
-    counterButton: `{ padding: 0.5rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; min-width: 2rem; font-weight: bold; }`,
+    container:
+      `{ display: inline-flex; align-items: center; gap: 0.5rem; padding: 1rem; border: 2px solid #007bff; border-radius: 6px; background: white; }`,
+    counterButton:
+      `{ padding: 0.5rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; min-width: 2rem; font-weight: bold; }`,
     counterButtonHover: `{ background: #0056b3; }`,
-    display: `{ font-size: 1.5rem; min-width: 3rem; text-align: center; font-weight: bold; color: #007bff; }`
+    display:
+      `{ font-size: 1.5rem; min-width: 3rem; text-align: center; font-weight: bold; color: #007bff; }`,
   },
-  render: ({
-    initialCount = number(0),
-    step = number(1)
-  }, api, classes) => (
+  render: (
+    {
+      initialCount = number(0),
+      step = number(1),
+    },
+    api,
+    classes,
+  ) => (
     <div class={classes!.container} data-count={initialCount}>
       <button
         class={classes!.counterButton}
-        onclick={updateParentCounter(`.${classes!.container}`, `.${classes!.display}`, -step)}
+        onclick={updateParentCounter(
+          `.${classes!.container}`,
+          `.${classes!.display}`,
+          -step,
+        )}
       >
         -{step}
       </button>
       <span class={classes!.display}>{initialCount}</span>
       <button
         class={classes!.counterButton}
-        onclick={updateParentCounter(`.${classes!.container}`, `.${classes!.display}`, step)}
+        onclick={updateParentCounter(
+          `.${classes!.container}`,
+          `.${classes!.display}`,
+          step,
+        )}
       >
         +{step}
       </button>
       <button
         class={classes!.counterButton}
-        onclick={resetCounter(`.${classes!.display}`, initialCount, `.${classes!.container}`)}
+        onclick={resetCounter(
+          `.${classes!.display}`,
+          initialCount,
+          `.${classes!.container}`,
+        )}
       >
         Reset
       </button>
     </div>
-  )
+  ),
 });
 ```
 
 ### Accordion with CSS Transitions
 
 ```tsx
-import { defineComponent, h, string, boolean } from "../src/index.ts";
+import { boolean, defineComponent, h, string } from "../src/index.ts";
 import { toggleParentClass } from "../examples/dom-actions.ts";
 
 defineComponent("accordion", {
   styles: {
-    container: `{ border: 1px solid #ddd; border-radius: 6px; margin-bottom: 0.5rem; overflow: hidden; }`,
+    container:
+      `{ border: 1px solid #ddd; border-radius: 6px; margin-bottom: 0.5rem; overflow: hidden; }`,
     containerOpen: `{ /* styles for open state */ }`,
-    header: `{ background: #f8f9fa; padding: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 500; user-select: none; transition: background-color 0.2s; }`,
+    header:
+      `{ background: #f8f9fa; padding: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 500; user-select: none; transition: background-color 0.2s; }`,
     headerHover: `{ background: #e9ecef; }`,
     icon: `{ transition: transform 0.2s; font-size: 1.2rem; }`,
     iconOpen: `{ transform: rotate(180deg); }`,
-    content: `{ padding: 0 1rem; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; }`,
-    contentOpen: `{ max-height: 500px; padding: 1rem; }`
+    content:
+      `{ padding: 0 1rem; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; }`,
+    contentOpen: `{ max-height: 500px; padding: 1rem; }`,
   },
-  render: ({ 
-    title = string("Accordion Title"),
-    content = string("Accordion content goes here..."),
-    initiallyOpen = boolean(false)
-  }, api, classes) => {
-    const containerClass = `${classes!.container} ${initiallyOpen ? classes!.containerOpen : ""}`;
-    const iconClass = `${classes!.icon} ${initiallyOpen ? classes!.iconOpen : ""}`;
-    const contentClass = `${classes!.content} ${initiallyOpen ? classes!.contentOpen : ""}`;
-    
+  render: (
+    {
+      title = string("Accordion Title"),
+      content = string("Accordion content goes here..."),
+      initiallyOpen = boolean(false),
+    },
+    api,
+    classes,
+  ) => {
+    const containerClass = `${classes!.container} ${
+      initiallyOpen ? classes!.containerOpen : ""
+    }`;
+    const iconClass = `${classes!.icon} ${
+      initiallyOpen ? classes!.iconOpen : ""
+    }`;
+    const contentClass = `${classes!.content} ${
+      initiallyOpen ? classes!.contentOpen : ""
+    }`;
+
     return (
       <div class={containerClass}>
-        <div class={classes!.header} onclick={toggleParentClass(classes!.containerOpen)}>
+        <div
+          class={classes!.header}
+          onclick={toggleParentClass(classes!.containerOpen)}
+        >
           <span>{title}</span>
           <span class={iconClass}>▼</span>
         </div>
@@ -485,7 +542,7 @@ defineComponent("accordion", {
         </div>
       </div>
     );
-  }
+  },
 });
 ```
 
@@ -493,25 +550,22 @@ defineComponent("accordion", {
 
 - Components are registered globally by name via `defineComponent`
 - Use the dev server to SSR pages and swap component tags for HTML
-- Programmatic SSR is available via `renderComponent(name, props)` from `src/index.ts`
+- Programmatic SSR is available via `renderComponent(name, props)` from
+  `src/index.ts`
 - Server runs from `examples/` folder: `deno task serve` → http://localhost:8080
 
 ## Best Practices & Conventions
 
 ### 🎨 Modern Conventions (Recommended)
 
-1. **Use Function-Style Props**: Eliminate duplication between props and parameters
+1. **Use Function-Style Props**: Eliminate duplication between props and
+   parameters
 2. **Use CSS-Only Format**: Let funcwc auto-generate class names
-3. **Smart Type Helpers**: Use `string()`, `number()`, `boolean()` for type safety
+3. **Smart Type Helpers**: Use `string()`, `number()`, `boolean()` for type
+   safety
 4. **DOM as State**: Keep handlers minimal; let CSS represent state
-5. **Prefer Inline Handlers**: Use `examples/dom-actions.ts` patterns for reusable logic
-
-### 🔄 Legacy Conventions (Still Supported)
-
-1. **Traditional Props**: Use when you need complex prop transformation logic
-2. **Explicit Classes**: Use `classes` when you need specific class name control  
-3. **Traditional Styles**: Use full CSS when you need complex pseudo-selectors
-4. **Pipeline API**: Available but `defineComponent` is cleaner
+5. **Prefer Inline Handlers**: Use `examples/dom-actions.ts` patterns for
+   reusable logic
 
 ### General Guidelines
 
@@ -521,18 +575,19 @@ defineComponent("accordion", {
 - Prefer server-side rendering with HTMX for dynamic behavior
 - Test components by running `deno task serve` and visiting examples
 
-## Evolution Summary
+## Summary
 
-funcwc has evolved through three major improvements:
+funcwc emphasizes a minimal, ergonomic authoring model:
 
 1. **🔧 defineComponent API**: Clean object-based configuration
-2. **🎨 CSS-Only Format**: Auto-generated class names from CSS properties  
-3. **✨ Function-Style Props**: Zero duplication between props and render parameters
+2. **🎨 CSS-Only Format**: Auto-generated class names from CSS properties
+3. **✨ Function-Style Props**: Zero duplication between props and render
+   parameters
 
-The result is **the most ergonomic component authoring experience** with minimal syntax, maximum power, and zero runtime overhead.
 ### JSON requests, HTML responses
 
 All Unified API helpers are generated with JSON defaults:
+
 - `hx-ext="json-enc"` and `hx-encoding="json"`
 - `hx-headers` with `Accept: text/html` and `X-Requested-With: XMLHttpRequest`
 - Pass a payload object as the extra argument → becomes the JSON body
@@ -552,22 +607,32 @@ export const toggle = patch("/api/items/:id/toggle", async (req, params) => {
 Per-call overrides:
 
 ```tsx
-<button {...api.toggle(id, { done: true }, { target: "closest .todo", swap: "innerHTML" })}>
+<button
+  {...api.toggle(id, { done: true }, {
+    target: "closest .todo",
+    swap: "innerHTML",
+  })}
+>
   Toggle
-</button>
+</button>;
 ```
 
 ### CSRF patterns (recommended)
 
-For production, protect mutating requests with a CSRF token tied to the user session.
+For production, protect mutating requests with a CSRF token tied to the user
+session.
 
 Recommended flow:
 
-- Generate a CSRF token on initial page render (persist it in a secure, httpOnly cookie).
-- Inject the same token into all generated `hx-headers` via a request-scoped header context.
-- Validate the token on every mutating handler (compare request header vs cookie/session).
+- Generate a CSRF token on initial page render (persist it in a secure, httpOnly
+  cookie).
+- Inject the same token into all generated `hx-headers` via a request-scoped
+  header context.
+- Validate the token on every mutating handler (compare request header vs
+  cookie/session).
 
-Server (page render) — set cookie and inject per-request header used by the API generator:
+Server (page render) — set cookie and inject per-request header used by the API
+generator:
 
 ```ts
 import { runWithRequestHeaders } from "../src/lib/request-headers.ts";
@@ -576,12 +641,17 @@ const token = crypto.randomUUID();
 const headers = new Headers({ "content-type": "text/html; charset=utf-8" });
 headers.append("Set-Cookie", `csrf=${token}; HttpOnly; SameSite=Lax; Path=/`);
 
-const html = runWithRequestHeaders({ "X-CSRF-Token": token }, () => renderFullPage());
+const html = runWithRequestHeaders(
+  { "X-CSRF-Token": token },
+  () => renderFullPage(),
+);
 
 return new Response(html, { headers });
 ```
 
-API generator automatically merges the current request headers into `hx-headers`, so every generated client action carries `X-CSRF-Token` without extra code in components.
+API generator automatically merges the current request headers into
+`hx-headers`, so every generated client action carries `X-CSRF-Token` without
+extra code in components.
 
 Server (handler) — validate header against cookie:
 
@@ -603,6 +673,9 @@ export const toggle = patch("/api/items/:id/toggle", async (req, params) => {
 ```
 
 Notes:
+
 - Use `SameSite=Lax` or `Strict` and `Secure` in production (HTTPS).
-- If you already have a session mechanism, store the CSRF token server-side instead of a cookie comparison.
-- Because funcwc standardizes JSON requests, you can avoid form-based CSRF complexities.
+- If you already have a session mechanism, store the CSRF token server-side
+  instead of a cookie comparison.
+- Because funcwc standardizes JSON requests, you can avoid form-based CSRF
+  complexities.

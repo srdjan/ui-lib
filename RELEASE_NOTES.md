@@ -1,41 +1,42 @@
-# funcwc v0.5.0 — Revolutionary Ergonomics: Function-Style Props + CSS-Only Format
+# funcwc v0.5.0 — Function-Style Props and CSS-Only Styles
 
 Release date: 2025-08-26
 
-## 🎉 Revolutionary Features
+## Highlights
 
-- **✨ Function-Style Props**: Zero duplication between props definition and render parameters! Props are auto-generated from render function signature using smart type helpers (`string()`, `number()`, `boolean()`, `array()`, `object()`)
-- **🎨 CSS-Only Format**: Auto-generated class names from CSS properties! Just write CSS properties and funcwc generates `.container`, `.button-primary`, etc. automatically
-- **🔄 Enhanced Unified API**: Cleaner API helper functions (`post()`, `get()`, `patch()`, `del()`) with better route-to-function mapping
-- **📚 Updated Documentation**: All docs updated with latest patterns and comprehensive examples
+- Function-style props: props inferred from render parameters and defaults via
+  helper calls (`string()`, `number()`, `boolean()`, etc.).
+- CSS-only styles: author CSS property blocks; class names are auto-generated
+  from keys.
+- Unified API defaults: JSON-in/HTML-out standard with `hx-ext="json-enc"`,
+  `hx-encoding="json"`, default `Accept: text/html` and `X-Requested-With`
+  headers, and `hx-swap="outerHTML"` for non-GET.
+- Request headers utility: `runWithRequestHeaders` and `currentRequestHeaders`
+  for per-request (e.g., CSRF) header injection.
+- Examples/docs: Counter, Todo, Tabs, Like Card, and Cart Item use the unified
+  API with JSON requests; demo page simplified to showcase current patterns
+  only.
 
-## Game-Changing Developer Experience
+## Internal changes
 
-**Before (v0.4.0):**
-```tsx
-defineComponent("my-card", {
-  props: { title: "string", count: "number?" },  // Duplication!
-  classes: { card: "my-card", title: "card-title" },  // Manual class names
-  styles: `.my-card { border: 1px solid #ddd; }`,
-  render: ({ title, count }, api, classes) => (/* JSX */)
-});
-```
+- Render parameter parser: replaced `Function` types, added object-literal
+  defaults parsing and balanced brace handling.
+- JSX runtime: added type guard for `dangerouslySetInnerHTML` and removed `any`
+  usages.
+- Types: added `UnwrapHelpers<T>` and `PropsOf<T>` utilities; exported from
+  `src/index.ts`.
+- TS config: ensured custom JSX factory (`jsx: "react"`, `jsxFactory: "h"`).
 
-**After (v0.5.0):**
-```tsx
-defineComponent("my-card", {
-  styles: {
-    // ✨ Auto-generated class names!
-    card: `{ border: 1px solid #ddd; }`,     // → .card
-    title: `{ font-weight: bold; }`          // → .title
-  },
-  render: ({ 
-    // ✨ Zero duplication - props auto-generated!
-    title = string("My Card"),
-    count = number(0)
-  }, api, classes) => (/* JSX */)
-});
-```
+## Bug fixes
+
+- Addressed lint and type issues in helper modules and examples.
+
+## Migration notes
+
+- Prefer function-style props with helper defaults for new components.
+- Prefer CSS-only styles; traditional formats remain supported where needed.
+- Standardize HTMX interactions on JSON requests and HTML responses; consume
+  `await req.json()` in handlers and return `text/html`.
 
 ---
 

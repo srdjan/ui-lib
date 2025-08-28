@@ -1,13 +1,13 @@
 /** @jsx h */
 /// <reference path="../src/lib/jsx.d.ts" />
 import {
+  boolean,
   defineComponent,
+  del,
   h,
   patch,
-  del,
   renderComponent,
   string,
-  boolean,
 } from "../src/index.ts";
 import type { GeneratedApiMap } from "../src/index.ts";
 
@@ -39,22 +39,35 @@ defineComponent("like-card", {
     remove: del("/api/items/:id", () => new Response(null, { status: 200 })),
   },
   styles: {
-    card: `{ border: 1px solid #ddd; border-radius: 6px; padding: 1rem; background: #fff; display: grid; gap: .5rem; }`,
+    card:
+      `{ border: 1px solid #ddd; border-radius: 6px; padding: 1rem; background: #fff; display: grid; gap: .5rem; }`,
     title: `{ font-size: 1rem; font-weight: 600; color: #333; }`,
     actions: `{ display: inline-flex; gap: .5rem; }`,
-    likeBtn: `{ padding: .25rem .5rem; border-radius: 4px; border: 1px solid #e0245e; color: #e0245e; background: #fff0f3; cursor: pointer; }`,
+    likeBtn:
+      `{ padding: .25rem .5rem; border-radius: 4px; border: 1px solid #e0245e; color: #e0245e; background: #fff0f3; cursor: pointer; }`,
     likeBtnActive: `{ background: #ffe4ea; }`,
-    deleteBtn: `{ padding: .25rem .5rem; border-radius: 4px; border: 1px solid #6c757d; color: #6c757d; background: #f8f9fa; cursor: pointer; }`,
+    deleteBtn:
+      `{ padding: .25rem .5rem; border-radius: 4px; border: 1px solid #6c757d; color: #6c757d; background: #f8f9fa; cursor: pointer; }`,
   },
-  render: ({ id = string("1"), title = string("My Item"), liked = boolean(false) }: any, api: GeneratedApiMap, classes?: Record<string, string>) => (
+  render: (
+    {
+      id = string("1") as unknown as string,
+      title = string("My Item") as unknown as string,
+      liked = boolean(false) as unknown as boolean,
+    },
+    api: GeneratedApiMap,
+    classes?: Record<string, string>,
+  ) => (
     <div class={classes!.card} data-id={id}>
       <h3 class={classes!.title}>{title}</h3>
       <div class={classes!.actions}>
         <button
           type="button"
           class={`${classes!.likeBtn} ${liked ? classes!.likeBtnActive : ""}`}
-          // Sends JSON payload; defaults include hx-ext=json-enc, hx-encoding=json, Accept header, and X-Requested-With
-          {...api.toggleLike(id, { liked: !liked, note: "from-card" })}
+          {
+            // Sends JSON payload; defaults include hx-ext=json-enc, hx-encoding=json, Accept header, and X-Requested-With
+            ...api.toggleLike(id, { liked: !liked, note: "from-card" })
+          }
         >
           {liked ? "❤️ Liked" : "♡ Like"}
         </button>

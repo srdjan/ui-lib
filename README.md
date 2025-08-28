@@ -1,34 +1,40 @@
 # funcwc - DOM-Native SSR Components
 
-**Ultra-lightweight, type-safe SSR components with the DOM as your state container.**
+**Ultra-lightweight, type-safe SSR components with the DOM as your state
+container.**
 
-Built for Deno + TypeScript with an SSR-first approach using HTMX, funcwc takes a revolutionary approach to state management: **the DOM _is_ the state**. No JavaScript state objects, no synchronization overhead, just pure DOM manipulation with a delightful developer experience.
+Built for Deno + TypeScript with an SSR-first approach using HTMX, funcwc takes
+a revolutionary approach to state management: **the DOM _is_ the state**. No
+JavaScript state objects, no synchronization overhead, just pure DOM
+manipulation with a delightful developer experience.
 
-## 🎉 NEW: Revolutionary Ergonomics
+## Ergonomics
 
 ### ✨ Function-Style Props (Zero Duplication!)
 
-Define props directly in render function parameters - no more duplication between props definition and function parameters!
+Define props directly in render function parameters - no more duplication
+between props definition and function parameters!
 
 ```tsx
-// ✅ NEW: Function-style props - zero duplication!
+// ✅ Function-style props - zero duplication!
 defineComponent("smart-counter", {
-  render: ({ 
-    initialCount = number(0),    // Auto-parsed from HTML attributes
-    step = number(1),           // Default values built-in
-    label = string("Counter")   // Type-safe with smart helpers
+  render: ({
+    initialCount = number(0), // Auto-parsed from HTML attributes
+    step = number(1), // Default values built-in
+    label = string("Counter"), // Type-safe with smart helpers
   }) => (
     <div data-count={initialCount}>
       {label}: {initialCount}
       <button onclick="/* DOM action */">+{step}</button>
     </div>
-  )
+  ),
 });
 ```
 
 ### 🎨 CSS-Only Format (Auto-Generated Classes!)
 
-Just write CSS properties - class names auto-generated! No selectors, no duplication, pure magic!
+Just write CSS properties - class names auto-generated! No selectors, no
+duplication, pure magic!
 
 ```tsx
 defineComponent("beautiful-card", {
@@ -36,7 +42,8 @@ defineComponent("beautiful-card", {
     // ✨ Just CSS properties - class names auto-generated!
     card: `{ border: 2px solid #ddd; border-radius: 8px; padding: 1.5rem; }`,
     title: `{ font-size: 1.25rem; font-weight: bold; color: #333; }`,
-    buttonPrimary: `{ background: #007bff; color: white; padding: 0.5rem 1rem; }`
+    buttonPrimary:
+      `{ background: #007bff; color: white; padding: 0.5rem 1rem; }`,
     // Auto-generates: .card, .title, .button-primary
   },
   render: (props, api, classes) => (
@@ -44,20 +51,23 @@ defineComponent("beautiful-card", {
       <h3 class={classes!.title}>Amazing!</h3>
       <button class={classes!.buttonPrimary}>Click me</button>
     </div>
-  )
+  ),
 });
 ```
 
 ## ✨ Key Features
 
-- **🎯 DOM-Native State**: Component state lives in CSS classes, data attributes, and element content
-- **🚀 Function-Style Props**: Zero duplication between props and render parameters
-- **🎨 CSS-Only Format**: Auto-generated class names from CSS properties  
+- **🎯 DOM-Native State**: Component state lives in CSS classes, data
+  attributes, and element content
+- **🚀 Function-Style Props**: Zero duplication between props and render
+  parameters
+- **🎨 CSS-Only Format**: Auto-generated class names from CSS properties
 - **⚡ Type-Safe**: Full TypeScript inference with smart type helpers
 - **🔄 HTMX Ready**: Built-in server actions for dynamic updates
 - **📦 Zero Runtime**: No client-side framework dependencies
 - **🎭 SSR-First**: Render on server, send optimized HTML
-- **🧾 JSON Requests, HTML Responses**: Standardized JSON-encoded htmx requests; server returns HTML snippets for swapping
+- **🧾 JSON Requests, HTML Responses**: Standardized JSON-encoded htmx requests;
+  server returns HTML snippets for swapping
 
 ## 🚀 Quick Start
 
@@ -76,11 +86,13 @@ Instead of managing JavaScript state objects, funcwc uses the DOM itself:
 - **Element Content** → Display values (counter numbers, text)
 - **Form Values** → Input states (checkboxes, text inputs)
 
-This eliminates state synchronization bugs and makes debugging trivial—just inspect the DOM!
+This eliminates state synchronization bugs and makes debugging trivial—just
+inspect the DOM!
 
 ## 🎬 See It In Action
 
-Run `deno task serve` and visit http://localhost:8080 to see all examples working:
+Run `deno task serve` and visit http://localhost:8080 to see all examples
+working:
 
 - **🎉 Function-Style Props**: Zero duplication demonstration
 - **🎨 Theme Toggle**: CSS class switching
@@ -92,7 +104,8 @@ Run `deno task serve` and visit http://localhost:8080 to see all examples workin
 
 ### Global HTMX setup (JSON requests)
 
-Add the json-enc extension and configure JSON encoding at the page level. Responses remain HTML and are swapped by htmx.
+Add the json-enc extension and configure JSON encoding at the page level.
+Responses remain HTML and are swapped by htmx.
 
 ```html
 <head>
@@ -104,43 +117,75 @@ Add the json-enc extension and configure JSON encoding at the page level. Respon
 </body>
 ```
 
+## 🧩 Demo Architecture
+
+- Server: `examples/server.ts` serves the demo with `Deno.serve`, imports
+  `examples/main.ts` to register all components and API routes, and renders
+  `examples/index.html` by replacing custom tags with server-rendered HTML via
+  `renderComponent`.
+- Routing: Component `api` handlers register with an internal router; requests
+  hit those handlers first and return HTML snippets.
+- HTMX: `examples/index.html` loads HTMX and `json-enc`; the `<body>` has
+  `hx-ext="json-enc"` and `hx-encoding="json"` so requests send JSON.
+- Headers: Generated HTMX attributes include `Accept: text/html; charset=utf-8`
+  and `X-Requested-With: XMLHttpRequest`. The server injects an `X-CSRF-Token`
+  per request using `runWithRequestHeaders`.
+- Swap/target: Non-GET actions default to `hx-swap="outerHTML"` and target the
+  closest component container (configurable per call via the generated client
+  helpers).
+- Files: Components live in `examples/*.tsx` and are imported by
+  `examples/main.ts`.
+
+Request flow
+
+1. Browser triggers HTMX action (JSON body) → 2) Server handler processes and
+   renders HTML with `renderComponent` → 3) Response returns `text/html` → 4)
+   HTMX swaps HTML into the page.
+
 ## 📋 Complete Examples
 
-### 🎉 Function-Style Props - The Future is Here!
+### Function-Style Props
 
 ```tsx
-import { defineComponent, h, string, number, boolean } from "./src/index.ts";
+import { boolean, defineComponent, h, number, string } from "./src/index.ts";
 
 // ✨ NO props definition needed - extracted from render function!
 defineComponent("smart-card", {
   styles: {
     // 🎨 CSS-only format - class names auto-generated!
-    card: `{ border: 2px solid #e9ecef; border-radius: 8px; padding: 1.5rem; background: white; }`,
+    card:
+      `{ border: 2px solid #e9ecef; border-radius: 8px; padding: 1.5rem; background: white; }`,
     title: `{ font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem; }`,
-    highlight: `{ border-color: #007bff; background: #f8f9ff; }`
+    highlight: `{ border-color: #007bff; background: #f8f9ff; }`,
   },
-  render: ({ 
-    title = string("Amazing Card"),  // Smart type helpers with defaults
-    count = number(42),             // Auto-parsed from HTML attributes  
-    highlighted = boolean(false)    // Type-safe boolean handling
-  }, api, classes) => (
+  render: (
+    {
+      title = string("Amazing Card"), // Smart type helpers with defaults
+      count = number(42), // Auto-parsed from HTML attributes
+      highlighted = boolean(false), // Type-safe boolean handling
+    },
+    api,
+    classes,
+  ) => (
     <div class={`${classes!.card} ${highlighted ? classes!.highlight : ""}`}>
       <h3 class={classes!.title}>{title}</h3>
       <p>Count: {count}</p>
       <p>Highlighted: {highlighted ? "Yes" : "No"}</p>
     </div>
-  )
+  ),
 });
 
 // Usage in HTML:
 // <smart-card title="Hello World" count="100" highlighted></smart-card>
 ```
 
-**Revolutionary Benefits:**
+Benefits
+
 - ✅ **Zero Duplication**: Props defined once in function signature
 - ✅ **Auto-Generated Classes**: `.card`, `.title`, `.highlight` from CSS keys
 - ✅ **Smart Type Helpers**: `string()`, `number()`, `boolean()` with defaults
-- ✅ **Great TypeScript DX**: For strict typing inside render, add an inline cast to each default and annotate the parameter type:
+- ✅ **Great TypeScript DX**: For strict typing inside render, add an inline
+  cast to each default and annotate the parameter type:
 
   ```tsx
   render: ({
@@ -153,65 +198,129 @@ defineComponent("smart-card", {
 ### 🔢 Counter - API Updates (JSON in, HTML out)
 
 ```tsx
-import { defineComponent, h, number, patch, renderComponent } from "./src/index.ts";
+import {
+  defineComponent,
+  h,
+  number,
+  patch,
+  renderComponent,
+} from "./src/index.ts";
 
 defineComponent("counter", {
   styles: {
     // ✨ CSS-only format - no selectors needed!
-    container: `{ display: inline-flex; gap: 0.5rem; padding: 1rem; border: 2px solid #007bff; border-radius: 6px; align-items: center; background: white; }`,
-    counterButton: `{ padding: 0.5rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; min-width: 2rem; font-weight: bold; }`,
+    container:
+      `{ display: inline-flex; gap: 0.5rem; padding: 1rem; border: 2px solid #007bff; border-radius: 6px; align-items: center; background: white; }`,
+    counterButton:
+      `{ padding: 0.5rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; min-width: 2rem; font-weight: bold; }`,
     counterButtonHover: `{ background: #0056b3; }`, // → .counter-button-hover
-    display: `{ font-size: 1.5rem; min-width: 3rem; text-align: center; font-weight: bold; color: #007bff; }`
+    display:
+      `{ font-size: 1.5rem; min-width: 3rem; text-align: center; font-weight: bold; color: #007bff; }`,
   },
   render: ({ initialCount = number(0), step = number(1) }, api, classes) => (
     <div class={classes!.container} data-count={initialCount}>
-      <button class={classes!.counterButton} {...api.adjust({ current: initialCount, delta: -step, step }, { target: `closest .${classes!.container}` })}>
+      <button
+        class={classes!.counterButton}
+        {...api.adjust({ current: initialCount, delta: -step, step }, {
+          target: `closest .${classes!.container}`,
+        })}
+      >
         -{step}
       </button>
       <span class={classes!.display}>{initialCount}</span>
-      <button class={classes!.counterButton} {...api.adjust({ current: initialCount, delta: step, step }, { target: `closest .${classes!.container}` })}>
+      <button
+        class={classes!.counterButton}
+        {...api.adjust({ current: initialCount, delta: step, step }, {
+          target: `closest .${classes!.container}`,
+        })}
+      >
         +{step}
       </button>
-      <button class={classes!.counterButton} {...api.adjust({ value: 0, step }, { target: `closest .${classes!.container}` })}>
+      <button
+        class={classes!.counterButton}
+        {...api.adjust({ value: 0, step }, {
+          target: `closest .${classes!.container}`,
+        })}
+      >
         Reset
       </button>
     </div>
-  )
+  ),
 });
 ```
 
 ### 🛒 Cart Item — Server Actions (JSON in, HTML out)
 
 ```tsx
-import { defineComponent, h, string, number, patch, del, post, renderComponent } from "./src/index.ts";
+import {
+  defineComponent,
+  del,
+  h,
+  number,
+  patch,
+  post,
+  renderComponent,
+  string,
+} from "./src/index.ts";
 
 defineComponent("cart-item", {
   api: {
-    updateQuantity: patch("/api/cart/:productId/quantity", async (req, params) => {
-      const body = await req.json() as { quantity?: number };
-      const newQuantity = Number(body.quantity ?? 0);
-      // Update cart in database/session …
-      return new Response(
-        renderComponent("cart-item", {
-          productId: params.productId,
-          name: "Product", // ← load from DB
-          quantity: newQuantity,
-          price: 19.99,     // ← load from DB
-        }),
-        { headers: { "content-type": "text/html; charset=utf-8" } },
-      );
-    }),
-    remove: del("/api/cart/:productId", async () => new Response("", { status: 200 })),
-    favorite: post("/api/cart/:productId/favorite", async (req, params) => new Response(
-      renderComponent("cart-item", { productId: params.productId, name: "Product", quantity: 1, price: 19.99 }),
-      { headers: { "content-type": "text/html; charset=utf-8" } },
-    )),
+    updateQuantity: patch(
+      "/api/cart/:productId/quantity",
+      async (req, params) => {
+        const body = await req.json() as { quantity?: number };
+        const newQuantity = Number(body.quantity ?? 0);
+        // Update cart in database/session …
+        return new Response(
+          renderComponent("cart-item", {
+            productId: params.productId,
+            name: "Product", // ← load from DB
+            quantity: newQuantity,
+            price: 19.99, // ← load from DB
+          }),
+          { headers: { "content-type": "text/html; charset=utf-8" } },
+        );
+      },
+    ),
+    remove: del(
+      "/api/cart/:productId",
+      async () => new Response("", { status: 200 }),
+    ),
+    favorite: post(
+      "/api/cart/:productId/favorite",
+      async (req, params) =>
+        new Response(
+          renderComponent("cart-item", {
+            productId: params.productId,
+            name: "Product",
+            quantity: 1,
+            price: 19.99,
+          }),
+          { headers: { "content-type": "text/html; charset=utf-8" } },
+        ),
+    ),
   },
-  render: ({ productId = string("1"), name = string("Product"), quantity = number(1), price = number(0) }, api) => (
+  render: (
+    {
+      productId = string("1"),
+      name = string("Product"),
+      quantity = number(1),
+      price = number(0),
+    },
+    api,
+  ) => (
     <div class="cart-item" data-product-id={productId}>
       <h3>{name}</h3>
       <div class="quantity-controls">
-        <input type="number" name="quantity" value={quantity} hx-trigger="change" {...api.updateQuantity(productId, {}, { target: "closest .cart-item" })} />
+        <input
+          type="number"
+          name="quantity"
+          value={quantity}
+          hx-trigger="change"
+          {...api.updateQuantity(productId, {}, {
+            target: "closest .cart-item",
+          })}
+        />
       </div>
       <div class="price">${price}</div>
       <div class="actions">
@@ -226,29 +335,49 @@ defineComponent("cart-item", {
 ### 📑 Tabs — API-loaded Content
 
 ```tsx
-import { defineComponent, h, string, get, escape } from "./src/index.ts";
+import { defineComponent, escape, get, h, string } from "./src/index.ts";
 
 defineComponent("tabs", {
   api: {
     load: get("/api/tabs/:tab", (_req, params) => {
       const safe = escape(params.tab ?? "Home");
-      const html = `<div><h3>${safe} Content</h3><p>This is the content for the ${safe} tab.</p></div>`;
-      return new Response(html, { headers: { "content-type": "text/html; charset=utf-8" } });
+      const html =
+        `<div><h3>${safe} Content</h3><p>This is the content for the ${safe} tab.</p></div>`;
+      return new Response(html, {
+        headers: { "content-type": "text/html; charset=utf-8" },
+      });
     }),
   },
-  styles: { /* … */ },
-  render: ({ tabs = string("Home,About,Settings"), activeTab = string("Home") }, api, classes) => {
-    const tabList = tabs.split(",").map(t => t.trim());
+  styles: {/* … */},
+  render: (
+    { tabs = string("Home,About,Settings"), activeTab = string("Home") },
+    api,
+    classes,
+  ) => {
+    const tabList = tabs.split(",").map((t) => t.trim());
     const active = activeTab || tabList[0];
     return (
       <div class={classes!.container}>
         <div class={classes!.nav}>
           {tabList.map((tab) => (
             <button
-              class={`${classes!.button} ${tab === active ? classes!.buttonActive : ""}`}
-              hx-on:click={`const C=this.closest('.${classes!.container}');if(!C)return;C.querySelectorAll('.${classes!.button}').forEach(b=>b.classList.remove('${classes!.buttonActive}'));this.classList.add('${classes!.buttonActive}');`}
-              {...api.load(tab, { target: `closest .${classes!.content}`, swap: "innerHTML" })}
-            >{tab}</button>
+              class={`${classes!.button} ${
+                tab === active ? classes!.buttonActive : ""
+              }`}
+              hx-on:click={`const C=this.closest('.${
+                classes!.container
+              }');if(!C)return;C.querySelectorAll('.${
+                classes!.button
+              }').forEach(b=>b.classList.remove('${
+                classes!.buttonActive
+              }'));this.classList.add('${classes!.buttonActive}');`}
+              {...api.load(tab, {
+                target: `closest .${classes!.content}`,
+                swap: "innerHTML",
+              })}
+            >
+              {tab}
+            </button>
           ))}
         </div>
         <div class={classes!.content}>
@@ -257,11 +386,12 @@ defineComponent("tabs", {
         </div>
       </div>
     );
-  }
+  },
 });
 ```
 
 **DOM State in Action:**
+
 - Counter value stored in `data-count` attribute
 - Display synced with element `.textContent`
 - No JavaScript variables to manage!
@@ -269,7 +399,15 @@ defineComponent("tabs", {
 ### ✅ Todo Item - HTMX + Function-Style Props (JSON in, HTML out)
 
 ```tsx
-import { defineComponent, h, string, boolean, patch, del, renderComponent } from "./src/index.ts";
+import {
+  boolean,
+  defineComponent,
+  del,
+  h,
+  patch,
+  renderComponent,
+  string,
+} from "./src/index.ts";
 
 defineComponent("todo-item", {
   api: {
@@ -285,21 +423,27 @@ defineComponent("todo-item", {
         { headers: { "content-type": "text/html; charset=utf-8" } },
       );
     }),
-    remove: del("/api/todos/:id", () => new Response(null, { status: 200 }))
+    remove: del("/api/todos/:id", () => new Response(null, { status: 200 })),
   },
   styles: {
     // ✨ CSS-only format for todo items!
-    item: `{ display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 0.5rem; background: white; transition: background-color 0.2s; }`,
+    item:
+      `{ display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 0.5rem; background: white; transition: background-color 0.2s; }`,
     itemDone: `{ background: #f8f9fa; opacity: 0.8; }`,
     checkbox: `{ margin-right: 0.5rem; }`,
     text: `{ flex: 1; font-size: 1rem; }`,
     textDone: `{ text-decoration: line-through; color: #6c757d; }`,
-    deleteBtn: `{ background: #dc3545; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; line-height: 1; }`
+    deleteBtn:
+      `{ background: #dc3545; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; line-height: 1; }`,
   },
-  render: ({ id = string("1"), text = string("Todo item"), done = boolean(false) }, api, classes) => {
+  render: (
+    { id = string("1"), text = string("Todo item"), done = boolean(false) },
+    api,
+    classes,
+  ) => {
     const itemClass = `${classes!.item} ${done ? classes!.itemDone : ""}`;
     const textClass = `${classes!.text} ${done ? classes!.textDone : ""}`;
-    
+
     return (
       <div class={itemClass} data-id={id}>
         <input
@@ -307,26 +451,32 @@ defineComponent("todo-item", {
           class={classes!.checkbox}
           checked={done}
           {...api.toggle(id, { done: !done })}
-          />
+        />
         <span class={textClass}>{text}</span>
-        <button type="button" class={classes!.deleteBtn} {...api.remove(id)}>×</button>
+        <button type="button" class={classes!.deleteBtn} {...api.remove(id)}>
+          ×
+        </button>
       </div>
     );
-  }
+  },
 });
 ```
 
 ### 🔧 JSON in, HTML out (standard)
 
 We standardize on JSON requests and HTML responses. The Unified API helpers:
+
 - add `hx-ext="json-enc"` and `hx-encoding="json"`
-- set `hx-headers` with `Accept: text/html` and `X-Requested-With: XMLHttpRequest`
+- set `hx-headers` with `Accept: text/html` and
+  `X-Requested-With: XMLHttpRequest`
 - accept a payload object that becomes the JSON body (via `hx-vals`)
 
 Client (payload as object):
 
 ```tsx
-<button {...api.toggleLike(id, { liked: !liked, note: "from-card" })}>Toggle</button>
+<button {...api.toggleLike(id, { liked: !liked, note: "from-card" })}>
+  Toggle
+</button>;
 ```
 
 Server (parse JSON; return HTML with content-type):
@@ -345,25 +495,33 @@ export const toggleLike = patch("/api/items/:id/like", async (req, params) => {
 });
 ```
 
-Per-request headers (e.g., CSRF) are merged in server-side; you can also pass overrides per call:
+Per-request headers (e.g., CSRF) are merged in server-side; you can also pass
+overrides per call:
 
 ```tsx
-<button {...api.toggleLike(id, { liked: true }, { headers: { "X-CSRF-Token": token }, target: "closest .card" })}>
+<button
+  {...api.toggleLike(id, { liked: true }, {
+    headers: { "X-CSRF-Token": token },
+    target: "closest .card",
+  })}
+>
   Like
-</button>
+</button>;
 ```
 
 **Hybrid State Management:**
+
 - ✅ **Local UI state**: Checkbox syncs to CSS class instantly
-- ✅ **Server persistence**: HTMX handles data updates  
+- ✅ **Server persistence**: HTMX handles data updates
 - ✅ **Function-style props**: Zero duplication
 - ✅ **Auto-generated classes**: From CSS-only format
 
 ## 🔧 defineComponent API Reference
 
-### Function-Style Props (NEW!)
+### Function-Style Props
 
-The most ergonomic way to define props - zero duplication between props and render parameters:
+The most ergonomic way to define props - zero duplication between props and
+render parameters:
 
 ```tsx
 defineComponent("my-component", {
@@ -387,7 +545,7 @@ array(defaultValue?)    // Parses JSON strings to arrays
 object(defaultValue?)   // Parses JSON strings to objects
 ```
 
-### CSS-Only Format (NEW!)
+### CSS-Only Format
 
 Just write CSS properties - class names auto-generated:
 
@@ -399,32 +557,10 @@ styles: {
   textLarge: `{ font-size: 1.5rem; font-weight: bold; }` // → .text-large
 }
 
-// Also supports traditional format:
-styles: {
-  button: `.my-btn { background: blue; }`,  // Traditional selector format
-  hover: `.my-btn:hover { background: darkblue; }` 
-}
+// CSS-only format is the default and recommended approach.
 ```
 
-### Legacy Props System
-
-Still supported for complex cases:
-
-```tsx
-// Transformer function approach
-props: (attrs) => ({
-  id: attrs.id,
-  count: parseInt(attrs.count || "0"),
-  active: "active" in attrs
-})
-
-// Enhanced object syntax  
-props: {
-  title: "string",                          // Required string
-  count: { type: "number", default: 0 },   // Optional with default
-  active: { type: "boolean", default: true }
-}
-```
+<!-- Legacy props system removed to focus on the current authoring model. -->
 
 ### Unified API System
 
@@ -453,14 +589,15 @@ render: ({ id }, api, classes) => (
 Returns JSX that compiles to optimized HTML strings:
 
 ```tsx
-render: (props, api, classes) => (
+render: ((props, api, classes) => (
   <div class={classes?.container}>
     <button {...(api?.action?.(props.id) || {})}>Click me</button>
   </div>
-)
+));
 ```
 
 **Parameters:**
+
 - `props`: Fully typed props object (auto-inferred from function-style props)
 - `api`: Auto-generated HTMX client functions (optional)
 - `classes`: Class name mappings (optional, auto-generated from CSS-only format)
@@ -472,19 +609,19 @@ render: (props, api, classes) => (
 ### Class Manipulation
 
 ```tsx
-toggleClass("active");                    // Toggle single class
-toggleClasses(["open", "visible"]);      // Toggle multiple classes
+toggleClass("active"); // Toggle single class
+toggleClasses(["open", "visible"]); // Toggle multiple classes
 ```
 
 ### Template Utilities
 
 ```tsx
 conditionalClass(isOpen, "open", "closed"); // Conditional CSS classes
-spreadAttrs({ "hx-get": "/api/data" });     // Spread HTMX attributes
+spreadAttrs({ "hx-get": "/api/data" }); // Spread HTMX attributes
 dataAttrs({ userId: 123, role: "admin" }); // Generate data-* attributes
 ```
 
-### Smart Type Helpers (NEW!)
+### Smart Type Helpers
 
 ```tsx
 // Available for function-style props:
@@ -501,9 +638,9 @@ Small, copyable helpers in `examples/dom-actions.ts` for common UI patterns:
 
 ```tsx
 updateParentCounter(".container", ".display", 5); // Increment by 5
-resetCounter(".display", 0, ".container");        // Reset to initial value
-toggleParentClass("expanded");                     // Toggle class on parent
-syncCheckboxToClass("completed");                 // Checkbox state → CSS class
+resetCounter(".display", 0, ".container"); // Reset to initial value
+toggleParentClass("expanded"); // Toggle class on parent
+syncCheckboxToClass("completed"); // Checkbox state → CSS class
 activateTab(".tabs", ".tab-btn", ".content", "active"); // Tab activation
 ```
 
@@ -518,62 +655,6 @@ deno task fmt        # Format code
 deno task lint       # Lint code
 ```
 
-## 🎯 Why funcwc?
-
-### Traditional React/Vue Problems:
-
-```tsx
-// ❌ Complex state management
-const [count, setCount] = useState(0);
-const [isOpen, setIsOpen] = useState(false);
-const [loading, setLoading] = useState(false);
-
-// ❌ Props + parameter duplication
-interface Props {
-  title: string;
-  count: number;
-  active: boolean;
-}
-const MyComponent = ({ title, count, active }: Props) => {
-  // Duplication: Props interface + function parameters
-}
-
-// ❌ State synchronization bugs
-// ❌ Prop drilling  
-// ❌ Large bundle sizes
-// ❌ Hydration mismatches
-```
-
-### funcwc Solution:
-
-```tsx
-// ✅ DOM is the state - no synchronization needed!
-defineComponent("my-widget", {
-  styles: {
-    // ✨ CSS-only format - no duplication!
-    container: `{ display: flex; gap: 1rem; }`,
-    button: `{ background: blue; color: white; }`
-  },
-  render: ({
-    // ✨ Function-style props - no duplication!
-    title = string("My Widget"),
-    count = number(0),
-    active = boolean(false)
-  }, api, classes) => (
-    <div class={`${classes!.container} ${active ? "active" : ""}`} data-count={count}>
-      <span>{title}: {count}</span>
-      <button class={classes!.button} onclick={toggleClass("active")}>Toggle</button>
-    </div>
-  )
-});
-
-// ✅ Zero runtime JavaScript
-// ✅ Perfect SSR  
-// ✅ No hydration issues
-// ✅ Instant debugging (inspect DOM)
-// ✅ No duplication anywhere!
-```
-
 ## 🚀 Performance Benefits
 
 - **🏃‍♂️ Faster**: No client-side state management overhead
@@ -581,18 +662,20 @@ defineComponent("my-widget", {
 - **🔧 Simpler**: DOM inspector shows all state
 - **⚡ Instant**: Direct DOM manipulation, no virtual DOM
 - **🎯 Reliable**: No state synchronization bugs
-- **✨ Ergonomic**: Function-style props + CSS-only format = maximum productivity
+- **✨ Ergonomic**: Function-style props + CSS-only format = maximum
+  productivity
 
-## 🎨 Evolution Summary
+## Summary
 
-funcwc has evolved through three major ergonomic improvements:
+- **🔧 defineComponent API**: Clean object-based configuration.
+- **🎨 CSS-Only Format**: Auto-generated class names from CSS property blocks.
+- **✨ Function-Style Props**: Props inferred from render parameters and
+  defaults.
 
-1. **🔧 defineComponent API**: Clean object-based configuration (vs complex pipeline)
-2. **🎨 CSS-Only Format**: Auto-generated class names from CSS properties  
-3. **✨ Function-Style Props**: Zero duplication between props and render parameters
-
-The result? **The most ergonomic component library ever built** - minimal syntax, maximum power, zero runtime overhead.
+These pieces combine for an ergonomic, zero-runtime SSR component model with
+HTMX JSON requests and HTML responses.
 
 ---
 
-**Built with ❤️ for the modern web. Deno + TypeScript + DOM-native state management + Revolutionary ergonomics.**
+**Built with ❤️ for the modern web. Deno + TypeScript + DOM-native state
+management + Revolutionary ergonomics.**

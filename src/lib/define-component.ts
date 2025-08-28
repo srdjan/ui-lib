@@ -7,9 +7,9 @@ import {
 } from "./api-generator.ts";
 import { appRouter } from "./router.ts";
 import {
-  type UnifiedStyles,
-  parseUnifiedStyles,
   isUnifiedStyles,
+  parseUnifiedStyles,
+  type UnifiedStyles,
 } from "./styles-parser.ts";
 import { parseRenderParameters } from "./render-parameter-parser.ts";
 import { extractPropDefinitions } from "./prop-helpers.ts";
@@ -36,7 +36,7 @@ type StylesInput = string | UnifiedStyles;
 export interface ComponentConfigWithApi<TProps> {
   props?: PropsTransformer<Record<string, string>, TProps>;
   styles?: StylesInput; // Can be string or unified styles object
-  classes?: ClassMap;   // Optional when using unified styles
+  classes?: ClassMap; // Optional when using unified styles
   api: ApiMap; // Required when this interface is used
   render: (props: TProps, api: GeneratedApiMap, classes?: ClassMap) => string;
 }
@@ -44,7 +44,7 @@ export interface ComponentConfigWithApi<TProps> {
 export interface ComponentConfigWithoutApi<TProps> {
   props?: PropsTransformer<Record<string, string>, TProps>;
   styles?: StylesInput; // Can be string or unified styles object
-  classes?: ClassMap;   // Optional when using unified styles
+  classes?: ClassMap; // Optional when using unified styles
   api?: never; // Not allowed when this interface is used
   render: (props: TProps, api?: undefined, classes?: ClassMap) => string;
 }
@@ -115,9 +115,17 @@ export function defineComponent<TProps = Record<string, string>>(
   if (!propsTransformer) {
     const { propHelpers, hasProps } = parseRenderParameters(render);
     if (hasProps) {
-      const { propsTransformer: autoTransformer } = extractPropDefinitions(propHelpers);
-      finalPropsTransformer = autoTransformer as PropsTransformer<Record<string, string>, TProps>;
-      console.log(`Auto-generated props for component "${name}":`, Object.keys(propHelpers));
+      const { propsTransformer: autoTransformer } = extractPropDefinitions(
+        propHelpers,
+      );
+      finalPropsTransformer = autoTransformer as PropsTransformer<
+        Record<string, string>,
+        TProps
+      >;
+      console.log(
+        `Auto-generated props for component "${name}":`,
+        Object.keys(propHelpers),
+      );
     }
   }
 
@@ -128,10 +136,12 @@ export function defineComponent<TProps = Record<string, string>>(
   if (stylesInput) {
     if (isUnifiedStyles(stylesInput)) {
       // New unified styles format
-      const { classMap: extractedClassMap, combinedCss } = parseUnifiedStyles(stylesInput);
+      const { classMap: extractedClassMap, combinedCss } = parseUnifiedStyles(
+        stylesInput,
+      );
       css = combinedCss;
       classMap = extractedClassMap;
-      
+
       // If user also provided separate classes, merge them (provided classes take precedence)
       if (providedClassMap) {
         classMap = { ...extractedClassMap, ...providedClassMap };

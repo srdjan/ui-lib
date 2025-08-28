@@ -2,10 +2,9 @@
 export type SSRRegistryEntry = {
   props?: Record<string, { attribute: string; parse: (v: unknown) => unknown }>;
   css?: string;
-  render: (
-    props: unknown,
-    api?: unknown,
-  ) => string;
+  // Method syntax gives bivariant parameter checking, allowing consumers to
+  // narrow parameter types in their render functions without conflicts.
+  render(props: unknown, api?: unknown): string;
   api?: Record<string, (...args: unknown[]) => Record<string, unknown>>;
 };
 
