@@ -22,47 +22,40 @@ import type { GeneratedApiMap } from "../../src/index.ts";
 // 1. Simple Counter with API Updates
 defineComponent("api-counter", {
   styles: {
-    container: `{
-      display: inline-flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1.5rem;
-      border: 2px solid #007bff;
-      border-radius: 12px;
-      background: white;
-      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
-    }`,
-    button: `{
-      padding: 0.75rem 1rem;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.2s ease;
-      min-width: 3rem;
-    }`,
-    buttonHover: `{
-      background: #0056b3;
-      transform: translateY(-1px);
-    }`,
-    display: `{
-      font-size: 2rem;
-      font-weight: 700;
-      color: #007bff;
-      min-width: 4rem;
-      text-align: center;
-      background: #f8f9ff;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      border: 2px solid #e9ecef;
-    }`,
-    reset: `{
-      background: #6c757d;
-      color: white;
-      font-size: 0.9rem;
-    }`
+    container: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '1rem',
+      padding: '1.5rem',
+      border: '2px solid #007bff',
+      borderRadius: '12px',
+      background: 'white',
+      boxShadow: '0 4px 12px rgba(0, 123, 255, 0.15)',
+    },
+    button: {
+      padding: '0.75rem 1rem',
+      background: '#007bff',
+      color: 'white',
+      border: 'none',
+      borderRadius: '8px',
+      cursor: 'pointer',
+      fontWeight: '600',
+      transition: 'all 0.2s ease',
+      minWidth: '3rem',
+    },
+    buttonHover: { background: '#0056b3', transform: 'translateY(-1px)' },
+    display: {
+      fontSize: '2rem',
+      fontWeight: '700',
+      color: '#007bff',
+      minWidth: '4rem',
+      textAlign: 'center',
+      background: '#f8f9ff',
+      padding: '0.5rem 1rem',
+      borderRadius: '8px',
+      border: '2px solid #e9ecef',
+    },
+    reset: { background: '#6c757d', color: 'white', fontSize: '0.9rem' },
   },
   api: {
     // JSON in, HTML out - the core funcwc API pattern
@@ -105,7 +98,6 @@ defineComponent("api-counter", {
           // Sends JSON: { current: 5, delta: -1, step: 1 }
           // Receives HTML that replaces this entire component
           ...api.adjust({ current: currentValue, delta: -step, step }, {
-            target: "closest div",
             indicator: "#loading-counter"
           })
         }
@@ -122,7 +114,6 @@ defineComponent("api-counter", {
         class={`${classes!.button} hover:${classes!.buttonHover}`}
         {
           ...api.adjust({ current: currentValue, delta: step, step }, {
-            target: "closest div",
             indicator: "#loading-counter"
           })
         }
@@ -135,7 +126,6 @@ defineComponent("api-counter", {
         class={`${classes!.button} ${classes!.reset}`}
         {
           ...api.adjust({ value: 0, step }, {
-            target: "closest div",
             indicator: "#loading-counter"
           })
         }
@@ -157,67 +147,32 @@ defineComponent("api-counter", {
 // 2. User Profile Editor with Validation
 defineComponent("user-profile-editor", {
   styles: {
-    form: `{
-      background: white;
-      padding: 2rem;
-      border-radius: 12px;
-      border: 1px solid #dee2e6;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      max-width: 500px;
-    }`,
-    field: `{
-      margin-bottom: 1.5rem;
-    }`,
-    label: `{
-      display: block;
-      font-weight: 600;
-      color: #495057;
-      margin-bottom: 0.5rem;
-    }`,
-    input: `{
-      width: 100%;
-      padding: 0.75rem;
-      border: 2px solid #dee2e6;
-      border-radius: 6px;
-      font-size: 1rem;
-      transition: border-color 0.2s ease;
-    }`,
-    inputFocus: `{
-      border-color: #007bff;
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-    }`,
-    inputError: `{
-      border-color: #dc3545;
-    }`,
-    button: `{
-      background: #28a745;
-      color: white;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      width: 100%;
-    }`,
-    buttonHover: `{
-      background: #218838;
-      transform: translateY(-1px);
-    }`,
-    error: `{
-      color: #dc3545;
-      font-size: 0.9rem;
-      margin-top: 0.25rem;
-    }`,
-    success: `{
-      background: #d4edda;
-      color: #155724;
-      padding: 1rem;
-      border-radius: 6px;
-      border: 1px solid #c3e6cb;
-      margin-top: 1rem;
-    }`
+    form: {
+      background: 'white', padding: '2rem', borderRadius: '12px',
+      border: '1px solid #dee2e6', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      maxWidth: '500px',
+    },
+    field: { marginBottom: '1.5rem' },
+    label: {
+      display: 'block', fontWeight: '600', color: '#495057', marginBottom: '0.5rem',
+    },
+    input: {
+      width: '100%', padding: '0.75rem', border: '2px solid #dee2e6', borderRadius: '6px',
+      fontSize: '1rem', transition: 'border-color 0.2s ease',
+    },
+    inputFocus: {
+      borderColor: '#007bff', outline: 'none', boxShadow: '0 0 0 3px rgba(0, 123, 255, 0.1)',
+    },
+    inputError: { borderColor: '#dc3545' },
+    button: {
+      background: '#28a745', color: 'white', border: 'none', padding: '0.75rem 1.5rem',
+      borderRadius: '6px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', width: '100%',
+    },
+    buttonHover: { background: '#218838', transform: 'translateY(-1px)' },
+    error: { color: '#dc3545', fontSize: '0.9rem', marginTop: '0.25rem' },
+    success: {
+      background: '#d4edda', color: '#155724', padding: '1rem', borderRadius: '6px', border: '1px solid #c3e6cb', marginTop: '1rem',
+    },
   },
   api: {
     updateProfile: patch("/api/profile/update", async (req) => {
@@ -304,7 +259,6 @@ defineComponent("user-profile-editor", {
       <form 
         class={classes!.form}
         {...api.updateProfile({}, {
-          target: "outerHTML",
           indicator: "#profile-loading"
         })}
       >
@@ -390,60 +344,19 @@ defineComponent("user-profile-editor", {
 // 3. Dynamic Search with Autocomplete
 defineComponent("search-autocomplete", {
   styles: {
-    container: `{
-      position: relative;
-      width: 100%;
-      max-width: 400px;
-    }`,
-    input: `{
-      width: 100%;
-      padding: 1rem;
-      border: 2px solid #dee2e6;
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: all 0.2s ease;
-    }`,
-    inputFocus: `{
-      border-color: #007bff;
-      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-    }`,
-    results: `{
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: white;
-      border: 1px solid #dee2e6;
-      border-top: none;
-      border-radius: 0 0 8px 8px;
-      max-height: 300px;
-      overflow-y: auto;
-      z-index: 1000;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }`,
-    item: `{
-      padding: 1rem;
-      border-bottom: 1px solid #f8f9fa;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }`,
-    itemHover: `{
-      background: #f8f9fa;
-    }`,
-    itemActive: `{
-      background: #e3f2fd;
-      color: #1976d2;
-    }`,
-    highlight: `{
-      background: #fff176;
-      font-weight: 600;
-    }`,
-    noResults: `{
-      padding: 1rem;
-      text-align: center;
-      color: #6c757d;
-      font-style: italic;
-    }`
+    container: { position: 'relative', width: '100%', maxWidth: '400px' },
+    input: {
+      width: '100%', padding: '1rem', border: '2px solid #dee2e6', borderRadius: '8px', fontSize: '1rem', transition: 'all 0.2s ease',
+    },
+    inputFocus: { borderColor: '#007bff', boxShadow: '0 0 0 3px rgba(0, 123, 255, 0.1)' },
+    results: {
+      position: 'absolute', top: '100%', left: '0', right: '0', background: 'white', border: '1px solid #dee2e6', borderTop: 'none', borderRadius: '0 0 8px 8px', maxHeight: '300px', overflowY: 'auto', zIndex: '1000', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    },
+    item: { padding: '1rem', borderBottom: '1px solid #f8f9fa', cursor: 'pointer', transition: 'background-color 0.2s ease' },
+    itemHover: { background: '#f8f9fa' },
+    itemActive: { background: '#e3f2fd', color: '#1976d2' },
+    highlight: { background: '#fff176', fontWeight: '600' },
+    noResults: { padding: '1rem', textAlign: 'center', color: '#6c757d', fontStyle: 'italic' },
   },
   api: {
     search: get("/api/search", async (req) => {

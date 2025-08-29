@@ -4,6 +4,7 @@ import {
   array,
   boolean,
   defineComponent,
+  defineReactiveComponent,
   h,
   number,
   renderComponent,
@@ -28,8 +29,8 @@ const sampleProducts = [
 ];
 
 // Main Shopping Cart Component - Manages the cart state
-defineComponent("shopping-cart", {
-  // stateSubscriptions: {
+defineReactiveComponent("shopping-cart", {
+  stateSubscriptions: {
     cart: `
       // Update the cart display when state changes
       const cartContainer = this.querySelector('.cart-items');
@@ -92,132 +93,26 @@ defineComponent("shopping-cart", {
       countBadge.style.display = data.count > 0 ? 'block' : 'none';
     `
   },
-  // onMount: `
-    // Initialize empty cart state on mount
-    const initialCart = {
-      items: [],
-      count: 0,
-      total: 0,
-      isEmpty: true
-    };
-    window.funcwcState.publish('cart', initialCart);
+  onMount: `
+    const initialCart = { items: [], count: 0, total: 0, isEmpty: true };
+    if (window.funcwcState) window.funcwcState.publish('cart', initialCart);
   `,
   styles: {
-    cart: `{
-      background: var(--theme-card-bg, white);
-      border: 2px solid var(--theme-border, #ddd);
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin: 1rem 0;
-      transition: all 0.3s ease;
-      min-height: 300px;
-    }`,
-    header: `{
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid var(--theme-border, #ddd);
-    }`,
-    title: `{
-      color: var(--theme-text, #333);
-      font-size: 1.5rem;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }`,
-    itemCount: `{
-      background: var(--theme-button-bg, #007bff);
-      color: var(--theme-button-text, white);
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      font-weight: bold;
-    }`,
-    clearButton: `{
-      background: #dc3545;
-      color: white;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: all 0.2s ease;
-    }`,
-    emptyMessage: `{
-      text-align: center;
-      color: var(--theme-text, #666);
-      padding: 2rem;
-      font-style: italic;
-    }`,
-    cartItems: `{
-      display: none;
-    }`,
-    cartItem: `{
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem;
-      border: 1px solid var(--theme-border, #eee);
-      border-radius: 8px;
-      margin-bottom: 0.5rem;
-      background: var(--theme-bg, #f9f9f9);
-      transition: all 0.2s ease;
-    }`,
-    itemIcon: `{
-      font-size: 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 60px;
-      height: 60px;
-      background: var(--theme-card-bg, white);
-      border-radius: 8px;
-    }`,
-    itemDetails: `{
-      flex: 1;
-    }`,
-    itemName: `{
-      color: var(--theme-text, #333);
-      font-weight: bold;
-      font-size: 1.1rem;
-    }`,
-    itemPrice: `{
-      color: var(--theme-text, #666);
-      font-size: 0.9rem;
-      margin-top: 0.25rem;
-    }`,
-    itemActions: `{
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }`,
-    qtyBtn: `{
-      background: var(--theme-button-bg, #007bff);
-      color: var(--theme-button-text, white);
-      border: none;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      transition: all 0.2s ease;
-    }`,
-    quantity: `{
-      font-weight: bold;
-      color: var(--theme-text, #333);
-      min-width: 30px;
-      text-align: center;
-    }`,
+    cart: { background: 'var(--theme-card-bg, white)', border: '2px solid var(--theme-border, #ddd)', borderRadius: '12px', padding: '1.5rem', margin: '1rem 0', transition: 'all 0.3s ease', minHeight: '300px' },
+    header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '2px solid var(--theme-border, #ddd)' },
+    title: { color: 'var(--theme-text, #333)', fontSize: '1.5rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' },
+    itemCount: { background: 'var(--theme-button-bg, #007bff)', color: 'var(--theme-button-text, white)', borderRadius: '50%', width: '24px', height: '24px', display: 'none', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 'bold' },
+    clearButton: { background: '#dc3545', color: 'white', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem', transition: 'all 0.2s ease' },
+    emptyMessage: { textAlign: 'center', color: 'var(--theme-text, #666)', padding: '2rem', fontStyle: 'italic' },
+    cartItems: { display: 'none' },
+    cartItem: { display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', border: '1px solid var(--theme-border, #eee)', borderRadius: '8px', marginBottom: '0.5rem', background: 'var(--theme-bg, #f9f9f9)', transition: 'all 0.2s ease' },
+    itemIcon: { fontSize: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '60px', height: '60px', background: 'var(--theme-card-bg, white)', borderRadius: '8px' },
+    itemDetails: { flex: '1' },
+    itemName: { color: 'var(--theme-text, #333)', fontWeight: 'bold', fontSize: '1.1rem' },
+    itemPrice: { color: 'var(--theme-text, #666)', fontSize: '0.9rem', marginTop: '0.25rem' },
+    itemActions: { display: 'flex', alignItems: 'center', gap: '0.5rem' },
+    qtyBtn: { background: 'var(--theme-button-bg, #007bff)', color: 'var(--theme-button-text, white)', border: 'none', width: '30px', height: '30px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', transition: 'all 0.2s ease' },
+    quantity: { fontWeight: 'bold', color: 'var(--theme-text, #333)', minWidth: '30px', textAlign: 'center' },
     removeBtn: `{
       background: #dc3545;
       color: white;
@@ -290,8 +185,8 @@ defineComponent("shopping-cart", {
 });
 
 // Cart Badge - Shows cart summary in header/nav
-defineComponent("cart-badge", {
-  // stateSubscriptions: {
+defineReactiveComponent("cart-badge", {
+  stateSubscriptions: {
     cart: `
       const countEl = this.querySelector('.count');
       const totalEl = this.querySelector('.total');
@@ -308,7 +203,7 @@ defineComponent("cart-badge", {
         this.style.transform = 'scale(1.1)';
         setTimeout(() => this.style.transform = 'scale(1)', 200);
       }
-    `
+    `,
   },
   styles: {
     badge: `{
@@ -367,8 +262,8 @@ defineComponent("cart-badge", {
 });
 
 // Checkout Button - Enables/disables based on cart state
-defineComponent("checkout-button", {
-  // stateSubscriptions: {
+defineReactiveComponent("checkout-button", {
+  stateSubscriptions: {
     cart: `
       const isEmpty = data.isEmpty;
       const count = data.count;
@@ -382,7 +277,7 @@ defineComponent("checkout-button", {
       } else {
         this.textContent = 'Checkout (' + count + ' item' + (count !== 1 ? 's' : '') + ')';
       }
-    `
+    `,
   },
   styles: {
     button: `{
@@ -535,8 +430,8 @@ defineComponent("product-grid", {
 });
 
 // Cart Statistics - Shows detailed cart analytics
-defineComponent("cart-statistics", {
-  // stateSubscriptions: {
+defineReactiveComponent("cart-statistics", {
+  stateSubscriptions: {
     cart: `
       const stats = this.querySelector('.stats-content');
       const isEmpty = data.isEmpty;
@@ -556,7 +451,7 @@ defineComponent("cart-statistics", {
           '<div class="stat-item"><strong>Most Expensive:</strong> ' + mostExpensive.name + ' ($' + mostExpensive.price.toFixed(2) + ')</div>' +
           '<div class="stat-item"><strong>Total Value:</strong> $' + data.total.toFixed(2) + '</div>';
       }
-    `
+    `,
   },
   styles: {
     stats: `{
@@ -693,4 +588,4 @@ defineComponent("quick-add-panel", {
   )
 });
 
-console.log("✅ Shopping Cart System components registered");
+console.log("✅ Shopping Cart System components registered.");

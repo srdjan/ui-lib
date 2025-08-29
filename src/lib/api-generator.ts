@@ -95,6 +95,11 @@ export function generateClientApi(apiMap: ApiMap): GeneratedApiMap {
         }
       }
 
+      // Set sensible defaults for non-GET interactions if not overridden
+      if (method !== "GET" && !("hx-target" in attrs)) {
+        attrs["hx-target"] = "closest [data-component]";
+      }
+
       try {
         attrs["hx-headers"] = JSON.stringify(defaultHeaders);
       } catch {

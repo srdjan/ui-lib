@@ -39,14 +39,20 @@ Deno.test("defineComponent with props transformer (defaults)", () => {
   });
 
   const result1 = renderComponent("test-defaults", { name: "test" });
-  assertEquals(result1, "<div>test: 42, active: false</div>");
+  assertEquals(
+    result1,
+    '<div data-component="test-defaults">test: 42, active: false</div>',
+  );
 
   const result2 = renderComponent("test-defaults", {
     name: "test",
     count: "100",
     active: "",
   });
-  assertEquals(result2, "<div>test: 100, active: true</div>");
+  assertEquals(
+    result2,
+    '<div data-component="test-defaults">test: 100, active: true</div>',
+  );
 });
 
 Deno.test("defineComponent with validation in props transformer", () => {
@@ -64,14 +70,20 @@ Deno.test("defineComponent with validation in props transformer", () => {
   });
 
   const result1 = renderComponent("test-validation", { title: "Hello" });
-  assertEquals(result1, "<div>Hello  0</div>");
+  assertEquals(
+    result1,
+    '<div data-component="test-validation">Hello  0</div>',
+  );
 
   const result2 = renderComponent("test-validation", {
     title: "Hello",
     subtitle: "World",
     count: "5",
   });
-  assertEquals(result2, "<div>Hello World 5</div>");
+  assertEquals(
+    result2,
+    '<div data-component="test-validation">Hello World 5</div>',
+  );
 });
 
 Deno.test("defineComponent with styles and classes (zero config)", () => {
@@ -93,7 +105,7 @@ Deno.test("defineComponent with styles and classes (zero config)", () => {
   const result = renderComponent("test-styled", { text: "Click" });
   assertEquals(
     result,
-    '<style>.btn { color: red; }</style><button class="btn">Click</button>',
+    '<style>.btn { color: red; }</style><button class="btn" data-component="test-styled">Click</button>',
   );
 });
 

@@ -25,6 +25,15 @@ import {
 
 defineComponent("todo-item", {
   // ✨ Function-style props - no duplication!
+  // 🎨 Unified styles with object form (preferred)
+  styles: {
+    item: {
+      display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem',
+      border: '1px solid #ddd', borderRadius: '4px', background: 'white',
+    },
+    checkbox: { marginRight: '0.5rem' },
+    deleteBtn: { background: '#dc3545', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer' },
+  },
   api: {
     // ✨ These are actual server handlers that will process requests
     toggle: patch("/api/todos/:id/toggle", async (req, params) => {
@@ -61,15 +70,16 @@ defineComponent("todo-item", {
     api,
     classes,
   ) => (
-    <div class="todo" data-id={id}>
+    <div class={classes!.item} data-id={id}>
       <input
         type="checkbox"
         checked={done}
+        class={classes!.checkbox}
         {...api.toggle(id)}
       />{" "}
       {/* ← Magic happens here! */}
       <span>{text}</span>
-      <button {...api.remove(id)}>Delete</button>
+      <button class={classes!.deleteBtn} {...api.remove(id)}>Delete</button>
     </div>
   ),
 });
@@ -79,12 +89,25 @@ defineComponent("todo-item", {
 
 funcwc analyzes your routes and creates client functions automatically:
 
-| Server Route Definition                   | Generated Function | What It Returns                                                                           |
-| ----------------------------------------- | ------------------ | ----------------------------------------------------------------------------------------- |
-| `patch("/api/todos/:id/toggle", handler)` | `api.toggle(id)`   | `{ "hx-patch": "/api/todos/123/toggle", "hx-target": "closest .todo" }`                   |
-| `del("/api/todos/:id", handler)`          | `api.remove(id)`   | `{ "hx-delete": "/api/todos/123", "hx-target": "closest .todo", "hx-swap": "outerHTML" }` |
-| `post("/api/todos", handler)`             | `api.create()`     | `{ "hx-post": "/api/todos" }`                                                             |
-| `get("/api/todos/:id", handler)`          | `api.get(id)`      | `{ "hx-get": "/api/todos/123" }`                                                          |
+| Server Route Definition                   | Generated Function | What It Returns                                                                                 |
+| ----------------------------------------- | ------------------ | ----------------------------------------------------------------------------------------------- |
+| `patch("/api/todos/:id/toggle", handler)` | `api.toggle(id)`   | `{ "hx-patch": "/api/todos/123/toggle", "hx-target": "closest [data-component]", "hx-swap": "outerHTML" }` |
+| `del("/api/todos/:id", handler)`          | `api.remove(id)`   | `{ "hx-delete": "/api/todos/123", "hx-target": "closest [data-component]", "hx-swap": "outerHTML" }`       |
+| `post("/api/todos", handler)`             | `api.create()`     | `{ "hx-post": "/api/todos", "hx-target": "closest [data-component]", "hx-swap": "outerHTML" }`              |
+| `get("/api/todos/:id", handler)`          | `api.get(id)`      | `{ "hx-get": "/api/todos/123" }`                                                            |
+
+Note: For non-GET requests, funcwc defaults to `hx-swap="outerHTML"` and
+`hx-target="closest [data-component]"`. Components automatically render with a
+`data-component="<name>"` attribute on the root element to enable these
+defaults and make scoping trivial.
+
+Callout: When to use selector strings
+
+- Use object-form `styles` for rule bodies (properties only). It’s typeable and
+  lintable, and class names are auto‑generated from keys.
+- Use selector strings (e.g., `.theme-btn.dark .light-icon { ... }`) when you
+  need complex selectors with combinators, pseudo‑classes, or descendant logic
+  that a single class rule cannot express.
 
 ### 3. **Route-to-Function Mapping Logic**
 

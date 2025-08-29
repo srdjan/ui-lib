@@ -16,8 +16,8 @@ export {
   remove,
 } from "./lib/api-helpers.ts";
 
-// Legacy API (maintained for backward compatibility)
-export { component } from "./lib/component-pipeline.ts";
+// Legacy pipeline API is no longer exported. Prefer defineComponent with
+// function-style props inferred in the render signature.
 
 // Type-safe DOM helpers for event handlers
 export { toggleClass, toggleClasses } from "./lib/dom-helpers.ts";
@@ -39,7 +39,7 @@ export { escapeHtml } from "./lib/ssr.ts";
 
 // Type definitions
 export type { ComponentAction } from "./lib/actions.ts";
-export type { ApiMap, GeneratedApiMap } from "./lib/component-pipeline.ts";
+export type { ApiMap, GeneratedApiMap } from "./lib/api-generator.ts";
 export type {
   ComponentConfig,
   InferProps,

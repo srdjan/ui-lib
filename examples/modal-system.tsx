@@ -2,6 +2,7 @@
 /// <reference path="../src/lib/jsx.d.ts" />
 import {
   defineComponent,
+  defineReactiveComponent,
   h,
   string,
   boolean,
@@ -16,28 +17,16 @@ import {
 // Modal Trigger - Buttons that open specific modals
 defineComponent("modal-trigger", {
   styles: {
-    trigger: `{
-      background: var(--theme-button-bg, #6f42c1);
-      color: var(--theme-button-text, white);
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 500;
-      margin: 0.25rem;
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-    }`,
-    triggerHover: `{
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
-    }`,
-    triggerInfo: `{ background: #17a2b8; }`,
-    triggerSuccess: `{ background: #28a745; }`,
-    triggerWarning: `{ background: #ffc107; color: #212529; }`,
-    triggerDanger: `{ background: #dc3545; }`
+    trigger: {
+      background: 'var(--theme-button-bg, #6f42c1)', color: 'var(--theme-button-text, white)', border: 'none',
+      padding: '0.75rem 1.5rem', borderRadius: '8px', cursor: 'pointer', fontWeight: '500', margin: '0.25rem',
+      transition: 'all 0.2s ease', display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+    },
+    triggerHover: { transform: 'translateY(-2px)', boxShadow: '0 4px 12px rgba(111, 66, 193, 0.3)' },
+    triggerInfo: { background: '#17a2b8' },
+    triggerSuccess: { background: '#28a745' },
+    triggerWarning: { background: '#ffc107', color: '#212529' },
+    triggerDanger: { background: '#dc3545' },
   },
   render: ({ 
     modalId = string("default"),
@@ -65,8 +54,8 @@ defineComponent("modal-trigger", {
 });
 
 // Universal Modal Component
-defineComponent("modal", {
-  // eventListeners: {
+defineReactiveComponent("modal", {
+  eventListeners: {
     "open-modal": `
       if (event.detail.modalId === this.dataset.modalId) {
         // Update modal content
@@ -119,7 +108,7 @@ defineComponent("modal", {
       }, 200);
     `
   },
-  // onMount: `
+  onMount: `
     // Handle escape key
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && this.style.display === 'flex') {
@@ -130,96 +119,26 @@ defineComponent("modal", {
     });
   `,
   styles: {
-    overlay: `{
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(2px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 1rem;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-    }`,
-    modal: `{
-      background: var(--theme-card-bg, white);
-      border: 3px solid var(--theme-border, #ddd);
-      border-radius: 12px;
-      padding: 2rem;
-      max-width: 500px;
-      width: 100%;
-      max-height: 80vh;
-      overflow-y: auto;
-      position: relative;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      transform: scale(0.7);
-      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }`,
-    modalInfo: `{ border-color: #17a2b8; }`,
-    modalSuccess: `{ border-color: #28a745; }`,
-    modalWarning: `{ border-color: #ffc107; }`,
-    modalDanger: `{ border-color: #dc3545; }`,
-    closeBtn: `{
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      background: #dc3545;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 35px;
-      height: 35px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      font-weight: bold;
-      transition: all 0.2s ease;
-    }`,
-    closeBtnHover: `{
-      background: #c82333;
-      transform: rotate(90deg);
-    }`,
-    modalTitle: `{
-      color: var(--theme-text, #333);
-      margin: 0 2rem 1rem 0;
-      font-size: 1.5rem;
-      font-weight: bold;
-    }`,
-    modalContent: `{
-      color: var(--theme-text, #333);
-      line-height: 1.6;
-      margin-bottom: 2rem;
-    }`,
-    modalActions: `{
-      display: flex;
-      gap: 1rem;
-      justify-content: flex-end;
-      padding-top: 1rem;
-      border-top: 2px solid var(--theme-border, #eee);
-    }`,
-    actionBtn: `{
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s ease;
-    }`,
-    primaryBtn: `{
-      background: var(--theme-button-bg, #007bff);
-      color: var(--theme-button-text, white);
-    }`,
-    secondaryBtn: `{
-      background: var(--theme-border, #6c757d);
-      color: white;
-    }`
+    overlay: {
+      position: 'fixed', top: '0', left: '0', width: '100%', height: '100%', background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(2px)', display: 'none', alignItems: 'center', justifyContent: 'center', zIndex: '1000', padding: '1rem', opacity: '0', transition: 'opacity 0.2s ease',
+    },
+    modal: {
+      background: 'var(--theme-card-bg, white)', border: '3px solid var(--theme-border, #ddd)', borderRadius: '12px', padding: '2rem', maxWidth: '500px', width: '100%', maxHeight: '80vh', overflowY: 'auto', position: 'relative', boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)', transform: 'scale(0.7)', transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+    },
+    modalInfo: { borderColor: '#17a2b8' },
+    modalSuccess: { borderColor: '#28a745' },
+    modalWarning: { borderColor: '#ffc107' },
+    modalDanger: { borderColor: '#dc3545' },
+    closeBtn: {
+      position: 'absolute', top: '1rem', right: '1rem', background: '#dc3545', color: 'white', border: 'none', borderRadius: '50%', width: '35px', height: '35px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 'bold', transition: 'all 0.2s ease',
+    },
+    closeBtnHover: { background: '#c82333', transform: 'rotate(90deg)' },
+    modalTitle: { color: 'var(--theme-text, #333)', margin: '0 2rem 1rem 0', fontSize: '1.5rem', fontWeight: 'bold' },
+    modalContent: { color: 'var(--theme-text, #333)', lineHeight: '1.6', marginBottom: '2rem' },
+    modalActions: { display: 'flex', gap: '1rem', justifyContent: 'flex-end', paddingTop: '1rem', borderTop: '2px solid var(--theme-border, #eee)' },
+    actionBtn: { padding: '0.75rem 1.5rem', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', transition: 'all 0.2s ease' },
+    primaryBtn: { background: 'var(--theme-button-bg, #007bff)', color: 'var(--theme-button-text, white)' },
+    secondaryBtn: { background: 'var(--theme-border, #6c757d)', color: 'white' },
   },
   render: ({ 
     id = string("default"),
@@ -463,64 +382,6 @@ defineComponent("notification-sender", {
 
 // Toast Notification Display System
 defineComponent("notification-display", {
-  // eventListeners: {
-    "show-notification": `
-      const { message, type = 'info', duration = 3000 } = event.detail;
-      
-      // Create toast element
-      const toast = document.createElement('div');
-      toast.className = 'toast toast-' + type + ' toast-enter';
-      
-      // Toast content with icon
-      const icons = {
-        info: 'ℹ️',
-        success: '✅', 
-        warning: '⚠️',
-        error: '❌'
-      };
-      
-      toast.innerHTML = 
-        '<div class="toast-icon">' + (icons[type] || icons.info) + '</div>' +
-        '<div class="toast-message">' + message + '</div>' +
-        '<button class="toast-close" onclick="this.parentElement.remove()">×</button>';
-      
-      // Add to container
-      this.appendChild(toast);
-      
-      // Animate in
-      requestAnimationFrame(() => {
-        toast.classList.remove('toast-enter');
-        toast.classList.add('toast-show');
-      });
-      
-      // Auto remove after duration
-      const autoRemove = setTimeout(() => {
-        if (toast.parentElement) {
-          toast.classList.add('toast-exit');
-          setTimeout(() => {
-            if (toast.parentElement) toast.remove();
-          }, 300);
-        }
-      }, duration);
-      
-      // Click to remove (clear auto-remove timeout)
-      toast.addEventListener('click', (e) => {
-        if (e.target.classList.contains('toast-close') || e.target === toast) {
-          clearTimeout(autoRemove);
-          toast.classList.add('toast-exit');
-          setTimeout(() => {
-            if (toast.parentElement) toast.remove();
-          }, 300);
-        }
-      });
-      
-      // Limit number of toasts (remove oldest)
-      const toasts = this.querySelectorAll('.toast');
-      if (toasts.length > 5) {
-        toasts[0].remove();
-      }
-    `
-  },
   styles: {
     container: `{
       position: fixed;
@@ -607,7 +468,65 @@ defineComponent("notification-display", {
     }`
   },
   render: () => (
-    <div class="container">
+    <div
+      class="container"
+      hx-on:show-notification={`
+        const { message, type = 'info', duration = 3000 } = event.detail;
+        
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = 'toast toast-' + type + ' toast-enter';
+        
+        // Toast content with icon
+        const icons = {
+          info: 'ℹ️',
+          success: '✅',
+          warning: '⚠️',
+          error: '❌'
+        };
+        
+        toast.innerHTML =
+          '<div class="toast-icon">' + (icons[type] || icons.info) + '</div>' +
+          '<div class="toast-message">' + message + '</div>' +
+          '<button class="toast-close" onclick="this.parentElement.remove()">×</button>';
+        
+        // Add to container
+        this.appendChild(toast);
+        
+        // Animate in
+        requestAnimationFrame(() => {
+          toast.classList.remove('toast-enter');
+          toast.classList.add('toast-show');
+        });
+        
+        // Auto remove after duration
+        const autoRemove = setTimeout(() => {
+          if (toast.parentElement) {
+            toast.classList.add('toast-exit');
+            setTimeout(() => {
+              if (toast.parentElement) toast.remove();
+            }, 300);
+          }
+        }, duration);
+        
+        // Click to remove (clear auto-remove timeout)
+        toast.addEventListener('click', (e) => {
+          if (e.target.classList.contains('toast-close') || e.target === toast) {
+            clearTimeout(autoRemove);
+            toast.classList.add('toast-exit');
+            setTimeout(() => {
+              if (toast.parentElement) toast.remove();
+            }, 300);
+          }
+        });
+        
+        // Limit number of toasts (remove oldest)
+        const toasts = this.querySelectorAll('.toast');
+        if (toasts.length > 5) {
+          toasts[0].remove();
+        }
+      `}
+    >
       {/* Notifications will be dynamically added here */}
     </div>
   )

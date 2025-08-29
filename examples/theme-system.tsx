@@ -15,39 +15,11 @@ import {
 // Theme Controller - Master component that manages global theme
 defineComponent("theme-controller", {
   styles: {
-    container: `{
-      display: inline-flex;
-      gap: 0.5rem;
-      align-items: center;
-      padding: 1rem;
-      border: 2px solid var(--theme-border, #ddd);
-      border-radius: 8px;
-      background: var(--theme-card-bg, #f8f9fa);
-      transition: all 0.3s ease;
-    }`,
-    button: `{
-      background: var(--theme-button-bg, #007bff);
-      color: var(--theme-button-text, white);
-      border: 1px solid var(--theme-button-border, #007bff);
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s ease;
-      margin-right: 0.5rem;
-    }`,
-    buttonHover: `{ opacity: 0.8; transform: translateY(-1px); }`,
-    label: `{
-      color: var(--theme-text, #333);
-      font-weight: 500;
-      margin-left: 0.5rem;
-    }`,
-    debugButton: `{
-      background: var(--theme-debug-bg, #6c757d);
-      color: white;
-      font-size: 0.8rem;
-      padding: 0.25rem 0.5rem;
-    }`
+    container: { display: 'inline-flex', gap: '0.5rem', alignItems: 'center', padding: '1rem', border: '2px solid var(--theme-border, #ddd)', borderRadius: '8px', background: 'var(--theme-card-bg, #f8f9fa)', transition: 'all 0.3s ease' },
+    button: { background: 'var(--theme-button-bg, #007bff)', color: 'var(--theme-button-text, white)', border: '1px solid var(--theme-button-border, #007bff)', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', transition: 'all 0.2s ease', marginRight: '0.5rem' },
+    buttonHover: { opacity: '0.8', transform: 'translateY(-1px)' },
+    label: { color: 'var(--theme-text, #333)', fontWeight: '500', marginLeft: '0.5rem' },
+    debugButton: { background: 'var(--theme-debug-bg, #6c757d)', color: 'white', fontSize: '0.8rem', padding: '0.25rem 0.5rem' }
   },
   render: () => (
     <div class="container">
@@ -155,35 +127,10 @@ defineComponent("theme-controller", {
 // Reactive Card - Automatically responds to theme changes
 defineComponent("reactive-card", {
   styles: {
-    card: `{
-      background: var(--theme-card-bg, #f8f9fa);
-      border: 2px solid var(--theme-border, #ddd);
-      color: var(--theme-text, #333);
-      padding: 1.5rem;
-      border-radius: 12px;
-      margin: 1rem 0;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }`,
-    title: `{
-      color: var(--theme-text, #333);
-      margin-bottom: 0.75rem;
-      font-weight: bold;
-      font-size: 1.25rem;
-    }`,
-    content: `{
-      color: var(--theme-text, #333);
-      line-height: 1.6;
-      opacity: 0.8;
-    }`,
-    highlight: `{
-      background: var(--theme-button-bg, #007bff);
-      color: var(--theme-button-text, white);
-      padding: 0.2rem 0.4rem;
-      border-radius: 4px;
-      font-family: monospace;
-      font-size: 0.9rem;
-    }`
+    card: { background: 'var(--theme-card-bg, #f8f9fa)', border: '2px solid var(--theme-border, #ddd)', color: 'var(--theme-text, #333)', padding: '1.5rem', borderRadius: '12px', margin: '1rem 0', transition: 'all 0.3s ease', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' },
+    title: { color: 'var(--theme-text, #333)', marginBottom: '0.75rem', fontWeight: 'bold', fontSize: '1.25rem' },
+    content: { color: 'var(--theme-text, #333)', lineHeight: '1.6', opacity: '0.8' },
+    highlight: { background: 'var(--theme-button-bg, #007bff)', color: 'var(--theme-button-text, white)', padding: '0.2rem 0.4rem', borderRadius: '4px', fontFamily: 'monospace', fontSize: '0.9rem' }
   },
   render: ({ 
     title = string("CSS Reactive Card"),
@@ -268,25 +215,6 @@ defineComponent("themed-nav", {
 
 // Theme Status Display - Shows current theme information
 defineComponent("theme-status", {
-  // cssReactions: {
-    "theme-mode": "border-left: 4px solid var(--theme-button-bg); padding-left: 1rem;"
-  },
-  // onMount: `
-    // Update theme display on mount
-    const updateDisplay = () => {
-      const mode = getComputedStyle(document.documentElement).getPropertyValue('--theme-mode').trim();
-      const bg = getComputedStyle(document.documentElement).getPropertyValue('--theme-bg').trim();
-      const text = getComputedStyle(document.documentElement).getPropertyValue('--theme-text').trim();
-      
-      this.querySelector('.current-theme').textContent = mode || 'default';
-      this.querySelector('.bg-value').textContent = bg || 'default';
-      this.querySelector('.text-value').textContent = text || 'default';
-      
-      // Update every second to show live changes
-      setTimeout(updateDisplay, 1000);
-    };
-    updateDisplay();
-  `,
   styles: {
     status: `{
       background: var(--theme-card-bg, #f8f9fa);
@@ -319,7 +247,25 @@ defineComponent("theme-status", {
     }`
   },
   render: () => (
-    <div class="status">
+    <div 
+      class="status"
+      hx-on:load={`
+        // Update theme display on mount
+        const updateDisplay = () => {
+          const mode = getComputedStyle(document.documentElement).getPropertyValue('--theme-mode').trim();
+          const bg = getComputedStyle(document.documentElement).getPropertyValue('--theme-bg').trim();
+          const text = getComputedStyle(document.documentElement).getPropertyValue('--theme-text').trim();
+          
+          this.querySelector('.current-theme').textContent = mode || 'default';
+          this.querySelector('.bg-value').textContent = bg || 'default';
+          this.querySelector('.text-value').textContent = text || 'default';
+          
+          // Update every second to show live changes
+          setTimeout(updateDisplay, 1000);
+        };
+        updateDisplay();
+      `}
+    >
       <div class="title">🔍 Live Theme Properties</div>
       <div class="property">
         <span>--theme-mode:</span>

@@ -98,3 +98,15 @@ Deno.test("h function handles function components", () => {
     '<div class="my-component">Hello World<p>Content</p></div>',
   );
 });
+
+Deno.test("h function lowercases event attribute names", () => {
+  const res1 = h("div", { onMouseDown: "doit()" }, "A");
+  assertEquals(res1, '<div onmousedown="doit()">A</div>');
+
+  const res2 = h("input", { onInput: 'console.log("X")' });
+  // Double quotes escaped to &quot;
+  assertEquals(res2, '<input oninput="console.log(&quot;X&quot;)">');
+
+  const res3 = h("button", { onChange: "update()" }, "Ok");
+  assertEquals(res3, '<button onchange="update()">Ok</button>');
+});

@@ -48,51 +48,17 @@ const dashboardData = {
 // 1. Dashboard Container - Main dashboard layout
 defineReactiveComponent("dashboard-app", {
   styles: {
-    container: `{
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
-      background: var(--theme-bg, #ffffff);
-    }`,
-    header: `{
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-      padding: 1.5rem 2rem;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 15px;
-      color: white;
-    }`,
-    title: `{
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin: 0;
-    }`,
-    subtitle: `{
-      opacity: 0.9;
-      margin-top: 0.5rem;
-    }`,
-    dateTime: `{
-      text-align: right;
-      opacity: 0.9;
-    }`,
-    grid: `{
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 2rem;
-      margin-bottom: 2rem;
-    }`,
-    leftColumn: `{
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-    }`,
-    rightColumn: `{
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-    }`,
+    container: { maxWidth: '1400px', margin: '0 auto', padding: '2rem', background: 'var(--theme-bg, #ffffff)' },
+    header: {
+      display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', padding: '1.5rem 2rem',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderRadius: '15px', color: 'white',
+    },
+    title: { fontSize: '2.5rem', fontWeight: '700', margin: 0 },
+    subtitle: { opacity: '0.9', marginTop: '0.5rem' },
+    dateTime: { textAlign: 'right', opacity: '0.9' },
+    grid: { display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem', marginBottom: '2rem' },
+    leftColumn: { display: 'flex', flexDirection: 'column', gap: '2rem' },
+    rightColumn: { display: 'flex', flexDirection: 'column', gap: '2rem' },
     mobileStack: `{
       @media (max-width: 1024px) {
         grid-template-columns: 1fr;
@@ -159,65 +125,19 @@ defineReactiveComponent("dashboard-app", {
 // 2. Metrics Overview - Key performance indicators
 defineReactiveComponent("metrics-overview", {
   styles: {
-    container: `{
-      background: var(--theme-bg, #ffffff);
-      border: 1px solid var(--theme-border, #e2e8f0);
-      border-radius: 12px;
-      padding: 2rem;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    }`,
-    title: `{
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: var(--theme-text, #1e293b);
-      margin: 0 0 1.5rem 0;
-    }`,
-    grid: `{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
-    }`,
-    metric: `{
-      text-align: center;
-      padding: 1.5rem;
-      background: var(--theme-secondary, #f8fafc);
-      border-radius: 10px;
-      border: 1px solid var(--theme-border, #e2e8f0);
-      transition: transform 0.2s ease;
-    }`,
+    container: { background: 'var(--theme-bg, #ffffff)', border: '1px solid var(--theme-border, #e2e8f0)', borderRadius: '12px', padding: '2rem', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' },
+    title: { fontSize: '1.5rem', fontWeight: '600', color: 'var(--theme-text, #1e293b)', margin: '0 0 1.5rem 0' },
+    grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' },
+    metric: { textAlign: 'center', padding: '1.5rem', background: 'var(--theme-secondary, #f8fafc)', borderRadius: '10px', border: '1px solid var(--theme-border, #e2e8f0)', transition: 'transform 0.2s ease' },
     metricHover: `{
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      }
+      &:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     }`,
-    metricIcon: `{
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }`,
-    metricValue: `{
-      font-size: 2rem;
-      font-weight: bold;
-      color: var(--theme-primary, #3b82f6);
-      display: block;
-      margin-bottom: 0.25rem;
-    }`,
-    metricLabel: `{
-      color: var(--theme-text, #64748b);
-      font-size: 0.9rem;
-      font-weight: 500;
-    }`,
-    metricChange: `{
-      font-size: 0.8rem;
-      margin-top: 0.5rem;
-      font-weight: 500;
-    }`,
-    positive: `{
-      color: #10b981;
-    }`,
-    negative: `{
-      color: #ef4444;
-    }`
+    metricIcon: { fontSize: '2rem', marginBottom: '0.5rem' },
+    metricValue: { fontSize: '2rem', fontWeight: 'bold', color: 'var(--theme-primary, #3b82f6)', display: 'block', marginBottom: '0.25rem' },
+    metricLabel: { color: 'var(--theme-text, #64748b)', fontSize: '0.9rem', fontWeight: '500' },
+    metricChange: { fontSize: '0.8rem', marginTop: '0.5rem', fontWeight: '500' },
+    positive: { color: '#10b981' },
+    negative: { color: '#ef4444' }
   },
   stateSubscriptions: {
     "dashboard-metrics": `
@@ -270,70 +190,15 @@ defineReactiveComponent("metrics-overview", {
 // 3. Sales Chart - Visual data representation (simplified)
 defineReactiveComponent("sales-chart", {
   styles: {
-    container: `{
-      background: var(--theme-bg, #ffffff);
-      border: 1px solid var(--theme-border, #e2e8f0);
-      border-radius: 12px;
-      padding: 2rem;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    }`,
-    title: `{
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: var(--theme-text, #1e293b);
-      margin: 0 0 1.5rem 0;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }`,
-    chart: `{
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      height: 200px;
-      padding: 1rem;
-      background: var(--theme-secondary, #f8fafc);
-      border-radius: 8px;
-      border: 1px solid var(--theme-border, #e2e8f0);
-      position: relative;
-    }`,
-    bar: `{
-      background: linear-gradient(to top, #3b82f6, #60a5fa);
-      border-radius: 4px 4px 0 0;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: end;
-      align-items: center;
-      min-width: 40px;
-      margin: 0 2px;
-    }`,
-    barLabel: `{
-      position: absolute;
-      bottom: -25px;
-      font-size: 0.8rem;
-      color: var(--theme-text, #64748b);
-      white-space: nowrap;
-    }`,
-    barValue: `{
-      position: absolute;
-      top: -30px;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--theme-text, #374151);
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-    }`,
+    container: { background: 'var(--theme-bg, #ffffff)', border: '1px solid var(--theme-border, #e2e8f0)', borderRadius: '12px', padding: '2rem', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' },
+    title: { fontSize: '1.5rem', fontWeight: '600', color: 'var(--theme-text, #1e293b)', margin: '0 0 1.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' },
+    chart: { display: 'flex', alignItems: 'end', justifyContent: 'space-between', height: '200px', padding: '1rem', background: 'var(--theme-secondary, #f8fafc)', borderRadius: '8px', border: '1px solid var(--theme-border, #e2e8f0)', position: 'relative' },
+    bar: { background: 'linear-gradient(to top, #3b82f6, #60a5fa)', borderRadius: '4px 4px 0 0', transition: 'all 0.3s ease', cursor: 'pointer', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'end', alignItems: 'center', minWidth: '40px', margin: '0 2px' },
+    barLabel: { position: 'absolute', bottom: '-25px', fontSize: '0.8rem', color: 'var(--theme-text, #64748b)', whiteSpace: 'nowrap' },
+    barValue: { position: 'absolute', top: '-30px', fontSize: '0.75rem', fontWeight: '500', color: 'var(--theme-text, #374151)', whiteSpace: 'nowrap', opacity: '0', transition: 'opacity 0.2s ease' },
     barHover: `{
-      &:hover {
-        transform: scaleY(1.05);
-      }
-      &:hover .bar-value {
-        opacity: 1;
-      }
+      &:hover { transform: scaleY(1.05); }
+      &:hover .bar-value { opacity: 1; }
     }`
   },
   stateSubscriptions: {
@@ -614,32 +479,11 @@ defineReactiveComponent("projects-overview", {
 // 6. Quick Stats - Additional metrics widget
 defineReactiveComponent("quick-stats", {
   styles: {
-    container: `{
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 12px;
-      padding: 2rem;
-      color: white;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    }`,
-    title: `{
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin: 0 0 1.5rem 0;
-    }`,
-    stat: `{
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }`,
-    statLabel: `{
-      opacity: 0.9;
-    }`,
-    statValue: `{
-      font-weight: bold;
-      font-size: 1.1rem;
-    }`
+    container: { background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderRadius: '12px', padding: '2rem', color: 'white', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' },
+    title: { fontSize: '1.5rem', fontWeight: '600', margin: '0 0 1.5rem 0' },
+    stat: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 0', borderBottom: '1px solid rgba(255,255,255,0.1)' },
+    statLabel: { opacity: '0.9' },
+    statValue: { fontWeight: 'bold', fontSize: '1.1rem' }
   },
   render: ({}, api, classes) => (
     h('div', { class: classes!.container },

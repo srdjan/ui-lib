@@ -21,56 +21,15 @@ import {
 // 1. Toggle Class Utilities Demo
 defineComponent("toggle-class-demo", {
   styles: {
-    container: `{
-      padding: 2rem;
-      border: 2px solid #dee2e6;
-      border-radius: 12px;
-      background: white;
-      transition: all 0.3s ease;
-    }`,
-    containerActive: `{
-      border-color: #28a745;
-      background: #f8fff9;
-      transform: scale(1.02);
-    }`,
-    containerDanger: `{
-      border-color: #dc3545;
-      background: #fff5f5;
-    }`,
-    title: `{
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin: 0 0 1rem 0;
-      color: #495057;
-      transition: color 0.3s ease;
-    }`,
-    titleActive: `{
-      color: #28a745;
-    }`,
-    titleDanger: `{
-      color: #dc3545;
-    }`,
-    buttonGrid: `{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }`,
-    button: `{
-      padding: 0.75rem 1rem;
-      border: 2px solid #007bff;
-      background: white;
-      color: #007bff;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s ease;
-    }`,
-    buttonHover: `{
-      background: #007bff;
-      color: white;
-      transform: translateY(-1px);
-    }`
+    container: { padding: '2rem', border: '2px solid #dee2e6', borderRadius: '12px', background: 'white', transition: 'all 0.3s ease' },
+    containerActive: { borderColor: '#28a745', background: '#f8fff9', transform: 'scale(1.02)' },
+    containerDanger: { borderColor: '#dc3545', background: '#fff5f5' },
+    title: { fontSize: '1.5rem', fontWeight: '600', margin: '0 0 1rem 0', color: '#495057', transition: 'color 0.3s ease' },
+    titleActive: { color: '#28a745' },
+    titleDanger: { color: '#dc3545' },
+    buttonGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '1.5rem' },
+    button: { padding: '0.75rem 1rem', border: '2px solid #007bff', background: 'white', color: '#007bff', borderRadius: '8px', cursor: 'pointer', fontWeight: '500', transition: 'all 0.2s ease' },
+    buttonHover: { background: '#007bff', color: 'white', transform: 'translateY(-1px)' }
   },
   render: ({ 
     title = string("Toggle Classes Demo")
@@ -182,38 +141,10 @@ defineComponent("toggle-class-demo", {
 // 2. Data Attributes and Spread Utilities
 defineComponent("data-attributes-demo", {
   styles: {
-    card: `{
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 2rem;
-      border-radius: 12px;
-      margin: 1rem 0;
-      position: relative;
-      overflow: hidden;
-    }`,
-    info: `{
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      padding: 1rem;
-      border-radius: 8px;
-      margin-top: 1rem;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }`,
-    button: `{
-      background: rgba(255, 255, 255, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      color: white;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-right: 0.5rem;
-      margin-top: 0.5rem;
-      transition: all 0.2s ease;
-    }`,
-    buttonHover: `{
-      background: rgba(255, 255, 255, 0.3);
-      transform: translateY(-1px);
-    }`
+    card: { background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', padding: '2rem', borderRadius: '12px', margin: '1rem 0', position: 'relative', overflow: 'hidden' },
+    info: { background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)', padding: '1rem', borderRadius: '8px', marginTop: '1rem', border: '1px solid rgba(255, 255, 255, 0.2)' },
+    button: { background: 'rgba(255, 255, 255, 0.2)', border: '1px solid rgba(255, 255, 255, 0.3)', color: 'white', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', marginRight: '0.5rem', marginTop: '0.5rem', transition: 'all 0.2s ease' },
+    buttonHover: { background: 'rgba(255, 255, 255, 0.3)', transform: 'translateY(-1px)' }
   },
   render: ({
     userId = string("12345"),

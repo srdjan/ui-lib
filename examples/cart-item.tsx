@@ -89,9 +89,7 @@ defineComponent("cart-item", {
           value={quantity}
           // Trigger JSON submission on change; API helper adds default headers and encodings
           hx-trigger="change"
-          {...api.updateQuantity(productId, {}, {
-            target: "closest .cart-item",
-          })}
+          {...api.updateQuantity(productId, {})}
         />
       </div>
       <div class="price">${price}</div>

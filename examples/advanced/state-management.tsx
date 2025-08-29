@@ -8,44 +8,12 @@ console.log("🚀 Loading Advanced State Management examples...");
 // 1. State Synchronizer - Keeps multiple UI elements in sync
 defineReactiveComponent("state-synchronizer", {
   styles: {
-    container: `{
-      padding: 2rem;
-      background: var(--theme-bg, #ffffff);
-      border: 2px solid var(--theme-border, #e2e8f0);
-      border-radius: 12px;
-      margin: 1rem 0;
-    }`,
-    grid: `{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-      margin-top: 1.5rem;
-    }`,
-    syncPanel: `{
-      padding: 1.5rem;
-      background: var(--theme-secondary, #f8fafc);
-      border: 1px solid var(--theme-border, #e2e8f0);
-      border-radius: 8px;
-    }`,
-    slider: `{
-      width: 100%;
-      margin: 1rem 0;
-    }`,
-    colorPreview: `{
-      width: 100%;
-      height: 60px;
-      border-radius: 6px;
-      border: 1px solid var(--theme-border, #e2e8f0);
-      transition: background-color 0.3s ease;
-    }`,
-    valueDisplay: `{
-      font-family: monospace;
-      font-size: 1.1rem;
-      font-weight: bold;
-      color: var(--theme-primary, #3b82f6);
-      text-align: center;
-      margin: 0.5rem 0;
-    }`
+    container: { padding: '2rem', background: 'var(--theme-bg, #ffffff)', border: '2px solid var(--theme-border, #e2e8f0)', borderRadius: '12px', margin: '1rem 0' },
+    grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginTop: '1.5rem' },
+    syncPanel: { padding: '1.5rem', background: 'var(--theme-secondary, #f8fafc)', border: '1px solid var(--theme-border, #e2e8f0)', borderRadius: '8px' },
+    slider: { width: '100%', margin: '1rem 0' },
+    colorPreview: { width: '100%', height: '60px', borderRadius: '6px', border: '1px solid var(--theme-border, #e2e8f0)', transition: 'background-color 0.3s ease' },
+    valueDisplay: { fontFamily: 'monospace', fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--theme-primary, #3b82f6)', textAlign: 'center', margin: '0.5rem 0' }
   },
   stateSubscriptions: {
     "sync-red": `this.updateColorValue('red', value);`,

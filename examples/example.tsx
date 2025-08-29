@@ -17,13 +17,26 @@ import type { GeneratedApiMap } from "../src/index.ts";
 
 defineComponent("unified-card", {
   styles: {
-    card:
-      `{ border: 2px solid #e9ecef; border-radius: 8px; padding: 1.5rem; margin: 1rem 0; background: white; transition: all 0.2s ease; }`,
-    title:
-      `{ font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem; color: #495057; }`,
-    content: `{ color: #6c757d; line-height: 1.5; }`,
-    highlight:
-      `{ border-color: #007bff !important; background: #f8f9ff; box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15); }`,
+    card: {
+      border: '2px solid #e9ecef',
+      borderRadius: '8px',
+      padding: '1.5rem',
+      margin: '1rem 0',
+      background: 'white',
+      transition: 'all 0.2s ease',
+    },
+    title: {
+      fontSize: '1.25rem',
+      fontWeight: 'bold',
+      marginBottom: '0.5rem',
+      color: '#495057',
+    },
+    content: { color: '#6c757d', lineHeight: '1.5' },
+    highlight: {
+      borderColor: '#007bff !important',
+      background: '#f8f9ff',
+      boxShadow: '0 4px 12px rgba(0, 123, 255, 0.15)',
+    },
   },
   render: (
     {
@@ -81,13 +94,33 @@ defineComponent("theme-toggle", {
 
 defineComponent("counter", {
   styles: {
-    container:
-      `{ display: inline-flex; gap: 0.5rem; padding: 1rem; border: 2px solid #007bff; border-radius: 6px; align-items: center; background: white; }`,
-    counterButton:
-      `{ padding: 0.5rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; min-width: 2rem; font-weight: bold; }`,
-    counterButtonHover: `{ background: #0056b3; }`,
-    display:
-      `{ font-size: 1.5rem; min-width: 3rem; text-align: center; font-weight: bold; color: #007bff; }`,
+    container: {
+      display: 'inline-flex',
+      gap: '0.5rem',
+      padding: '1rem',
+      border: '2px solid #007bff',
+      borderRadius: '6px',
+      alignItems: 'center',
+      background: 'white',
+    },
+    counterButton: {
+      padding: '0.5rem',
+      background: '#007bff',
+      color: 'white',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      minWidth: '2rem',
+      fontWeight: 'bold',
+    },
+    counterButtonHover: { background: '#0056b3' },
+    display: {
+      fontSize: '1.5rem',
+      minWidth: '3rem',
+      textAlign: 'center',
+      fontWeight: 'bold',
+      color: '#007bff',
+    },
   },
   api: {
     // JSON in, HTML out: request body is JSON (via json-enc), response is HTML swapped by htmx
@@ -120,9 +153,7 @@ defineComponent("counter", {
         class={c!.counterButton}
         {
           // Sends JSON payload and swaps outerHTML on the closest counter container
-          ...api.adjust({ current: initialCount, delta: -step, step }, {
-            target: `closest .${c!.container}`,
-          })
+          ...api.adjust({ current: initialCount, delta: -step, step })
         }
       >
         -{step}
@@ -133,9 +164,7 @@ defineComponent("counter", {
         class={c!.counterButton}
         {
           // Sends JSON payload and swaps outerHTML on the closest counter container
-          ...api.adjust({ current: initialCount, delta: step, step }, {
-            target: `closest .${c!.container}`,
-          })
+          ...api.adjust({ current: initialCount, delta: step, step })
         }
       >
         +{step}
@@ -145,9 +174,7 @@ defineComponent("counter", {
         class={c!.counterButton}
         {
           // Resets to 0 using JSON body; swaps outerHTML on the closest counter container
-          ...api.adjust({ value: 0, step }, {
-            target: `closest .${c!.container}`,
-          })
+          ...api.adjust({ value: 0, step })
         }
       >
         Reset
@@ -177,15 +204,36 @@ defineComponent("todo-item", {
     }),
   },
   styles: {
-    item:
-      `{ display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 0.5rem; background: white; transition: background-color 0.2s; }`,
-    itemDone: `{ background: #f8f9fa; opacity: 0.8; }`, // Applied conditionally
-    checkbox: `{ margin-right: 0.5rem; }`,
-    text: `{ flex: 1; font-size: 1rem; }`,
-    textDone: `{ text-decoration: line-through; color: #6c757d; }`, // Applied conditionally
-    deleteBtn:
-      `{ background: #dc3545; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; line-height: 1; }`,
-    deleteBtnHover: `{ background: #c82333; }`, // → .delete-btn-hover
+    item: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5rem',
+      padding: '0.75rem',
+      border: '1px solid #ddd',
+      borderRadius: '4px',
+      marginBottom: '0.5rem',
+      background: 'white',
+      transition: 'background-color 0.2s',
+    },
+    itemDone: { background: '#f8f9fa', opacity: '0.8' },
+    checkbox: { marginRight: '0.5rem' },
+    text: { flex: '1', fontSize: '1rem' },
+    textDone: { textDecoration: 'line-through', color: '#6c757d' },
+    deleteBtn: {
+      background: '#dc3545',
+      color: 'white',
+      border: 'none',
+      borderRadius: '50%',
+      width: '24px',
+      height: '24px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '0.8rem',
+      lineHeight: '1',
+    },
+    deleteBtnHover: { background: '#c82333' },
   },
   render: (
     {
@@ -248,18 +296,27 @@ defineComponent("tabs", {
     }),
   },
   styles: {
-    container:
-      `{ border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }`,
-    nav:
-      `{ display: flex; background: #f8f9fa; border-bottom: 1px solid #ddd; }`,
-    button:
-      `{ flex: 1; padding: 1rem; background: none; border: none; cursor: pointer; font-size: 1rem; transition: background-color 0.2s; }`,
-    buttonHover: `{ background: #e9ecef; }`, // → .button-hover
-    buttonActive:
-      `{ background: white; border-bottom: 2px solid #007bff; font-weight: 500; color: #007bff; }`, // → .button-active
-    content: `{ padding: 1.5rem; min-height: 200px; }`,
-    panel: `{ display: none; }`,
-    panelActive: `{ display: block; }`, // → .panel-active
+    container: { border: '1px solid #ddd', borderRadius: '6px', overflow: 'hidden' },
+    nav: { display: 'flex', background: '#f8f9fa', borderBottom: '1px solid #ddd' },
+    button: {
+      flex: '1',
+      padding: '1rem',
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      fontSize: '1rem',
+      transition: 'background-color 0.2s',
+    },
+    buttonHover: { background: '#e9ecef' },
+    buttonActive: {
+      background: 'white',
+      borderBottom: '2px solid #007bff',
+      fontWeight: '500',
+      color: '#007bff',
+    },
+    content: { padding: '1.5rem', minHeight: '200px' },
+    panel: { display: 'none' },
+    panelActive: { display: 'block' },
   },
   render: (
     {
@@ -331,13 +388,26 @@ defineComponent("tabs", {
 // 🧪 TEST: Function-style Props
 defineComponent("function-style-card", {
   styles: {
-    container:
-      `{ padding: 1.5rem; border: 2px solid #28a745; border-radius: 8px; margin: 1rem 0; background: #f8fff9; }`,
-    title:
-      `{ font-size: 1.25rem; font-weight: bold; color: #155724; margin-bottom: 1rem; }`,
-    content: `{ color: #155724; line-height: 1.5; }`,
-    highlight:
-      `{ background: #d4edda; padding: 0.5rem; border-radius: 4px; font-family: monospace; }`,
+    container: {
+      padding: '1.5rem',
+      border: '2px solid #28a745',
+      borderRadius: '8px',
+      margin: '1rem 0',
+      background: '#f8fff9',
+    },
+    title: {
+      fontSize: '1.25rem',
+      fontWeight: 'bold',
+      color: '#155724',
+      marginBottom: '1rem',
+    },
+    content: { color: '#155724', lineHeight: '1.5' },
+    highlight: {
+      background: '#d4edda',
+      padding: '0.5rem',
+      borderRadius: '4px',
+      fontFamily: 'monospace',
+    },
   },
   render: (
     {

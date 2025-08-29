@@ -204,7 +204,7 @@ export function defineComponent<TProps = Record<string, string>>(
         : (rawAttrs as unknown as TProps);
 
       if (generatedApi) {
-        return (render as (
+        const html = (render as (
           p: TProps,
           a: GeneratedApiMap,
           c?: ClassMap,
@@ -213,13 +213,27 @@ export function defineComponent<TProps = Record<string, string>>(
           generatedApi,
           classMap,
         );
+        // Always add data-component for scoping/targets on the first root element
+        return injectDataComponent(html, name);
       } else {
-        return (render as (p: TProps, a?: undefined, c?: ClassMap) => string)(
+        const html = (render as (p: TProps, a?: undefined, c?: ClassMap) => string)(
           finalProps as TProps,
           undefined,
           classMap,
         );
+        // Always add data-component for scoping/targets on the first root element
+        return injectDataComponent(html, name);
       }
     },
   };
+}
+
+// Injects data-component="<name>" into the first opening tag of the HTML string
+function injectDataComponent(html: string, name: string): string {
+  const firstTagMatch = html.match(/^(\s*)(<[a-zA-Z][^>]*)(>)/);
+  if (!firstTagMatch) return html;
+  const [full, whitespace, openTag, closeAngle] = firstTagMatch;
+  if (openTag.includes("data-component=")) return html; // already present
+  const enhancedTag = `${whitespace}${openTag} data-component="${name}"${closeAngle}`;
+  return html.replace(full, enhancedTag);
 }

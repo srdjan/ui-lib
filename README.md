@@ -131,8 +131,10 @@ Responses remain HTML and are swapped by htmx.
   and `X-Requested-With: XMLHttpRequest`. The server injects an `X-CSRF-Token`
   per request using `runWithRequestHeaders`.
 - Swap/target: Non-GET actions default to `hx-swap="outerHTML"` and target the
-  closest component container (configurable per call via the generated client
-  helpers).
+  closest component container (via `data-component`), configurable per call via
+  the generated client helpers.
+- Scoping: Components automatically inject `data-component="<name>"` on the
+  root element to enable sensible defaults and safe selectors.
 - Files: Components live in `examples/*.tsx` and are imported by
   `examples/main.ts`.
 

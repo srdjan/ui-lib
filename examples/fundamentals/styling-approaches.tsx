@@ -15,44 +15,23 @@ import {
 // 1. CSS-Only Format (Modern Approach) - Auto-generated class names
 defineComponent("modern-styled-card", {
   styles: {
-    // ✨ CSS-only format - class names auto-generated from property names!
-    container: `{
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      transition: all 0.3s ease;
-    }`,
-    title: `{
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin: 0 0 1rem 0;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    }`,
-    content: `{
-      line-height: 1.6;
-      opacity: 0.9;
-    }`,
-    button: `{
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      padding: 0.75rem 1.5rem;
-      border-radius: 25px;
-      cursor: pointer;
-      font-weight: 500;
-      backdrop-filter: blur(10px);
-      transition: all 0.2s ease;
-      margin-top: 1rem;
-    }`,
-    buttonHover: `{
-      background: rgba(255, 255, 255, 0.3);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }`
+    // ✨ CSS-only format now supports real objects
+    container: {
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      color: 'white', padding: '2rem', borderRadius: '12px',
+      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)', backdropFilter: 'blur(10px)',
+      border: '1px solid rgba(255, 255, 255, 0.2)', transition: 'all 0.3s ease',
+    },
+    title: {
+      fontSize: '1.5rem', fontWeight: '700', margin: '0 0 1rem 0',
+      textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+    },
+    content: { lineHeight: '1.6', opacity: '0.9' },
+    button: {
+      background: 'rgba(255, 255, 255, 0.2)', color: 'white', border: '1px solid rgba(255, 255, 255, 0.3)',
+      padding: '0.75rem 1.5rem', borderRadius: '25px', cursor: 'pointer', fontWeight: '500', backdropFilter: 'blur(10px)', transition: 'all 0.2s ease', marginTop: '1rem',
+    },
+    buttonHover: { background: 'rgba(255, 255, 255, 0.3)', transform: 'translateY(-2px)', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)' }
   },
   render: ({ 
     title = string("Modern CSS-Only Card"),
@@ -148,62 +127,19 @@ defineComponent("inline-styled-card", {
 // 4. Complex CSS-Only Format with State-based Styling
 defineComponent("stateful-styled-card", {
   styles: {
-    card: `{
-      background: var(--card-bg, white);
-      border: 2px solid var(--card-border, #dee2e6);
-      padding: 1.5rem;
-      border-radius: 12px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      cursor: pointer;
-      user-select: none;
-      position: relative;
-      overflow: hidden;
-    }`,
-    cardActive: `{
-      --card-bg: #e3f2fd;
-      --card-border: #2196f3;
-      transform: scale(1.02);
-      box-shadow: 0 8px 24px rgba(33, 150, 243, 0.2);
-    }`,
-    cardDisabled: `{
-      --card-bg: #f5f5f5;
-      --card-border: #bdbdbd;
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none !important;
-    }`,
-    title: `{
-      font-size: 1.3rem;
-      font-weight: 600;
-      margin: 0 0 0.5rem 0;
-      color: var(--title-color, #424242);
-      transition: color 0.3s ease;
-    }`,
-    status: `{
-      display: inline-block;
-      padding: 0.25rem 0.75rem;
-      border-radius: 12px;
-      font-size: 0.8rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }`,
-    statusActive: `{
-      background: #e8f5e8;
-      color: #2e7d32;
-    }`,
-    statusInactive: `{
-      background: #ffebee;
-      color: #c62828;
-    }`,
-    ripple: `{
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(33, 150, 243, 0.3);
-      transform: scale(0);
-      animation: ripple-effect 0.6s linear;
-      pointer-events: none;
-    }`
+    card: {
+      background: 'var(--card-bg, white)', border: '2px solid var(--card-border, #dee2e6)', padding: '1.5rem', borderRadius: '12px', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', cursor: 'pointer', userSelect: 'none', position: 'relative', overflow: 'hidden',
+    },
+    cardActive: {
+      // Note: CSS custom properties must be set via inline style or classes toggled elsewhere
+      transform: 'scale(1.02)', boxShadow: '0 8px 24px rgba(33, 150, 243, 0.2)'
+    },
+    cardDisabled: { opacity: '0.6', cursor: 'not-allowed', transform: 'none !important' },
+    title: { fontSize: '1.3rem', fontWeight: '600', margin: '0 0 0.5rem 0', color: 'var(--title-color, #424242)', transition: 'color 0.3s ease' },
+    status: { display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.5px' },
+    statusActive: { background: '#e8f5e8', color: '#2e7d32' },
+    statusInactive: { background: '#ffebee', color: '#c62828' },
+    ripple: { position: 'absolute', borderRadius: '50%', background: 'rgba(33, 150, 243, 0.3)', transform: 'scale(0)', animation: 'ripple-effect 0.6s linear', pointerEvents: 'none' }
   },
   render: ({ 
     title = string("Interactive Styled Card"),
@@ -259,95 +195,19 @@ defineComponent("stateful-styled-card", {
 // 5. Advanced CSS-Only Format with CSS Grid and Flexbox
 defineComponent("layout-demo-card", {
   styles: {
-    container: `{
-      display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 2rem;
-      background: white;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-    }`,
-    imageSection: `{
-      background: linear-gradient(45deg, #ff6b6b, #feca57);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 200px;
-      position: relative;
-    }`,
-    contentSection: `{
-      padding: 2rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }`,
-    header: `{
-      margin-bottom: 1rem;
-    }`,
-    title: `{
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #2c3e50;
-      margin: 0 0 0.5rem 0;
-      line-height: 1.2;
-    }`,
-    subtitle: `{
-      color: #7f8c8d;
-      font-size: 1rem;
-      margin: 0;
-    }`,
-    features: `{
-      list-style: none;
-      padding: 0;
-      margin: 1.5rem 0;
-    }`,
-    feature: `{
-      display: flex;
-      align-items: center;
-      margin-bottom: 0.75rem;
-      color: #34495e;
-    }`,
-    icon: `{
-      width: 20px;
-      height: 20px;
-      background: #27ae60;
-      border-radius: 50%;
-      margin-right: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 0.8rem;
-      font-weight: bold;
-    }`,
-    footer: `{
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 1rem;
-      border-top: 1px solid #ecf0f1;
-    }`,
-    price: `{
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #27ae60;
-    }`,
-    button: `{
-      background: linear-gradient(45deg, #3498db, #2980b9);
-      color: white;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }`,
-    buttonHover: `{
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
-    }`
+    container: { display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem', background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)', transition: 'all 0.3s ease' },
+    imageSection: { background: 'linear-gradient(45deg, #ff6b6b, #feca57)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '200px', position: 'relative' },
+    contentSection: { padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' },
+    header: { marginBottom: '1rem' },
+    title: { fontSize: '1.8rem', fontWeight: '700', color: '#2c3e50', margin: '0 0 0.5rem 0', lineHeight: '1.2' },
+    subtitle: { color: '#7f8c8d', fontSize: '1rem', margin: 0 },
+    features: { listStyle: 'none', padding: 0, margin: '1.5rem 0' },
+    feature: { display: 'flex', alignItems: 'center', marginBottom: '0.75rem', color: '#34495e' },
+    icon: { width: '20px', height: '20px', background: '#27ae60', borderRadius: '50%', marginRight: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.8rem', fontWeight: 'bold' },
+    footer: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1rem', borderTop: '1px solid #ecf0f1' },
+    price: { fontSize: '1.5rem', fontWeight: '700', color: '#27ae60' },
+    button: { background: 'linear-gradient(45deg, #3498db, #2980b9)', color: 'white', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease' },
+    buttonHover: { transform: 'translateY(-2px)', boxShadow: '0 4px 12px rgba(52, 152, 219, 0.4)' }
   },
   render: ({ 
     title = string("Premium Layout Demo"),

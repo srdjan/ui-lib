@@ -8,31 +8,13 @@ console.log("🚀 Loading Advanced Reactive System examples...");
 // 1. CSS Property Reactivity - Theme Controller with Global State
 defineReactiveComponent("theme-controller", {
   styles: {
-    container: `{
-      padding: 1.5rem;
-      background: var(--theme-bg, #ffffff);
-      color: var(--theme-text, #000000);
-      border: 2px solid var(--theme-border, #e2e8f0);
-      border-radius: 12px;
-      transition: all 0.3s ease;
-    }`,
-    button: `{
-      padding: 0.75rem 1.5rem;
-      background: var(--theme-primary, #3b82f6);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.3s ease;
-    }`,
-    status: `{
-      margin-top: 1rem;
-      padding: 0.5rem;
-      background: var(--theme-secondary, #f1f5f9);
-      border-radius: 6px;
-      font-size: 0.9rem;
-    }`
+    container: {
+      padding: '1.5rem', background: 'var(--theme-bg, #ffffff)', color: 'var(--theme-text, #000000)', border: '2px solid var(--theme-border, #e2e8f0)', borderRadius: '12px', transition: 'all 0.3s ease',
+    },
+    button: {
+      padding: '0.75rem 1.5rem', background: 'var(--theme-primary, #3b82f6)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '500', transition: 'all 0.3s ease',
+    },
+    status: { marginTop: '1rem', padding: '0.5rem', background: 'var(--theme-secondary, #f1f5f9)', borderRadius: '6px', fontSize: '0.9rem' }
   },
   cssReactions: {
     // React to theme changes by updating CSS custom properties
@@ -75,25 +57,10 @@ defineReactiveComponent("theme-controller", {
 // 2. Reactive Cards that respond to theme changes
 defineReactiveComponent("reactive-card", {
   styles: {
-    card: `{
-      padding: 1.5rem;
-      background: var(--theme-bg, #ffffff);
-      color: var(--theme-text, #000000);
-      border: 1px solid var(--theme-border, #e2e8f0);
-      border-radius: 8px;
-      margin: 1rem 0;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      transition: all 0.3s ease;
-    }`,
-    badge: `{
-      display: inline-block;
-      padding: 0.25rem 0.75rem;
-      background: var(--theme-primary, #3b82f6);
-      color: white;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }`
+    card: {
+      padding: '1.5rem', background: 'var(--theme-bg, #ffffff)', color: 'var(--theme-text, #000000)', border: '1px solid var(--theme-border, #e2e8f0)', borderRadius: '8px', margin: '1rem 0', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', transition: 'all 0.3s ease',
+    },
+    badge: { display: 'inline-block', padding: '0.25rem 0.75rem', background: 'var(--theme-primary, #3b82f6)', color: 'white', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '500' }
   },
   cssReactions: {
     "theme": `
@@ -115,36 +82,10 @@ defineReactiveComponent("reactive-card", {
 // 3. Pub/Sub State Management - Counter Network
 defineReactiveComponent("pub-sub-counter", {
   styles: {
-    container: `{
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1.5rem;
-      background: var(--theme-bg, #ffffff);
-      border: 2px solid var(--theme-border, #e2e8f0);
-      border-radius: 10px;
-      margin: 1rem 0;
-    }`,
-    button: `{
-      padding: 0.5rem 1rem;
-      background: var(--theme-primary, #3b82f6);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 500;
-    }`,
-    display: `{
-      font-size: 1.5rem;
-      font-weight: bold;
-      min-width: 3rem;
-      text-align: center;
-      color: var(--theme-primary, #3b82f6);
-    }`,
-    label: `{
-      font-weight: 500;
-      color: var(--theme-text, #000000);
-    }`
+    container: { display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.5rem', background: 'var(--theme-bg, #ffffff)', border: '2px solid var(--theme-border, #e2e8f0)', borderRadius: '10px', margin: '1rem 0' },
+    button: { padding: '0.5rem 1rem', background: 'var(--theme-primary, #3b82f6)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' },
+    display: { fontSize: '1.5rem', fontWeight: 'bold', minWidth: '3rem', textAlign: 'center', color: 'var(--theme-primary, #3b82f6)' },
+    label: { fontWeight: '500', color: 'var(--theme-text, #000000)' }
   },
   stateSubscriptions: {
     // Subscribe to global counter network state
@@ -196,30 +137,9 @@ defineReactiveComponent("pub-sub-counter", {
 // 4. DOM Event Communication - Message Board
 defineReactiveComponent("message-broadcaster", {
   styles: {
-    container: `{
-      padding: 1.5rem;
-      background: var(--theme-bg, #ffffff);
-      border: 2px solid var(--theme-border, #e2e8f0);
-      border-radius: 10px;
-      margin: 1rem 0;
-    }`,
-    input: `{
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid var(--theme-border, #e2e8f0);
-      border-radius: 6px;
-      margin-bottom: 1rem;
-      font-size: 1rem;
-    }`,
-    button: `{
-      padding: 0.75rem 1.5rem;
-      background: var(--theme-primary, #3b82f6);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 500;
-    }`
+    container: { padding: '1.5rem', background: 'var(--theme-bg, #ffffff)', border: '2px solid var(--theme-border, #e2e8f0)', borderRadius: '10px', margin: '1rem 0' },
+    input: { width: '100%', padding: '0.75rem', border: '1px solid var(--theme-border, #e2e8f0)', borderRadius: '6px', marginBottom: '1rem', fontSize: '1rem' },
+    button: { padding: '0.75rem 1.5rem', background: 'var(--theme-primary, #3b82f6)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }
   },
   eventListeners: {
     "message-sent": `
@@ -338,46 +258,12 @@ defineReactiveComponent("message-receiver", {
 // 6. Complex State Orchestrator - Coordinates multiple reactive systems
 defineReactiveComponent("state-orchestrator", {
   styles: {
-    container: `{
-      padding: 2rem;
-      background: linear-gradient(135deg, var(--theme-bg, #ffffff) 0%, var(--theme-secondary, #f1f5f9) 100%);
-      border: 2px dashed var(--theme-primary, #3b82f6);
-      border-radius: 15px;
-      margin: 2rem 0;
-      text-align: center;
-    }`,
-    statsGrid: `{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }`,
-    stat: `{
-      padding: 1rem;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }`,
-    statValue: `{
-      font-size: 2rem;
-      font-weight: bold;
-      color: var(--theme-primary, #3b82f6);
-    }`,
-    statLabel: `{
-      color: var(--theme-text, #64748b);
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
-    }`,
-    button: `{
-      padding: 0.75rem 1.5rem;
-      background: var(--theme-primary, #3b82f6);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 500;
-      margin: 0.5rem;
-    }`
+    container: { padding: '2rem', background: 'linear-gradient(135deg, var(--theme-bg, #ffffff) 0%, var(--theme-secondary, #f1f5f9) 100%)', border: '2px dashed var(--theme-primary, #3b82f6)', borderRadius: '15px', margin: '2rem 0', textAlign: 'center' },
+    statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '1.5rem' },
+    stat: { padding: '1rem', background: 'white', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' },
+    statValue: { fontSize: '2rem', fontWeight: 'bold', color: 'var(--theme-primary, #3b82f6)' },
+    statLabel: { color: 'var(--theme-text, #64748b)', fontSize: '0.9rem', marginTop: '0.5rem' },
+    button: { padding: '0.75rem 1.5rem', background: 'var(--theme-primary, #3b82f6)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '500', margin: '0.5rem' }
   },
   stateSubscriptions: {
     "counter-network": `

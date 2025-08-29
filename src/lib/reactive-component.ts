@@ -1,6 +1,6 @@
 // Enhanced component definition with reactive features
 import { defineComponent, type ComponentConfig, type PropsTransformer, type StylesInput, type ClassMap, type GeneratedApiMap } from "./define-component.ts";
-import type { ApiMap } from "./component-pipeline.ts";
+import type { ApiMap } from "./api-generator.ts";
 import { subscribeToState, listensFor } from "./reactive-helpers.ts";
 import { parseRenderParameters } from "./render-parameter-parser.ts";
 import { extractPropDefinitions } from "./prop-helpers.ts";

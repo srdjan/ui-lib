@@ -12,6 +12,15 @@ funcwc focuses on a clean authoring model that eliminates duplication:
 3. **✨ Function-Style Props**: Zero duplication between props and render
    parameters
 
+### Unified Component API
+
+- Use `defineComponent()` for all components; there is no builder/pipeline API.
+- Prefer function‑style props declared directly in the `render` parameter using
+  `string()`, `number()`, `boolean()`, etc. This keeps props, defaults and
+  types in one place and lets the library auto‑generate the parser.
+- Advanced cases may still provide a `props` transformer, but function‑style is
+  the recommended default.
+
 ### ✨ Function-Style Props (Zero Duplication!)
 
 The most ergonomic way to define props - no more duplication between props
@@ -137,26 +146,16 @@ duplication:
 ```tsx
 defineComponent("beautiful-button", {
   styles: {
-    // ✨ Just CSS properties - class names auto-generated!
-    button:
-      `{ padding: 0.5rem 1rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }`,
-    buttonHover: `{ background: #0056b3; }`, // → .button-hover
-    buttonActive: `{ transform: translateY(1px); }`, // → .button-active
-    // Auto-generates: .button, .button-hover, .button-active
-  },
-  render: (
-    {
-      text = string("Click me"),
-      disabled = boolean(false),
+    // ✨ Object-form supported (preferred)
+    button: {
+      padding: '0.5rem 1rem', background: '#007bff', color: 'white', border: 'none',
+      borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold',
     },
-    api,
-    classes,
-  ) => (
-    <button
-      class={classes!.button}
-      disabled={disabled}
-      onclick="/* DOM action */"
-    >
+    buttonHover: { background: '#0056b3' }, // → .button-hover
+    buttonActive: { transform: 'translateY(1px)' }, // → .button-active
+  },
+  render: ({ text = string('Click me'), disabled = boolean(false) }, _api, c) => (
+    <button class={`${c!.button} hover:${c!.buttonHover} active:${c!.buttonActive}`} disabled={disabled}>
       {text}
     </button>
   ),
@@ -172,7 +171,42 @@ defineComponent("beautiful-button", {
   `object()`
 - **Event handlers**: Return inline handler strings for direct DOM manipulation
 - **Server interactions**: Defined via `api` that automatically generates HTMX
-  attributes
+  attributes. For non‑GET requests, defaults include `hx-swap="outerHTML"` and
+  `hx-target="closest [data-component]"`.
+- **Automatic scoping**: The root element always includes
+  `data-component="<name>"`. This enables the default target, simplifies
+  selectors, and keeps behaviors scoped to a component instance.
+- **Styles guidance**: Prefer unified `styles` objects (auto class generation).
+  `classes` remains optional and merges last for overrides, but is generally
+  not needed.
+
+### Event Handlers
+
+- JSX `onClick`, `onChange`, etc. are lower‑cased in output (e.g., `onclick`).
+- Handlers accept either a code string or a `ComponentAction` (e.g., from
+  `toggleClass()`), which renders to inline JS.
+- Quotes in handler code are safely escaped as `&quot;` to produce valid HTML; the
+  browser decodes these when parsing.
+
+### Styles Input Options
+
+| Format | Example | Class Name Generation | Use When |
+| --- | --- | --- | --- |
+| Object (preferred) | `styles: { button: { padding: '0.5rem', borderRadius: '6px' } }` | Key → kebab: `button` → `.button` | Most cases; typeable, lintable, easy to refactor |
+| Brace string | ``styles: { button: `{ padding: 0.5rem; border-radius: 6px; }` }`` | Key → kebab: `button` → `.button` | Quick copy/paste of CSS declarations |
+| Legacy selector string | ``styles: { custom: `.card > .title { font-weight: 700; }` }`` | First selector’s class | Complex selectors, combinators, pseudo-classes |
+
+- Deduplication: Component CSS is injected once per component type per response.
+- Overrides: If you pass `classes`, it merges last and can replace generated class names.
+
+Selector best practices
+
+- Prefer single-class rules in object form for most component styling.
+- Use selector strings for:
+  - Combinators (e.g., `.btn .icon`, `.card > .title`)
+  - Pseudo-classes/elements (e.g., `.btn:hover`, `.field:focus`, `.input::placeholder`)
+  - Advanced scoping where a generated single class is insufficient
+- Keep media queries in strings for now; object-form styles serialize flat rule bodies.
 - **JSON-in, HTML-out**: All htmx requests are JSON-encoded; server returns HTML
   for swapping
 

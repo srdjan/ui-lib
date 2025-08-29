@@ -16,140 +16,23 @@ import {
 // Main Reactive Dashboard - Showcases all three reactivity approaches
 defineComponent("reactive-dashboard", {
   styles: {
-    dashboard: `{
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
-      background: var(--theme-bg, white);
-      color: var(--theme-text, #333);
-      transition: all 0.3s ease;
-      min-height: 100vh;
-    }`,
-    header: `{
-      text-align: center;
-      margin-bottom: 3rem;
-      padding: 2rem;
-      background: var(--theme-card-bg, #f8f9fa);
-      border: 2px solid var(--theme-border, #ddd);
-      border-radius: 16px;
-      position: relative;
-      overflow: hidden;
-    }`,
-    headerBg: `{
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, 
-        var(--theme-button-bg, #007bff) 0%, 
-        var(--theme-card-bg, #f8f9fa) 100%);
-      opacity: 0.1;
-      z-index: -1;
-    }`,
-    title: `{
-      color: var(--theme-text, #333);
-      font-size: 2.5rem;
-      font-weight: bold;
-      margin-bottom: 0.5rem;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }`,
-    subtitle: `{
-      color: var(--theme-text, #666);
-      font-size: 1.2rem;
-      opacity: 0.8;
-      margin-bottom: 2rem;
-    }`,
-    quickControls: `{
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      flex-wrap: wrap;
-    }`,
-    quickBtn: `{
-      background: var(--theme-button-bg, #007bff);
-      color: var(--theme-button-text, white);
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }`,
-    section: `{
-      margin-bottom: 3rem;
-      padding: 2rem;
-      border: 2px solid var(--theme-border, #ddd);
-      border-radius: 12px;
-      background: var(--theme-card-bg, #f8f9fa);
-      transition: all 0.3s ease;
-    }`,
-    sectionTitle: `{
-      color: var(--theme-text, #333);
-      font-size: 1.8rem;
-      font-weight: bold;
-      margin-bottom: 0.5rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 3px solid var(--theme-button-bg, #007bff);
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }`,
-    sectionDesc: `{
-      color: var(--theme-text, #666);
-      margin-bottom: 1.5rem;
-      font-size: 1.1rem;
-      line-height: 1.5;
-    }`,
-    demoArea: `{
-      background: var(--theme-bg, white);
-      border: 2px dashed var(--theme-border, #ddd);
-      border-radius: 8px;
-      padding: 2rem;
-      margin: 1rem 0;
-    }`,
-    grid: `{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      margin: 1rem 0;
-    }`,
-    statsGrid: `{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin: 2rem 0;
-    }`,
-    statCard: `{
-      background: var(--theme-bg, white);
-      border: 2px solid var(--theme-border, #ddd);
-      border-radius: 8px;
-      padding: 1.5rem;
-      text-align: center;
-      transition: all 0.3s ease;
-    }`,
-    statNumber: `{
-      font-size: 2.5rem;
-      font-weight: bold;
-      color: var(--theme-button-bg, #007bff);
-      margin-bottom: 0.5rem;
-    }`,
-    statLabel: `{
-      color: var(--theme-text, #666);
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }`,
-    footer: `{
-      text-align: center;
-      padding: 2rem;
-      margin-top: 3rem;
-      border-top: 2px solid var(--theme-border, #ddd);
-      color: var(--theme-text, #666);
-    }`
+    dashboard: { maxWidth: '1400px', margin: '0 auto', padding: '2rem', background: 'var(--theme-bg, white)', color: 'var(--theme-text, #333)', transition: 'all 0.3s ease', minHeight: '100vh' },
+    header: { textAlign: 'center', marginBottom: '3rem', padding: '2rem', background: 'var(--theme-card-bg, #f8f9fa)', border: '2px solid var(--theme-border, #ddd)', borderRadius: '16px', position: 'relative', overflow: 'hidden' },
+    headerBg: { position: 'absolute', top: '0', left: '0', right: '0', bottom: '0', background: 'linear-gradient(135deg, var(--theme-button-bg, #007bff) 0%, var(--theme-card-bg, #f8f9fa) 100%)', opacity: '0.1', zIndex: '-1' },
+    title: { color: 'var(--theme-text, #333)', fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem', textShadow: '0 2px 4px rgba(0,0,0,0.1)' },
+    subtitle: { color: 'var(--theme-text, #666)', fontSize: '1.2rem', opacity: '0.8', marginBottom: '2rem' },
+    quickControls: { display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' },
+    quickBtn: { background: 'var(--theme-button-bg, #007bff)', color: 'var(--theme-button-text, white)', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '8px', cursor: 'pointer', fontWeight: '500', transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', gap: '0.5rem' },
+    section: { marginBottom: '3rem', padding: '2rem', border: '2px solid var(--theme-border, #ddd)', borderRadius: '12px', background: 'var(--theme-card-bg, #f8f9fa)', transition: 'all 0.3s ease' },
+    sectionTitle: { color: 'var(--theme-text, #333)', fontSize: '1.8rem', fontWeight: 'bold', marginBottom: '0.5rem', paddingBottom: '0.5rem', borderBottom: '3px solid var(--theme-button-bg, #007bff)', display: 'flex', alignItems: 'center', gap: '0.75rem' },
+    sectionDesc: { color: 'var(--theme-text, #666)', marginBottom: '1.5rem', fontSize: '1.1rem', lineHeight: '1.5' },
+    demoArea: { background: 'var(--theme-bg, white)', border: '2px dashed var(--theme-border, #ddd)', borderRadius: '8px', padding: '2rem', margin: '1rem 0' },
+    grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', margin: '1rem 0' },
+    statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', margin: '2rem 0' },
+    statCard: { background: 'var(--theme-bg, white)', border: '2px solid var(--theme-border, #ddd)', borderRadius: '8px', padding: '1.5rem', textAlign: 'center', transition: 'all 0.3s ease' },
+    statNumber: { fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--theme-button-bg, #007bff)', marginBottom: '0.5rem' },
+    statLabel: { color: 'var(--theme-text, #666)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' },
+    footer: { textAlign: 'center', padding: '2rem', marginTop: '3rem', borderTop: '2px solid var(--theme-border, #ddd)', color: 'var(--theme-text, #666)' }
   },
   render: () => (
     <div class="dashboard">
@@ -374,37 +257,6 @@ defineComponent("reactive-dashboard", {
 
 // Reactive Stat Card - Shows live statistics
 defineComponent("reactive-stat-card", {
-  // onMount: `
-    // Update stats every 2 seconds
-    const updateStats = () => {
-      const title = this.querySelector('.stat-label').textContent;
-      const valueEl = this.querySelector('.stat-number');
-      
-      if (title.includes('CSS Properties')) {
-        // Count CSS custom properties
-        let count = 0;
-        for (let prop of document.documentElement.style) {
-          if (prop.startsWith('--')) count++;
-        }
-        valueEl.textContent = count || '⚡';
-      } else if (title.includes('State')) {
-        // Count state topics
-        const topics = window.funcwcState ? window.funcwcState.getTopics().length : 0;
-        valueEl.textContent = topics || '🔄';
-      } else if (title.includes('Events')) {
-        // This is more of a demo - in reality you'd track actual events
-        const now = new Date();
-        valueEl.textContent = now.getSeconds() % 10 || '📡';
-      } else if (title.includes('Performance')) {
-        // Show a performance indicator
-        const perf = Math.round(performance.now() / 100) % 100;
-        valueEl.textContent = perf < 50 ? '🚀' : '⚡';
-      }
-      
-      setTimeout(updateStats, 2000);
-    };
-    updateStats();
-  `,
   styles: {
     card: `{
       background: var(--theme-bg, white);
@@ -451,6 +303,37 @@ defineComponent("reactive-stat-card", {
   }) => (
     <div 
       class="card"
+      hx-on:load={`
+        // Update stats every 2 seconds
+        const updateStats = () => {
+          const title = this.querySelector('.stat-label').textContent;
+          const valueEl = this.querySelector('.stat-number');
+          
+          if (title.includes('CSS Properties')) {
+            // Count CSS custom properties
+            let count = 0;
+            for (let prop of document.documentElement.style) {
+              if (prop.startsWith('--')) count++;
+            }
+            valueEl.textContent = count || '⚡';
+          } else if (title.includes('State')) {
+            // Count state topics
+            const topics = window.funcwcState ? window.funcwcState.getTopics().length : 0;
+            valueEl.textContent = topics || '🔄';
+          } else if (title.includes('Events')) {
+            // This is more of a demo - in reality you'd track actual events
+            const now = new Date();
+            valueEl.textContent = now.getSeconds() % 10 || '📡';
+          } else if (title.includes('Performance')) {
+            // Show a performance indicator
+            const perf = Math.round(performance.now() / 100) % 100;
+            valueEl.textContent = perf < 50 ? '🚀' : '⚡';
+          }
+          
+          setTimeout(updateStats, 2000);
+        };
+        updateStats();
+      `}
       hx-on:mouseover="this.classList.add('card-hover')"
       hx-on:mouseout="this.classList.remove('card-hover')"
     >
@@ -463,30 +346,6 @@ defineComponent("reactive-stat-card", {
 
 // Integration Demo - Shows all systems working together
 defineComponent("integration-demo", {
-  // stateSubscriptions: {
-    cart: `
-      // Update integration display based on cart state
-      const statusEl = this.querySelector('.integration-status');
-      const actionBtn = this.querySelector('.integration-action');
-      
-      if (data.isEmpty) {
-        statusEl.innerHTML = '🛒 Cart is empty • 🎨 Theme: ' + 
-          (getComputedStyle(document.documentElement).getPropertyValue('--theme-mode').trim() || 'default') +
-          ' • 📡 Ready for events';
-        actionBtn.textContent = '🎯 Add Item & Change Theme';
-      } else {
-        statusEl.innerHTML = '🛒 ' + data.count + ' items ($' + data.total.toFixed(2) + ') • 🎨 Theme: ' + 
-          (getComputedStyle(document.documentElement).getPropertyValue('--theme-mode').trim() || 'default') +
-          ' • 📡 Events active';
-        actionBtn.textContent = '🎉 Checkout & Reset';
-      }
-    `
-  },
-  // onMount: `
-    // Initialize integration status
-    const statusEl = this.querySelector('.integration-status');
-    statusEl.innerHTML = '🔄 Integration demo ready • All systems online';
-  `,
   styles: {
     demo: `{
       background: var(--theme-card-bg, #f8f9fa);
@@ -543,7 +402,14 @@ defineComponent("integration-demo", {
     }`
   },
   render: () => (
-    <div class="demo">
+    <div 
+      class="demo"
+      hx-on:load={`
+        // Initialize integration status
+        const statusEl = this.querySelector('.integration-status');
+        statusEl.innerHTML = '🔄 Integration demo ready • All systems online';
+      `}
+    >
       <div class="overlay"></div>
       <h3 class="title">🔗 All Systems Integration</h3>
       <p>This demo coordinates all three reactivity systems simultaneously:</p>

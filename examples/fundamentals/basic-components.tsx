@@ -44,15 +44,14 @@ defineComponent("user-card", {
   )
 });
 
-// 3. Component with Legacy Props (traditional approach - still supported)
+// 3. Component with Props via function-style helpers (modern approach)
 defineComponent("product-card", {
-  props: {
-    title: "string",
-    price: { type: "number", default: 0 },
-    inStock: { type: "boolean", default: true },
-    description: "string?", // Optional prop
-  },
-  render: ({ title, price, inStock, description }) => (
+  render: ({
+    title = string("Untitled Product"),
+    price = number(0),
+    inStock = boolean(true),
+    description = string("")
+  }) => (
     <div style="padding: 1.5rem; border: 1px solid #ddd; border-radius: 8px; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
       <h3 style="margin: 0 0 1rem 0; color: #333;">
         {title}
@@ -78,16 +77,19 @@ defineComponent("product-card", {
   )
 });
 
-// 4. Component with Custom Props Transformer (advanced)
+// 4. Component with computed props using function-style defaults
 defineComponent("custom-props-card", {
-  props: (attrs: Record<string, string>) => ({
-    // Custom transformation logic
-    fullName: `${attrs.firstName || "John"} ${attrs.lastName || "Doe"}`,
-    score: Math.max(0, Math.min(100, parseInt(attrs.score || "0"))), // Clamp between 0-100
-    tags: (attrs.tags || "").split(",").map(tag => tag.trim()).filter(Boolean),
-    timestamp: new Date().toISOString(),
-  }),
-  render: ({ fullName, score, tags, timestamp }) => (
+  render: ({ 
+    firstName = string("John"),
+    lastName = string("Doe"),
+    score = number(0),
+    tags = string(""),
+  }) => {
+    const fullName = `${firstName} ${lastName}`;
+    const clampedScore = Math.max(0, Math.min(100, Number(score)));
+    const parsedTags = String(tags).split(",").map((t) => t.trim()).filter(Boolean);
+    const timestamp = new Date().toISOString();
+    return (
     <div style="padding: 1rem; border: 2px solid #17a2b8; border-radius: 8px; background: #e1f7fa;">
       <h4 style="margin: 0 0 1rem 0; color: #0c5460;">{fullName}</h4>
       <div style="margin-bottom: 1rem;">
@@ -96,15 +98,15 @@ defineComponent("custom-props-card", {
           style={`height: 8px; background: #dee2e6; border-radius: 4px; overflow: hidden; margin-top: 0.25rem;`}
         >
           <div 
-            style={`height: 100%; background: ${score >= 70 ? '#28a745' : score >= 40 ? '#ffc107' : '#dc3545'}; width: ${score}%; transition: all 0.3s ease;`}
+            style={`height: 100%; background: ${clampedScore >= 70 ? '#28a745' : clampedScore >= 40 ? '#ffc107' : '#dc3545'}; width: ${clampedScore}%; transition: all 0.3s ease;`}
           ></div>
         </div>
       </div>
-      {tags.length > 0 && (
+      {parsedTags.length > 0 && (
         <div>
           <strong>Tags:</strong>
           <div style="margin-top: 0.5rem;">
-            {tags.map(tag => (
+            {parsedTags.map(tag => (
               <span style="display: inline-block; background: #007bff; color: white; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8rem; margin-right: 0.5rem;">
                 {tag}
               </span>
@@ -116,7 +118,8 @@ defineComponent("custom-props-card", {
         Created: {timestamp}
       </small>
     </div>
-  )
+    );
+  }
 });
 
 // 5. Component demonstrating JSX vs HTML output comparison

@@ -39,15 +39,33 @@ defineComponent("like-card", {
     remove: del("/api/items/:id", () => new Response(null, { status: 200 })),
   },
   styles: {
-    card:
-      `{ border: 1px solid #ddd; border-radius: 6px; padding: 1rem; background: #fff; display: grid; gap: .5rem; }`,
-    title: `{ font-size: 1rem; font-weight: 600; color: #333; }`,
-    actions: `{ display: inline-flex; gap: .5rem; }`,
-    likeBtn:
-      `{ padding: .25rem .5rem; border-radius: 4px; border: 1px solid #e0245e; color: #e0245e; background: #fff0f3; cursor: pointer; }`,
-    likeBtnActive: `{ background: #ffe4ea; }`,
-    deleteBtn:
-      `{ padding: .25rem .5rem; border-radius: 4px; border: 1px solid #6c757d; color: #6c757d; background: #f8f9fa; cursor: pointer; }`,
+    card: {
+      border: '1px solid #ddd',
+      borderRadius: '6px',
+      padding: '1rem',
+      background: '#fff',
+      display: 'grid',
+      gap: '.5rem',
+    },
+    title: { fontSize: '1rem', fontWeight: '600', color: '#333' },
+    actions: { display: 'inline-flex', gap: '.5rem' },
+    likeBtn: {
+      padding: '.25rem .5rem',
+      borderRadius: '4px',
+      border: '1px solid #e0245e',
+      color: '#e0245e',
+      background: '#fff0f3',
+      cursor: 'pointer',
+    },
+    likeBtnActive: { background: '#ffe4ea' },
+    deleteBtn: {
+      padding: '.25rem .5rem',
+      borderRadius: '4px',
+      border: '1px solid #6c757d',
+      color: '#6c757d',
+      background: '#f8f9fa',
+      cursor: 'pointer',
+    },
   },
   render: (
     {

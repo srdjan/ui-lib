@@ -19,20 +19,13 @@ todoDatabase.set(3, { id: 3, text: "Deploy to production", completed: false, pri
 // 1. Todo App Container - Main application wrapper
 defineReactiveComponent("todo-app", {
   styles: {
-    container: `{
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 2rem;
-      background: var(--theme-bg, #ffffff);
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }`,
-    header: `{
-      text-align: center;
-      margin-bottom: 3rem;
-      padding-bottom: 2rem;
-      border-bottom: 2px solid var(--theme-border, #e2e8f0);
-    }`,
+    container: {
+      maxWidth: '1000px', margin: '0 auto', padding: '2rem', background: 'var(--theme-bg, #ffffff)', borderRadius: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+    },
+    header: {
+      textAlign: 'center', marginBottom: '3rem', paddingBottom: '2rem', borderBottom: '2px solid var(--theme-border, #e2e8f0)'
+    },
+    // Keep title as string to preserve vendor-prefixed properties
     title: `{
       font-size: 3rem;
       font-weight: 700;
@@ -41,35 +34,11 @@ defineReactiveComponent("todo-app", {
       -webkit-text-fill-color: transparent;
       margin: 0 0 0.5rem 0;
     }`,
-    subtitle: `{
-      color: var(--theme-text, #64748b);
-      font-size: 1.2rem;
-      margin: 0;
-    }`,
-    stats: `{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }`,
-    stat: `{
-      text-align: center;
-      padding: 1rem;
-      background: var(--theme-secondary, #f8fafc);
-      border-radius: 10px;
-      border: 1px solid var(--theme-border, #e2e8f0);
-    }`,
-    statValue: `{
-      font-size: 2rem;
-      font-weight: bold;
-      color: var(--theme-primary, #3b82f6);
-      display: block;
-    }`,
-    statLabel: `{
-      color: var(--theme-text, #64748b);
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
-    }`
+    subtitle: { color: 'var(--theme-text, #64748b)', fontSize: '1.2rem', margin: 0 },
+    stats: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', marginBottom: '2rem' },
+    stat: { textAlign: 'center', padding: '1rem', background: 'var(--theme-secondary, #f8fafc)', borderRadius: '10px', border: '1px solid var(--theme-border, #e2e8f0)' },
+    statValue: { fontSize: '2rem', fontWeight: 'bold', color: 'var(--theme-primary, #3b82f6)', display: 'block' },
+    statLabel: { color: 'var(--theme-text, #64748b)', fontSize: '0.9rem', marginTop: '0.5rem' }
   },
   stateSubscriptions: {
     "todos": `
@@ -156,50 +125,12 @@ defineComponent("todo-add-form", {
     })
   },
   styles: {
-    container: `{
-      background: var(--theme-bg, #ffffff);
-      border: 2px solid var(--theme-border, #e2e8f0);
-      border-radius: 12px;
-      padding: 2rem;
-      margin-bottom: 2rem;
-    }`,
-    title: `{
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: var(--theme-text, #1e293b);
-      margin: 0 0 1.5rem 0;
-    }`,
-    form: `{
-      display: grid;
-      grid-template-columns: 1fr auto auto auto;
-      gap: 1rem;
-      align-items: end;
-    }`,
-    input: `{
-      padding: 0.75rem 1rem;
-      border: 1px solid var(--theme-border, #d1d5db);
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: border-color 0.2s ease;
-    }`,
-    select: `{
-      padding: 0.75rem 1rem;
-      border: 1px solid var(--theme-border, #d1d5db);
-      border-radius: 8px;
-      font-size: 1rem;
-      background: white;
-    }`,
-    button: `{
-      padding: 0.75rem 1.5rem;
-      background: var(--theme-primary, #3b82f6);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-weight: 500;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: all 0.2s ease;
-    }`,
+    container: { background: 'var(--theme-bg, #ffffff)', border: '2px solid var(--theme-border, #e2e8f0)', borderRadius: '12px', padding: '2rem', marginBottom: '2rem' },
+    title: { fontSize: '1.5rem', fontWeight: '600', color: 'var(--theme-text, #1e293b)', margin: '0 0 1.5rem 0' },
+    form: { display: 'grid', gridTemplateColumns: '1fr auto auto auto', gap: '1rem', alignItems: 'end' },
+    input: { padding: '0.75rem 1rem', border: '1px solid var(--theme-border, #d1d5db)', borderRadius: '8px', fontSize: '1rem', transition: 'border-color 0.2s ease' },
+    select: { padding: '0.75rem 1rem', border: '1px solid var(--theme-border, #d1d5db)', borderRadius: '8px', fontSize: '1rem', background: 'white' },
+    button: { padding: '0.75rem 1.5rem', background: 'var(--theme-primary, #3b82f6)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '500', cursor: 'pointer', fontSize: '1rem', transition: 'all 0.2s ease' },
     formMobile: `{
       @media (max-width: 768px) {
         grid-template-columns: 1fr;
@@ -266,50 +197,12 @@ defineComponent("todo-add-form", {
 // 3. Todo Filters - Filter and search functionality
 defineReactiveComponent("todo-filters", {
   styles: {
-    container: `{
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-      flex-wrap: wrap;
-      padding: 1.5rem;
-      background: var(--theme-secondary, #f8fafc);
-      border-radius: 12px;
-      margin-bottom: 2rem;
-      border: 1px solid var(--theme-border, #e2e8f0);
-    }`,
-    filterGroup: `{
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }`,
-    label: `{
-      font-weight: 500;
-      color: var(--theme-text, #374151);
-      font-size: 0.9rem;
-    }`,
-    select: `{
-      padding: 0.5rem 0.75rem;
-      border: 1px solid var(--theme-border, #d1d5db);
-      border-radius: 6px;
-      background: white;
-      font-size: 0.9rem;
-    }`,
-    searchInput: `{
-      padding: 0.5rem 0.75rem;
-      border: 1px solid var(--theme-border, #d1d5db);
-      border-radius: 6px;
-      font-size: 0.9rem;
-      min-width: 200px;
-    }`,
-    clearButton: `{
-      padding: 0.5rem 1rem;
-      background: #6b7280;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 0.9rem;
-      cursor: pointer;
-    }`
+    container: { display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap', padding: '1.5rem', background: 'var(--theme-secondary, #f8fafc)', borderRadius: '12px', marginBottom: '2rem', border: '1px solid var(--theme-border, #e2e8f0)' },
+    filterGroup: { display: 'flex', gap: '0.5rem', alignItems: 'center' },
+    label: { fontWeight: '500', color: 'var(--theme-text, #374151)', fontSize: '0.9rem' },
+    select: { padding: '0.5rem 0.75rem', border: '1px solid var(--theme-border, #d1d5db)', borderRadius: '6px', background: 'white', fontSize: '0.9rem' },
+    searchInput: { padding: '0.5rem 0.75rem', border: '1px solid var(--theme-border, #d1d5db)', borderRadius: '6px', fontSize: '0.9rem', minWidth: '200px' },
+    clearButton: { padding: '0.5rem 1rem', background: '#6b7280', color: 'white', border: 'none', borderRadius: '6px', fontSize: '0.9rem', cursor: 'pointer' }
   },
   stateSubscriptions: {
     "filter-status": `this.updateFilters();`,
