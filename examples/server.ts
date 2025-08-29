@@ -89,7 +89,12 @@ Deno.serve({
       }
 
       // 4. If still no match, fall back to serving static files
-      const filePath = `.${url.pathname}`;
+      let filePath = `.${url.pathname}`;
+      
+      // Handle directory requests by serving index.html
+      if (url.pathname.endsWith('/')) {
+        filePath = `${filePath}index.html`;
+      }
 
       const content = await Deno.readFile(filePath);
       let contentType = "text/plain";
@@ -99,6 +104,8 @@ Deno.serve({
         contentType = "application/javascript; charset=utf-8";
       } else if (filePath.endsWith(".css")) {
         contentType = "text/css; charset=utf-8";
+      } else if (filePath.endsWith(".html")) {
+        contentType = "text/html; charset=utf-8";
       }
 
       return new Response(content, {

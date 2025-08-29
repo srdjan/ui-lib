@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Features - funcwc</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+    <script type="module" src="../main.ts"></script>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 100%);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 3rem;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            margin: 1rem 0 0 0;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 3rem 2rem;
+        }
+        
+        .section {
+            margin-bottom: 4rem;
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .section-description {
+            background: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 0 8px 8px 0;
+            font-size: 1.1rem;
+            color: #475569;
+        }
+        
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .example-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .example-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-color: #3b82f6;
+        }
+        
+        .example-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .example-description {
+            color: #64748b;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .example-demo {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .navigation {
+            background: #f1f5f9;
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #475569;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .feature-item {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-description {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body hx-ext="json-enc">
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Interactive Features</h1>
+            <p>HTMX Integration, DOM Manipulation & Real-time Updates</p>
+        </div>
+        
+        <div class="content">
+            <section class="section">
+                <h2>🔗 API Integration with HTMX</h2>
+                <div class="section-description">
+                    <strong>funcwc's Unified API System</strong> automatically generates HTMX attributes from server route definitions. 
+                    Define your API endpoints once, get client-side integration for free! All requests are JSON, responses are server-rendered HTML.
+                </div>
+                
+                <div class="examples-grid">
+                    <div class="example-card">
+                        <div class="example-title">⚡ API Counter</div>
+                        <div class="example-description">
+                            Server-powered counter with JSON API. Each button click sends JSON data to server, receives updated HTML component.
+                        </div>
+                        <div class="example-demo">
+                            <api-counter current-value="5" step="2"></api-counter>
+                        </div>
+                    </div>
+                    
+                    <div class="example-card">
+                        <div class="example-title">👤 User Profile Editor</div>
+                        <div class="example-description">
+                            Real-time profile updates with server validation. Form data syncs instantly with visual feedback.
+                        </div>
+                        <div class="example-demo">
+                            <user-profile-editor name="Sarah Chen" email="sarah@example.com" role="developer"></user-profile-editor>
+                        </div>
+                    </div>
+                    
+                    <div class="example-card">
+                        <div class="example-title">🔍 Search Autocomplete</div>
+                        <div class="example-description">
+                            Live search with API-driven suggestions. Demonstrates debounced requests and dynamic content loading.
+                        </div>
+                        <div class="example-demo">
+                            <search-autocomplete placeholder="Search users..." endpoint="/api/search"></search-autocomplete>
+                        </div>
+                    </div>
+                    
+                    <div class="example-card">
+                        <div class="example-title">📊 API Showcase</div>
+                        <div class="example-description">
+                            Complete CRUD operations showcase demonstrating all HTTP methods with funcwc's api helpers.
+                        </div>
+                        <div class="example-demo">
+                            <api-showcase></api-showcase>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">🎯</div>
+                        <div class="feature-title">Unified API System</div>
+                        <div class="feature-description">Define server routes, get HTMX attributes automatically</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">📤</div>
+                        <div class="feature-title">JSON In, HTML Out</div>
+                        <div class="feature-description">Send structured data, receive rendered components</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">⚡</div>
+                        <div class="feature-title">Zero Client JS</div>
+                        <div class="feature-description">All logic runs on server, UI updates via DOM swapping</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🔒</div>
+                        <div class="feature-title">Type Safety</div>
+                        <div class="feature-description">Full TypeScript support for API routes and parameters</div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>🎮 DOM Manipulation & Events</h2>
+                <div class="section-description">
+                    <strong>funcwc DOM Helpers</strong> provide powerful utilities for direct DOM manipulation. 
+                    No framework overhead - just clean, functional helpers for common DOM operations.
+                </div>
+                
+                <div class="examples-grid">
+                    <div class="example-card">
+                        <div class="example-title">🎯 Class Toggle Demo</div>
+                        <div class="example-description">
+                            Demonstrates toggleClass() helper for single class manipulation with visual feedback.
+                        </div>
+                        <div class="example-demo">
+                            <class-toggle-demo></class-toggle-demo>
+                        </div>
+                    </div>
+                    
+                    <div class="example-card">
+                        <div class="example-title">🔄 Multi-Class Controller</div>
+                        <div class="example-description">
+                            Shows toggleClasses() and conditionalClass() helpers for complex state management.
+                        </div>
+                        <div class="example-demo">
+                            <multi-class-demo></multi-class-demo>
+                        </div>
+                    </div>
+                    
+                    <div class="example-card">
+                        <div class="example-title">📊 Data Attributes Manager</div>
+                        <div class="example-description">
+                            Explores dataAttrs() helper for dynamic data attribute generation and management.
+                        </div>
+                        <div class="example-demo">
+                            <data-attrs-demo user-id="12345" user-name="Alex Morgan" role="admin" active="true"></data-attrs-demo>
+                        </div>
+                    </div>
+                    
+                    <div class="example-card">
+                        <div class="example-title">🎪 Event Handling Showcase</div>
+                        <div class="example-description">
+                            Advanced event handling patterns with DOM helpers and inline event management.
+                        </div>
+                        <div class="example-demo">
+                            <event-showcase></event-showcase>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">🎯</div>
+                        <div class="feature-title">toggleClass()</div>
+                        <div class="feature-description">Single class toggle with automatic parent targeting</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🔄</div>
+                        <div class="feature-title">toggleClasses()</div>
+                        <div class="feature-description">Multiple class manipulation in a single operation</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">⚖️</div>
+                        <div class="feature-title">conditionalClass()</div>
+                        <div class="feature-description">Conditional CSS classes based on runtime state</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">📊</div>
+                        <div class="feature-title">dataAttrs()</div>
+                        <div class="feature-description">Dynamic data-* attribute generation and spreading</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <div class="navigation">
+            <h3 style="margin-top: 0; color: #1e293b;">Explore More Examples</h3>
+            <div class="nav-links">
+                <a href="../index.html" class="nav-link">
+                    🏠 Home
+                </a>
+                <a href="../fundamentals/index.html" class="nav-link">
+                    📚 Fundamentals
+                </a>
+                <a href="../advanced/index.html" class="nav-link">
+                    🚀 Advanced Patterns
+                </a>
+                <a href="../apps/index.html" class="nav-link">
+                    🏗️ Real-World Apps
+                </a>
+                <a href="../resources/index.html" class="nav-link">
+                    📖 Developer Resources
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

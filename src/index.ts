@@ -69,15 +69,15 @@ export type { PropsOf, UnwrapHelpers } from "./lib/types.ts";
 
 // Hybrid Reactivity System - Three-tier client-side component communication
 
-// Enhanced reactive component definition (temporarily disabled)
-// export {
-//   defineReactiveComponent,
-//   defineCSSReactiveComponent,
-//   defineMultiStateComponent,
-//   createReactiveCSSClasses,
-//   type ReactiveComponentConfig,
-//   type MultiStateComponentConfig,
-// } from "./lib/reactive-component.ts";
+// Enhanced reactive component definition
+export {
+  defineReactiveComponent,
+  defineCSSReactiveComponent,
+  defineMultiStateComponent,
+  createReactiveCSSClasses,
+  type ReactiveComponentConfig,
+  type MultiStateComponentConfig,
+} from "./lib/reactive-component.ts";
 
 // CSS Property Reactivity (Tier 1)
 export {

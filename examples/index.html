@@ -1,50 +1,317 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>funcwc - DOM-Native SSR Components</title>
+    <title>funcwc - Complete Feature Showcase</title>
     <style>
+      /* CSS Variables for theming */
+      :root {
+        --primary: #007bff;
+        --primary-dark: #0056b3;
+        --success: #28a745;
+        --warning: #ffc107;
+        --danger: #dc3545;
+        --dark: #343a40;
+        --light: #f8f9fa;
+        --bg: #ffffff;
+        --text: #212529;
+        --muted: #6c757d;
+        --border: #dee2e6;
+        --shadow: rgba(0, 0, 0, 0.15);
+        
+        /* Reactive theme variables */
+        --theme-bg: var(--bg);
+        --theme-text: var(--text);
+        --theme-border: var(--border);
+        --theme-card-bg: var(--light);
+        --theme-button-bg: var(--primary);
+        --theme-button-text: white;
+        --theme-mode: "light";
+      }
+
+      /* Dark theme overrides */
+      [data-theme="dark"] {
+        --bg: #1a1a1a;
+        --text: #ffffff;
+        --muted: #adb5bd;
+        --border: #495057;
+        --light: #2d3748;
+        --shadow: rgba(0, 0, 0, 0.5);
+        --theme-mode: "dark";
+      }
+
+      /* Base styles */
+      * {
+        box-sizing: border-box;
+      }
+
       body {
-        font-family:
-          ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
-          Cantarell, Noto Sans, Helvetica Neue, Arial;
-        padding: 2rem;
-        max-width: 800px;
-        margin: 0 auto;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: var(--theme-bg);
+        color: var(--theme-text);
+        transition: all 0.3s ease;
         line-height: 1.6;
       }
 
-      section {
-        margin-bottom: 2rem;
-        padding: 1rem;
-        border: 1px solid #eee;
-        border-radius: 8px;
+      /* Layout components */
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
       }
 
-      h2 {
-        margin-top: 0;
-        color: #333;
+      .hero {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        text-align: center;
+        padding: 4rem 0;
+        margin-bottom: 3rem;
       }
 
-      p {
-        color: #666;
+      .hero h1 {
+        font-size: 3.5rem;
+        margin: 0 0 1rem 0;
+        font-weight: 700;
+      }
+
+      .hero p {
+        font-size: 1.3rem;
+        margin: 0 0 2rem 0;
+        opacity: 0.9;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .hero .badges {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin: 2rem 0;
+        flex-wrap: wrap;
+      }
+
+      .badge {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      /* Navigation */
+      .nav {
+        background: var(--theme-card-bg);
+        border-bottom: 2px solid var(--theme-border);
+        padding: 1rem 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        transition: all 0.3s ease;
+      }
+
+      .nav-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+      }
+
+      .nav-link {
+        text-decoration: none;
+        color: var(--theme-text);
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        border: 2px solid transparent;
+      }
+
+      .nav-link:hover {
+        background: var(--primary);
+        color: white;
+      }
+
+      .nav-link.active {
+        background: var(--primary);
+        color: white;
+      }
+
+      /* Feature grid */
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+      }
+
+      .feature-card {
+        background: var(--theme-card-bg);
+        border: 2px solid var(--theme-border);
+        border-radius: 12px;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px var(--shadow);
+        border-color: var(--primary);
+      }
+
+      .feature-card .icon {
+        font-size: 2.5rem;
         margin-bottom: 1rem;
+        display: block;
       }
 
-      code {
-        background: #f1f3f4;
-        padding: 0.2rem 0.4rem;
-        border-radius: 3px;
-        font-family: "Monaco", "Menlo", monospace;
-        font-size: 0.9em;
+      .feature-card h3 {
+        font-size: 1.5rem;
+        margin: 0 0 1rem 0;
+        color: var(--theme-text);
+      }
+
+      .feature-card p {
+        color: var(--muted);
+        margin: 0 0 1.5rem 0;
+      }
+
+      .feature-card .demo-area {
+        background: var(--theme-bg);
+        border: 1px solid var(--theme-border);
+        border-radius: 6px;
+        padding: 1rem;
+        margin-top: 1rem;
+      }
+
+      /* Buttons */
+      .btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+      }
+
+      .btn-secondary {
+        background: var(--theme-card-bg);
+        color: var(--theme-text);
+        border: 2px solid var(--theme-border);
+      }
+
+      .btn-secondary:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+
+      /* Sections */
+      .section {
+        margin: 4rem 0;
+        padding: 2rem;
+        border-radius: 12px;
+        background: var(--theme-card-bg);
+        border: 1px solid var(--theme-border);
+      }
+
+      .section-title {
+        font-size: 2.5rem;
+        margin: 0 0 1rem 0;
+        text-align: center;
+        color: var(--theme-text);
+      }
+
+      .section-subtitle {
+        text-align: center;
+        color: var(--muted);
+        font-size: 1.1rem;
+        margin: 0 0 3rem 0;
+      }
+
+      /* Code examples */
+      .code-example {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        padding: 1.5rem;
+        border-radius: 8px;
+        font-family: 'Monaco', 'Menlo', monospace;
+        font-size: 0.9rem;
+        overflow-x: auto;
+        margin: 1rem 0;
+      }
+
+      /* Responsive design */
+      @media (max-width: 768px) {
+        .hero h1 {
+          font-size: 2.5rem;
+        }
+
+        .hero p {
+          font-size: 1.1rem;
+        }
+
+        .container {
+          padding: 0 1rem;
+        }
+
+        .nav-content {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .features-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Animations */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animate-in {
+        animation: fadeInUp 0.6s ease-out;
       }
     </style>
   </head>
   <body hx-ext="json-enc" hx-encoding="json">
     <script src="https://unpkg.com/htmx.org@2.0.6"></script>
     <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
-    <!-- Hybrid Reactivity System State Manager -->
+    
+    <!-- State Manager for Reactive Features -->
     <script>
       window.StateManager = {
         topics: new Map(),
@@ -70,141 +337,203 @@
         }
       };
     </script>
-    <h1>funcwc - DOM-Native SSR Components</h1>
-    <p style="color: #666; margin-bottom: 2rem">
-      Clean <code>defineComponent</code> API with enhanced props, HTMX
-      integration, DOM-as-state architecture, and <strong>Hybrid Reactivity System!</strong>
-    </p>
 
-    <div
-      style="padding: 0.75rem 1rem; border: 1px solid #e2e8f0; background: #f8fafc; border-radius: 8px; margin-bottom: 1.25rem; color: #334155"
-    >
-      <strong>Note:</strong> All HTMX requests are JSON; responses are
-      server-rendered HTML and swapped in place.
-    </div>
-
-    <section style="border: 1px solid #e2e8f0; background: #f8fafc">
-      <h2>🎨 Unified Styles</h2>
-      <p style="color: #334155">
-        Write CSS properties inline; class names are auto-generated. No
-        selectors, no duplication.
-      </p>
-      <unified-card title="Unified Styles" highlighted></unified-card>
-      <unified-card title="Simple Card"></unified-card>
-    </section>
-
-    <section>
-      <h2>🎨 Theme Toggle</h2>
-      <p>Pure DOM state with CSS class manipulation. No JavaScript objects!</p>
-      <theme-toggle></theme-toggle>
-    </section>
-
-    <section style="margin-top: 2rem">
-      <h2>🔢 Counter</h2>
-      <p>
-        Server-powered updates via HTMX (JSON in, HTML out). <strong
-        >Function-style props + CSS-only format!</strong>
-      </p>
-      <counter step="3" initialCount="5"></counter>
-    </section>
-
-    <section style="margin-top: 2rem">
-      <h2>✅ Todo Item</h2>
-      <p>
-        Local UI state (checkbox) + Server persistence via HTMX. <strong
-        >Function-style props + CSS-only format + API integration!</strong>
-      </p>
-      <todo-item
-        id="1"
-        text="Learn DOM-native development"
-        done="false"
-      ></todo-item>
-      <todo-item
-        id="2"
-        text="Build awesome components"
-        done="true"
-      ></todo-item>
-    </section>
-
-    <section style="margin-top: 2rem">
-      <h2>📑 Tabs</h2>
-      <p>
-        Loads tab content via API (HTMX). <strong>Function-style props +
-          CSS-only styling magic!</strong>
-      </p>
-      <tabs tabs="Home,About,Settings,Contact" activeTab="Home"></tabs>
-    </section>
-
-    <section style="margin-top: 2rem">
-      <h2>❤️ Like Card</h2>
-      <p>
-        HTMX-powered server actions with function-style props. Toggle like and
-        remove items.
-      </p>
-      <like-card id="101" title="First Item" liked="false"></like-card>
-      <like-card id="102" title="Second Item" liked="true"></like-card>
-    </section>
-
-    <section style="margin-top: 2rem">
-      <h2>🛒 Cart Items</h2>
-      <p>Simple cart item with server-powered quantity updates and actions.</p>
-      <cart-item
-        productId="123"
-        name="Widget"
-        quantity="2"
-        price="19.99"
-      ></cart-item>
-      <cart-item
-        productId="456"
-        name="Gadget"
-        quantity="1"
-        price="29.99"
-      ></cart-item>
-    </section>
-
-    <section
-      style="margin-top: 2rem; border: 1px solid #e2e8f0; background: #f8fafc"
-    >
-      <h2>⚙️ Function-Style Props</h2>
-      <p style="color: #334155">
-        Props are inferred from render parameters and defaults.
-      </p>
-      <function-style-card
-        title="Typed + Inferred"
-        count="100"
-        enabled
-      ></function-style-card>
-    </section>
-
-    <section style="margin-top: 3rem; border: 2px solid #10b981; background: #ecfdf5">
-      <h1 style="color: #059669; margin-top: 0;">🚀 Hybrid Reactivity System</h1>
-      <p style="color: #065f46;">
-        Three-tier client-side component communication: CSS properties for instant visual updates, 
-        pub/sub for complex state management, and DOM events for component messaging.
-      </p>
-    </section>
-
-    <section style="margin-top: 2rem; border: 1px solid #3b82f6; background: #eff6ff">
-      <h2 style="color: #1d4ed8;">🎨 Basic Reactivity Demo</h2>
-      <p style="color: #1e40af;">
-        Simple theme controller and reactive cards using CSS custom properties.
-      </p>
-      <theme-controller></theme-controller>
-      <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-        <reactive-card title="Card 1"></reactive-card>
-        <reactive-card title="Card 2"></reactive-card>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <h1>funcwc</h1>
+        <p>The Revolutionary DOM-Native SSR Components Library</p>
+        <div class="badges">
+          <span class="badge">🚀 Zero Client Dependencies</span>
+          <span class="badge">⚡ Function-Style Props</span>
+          <span class="badge">🎨 CSS-Only Styling</span>
+          <span class="badge">🔗 HTMX Integration</span>
+          <span class="badge">⚛️ Reactive System</span>
+        </div>
+        <a href="#features" class="btn btn-primary">Explore Features</a>
       </div>
     </section>
 
-    <section style="margin-top: 2rem; border: 1px solid #f59e0b; background: #fffbeb">
-      <h2 style="color: #d97706;">🚧 More Reactive Features Coming Soon</h2>
-      <p style="color: #92400e;">
-        We're working on advanced reactive features including pub/sub state management, DOM event communication, and integrated dashboards. Stay tuned!
+    <!-- Navigation -->
+    <nav class="nav">
+      <div class="container nav-content">
+        <div class="nav-links">
+          <a href="#features" class="nav-link active">Features</a>
+          <a href="fundamentals/" class="nav-link">Fundamentals</a>
+          <a href="interactive/" class="nav-link">Interactive</a>
+          <a href="advanced/" class="nav-link">Advanced</a>
+          <a href="apps/" class="nav-link">Real Apps</a>
+          <a href="resources/" class="nav-link">Resources</a>
+          <a href="playground/" class="nav-link">Playground</a>
+        </div>
+        <theme-toggle></theme-toggle>
+      </div>
+    </nav>
+
+    <!-- Features Overview -->
+    <section id="features" class="container section animate-in">
+      <h2 class="section-title">Complete Feature Showcase</h2>
+      <p class="section-subtitle">
+        Every funcwc feature demonstrated with working examples, explanations, and copy-paste ready code
       </p>
+
+      <div class="features-grid">
+        <!-- Core Component System -->
+        <div class="feature-card">
+          <span class="icon">⚡</span>
+          <h3>Core Component System</h3>
+          <p>defineComponent API with custom JSX runtime, SSR rendering, and zero client dependencies</p>
+          <div class="demo-area">
+            <unified-card title="Live Demo" highlighted></unified-card>
+          </div>
+          <a href="fundamentals/" class="btn btn-primary">Learn Fundamentals</a>
+        </div>
+
+        <!-- Function-Style Props -->
+        <div class="feature-card">
+          <span class="icon">🎯</span>
+          <h3>Function-Style Props</h3>
+          <p>Zero duplication prop definitions with smart type helpers and automatic inference</p>
+          <div class="demo-area">
+            <function-style-card title="Props Demo" count="42" enabled></function-style-card>
+          </div>
+          <a href="fundamentals/" class="btn btn-primary">See Props System</a>
+        </div>
+
+        <!-- CSS-Only Styling -->
+        <div class="feature-card">
+          <span class="icon">🎨</span>
+          <h3>CSS-Only Styling</h3>
+          <p>Auto-generated class names from CSS properties. No selectors, no duplication</p>
+          <div class="demo-area">
+            <unified-card title="Styled Card"></unified-card>
+          </div>
+          <a href="fundamentals/" class="btn btn-primary">Learn Styling</a>
+        </div>
+
+        <!-- HTMX Integration -->
+        <div class="feature-card">
+          <span class="icon">🔗</span>
+          <h3>HTMX Integration</h3>
+          <p>Auto-generated HTMX attributes from server route definitions. JSON in, HTML out</p>
+          <div class="demo-area">
+            <counter initialCount="5" step="2"></counter>
+          </div>
+          <a href="interactive/" class="btn btn-primary">Try Interactive</a>
+        </div>
+
+        <!-- DOM State Management -->
+        <div class="feature-card">
+          <span class="icon">🏠</span>
+          <h3>DOM-Native State</h3>
+          <p>DOM as single source of truth. CSS classes, data attributes, and form values as state</p>
+          <div class="demo-area">
+            <todo-item id="demo" text="DOM-powered todo" done="false"></todo-item>
+          </div>
+          <a href="interactive/" class="btn btn-primary">See DOM State</a>
+        </div>
+
+        <!-- Reactive System -->
+        <div class="feature-card">
+          <span class="icon">⚛️</span>
+          <h3>Hybrid Reactivity</h3>
+          <p>Three-tier reactive system: CSS properties, pub/sub state, and DOM event communication</p>
+          <div class="demo-area">
+            <theme-controller></theme-controller>
+            <reactive-card title="Reactive Card"></reactive-card>
+          </div>
+          <a href="advanced/" class="btn btn-primary">Explore Reactivity</a>
+        </div>
+
+        <!-- Tab System -->
+        <div class="feature-card">
+          <span class="icon">📑</span>
+          <h3>Dynamic Content</h3>
+          <p>Server-rendered dynamic content with HTMX loading and state synchronization</p>
+          <div class="demo-area">
+            <tabs tabs="Demo,Features,Code" activeTab="Demo"></tabs>
+          </div>
+          <a href="interactive/" class="btn btn-primary">See Dynamic UI</a>
+        </div>
+
+        <!-- Advanced Patterns -->
+        <div class="feature-card">
+          <span class="icon">🧩</span>
+          <h3>Advanced Patterns</h3>
+          <p>Complex applications with shopping carts, modals, notifications, and dashboards</p>
+          <div class="demo-area">
+            <like-card id="demo" title="Advanced Demo" liked="false"></like-card>
+          </div>
+          <a href="apps/" class="btn btn-primary">See Real Apps</a>
+        </div>
+      </div>
     </section>
 
-    <!-- No comparisons or code snippets below; just current usage examples. -->
+    <!-- Quick Start -->
+    <section class="container section animate-in">
+      <h2 class="section-title">Quick Start</h2>
+      <p class="section-subtitle">Get started with funcwc in minutes</p>
+      
+      <div class="code-example">
+/** @jsx h */
+import { defineComponent, h, string, number } from "funcwc";
 
-    <!-- Components are server-rendered, no client-side script needed -->
+defineComponent("my-counter", {
+  styles: {
+    // ✨ CSS-only format - class names auto-generated!
+    button: `{ 
+      background: var(--primary); 
+      color: white; 
+      border: none; 
+      padding: 0.5rem 1rem;
+      border-radius: 4px; 
+      cursor: pointer;
+    }`,
+    display: `{ 
+      font-size: 1.5rem; 
+      font-weight: bold; 
+      margin: 0 1rem;
+    }`,
+  },
+  render: ({
+    // ✨ Function-style props - no duplication!
+    initialCount = number(0),
+    step = number(1),
+  }, api, classes) => (
+    &lt;div&gt;
+      &lt;button class={classes!.button}&gt;-{step}&lt;/button&gt;
+      &lt;span class={classes!.display}&gt;{initialCount}&lt;/span&gt;
+      &lt;button class={classes!.button}&gt;+{step}&lt;/button&gt;
+    &lt;/div&gt;
+  ),
+});
+      </div>
+      
+      <div style="text-align: center; margin-top: 2rem;">
+        <a href="fundamentals/" class="btn btn-primary">Start Learning</a>
+        <a href="playground/" class="btn btn-secondary" style="margin-left: 1rem;">Try Online</a>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="background: var(--theme-card-bg); padding: 3rem 0; margin-top: 4rem; border-top: 1px solid var(--theme-border);">
+      <div class="container" style="text-align: center;">
+        <h3 style="margin: 0 0 1rem 0; color: var(--theme-text);">Ready to Build?</h3>
+        <p style="color: var(--muted); margin: 0 0 2rem 0;">
+          Explore comprehensive examples, learn best practices, and build amazing DOM-native applications
+        </p>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+          <a href="fundamentals/" class="btn btn-primary">Start Tutorial</a>
+          <a href="apps/" class="btn btn-secondary">See Real Examples</a>
+          <a href="resources/" class="btn btn-secondary">API Reference</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Load components -->
+    <script type="module">
+      // Components are loaded via server-side includes in the actual implementation
+      console.log('funcwc Examples App - Feature Showcase Ready');
+    </script>
   </body>
 </html>
