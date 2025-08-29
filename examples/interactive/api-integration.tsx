@@ -15,7 +15,7 @@ import {
 import type { GeneratedApiMap } from "../../src/index.ts";
 
 /**
- * API INTEGRATION EXAMPLES
+ * API INTEGRATION EXAMPLES 
  * Comprehensive showcase of HTMX + JSON API patterns
  */
 

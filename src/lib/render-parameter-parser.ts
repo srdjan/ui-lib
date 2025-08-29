@@ -27,17 +27,28 @@ export function parseRenderParameters(
 ): ParsedRenderParameters {
   const funcStr = renderFunction.toString();
 
-  // Extract the parameter list from the function string
-  const paramMatch = funcStr.match(
-    /^\s*(?:async\s+)?(?:\w+\s*=>|\(([^)]*)\)\s*=>|function[^(]*\(([^)]*)\))/,
-  );
-  if (!paramMatch) {
+  // Extract the parameter list with balanced parentheses handling
+  let paramList = "";
+  
+  // Look for arrow function pattern: (...) => or function pattern: function(...) 
+  const arrowMatch = funcStr.match(/^\s*(?:async\s+)?(\([^]*?\))\s*=>/);
+  const functionMatch = funcStr.match(/^\s*(?:async\s+)?function[^(]*(\([^]*?\))/);
+  
+  if (arrowMatch) {
+    // Extract balanced parentheses content for arrow functions
+    paramList = extractBalancedParentheses(funcStr, arrowMatch.index! + arrowMatch[0].indexOf('('));
+  } else if (functionMatch) {
+    // Extract balanced parentheses content for function declarations
+    paramList = extractBalancedParentheses(funcStr, functionMatch.index! + functionMatch[0].indexOf('('));
+  }
+  
+  if (!paramList) {
     return { propHelpers: {}, hasProps: false };
   }
 
-  // Get the first parameter (should be the props parameter)
-  const paramList = paramMatch[1] || paramMatch[2] || "";
-  const firstParam = paramList.split(",")[0]?.trim();
+  // Remove outer parentheses and get the first parameter
+  const innerParamList = paramList.slice(1, -1).trim();
+  const firstParam = splitTopLevelCommas(innerParamList)[0]?.trim();
 
   if (firstParam) {
     // Case 1: Destructured parameter with defaults
@@ -139,6 +150,72 @@ function parseDestructuredProperties(content: string): DestructuredProperty[] {
 interface Token {
   type: "identifier" | "operator" | "literal" | "punctuation";
   value: string;
+}
+
+/**
+ * Extract balanced parentheses content starting from a given position
+ */
+function extractBalancedParentheses(source: string, startIndex: number): string {
+  if (source[startIndex] !== '(') return "";
+  
+  let depth = 0;
+  let endIndex = startIndex;
+  
+  for (let i = startIndex; i < source.length; i++) {
+    const char = source[i];
+    if (char === '(') depth++;
+    else if (char === ')') {
+      depth--;
+      if (depth === 0) {
+        endIndex = i;
+        break;
+      }
+    }
+  }
+  
+  return depth === 0 ? source.slice(startIndex, endIndex + 1) : "";
+}
+
+/**
+ * Split a string by commas that are not inside parentheses, brackets, or braces
+ */
+function splitTopLevelCommas(source: string): string[] {
+  const parts: string[] = [];
+  let current = "";
+  let depth = 0;
+  let inString = false;
+  let stringChar = "";
+  
+  for (let i = 0; i < source.length; i++) {
+    const char = source[i];
+    const prevChar = i > 0 ? source[i - 1] : "";
+    
+    if (!inString) {
+      if ((char === '"' || char === "'" || char === '`') && prevChar !== '\\') {
+        inString = true;
+        stringChar = char;
+      } else if (char === '(' || char === '[' || char === '{') {
+        depth++;
+      } else if (char === ')' || char === ']' || char === '}') {
+        depth--;
+      } else if (char === ',' && depth === 0) {
+        parts.push(current.trim());
+        current = "";
+        continue;
+      }
+    } else if (char === stringChar && prevChar !== '\\') {
+      inString = false;
+      stringChar = "";
+    }
+    
+    current += char;
+  }
+  
+  if (current.trim()) {
+    parts.push(current.trim());
+  }
+  
+  return parts;
 }
 
 // Extracts the inner content of a balanced brace object literal at the start of the string

@@ -10,6 +10,13 @@ export interface PropHelper<T = unknown> {
 }
 
 /**
+ * Convert camelCase to kebab-case for HTML attribute lookup
+ */
+function camelToKebab(str: string): string {
+  return str.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
+}
+
+/**
  * String prop helper
  * @param defaultValue - Default value if attribute is missing (makes prop optional)
  * @returns PropHelper for string parsing
@@ -21,7 +28,9 @@ export function string(defaultValue?: string): PropHelper<string> {
     defaultValue,
     required: defaultValue === undefined,
     parse: (attrs: Record<string, string>, key: string) => {
-      const value = attrs[key];
+      // Try both camelCase and kebab-case versions
+      const kebabKey = camelToKebab(key);
+      const value = attrs[key] ?? attrs[kebabKey];
       if (value === undefined) {
         if (defaultValue !== undefined) {
           return defaultValue;
@@ -45,7 +54,9 @@ export function number(defaultValue?: number): PropHelper<number> {
     defaultValue,
     required: defaultValue === undefined,
     parse: (attrs: Record<string, string>, key: string) => {
-      const value = attrs[key];
+      // Try both camelCase and kebab-case versions
+      const kebabKey = camelToKebab(key);
+      const value = attrs[key] ?? attrs[kebabKey];
       if (value === undefined) {
         if (defaultValue !== undefined) {
           return defaultValue;
@@ -73,7 +84,9 @@ export function boolean(defaultValue?: boolean): PropHelper<boolean> {
     defaultValue,
     required: defaultValue === undefined,
     parse: (attrs: Record<string, string>, key: string) => {
-      const hasAttr = key in attrs;
+      // Try both camelCase and kebab-case versions
+      const kebabKey = camelToKebab(key);
+      const hasAttr = key in attrs || kebabKey in attrs;
       if (!hasAttr && defaultValue !== undefined) {
         return defaultValue;
       }
@@ -98,7 +111,9 @@ export function array<T = unknown>(defaultValue?: T[]): PropHelper<T[]> {
     defaultValue,
     required: defaultValue === undefined,
     parse: (attrs: Record<string, string>, key: string) => {
-      const value = attrs[key];
+      // Try both camelCase and kebab-case versions
+      const kebabKey = camelToKebab(key);
+      const value = attrs[key] ?? attrs[kebabKey];
       if (value === undefined) {
         if (defaultValue !== undefined) {
           return defaultValue;
@@ -132,7 +147,9 @@ export function object<T = Record<string, unknown>>(
     defaultValue,
     required: defaultValue === undefined,
     parse: (attrs: Record<string, string>, key: string) => {
-      const value = attrs[key];
+      // Try both camelCase and kebab-case versions
+      const kebabKey = camelToKebab(key);
+      const value = attrs[key] ?? attrs[kebabKey];
       if (value === undefined) {
         if (defaultValue !== undefined) {
           return defaultValue;

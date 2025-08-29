@@ -3,7 +3,7 @@ import { defineReactiveComponent, h, boolean, string, number, object } from "../
 
 // Advanced Reactive System Components demonstrating the Hybrid Reactivity System
 
-console.log("🚀 Loading Advanced Reactive System examples...");
+console.log("🚀 Loading Advanced Reactive System examples..."); 
 
 // 1. CSS Property Reactivity - Theme Controller with Global State
 defineReactiveComponent("theme-controller", {

@@ -108,7 +108,13 @@ defineComponent("toggle-class-demo", {
           onclick={`
             const container = this.closest('.toggle-demo-container');
             const hasActive = container.classList.contains('active');
-            ${conditionalClass("hasActive", "success", "warning")}
+            if (hasActive) {
+              container.classList.add('success');
+              container.classList.remove('warning');
+            } else {
+              container.classList.add('warning');
+              container.classList.remove('success');
+            }
           `}
         >
           ⚖️ Conditional Classes
@@ -123,7 +129,7 @@ defineComponent("toggle-class-demo", {
             const title = container.querySelector('.toggle-demo-title');
             
             // Chain multiple operations
-            ${toggleClass("active")}
+            container.classList.toggle('active');
             
             // Update title text based on state
             if (container.classList.contains('active')) {

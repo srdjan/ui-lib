@@ -2,6 +2,8 @@
 import { defineComponent, type ComponentConfig, type PropsTransformer, type StylesInput, type ClassMap, type GeneratedApiMap } from "./define-component.ts";
 import type { ApiMap } from "./component-pipeline.ts";
 import { subscribeToState, listensFor } from "./reactive-helpers.ts";
+import { parseRenderParameters } from "./render-parameter-parser.ts";
+import { extractPropDefinitions } from "./prop-helpers.ts";
 
 /**
  * Enhanced component configuration that supports reactive features
@@ -194,9 +196,25 @@ export function defineReactiveComponent<TProps = Record<string, string>>(
     };
   }
 
+  // Extract props transformer from original render function for function-style props support
+  // We need to do this before creating enhancedRender since parseRenderParameters
+  // analyzes the original function string
+  const { propHelpers, hasProps } = parseRenderParameters(render);
+  let propsTransformer = baseConfig.props;
+  
+  if (!propsTransformer && hasProps) {
+    const { propsTransformer: autoTransformer } = extractPropDefinitions(propHelpers);
+    propsTransformer = autoTransformer as PropsTransformer<Record<string, string>, TProps>;
+    console.log(
+      `Auto-generated props for component "${name}":`,
+      Object.keys(propHelpers),
+    );
+  }
+
   // Call the original defineComponent with enhanced configuration
   defineComponent(name, {
     ...baseConfig,
+    props: propsTransformer,
     styles: enhancedStyles,
     render: enhancedRender,
   } as any); // Type assertion to handle signature compatibility
