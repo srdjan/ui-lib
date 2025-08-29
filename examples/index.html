@@ -44,10 +44,36 @@
   <body hx-ext="json-enc" hx-encoding="json">
     <script src="https://unpkg.com/htmx.org@2.0.6"></script>
     <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+    <!-- Hybrid Reactivity System State Manager -->
+    <script>
+      window.StateManager = {
+        topics: new Map(),
+        subscribers: new Map(),
+        publish(topic, data) {
+          const callbacks = this.subscribers.get(topic) || [];
+          callbacks.forEach(({ callback, element }) => {
+            if (document.contains(element)) callback(data);
+            else this.unsubscribe(topic, callback, element);
+          });
+          this.topics.set(topic, data);
+        },
+        subscribe(topic, callback, element) {
+          if (!this.subscribers.has(topic)) this.subscribers.set(topic, []);
+          this.subscribers.get(topic).push({ callback, element });
+          const currentData = this.topics.get(topic);
+          if (currentData !== undefined) callback(currentData);
+        },
+        getState(topic) { return this.topics.get(topic); },
+        unsubscribe(topic, callback, element) {
+          const subs = this.subscribers.get(topic) || [];
+          this.subscribers.set(topic, subs.filter(s => s.callback !== callback || s.element !== element));
+        }
+      };
+    </script>
     <h1>funcwc - DOM-Native SSR Components</h1>
     <p style="color: #666; margin-bottom: 2rem">
       Clean <code>defineComponent</code> API with enhanced props, HTMX
-      integration, and DOM-as-state architecture. Zero client-side dependencies!
+      integration, DOM-as-state architecture, and <strong>Hybrid Reactivity System!</strong>
     </p>
 
     <div
@@ -148,6 +174,33 @@
         count="100"
         enabled
       ></function-style-card>
+    </section>
+
+    <section style="margin-top: 3rem; border: 2px solid #10b981; background: #ecfdf5">
+      <h1 style="color: #059669; margin-top: 0;">🚀 Hybrid Reactivity System</h1>
+      <p style="color: #065f46;">
+        Three-tier client-side component communication: CSS properties for instant visual updates, 
+        pub/sub for complex state management, and DOM events for component messaging.
+      </p>
+    </section>
+
+    <section style="margin-top: 2rem; border: 1px solid #3b82f6; background: #eff6ff">
+      <h2 style="color: #1d4ed8;">🎨 Basic Reactivity Demo</h2>
+      <p style="color: #1e40af;">
+        Simple theme controller and reactive cards using CSS custom properties.
+      </p>
+      <theme-controller></theme-controller>
+      <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+        <reactive-card title="Card 1"></reactive-card>
+        <reactive-card title="Card 2"></reactive-card>
+      </div>
+    </section>
+
+    <section style="margin-top: 2rem; border: 1px solid #f59e0b; background: #fffbeb">
+      <h2 style="color: #d97706;">🚧 More Reactive Features Coming Soon</h2>
+      <p style="color: #92400e;">
+        We're working on advanced reactive features including pub/sub state management, DOM event communication, and integrated dashboards. Stay tuned!
+      </p>
     </section>
 
     <!-- No comparisons or code snippets below; just current usage examples. -->

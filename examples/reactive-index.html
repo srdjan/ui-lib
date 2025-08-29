@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>funcwc Reactive System Demo</title>
+  
+  <!-- HTMX with JSON encoding extension -->
+  <script src="https://unpkg.com/htmx.org@2.0.6"></script>
+  <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+  
+  <!-- funcwc State Manager - Pub/Sub system for complex state -->
+  <script>
+    // funcwc State Manager - Client-side pub/sub for component communication
+    window.funcwcState = {
+      // Internal state storage: Map<topic, StateEntry>
+      _state: new Map(),
+      
+      // Internal subscriptions: Map<topic, Subscription[]>
+      _subscribers: new Map(),
+      
+      // Configuration
+      _config: {
+        maxSubscriptionsPerTopic: 100,
+        maxTopics: 50,
+        cleanupInterval: 30000, // 30 seconds
+        debugMode: true // Enable debug mode for development
+      },
+      
+      // Last cleanup timestamp
+      _lastCleanup: Date.now(),
+
+      /**
+       * Publish state update to all subscribers of a topic
+       */
+      publish(topic, data) {
+        if (typeof topic !== 'string') {
+          console.warn('funcwcState.publish: topic must be a string');
+          return;
+        }
+        
+        // Store state with metadata
+        const stateEntry = this._state.get(topic) || { updateCount: 0 };
+        const newState = {
+          data: data,
+          timestamp: Date.now(),
+          updateCount: stateEntry.updateCount + 1
+        };
+        
+        this._state.set(topic, newState);
+        
+        // Limit total topics
+        if (this._state.size > this._config.maxTopics) {
+          const oldestTopic = Array.from(this._state.entries())
+            .sort((a, b) => a[1].timestamp - b[1].timestamp)[0][0];
+          this._state.delete(oldestTopic);
+          this._subscribers.delete(oldestTopic);
+          
+          if (this._config.debugMode) {
+            console.warn('funcwcState: Removed oldest topic due to limit:', oldestTopic);
+          }
+        }
+        
+        // Notify subscribers
+        const subs = this._subscribers.get(topic) || [];
+        const validSubs = [];
+        
+        subs.forEach(sub => {
+          // Check if element is still in the DOM
+          if (document.contains(sub.element)) {
+            try {
+              sub.callback.call(sub.element, data);
+              validSubs.push(sub);
+            } catch (error) {
+              if (this._config.debugMode) {
+                console.error('funcwcState: Subscription callback error:', error);
+              }
+            }
+          }
+        });
+        
+        // Update subscribers list with only valid ones (automatic cleanup)
+        if (validSubs.length !== subs.length) {
+          if (validSubs.length === 0) {
+            this._subscribers.delete(topic);
+          } else {
+            this._subscribers.set(topic, validSubs);
+          }
+          
+          if (this._config.debugMode) {
+            console.log(`funcwcState: Cleaned up ${subs.length - validSubs.length} dead subscriptions for topic '${topic}'`);
+          }
+        }
+        
+        // Periodic cleanup
+        if (Date.now() - this._lastCleanup > this._config.cleanupInterval) {
+          this._performCleanup();
+        }
+      },
+
+      /**
+       * Subscribe to state updates for a topic
+       */
+      subscribe(topic, callback, element) {
+        if (typeof topic !== 'string') {
+          console.warn('funcwcState.subscribe: topic must be a string');
+          return;
+        }
+        
+        if (typeof callback !== 'function') {
+          console.warn('funcwcState.subscribe: callback must be a function');
+          return;
+        }
+        
+        if (!(element instanceof Element)) {
+          console.warn('funcwcState.subscribe: element must be a DOM element');
+          return;
+        }
+        
+        // Initialize subscribers array if needed
+        if (!this._subscribers.has(topic)) {
+          this._subscribers.set(topic, []);
+        }
+        
+        const subs = this._subscribers.get(topic);
+        
+        // Check subscription limits
+        if (subs.length >= this._config.maxSubscriptionsPerTopic) {
+          console.warn(`funcwcState.subscribe: Maximum subscriptions reached for topic '${topic}'`);
+          return;
+        }
+        
+        // Add subscription
+        const subscription = {
+          callback: callback,
+          element: element,
+          timestamp: Date.now()
+        };
+        
+        subs.push(subscription);
+        
+        // Immediately call with current state if it exists
+        if (this._state.has(topic)) {
+          const currentState = this._state.get(topic);
+          try {
+            callback.call(element, currentState.data);
+          } catch (error) {
+            if (this._config.debugMode) {
+              console.error('funcwcState: Initial callback error:', error);
+            }
+          }
+        }
+        
+        if (this._config.debugMode) {
+          console.log(`funcwcState: Subscribed to '${topic}', total subscribers: ${subs.length}`);
+        }
+      },
+
+      /**
+       * Get current state for a topic
+       */
+      getState(topic) {
+        if (typeof topic !== 'string') {
+          console.warn('funcwcState.getState: topic must be a string');
+          return undefined;
+        }
+        
+        const stateEntry = this._state.get(topic);
+        return stateEntry ? stateEntry.data : undefined;
+      },
+
+      /**
+       * Remove all subscriptions for a topic
+       */
+      clearTopic(topic) {
+        if (typeof topic !== 'string') {
+          console.warn('funcwcState.clearTopic: topic must be a string');
+          return;
+        }
+        
+        this._state.delete(topic);
+        this._subscribers.delete(topic);
+        
+        if (this._config.debugMode) {
+          console.log(`funcwcState: Cleared topic '${topic}'`);
+        }
+      },
+
+      /**
+       * Get all active topics
+       */
+      getTopics() {
+        return Array.from(this._state.keys());
+      },
+
+      /**
+       * Get subscription count for a topic
+       */
+      getSubscriberCount(topic) {
+        if (typeof topic !== 'string') {
+          return 0;
+        }
+        
+        const subs = this._subscribers.get(topic);
+        return subs ? subs.length : 0;
+      },
+
+      /**
+       * Performance cleanup of dead subscriptions
+       */
+      _performCleanup() {
+        let totalCleaned = 0;
+        
+        for (const [topic, subs] of this._subscribers.entries()) {
+          const validSubs = subs.filter(sub => document.contains(sub.element));
+          const cleanedCount = subs.length - validSubs.length;
+          
+          if (cleanedCount > 0) {
+            if (validSubs.length === 0) {
+              this._subscribers.delete(topic);
+            } else {
+              this._subscribers.set(topic, validSubs);
+            }
+            totalCleaned += cleanedCount;
+          }
+        }
+        
+        this._lastCleanup = Date.now();
+        
+        if (this._config.debugMode && totalCleaned > 0) {
+          console.log(`funcwcState: Cleanup complete, removed ${totalCleaned} dead subscriptions`);
+        }
+      },
+
+      /**
+       * Debug method to inspect current state
+       */
+      debug() {
+        console.group('🔄 funcwcState Debug Information');
+        
+        console.log('Active Topics:', this.getTopics());
+        
+        console.log('Current State:');
+        for (const [topic, entry] of this._state.entries()) {
+          console.log(`  ${topic}:`, {
+            data: entry.data,
+            updateCount: entry.updateCount,
+            age: `${Math.round((Date.now() - entry.timestamp) / 1000)}s ago`,
+            subscribers: this.getSubscriberCount(topic)
+          });
+        }
+        
+        console.log('Subscription Summary:');
+        for (const [topic, subs] of this._subscribers.entries()) {
+          const validSubs = subs.filter(sub => document.contains(sub.element));
+          console.log(`  ${topic}: ${validSubs.length} active / ${subs.length} total`);
+        }
+        
+        console.log('Configuration:', this._config);
+        console.log('Memory Usage:', {
+          topics: this._state.size,
+          totalSubscriptions: Array.from(this._subscribers.values()).reduce((sum, subs) => sum + subs.length, 0)
+        });
+        
+        console.groupEnd();
+      },
+
+      /**
+       * Configure the state manager
+       */
+      configure(options) {
+        Object.assign(this._config, options);
+        
+        if (this._config.debugMode) {
+          console.log('funcwcState: Configuration updated:', this._config);
+        }
+      },
+
+      /**
+       * Reset all state and subscriptions (useful for testing)
+       */
+      reset() {
+        this._state.clear();
+        this._subscribers.clear();
+        this._lastCleanup = Date.now();
+        
+        if (this._config.debugMode) {
+          console.log('funcwcState: Reset complete');
+        }
+      },
+
+      /**
+       * Get performance statistics
+       */
+      getStats() {
+        const now = Date.now();
+        let totalUpdateCount = 0;
+        let oldestState = now;
+        let newestState = 0;
+        
+        for (const entry of this._state.values()) {
+          totalUpdateCount += entry.updateCount;
+          if (entry.timestamp < oldestState) oldestState = entry.timestamp;
+          if (entry.timestamp > newestState) newestState = entry.timestamp;
+        }
+        
+        return {
+          topics: this._state.size,
+          totalUpdates: totalUpdateCount,
+          totalSubscriptions: Array.from(this._subscribers.values()).reduce((sum, subs) => sum + subs.length, 0),
+          oldestStateAge: this._state.size > 0 ? Math.round((now - oldestState) / 1000) : 0,
+          newestStateAge: this._state.size > 0 ? Math.round((now - newestState) / 1000) : 0,
+          lastCleanupAge: Math.round((now - this._lastCleanup) / 1000)
+        };
+      }
+    };
+
+    // Global error handling for unhandled promise rejections in callbacks
+    window.addEventListener('unhandledrejection', (event) => {
+      if (window.funcwcState._config.debugMode) {
+        console.warn('funcwcState: Possible unhandled promise rejection in callback:', event.reason);
+      }
+    });
+
+    // Debug helper - expose state manager globally for easy console access
+    window.debugState = () => window.funcwcState.debug();
+    window.resetState = () => window.funcwcState.reset();
+  </script>
+  
+  <!-- CSS Theme Variables for Reactivity -->
+  <style>
+    /* Default theme variables */
+    :root {
+      --theme-mode: light;
+      --theme-bg: white;
+      --theme-text: #333;
+      --theme-border: #ddd;
+      --theme-card-bg: #f8f9fa;
+      --theme-button-bg: #007bff;
+      --theme-button-text: white;
+      --theme-button-border: #007bff;
+      --theme-debug-bg: #6c757d;
+    }
+    
+    /* Dark theme overrides */
+    [data-theme="dark"] {
+      --theme-mode: dark;
+      --theme-bg: #1a202c;
+      --theme-text: #f7fafc;
+      --theme-border: #4a5568;
+      --theme-card-bg: #2d3748;
+      --theme-button-bg: #63b3ed;
+      --theme-button-text: #1a202c;
+      --theme-button-border: #63b3ed;
+      --theme-debug-bg: #805ad5;
+    }
+    
+    /* Global styles with theme reactivity */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+      background: var(--theme-bg, white);
+      color: var(--theme-text, #333);
+      margin: 0;
+      padding: 0;
+      transition: all 0.3s ease;
+      line-height: 1.6;
+    }
+    
+    /* Smooth transitions for all elements */
+    * {
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+    
+    /* Custom scrollbar that adapts to theme */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: var(--theme-card-bg, #f1f1f1);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--theme-button-bg, #007bff);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--theme-border, #555);
+    }
+    
+    /* Animation keyframes for toasts */
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+    
+    @keyframes modalAppear {
+      from {
+        transform: scale(0.7);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+    
+    /* Focus styles that adapt to theme */
+    button:focus,
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: 2px solid var(--theme-button-bg, #007bff);
+      outline-offset: 2px;
+    }
+    
+    /* Print styles */
+    @media print {
+      * {
+        background: white !important;
+        color: black !important;
+      }
+    }
+    
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+      :root {
+        --theme-border: #000;
+        --theme-text: #000;
+      }
+      
+      [data-theme="dark"] {
+        --theme-border: #fff;
+        --theme-text: #fff;
+      }
+    }
+    
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      ::before,
+      ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+    
+    /* Loading state styles */
+    .loading {
+      position: relative;
+      pointer-events: none;
+    }
+    
+    .loading::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--theme-bg, white);
+      opacity: 0.7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* Utility classes */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+
+<body hx-ext="json-enc" hx-encoding="json">
+  <!-- HTMX configuration: JSON requests, HTML responses -->
+  <div id="app">
+    
+    <!-- Header with quick navigation -->
+    <header style="background: var(--theme-card-bg, #f8f9fa); border-bottom: 2px solid var(--theme-border, #ddd); padding: 1rem; margin-bottom: 2rem;">
+      <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h1 style="margin: 0; color: var(--theme-text, #333); font-size: 1.8rem;">
+            🔄 funcwc Reactive System
+          </h1>
+          <p style="margin: 0.25rem 0 0 0; color: var(--theme-text, #666); opacity: 0.8;">
+            DOM-native reactivity • SSR-first • Zero dependencies
+          </p>
+        </div>
+        
+        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+          <!-- Quick theme toggle -->
+          <theme-controller></theme-controller>
+          
+          <!-- State debug button -->
+          <button 
+            style="background: var(--theme-debug-bg, #6c757d); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem;"
+            onclick="window.funcwcState.debug();"
+            title="Debug state manager in console"
+          >
+            🐛 Debug
+          </button>
+          
+          <!-- Cart badge -->
+          <cart-badge initial-count="0" initial-total="0"></cart-badge>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main content area -->
+    <main>
+      <!-- Full Reactive Dashboard -->
+      <reactive-dashboard></reactive-dashboard>
+    </main>
+    
+    <!-- Footer -->
+    <footer style="background: var(--theme-card-bg, #f8f9fa); border-top: 2px solid var(--theme-border, #ddd); padding: 2rem; margin-top: 3rem; text-align: center; color: var(--theme-text, #666);">
+      <p>
+        <strong>funcwc Reactive System Demo</strong><br>
+        Showcasing CSS Property Reactivity, Pub/Sub State Management, and DOM Event Communication
+      </p>
+      <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.7;">
+        Open browser console and try: <code>debugState()</code> or <code>resetState()</code>
+      </p>
+    </footer>
+    
+  </div>
+
+  <!-- Development server integration -->
+  <script type="module">
+    // Import all reactive examples
+    import './theme-system.tsx';
+    import './cart-system.tsx';
+    import './modal-system.tsx';
+    import './reactive-dashboard.tsx';
+    
+    console.log('🎉 funcwc Reactive System loaded!');
+    console.log('📊 State Manager:', window.funcwcState ? 'Ready' : 'Not loaded');
+    console.log('🎨 CSS Variables:', getComputedStyle(document.documentElement).getPropertyValue('--theme-mode') || 'Default');
+    console.log('📡 HTMX:', typeof htmx !== 'undefined' ? 'Ready' : 'Not loaded');
+    console.log('');
+    console.log('🔧 Debug Commands:');
+    console.log('  debugState() - Inspect state manager');
+    console.log('  resetState() - Reset all state');
+    console.log('  window.funcwcState - Direct access to state manager');
+    
+    // Welcome notification
+    setTimeout(() => {
+      document.dispatchEvent(new CustomEvent('funcwc:show-notification', {
+        detail: { 
+          message: '🎉 Welcome to the funcwc Reactive System! Explore all three reactivity approaches in action.',
+          type: 'info',
+          duration: 5000
+        }
+      }));
+    }, 1000);
+    
+    // Performance monitoring
+    if (typeof PerformanceObserver !== 'undefined') {
+      const observer = new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          if (entry.entryType === 'navigation') {
+            console.log(`⚡ Page load completed in ${Math.round(entry.loadEventEnd - entry.loadEventStart)}ms`);
+          }
+        }
+      });
+      observer.observe({ entryTypes: ['navigation'] });
+    }
+  </script>
+
+  <!-- Error handling and debugging -->
+  <script>
+    // Global error handler
+    window.addEventListener('error', (event) => {
+      console.error('🚨 Global error:', event.error);
+      if (window.funcwcState?._config?.debugMode) {
+        document.dispatchEvent(new CustomEvent('funcwc:show-notification', {
+          detail: { 
+            message: '⚠️ Error: ' + (event.error?.message || 'Unknown error occurred'),
+            type: 'error',
+            duration: 5000
+          }
+        }));
+      }
+    });
+    
+    // Unhandled promise rejection handler
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('🚨 Unhandled promise rejection:', event.reason);
+      if (window.funcwcState?._config?.debugMode) {
+        document.dispatchEvent(new CustomEvent('funcwc:show-notification', {
+          detail: { 
+            message: '⚠️ Promise rejection: ' + (event.reason?.message || 'Unknown error'),
+            type: 'warning',
+            duration: 4000
+          }
+        }));
+      }
+    });
+    
+    // HTMX error handling
+    document.body.addEventListener('htmx:error', (event) => {
+      console.error('🚨 HTMX error:', event.detail);
+      document.dispatchEvent(new CustomEvent('funcwc:show-notification', {
+        detail: { 
+          message: '⚠️ Request failed: ' + (event.detail?.error || 'Unknown HTMX error'),
+          type: 'error',
+          duration: 4000
+        }
+      }));
+    });
+    
+    // HTMX request logging in debug mode
+    document.body.addEventListener('htmx:beforeRequest', (event) => {
+      if (window.funcwcState?._config?.debugMode) {
+        console.log('📤 HTMX request:', event.detail.xhr.method, event.detail.xhr.url);
+      }
+    });
+    
+    document.body.addEventListener('htmx:afterRequest', (event) => {
+      if (window.funcwcState?._config?.debugMode) {
+        console.log('📥 HTMX response:', event.detail.xhr.status, event.detail.xhr.statusText);
+      }
+    });
+  </script>
+</body>
+</html>

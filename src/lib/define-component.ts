@@ -5,6 +5,9 @@ import {
   generateClientApi,
   type GeneratedApiMap,
 } from "./api-generator.ts";
+
+// Re-export for use in reactive components
+export type { GeneratedApiMap };
 import { appRouter } from "./router.ts";
 import {
   isUnifiedStyles,
@@ -29,8 +32,8 @@ export type InferProps<T extends PropsSpec> = T extends
   PropsTransformer<Record<string, string>, infer P> ? P
   : Record<string, string>;
 
-type ClassMap = Record<string, string>;
-type StylesInput = string | UnifiedStyles;
+export type ClassMap = Record<string, string>;
+export type StylesInput = string | UnifiedStyles;
 
 // New config types: infer props directly from render parameter or optional transformer
 export interface ComponentConfigWithApi<TProps> {
