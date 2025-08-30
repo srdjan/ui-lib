@@ -15,8 +15,11 @@ async function handler(request: Request): Promise<Response> {
     if (pathname === "/" || pathname === "/index.html") {
       const htmlContent = await Deno.readTextFile("./index.html");
       
-      // Replace component tags with rendered HTML
-      const processedHtml = processComponentTags(htmlContent);
+      // Get demo parameter from URL
+      const demo = url.searchParams.get("demo") || "welcome";
+      
+      // Replace component tags with rendered HTML, passing demo parameter
+      const processedHtml = processComponentTags(htmlContent, { currentDemo: demo });
       
       return new Response(processedHtml, {
         headers: { "Content-Type": "text/html; charset=utf-8" },
@@ -63,7 +66,7 @@ async function handler(request: Request): Promise<Response> {
 }
 
 // Process HTML content and replace component tags with rendered HTML
-function processComponentTags(html: string): string {
+function processComponentTags(html: string, extraProps: Record<string, string> = {}): string {
   let processedHtml = html;
   
   // Find all custom component tags (e.g., <app-layout></app-layout> or <app-layout/>)
@@ -77,8 +80,11 @@ function processComponentTags(html: string): string {
       // Parse attributes into props object
       const props = parseAttributes(attributes);
       
+      // Merge with extra props (extra props take precedence)
+      const finalProps = { ...props, ...extraProps };
+      
       // Render the component
-      const renderedHTML = renderComponent(tagName, props);
+      const renderedHTML = renderComponent(tagName, finalProps);
       
       // Replace the tag with rendered HTML
       processedHtml = processedHtml.replace(fullMatch, renderedHTML);

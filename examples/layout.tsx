@@ -50,6 +50,10 @@ defineComponent("app-layout", {
       border-radius: 6px;
       transition: all 0.2s ease;
       cursor: pointer;
+    }
+    .nav-item:hover {
+      background: rgba(255,255,255,0.1);
+      color: white;
     }`,
     
     navItemActive: `{
@@ -64,7 +68,11 @@ defineComponent("app-layout", {
       padding: 0.5rem 1rem;
       border-radius: 6px;
       cursor: pointer;
-      transition: background 0.2s ease;
+      transition: all 0.2s ease;
+    }
+    .theme-toggle:hover {
+      background: rgba(255,255,255,0.3);
+      transform: scale(1.05);
     }`,
     
     // Main content area
@@ -75,6 +83,7 @@ defineComponent("app-layout", {
       margin: 0 auto;
       width: 100%;
       box-sizing: border-box;
+      transition: opacity 0.3s ease-in-out;
     }`,
     
     // Welcome content
@@ -150,7 +159,10 @@ defineComponent("app-layout", {
             <li>
               <a 
                 class={`${classes!.navItem} ${demo === "welcome" ? classes!.navItemActive : ""}`}
-                onclick="console.log('Welcome demo clicked')"
+                hx-get="/?demo=welcome"
+                hx-target="main#content-area"
+                hx-select="main#content-area"
+                href="/?demo=welcome"
               >
                 Home
               </a>
@@ -158,7 +170,10 @@ defineComponent("app-layout", {
             <li>
               <a 
                 class={`${classes!.navItem} ${demo === "basic" ? classes!.navItemActive : ""}`}
-                onclick="console.log('Basic demo clicked')"
+                hx-get="/?demo=basic"
+                hx-target="main#content-area"
+                hx-select="main#content-area"
+                href="/?demo=basic"
               >
                 Basic Components
               </a>
@@ -166,7 +181,10 @@ defineComponent("app-layout", {
             <li>
               <a 
                 class={`${classes!.navItem} ${demo === "reactive" ? classes!.navItemActive : ""}`}
-                onclick="console.log('Reactive demo clicked')"
+                hx-get="/?demo=reactive"
+                hx-target="main#content-area"
+                hx-select="main#content-area"
+                href="/?demo=reactive"
               >
                 Reactivity
               </a>
@@ -199,14 +217,48 @@ function renderCurrentDemo(demo: string, classes: Record<string, string> | undef
   switch (demo) {
     case "basic":
       return h('div', { class: c.welcome },
-        h('h2', { class: c.title }, 'Basic Components Demo'),
-        h('p', { class: c.subtitle }, 'Coming soon - Function-style props and CSS-only format examples')
+        h('h2', { class: c.title }, '🧩 Basic Components Demo'),
+        h('p', { class: c.subtitle }, 'Explore function-style props, CSS-only format, and auto-generated class names'),
+        h('div', { class: c.features },
+          h('div', { class: c.feature },
+            h('div', { class: c.featureIcon }, '✨'),
+            h('h3', { class: c.featureTitle }, 'Function-Style Props'),
+            h('p', { class: c.featureDesc }, 'Define props directly in render parameters with zero duplication. Types are automatically inferred.')
+          ),
+          h('div', { class: c.feature },
+            h('div', { class: c.featureIcon }, '🎨'),
+            h('h3', { class: c.featureTitle }, 'CSS-Only Format'),
+            h('p', { class: c.featureDesc }, 'Write CSS properties, get auto-generated class names. No CSS-in-JS overhead.')
+          ),
+          h('div', { class: c.feature },
+            h('div', { class: c.featureIcon }, '🔧'),
+            h('h3', { class: c.featureTitle }, 'Smart Type Helpers'),
+            h('p', { class: c.featureDesc }, 'string(), number(), boolean(), array(), object() helpers with defaults and validation.')
+          )
+        )
       );
     
     case "reactive":
       return h('div', { class: c.welcome },
-        h('h2', { class: c.title }, 'Reactivity Demo'),
-        h('p', { class: c.subtitle }, 'Coming soon - CSS properties, state management, and DOM events')
+        h('h2', { class: c.title }, '⚡ Hybrid Reactivity Demo'),
+        h('p', { class: c.subtitle }, 'Three-tier reactivity system: CSS properties, pub/sub state, and DOM events'),
+        h('div', { class: c.features },
+          h('div', { class: c.feature },
+            h('div', { class: c.featureIcon }, '🎨'),
+            h('h3', { class: c.featureTitle }, 'Tier 1: CSS Properties'),
+            h('p', { class: c.featureDesc }, 'Theme switching and visual coordination using CSS custom properties for instant updates.')
+          ),
+          h('div', { class: c.feature },
+            h('div', { class: c.featureIcon }, '📡'),
+            h('h3', { class: c.featureTitle }, 'Tier 2: Pub/Sub State'),
+            h('p', { class: c.featureDesc }, 'Cross-component state management with topic-based subscriptions and automatic cleanup.')
+          ),
+          h('div', { class: c.feature },
+            h('div', { class: c.featureIcon }, '🔄'),
+            h('h3', { class: c.featureTitle }, 'Tier 3: DOM Events'),
+            h('p', { class: c.featureDesc }, 'Component-to-component communication via custom DOM events with structured payloads.')
+          )
+        )
       );
     
     default: // welcome
