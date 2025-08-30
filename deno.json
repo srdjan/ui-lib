@@ -19,6 +19,6 @@
   },
 
   "imports": {
-    "jsx": "./src/lib/jsx-runtime.ts"
+    "jsx": "./lib/jsx-runtime.ts"
   }
 }
