@@ -49,8 +49,17 @@ deno task docs
 # Type check specific files
 deno check examples/*.tsx src/**/*.ts
 
-# Run development server with TypeScript MIME type handling
-deno run --allow-net --allow-read --allow-env server.ts
+# Run development server with TypeScript MIME type handling (from examples/ directory)
+cd examples && deno run --allow-net --allow-read --allow-env server.ts
+
+# Single test file
+deno test src/lib/specific-file.test.ts
+
+# Test with watch mode
+deno test --watch
+
+# Generate docs for API reference
+deno doc src/index.ts --html --name="funcwc" --output=./docs/
 ```
 
 ## Core Architecture
@@ -59,12 +68,11 @@ deno run --allow-net --allow-read --allow-env server.ts
 
 The codebase follows a functional, modular architecture built around SSR-compatible web components:
 
-1. **defineComponent API** (`src/lib/define-component.ts`) - Clean, object-based configuration for component creation
-2. **Pipeline API** (`src/lib/component-pipeline.ts`) - Ultra-succinct chainable API for component creation (legacy, maintained for backward compatibility)
-3. **Component Registry** (`src/lib/registry.ts`) - Global registry for SSR component definitions
-4. **JSX Runtime** (`src/lib/jsx-runtime.ts`) - Custom JSX runtime that renders directly to HTML strings
-5. **SSR Engine** (`src/lib/component-state.ts`) - Server-side rendering system with `renderComponent()` function
-6. **Unified API System** (`src/lib/api-generator.ts`) - Auto-generates HTMX client functions from server route definitions
+1. **defineComponent API** (`src/lib/define-component.ts`) - Clean, object-based configuration for component creation (now includes optional reactive wiring)
+2. **Component Registry** (`src/lib/registry.ts`) - Global registry for SSR component definitions
+3. **JSX Runtime** (`src/lib/jsx-runtime.ts`) - Custom JSX runtime that renders directly to HTML strings
+4. **SSR Engine** (`src/lib/component-state.ts`) - Server-side rendering system with `renderComponent()` function
+5. **Unified API System** (`src/lib/api-generator.ts`) - Auto-generates HTMX client functions from server route definitions
 
 ### Key Architecture Patterns
 
@@ -102,53 +110,49 @@ defineComponent("my-counter", {
 });
 ```
 
-2. **Legacy Props System** - Traditional approach (still supported):
-
-```tsx
-defineComponent("my-counter", {
-  props: {
-    step: "number?",
-    initialCount: { type: "number", default: 0 },
-  },
-  classes: { button: "counter-btn", label: "counter-label" },
-  styles: ".counter-btn { background: blue; }",
-  render: ({ step, initialCount }, api, classes) => (
-    <button class={classes!.button}>Count: {initialCount}</button>
-  ),
-});
-```
+<!-- Traditional props system removed to keep guidance focused on function-style props. -->
 
 ### File Organization
 
 ```
 src/
-├── index.ts                    # Main exports
+├── index.ts                    # Main exports - all public API
 ├── lib/
-│   ├── define-component.ts     # Primary defineComponent API with function-style props
-│   ├── component-pipeline.ts   # Legacy Pipeline API (maintained for compatibility)
+│   ├── define-component.ts     # Primary defineComponent API with function-style props + reactive options
 │   ├── component-state.ts      # SSR rendering engine with renderComponent()
+│   ├── jsx-runtime.ts          # Custom JSX runtime with direct string rendering (no React)
 │   ├── api-generator.ts        # Unified API system (auto-generates HTMX from routes)
-│   ├── api-helpers.ts          # HTTP method helpers (post, get, patch, del)
-│   ├── jsx-runtime.ts          # Custom JSX runtime for HTML string rendering
-│   ├── props.ts                # Smart type helpers and props parsing
+│   ├── api-helpers.ts          # HTTP method helpers (post, get, patch, del, create, remove)
+│   ├── prop-helpers.ts         # Smart type helpers (string, number, boolean, array, object)
+│   ├── styles-parser.ts        # CSS-only format parser and class name generation
+│   ├── reactive-helpers.ts     # Hybrid Reactivity System (3-tier: CSS, Pub/Sub, DOM Events)
+│   ├── state-manager.ts        # Pub/Sub state manager infrastructure
+│   ├── dom-helpers.ts          # DOM manipulation utilities (toggleClass, conditionalClass, etc.)
 │   ├── router.ts               # HTTP router for API endpoints
-│   └── registry.ts             # Global component registry for SSR
+│   ├── registry.ts             # Global component registry for SSR
+│   ├── ssr.ts                  # Server-side rendering utilities
+│   ├── result.ts               # Functional error handling (Result<T,E>)
+│   └── types.ts                # Core TypeScript types and utilities
 examples/
-├── example.tsx                 # Showcase of all modern features (function-style props, CSS-only format, Unified API)
-├── dom-actions.ts              # App-level DOM helper functions (updateParentCounter, etc.)
-├── server.ts                   # Development server with SSR and API routing
-└── index.html                  # Demo page displaying all components
+├── main.ts                     # Entry point that imports all example components
+├── server.ts                   # Development server with SSR, API routing, and state manager injection
+├── index.html                  # Demo page displaying all components
+├── example.tsx                 # Primary showcase (function-style props, CSS-only format, Unified API)
+├── fundamentals/               # Basic component patterns
+├── interactive/                # DOM manipulation and API integration examples
+├── advanced/                   # Reactive system and state management examples
+└── apps/                       # Complete application examples (todo app, dashboard)
 ```
 
 ## TypeScript Configuration
 
-### Compiler Settings
+### Compiler Settings (deno.json)
 
-- **Target**: ES2020 with DOM support  
-- **Module**: ES2020 with Bundler resolution
+- **Strict Mode**: Full TypeScript strictness enabled (`"strict": true`)
+- **Libraries**: ES2021, DOM, and Deno runtime APIs (`"lib": ["ES2021", "DOM", "deno.ns"]`)
 - **JSX**: Uses custom JSX runtime with `h` function (`"jsx": "react"`, `"jsxFactory": "h"`)
-- **Strict Mode**: Full TypeScript strictness enabled
-- `noUncheckedIndexedAccess: true` for array safety
+- **Import Maps**: JSX runtime mapped to `"jsx": "./src/lib/jsx-runtime.ts"`
+- **No Build Required**: Deno handles TypeScript transpilation automatically
 
 ### JSX Setup
 
@@ -196,29 +200,7 @@ styles: {
 }
 ```
 
-**3. Legacy Props System (Still Supported):**
-
-```tsx
-// Basic string syntax
-props: { 
-  name: "string", 
-  age: "number?", 
-  active: "boolean?" 
-}
-
-// Enhanced syntax with defaults  
-props: {
-  name: "string",
-  age: { type: "number", default: 18 },
-  active: { type: "boolean", default: true }
-}
-
-// Custom transformer function
-props: (attrs: Record<string, string>) => ({
-  count: parseInt(attrs.count || "0"),
-  label: attrs.label || "Default Label"
-})
-```
+<!-- Removed historical props system section to keep focus on the unified, modern API. -->
 
 ### Unified API System
 
@@ -272,12 +254,22 @@ Instead of JavaScript state objects, funcwc uses the DOM:
 
 ### Testing Strategy
 
-Uses Deno's built-in testing:
+Uses Deno's built-in testing framework with comprehensive test coverage:
 
 ```bash
-deno test                    # Run tests
-deno test --coverage        # With coverage
+deno test                         # Run all tests
+deno test --watch                 # Run tests in watch mode
+deno test --coverage=coverage     # Generate coverage report
+deno coverage coverage --lcov     # Generate LCOV coverage report
+deno test src/lib/result.test.ts  # Run specific test file
 ```
+
+**Test Structure:**
+- Unit tests for all core utilities (`result.ts`, `props.ts`, `dom-helpers.ts`)
+- Integration tests for component rendering (`jsx-runtime.test.ts`, `define-component.test.ts`)
+- Server-side rendering tests (`component-state.test.ts`, `ssr.test.ts`)
+- API generation tests (`api-generator.test.ts`)
+- Router functionality tests (`router.test.ts`)
 
 ## Error Handling Philosophy
 
@@ -286,36 +278,42 @@ The library follows functional error handling patterns:
 - Use `Result<T,E>` types from `src/lib/result.ts`
 - Core utilities: `ok()`, `err()`, `map()`, `flatMap()`, `mapError()`
 - Avoid throwing exceptions in business logic
-- Handle errors as values throughout the pipeline
+- Handle errors as values throughout the flow
 
-## Integration Notes
+## Architecture Deep Dive
 
-### SSR Architecture
+### SSR-First Architecture
 
-- Components render to HTML strings on the server via custom JSX runtime
-- Global registry stores component definitions for server-side rendering
-- String-based template replacement converts component tags to rendered HTML
-- Client-side interactivity handled by HTMX attributes
+- **Custom JSX Runtime**: Direct string rendering without React or virtual DOM
+- **Component Registry**: Global registry (`src/lib/registry.ts`) stores component definitions for SSR
+- **Template Replacement**: Server parses HTML and replaces custom tags with rendered components
+- **Zero Client Dependencies**: No JavaScript framework required on the client
+- **HTMX Integration**: Server actions generate HTMX attributes for dynamic updates
 
-### Pure SSR Approach
+### Functional Programming Patterns
 
-- No Custom Elements or Shadow DOM - components are pure server-side templates
-- Components registered in global registry for string rendering
-- Zero client-side framework dependencies
-- Event handling via inline DOM manipulation or HTMX server actions
+- **No Classes**: Entire library built with functions and types only
+- **Immutable Data**: All public APIs use `Readonly<T>` and pure functions
+- **Result Types**: Error handling via `Result<T,E>` pattern instead of exceptions
+- **DOM as State**: No JavaScript state objects - DOM elements hold all state
+- **Type Safety**: Full TypeScript inference throughout the system
 
-### Deno Runtime
+### Component Lifecycle
 
-- Designed for Deno's TypeScript-first environment
-- Development server handles TypeScript modules with proper MIME types
-- Uses custom JSX runtime with direct string rendering
-- No build step required for development
+1. **Registration**: `defineComponent()` registers component in global registry
+2. **Route Registration**: API handlers automatically register with router
+3. **SSR Rendering**: `renderComponent()` renders to HTML strings server-side
+4. **State Injection**: State manager script injected into HTML for client-side reactivity
+5. **HTMX Attributes**: Generated client functions create HTMX attributes for server communication
 
-### Browser Compatibility
+### Development Server Architecture
 
-- Works in any browser that supports ES5+ (very broad compatibility)
-- No Custom Elements or Shadow DOM required
-- Uses standard HTML with optional HTMX for interactivity
+The development server (`examples/server.ts`) provides:
+- **Component SSR**: Renders custom HTML tags to component HTML
+- **API Routing**: Routes API calls to component handlers
+- **Static Files**: Serves TypeScript modules with correct MIME types
+- **State Manager**: Auto-injects pub/sub state manager for reactive features
+- **CSRF Protection**: Generates and validates CSRF tokens per request
 
 ## Development Workflow
 
@@ -458,7 +456,7 @@ funcwc features a revolutionary **three-tier hybrid reactivity system** that ena
 // Theme controller updates CSS properties
 defineComponent("theme-toggle", {
   render: () => (
-    <button hx-on:click={setCSSProperty("theme", "dark")}>
+    <button hx-on={`click: ${setCSSProperty("theme", "dark")}`}>
       Switch to Dark Theme
     </button>
   )
@@ -483,19 +481,19 @@ defineComponent("themed-card", {
 
 ```tsx
 // Publisher component
-defineReactiveComponent("cart-manager", {
+defineComponent("cart-manager", {
   render: ({ items }) => (
-    <div hx-on:load={publishState("cart", {
+    <div hx-on={`htmx:load: ${publishState("cart", {
       count: items.length,
       total: calculateTotal(items)
-    })}>
+    })}`}>
       {/* cart content */}
     </div>
   )
 });
 
 // Subscriber component  
-defineReactiveComponent("cart-badge", {
+defineComponent("cart-badge", {
   stateSubscriptions: {
     cart: `
       this.querySelector('.count').textContent = data.count;
@@ -519,16 +517,14 @@ defineReactiveComponent("cart-badge", {
 // Event dispatcher
 defineComponent("modal-trigger", {
   render: ({ modalId, title, content }) => (
-    <button hx-on:click={dispatchEvent("open-modal", { 
-      modalId, title, content 
-    })}>
+    <button hx-on={`click: ${dispatchEvent("open-modal", { modalId, title, content })}`}>
       Open Modal
     </button>
   )
 });
 
 // Event listener
-defineReactiveComponent("modal", {
+defineComponent("modal", {
   eventListeners: {
     "open-modal": `
       if (event.detail.modalId === this.dataset.modalId) {
@@ -568,10 +564,10 @@ The reactivity system includes comprehensive helper functions:
 
 ### Enhanced Component Definition
 
-Use `defineReactiveComponent()` for automatic reactive features:
+Use `defineComponent()` with reactive options for automatic reactive features:
 
 ```tsx
-defineReactiveComponent("smart-component", {
+defineComponent("smart-component", {
   // CSS reactions to property changes
   cssReactions: {
     "theme-mode": "border-color: var(--theme-border);"

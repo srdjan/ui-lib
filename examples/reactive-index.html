@@ -329,6 +329,7 @@
   
   <!-- CSS Theme Variables for Reactivity -->
   <style>
+    html, body { max-width: 100%; overflow-x: hidden; }
     /* Default theme variables */
     :root {
       --theme-mode: light;
@@ -518,7 +519,7 @@
         
         <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
           <!-- Quick theme toggle -->
-          <theme-controller></theme-controller>
+          <advanced-theme-controller></advanced-theme-controller>
           
           <!-- State debug button -->
           <button 
@@ -554,47 +555,7 @@
     
   </div>
 
-  <!-- Development server integration -->
-  <script type="module">
-    // Import all reactive examples
-    import './theme-system.tsx';
-    import './cart-system.tsx';
-    import './modal-system.tsx';
-    import './reactive-dashboard.tsx';
-    
-    console.log('🎉 funcwc Reactive System loaded!');
-    console.log('📊 State Manager:', window.funcwcState ? 'Ready' : 'Not loaded');
-    console.log('🎨 CSS Variables:', getComputedStyle(document.documentElement).getPropertyValue('--theme-mode') || 'Default');
-    console.log('📡 HTMX:', typeof htmx !== 'undefined' ? 'Ready' : 'Not loaded');
-    console.log('');
-    console.log('🔧 Debug Commands:');
-    console.log('  debugState() - Inspect state manager');
-    console.log('  resetState() - Reset all state');
-    console.log('  window.funcwcState - Direct access to state manager');
-    
-    // Welcome notification
-    setTimeout(() => {
-      document.dispatchEvent(new CustomEvent('funcwc:show-notification', {
-        detail: { 
-          message: '🎉 Welcome to the funcwc Reactive System! Explore all three reactivity approaches in action.',
-          type: 'info',
-          duration: 5000
-        }
-      }));
-    }, 1000);
-    
-    // Performance monitoring
-    if (typeof PerformanceObserver !== 'undefined') {
-      const observer = new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) {
-          if (entry.entryType === 'navigation') {
-            console.log(`⚡ Page load completed in ${Math.round(entry.loadEventEnd - entry.loadEventStart)}ms`);
-          }
-        }
-      });
-      observer.observe({ entryTypes: ['navigation'] });
-    }
-  </script>
+  <!-- Components are SSR-rendered and state manager is injected by the dev server. -->
 
   <!-- Error handling and debugging -->
   <script>

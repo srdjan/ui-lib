@@ -123,12 +123,24 @@ export const dispatchEvent = (
 };
 
 /**
+ * Build an hx-on aggregator string from a map of events → code
+ * Example: hxOn({ 'htmx:load': 'init()', 'funcwc:open': '...' })
+ */
+export const hxOn = (events: Record<string, string>): string => {
+  return Object.entries(events)
+    .map(([evt, code]) => `${evt}: ${code}`)
+    .join("\n");
+};
+
+/**
  * Generate HTMX attribute for listening to custom events
  * @param eventName - Event name (will be prefixed with 'funcwc:')
  * @param handler - JavaScript code to execute when event is received
  */
 export const listensFor = (eventName: string, handler: string): string => {
-  return `hx-on:funcwc:${eventName}="${handler}"`;
+  // Prefer consolidated hx-on attribute to avoid JSX parser issues with colons in names
+  const safe = handler.replace(/"/g, '&quot;');
+  return `hx-on="funcwc:${eventName}: ${safe}"`;
 };
 
 /**

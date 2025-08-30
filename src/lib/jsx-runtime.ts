@@ -69,7 +69,7 @@ export function h(
         // Direct ComponentAction object
         handlerString = renderActionToString(value as ComponentAction);
       } else if (Array.isArray(value)) {
-        // Legacy array support (deprecated)
+        // Array support (deprecated)
         handlerString = (value as ComponentAction[])
           .map(renderActionToString)
           .join(";");

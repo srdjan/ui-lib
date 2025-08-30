@@ -3,6 +3,7 @@ import { renderComponent } from "../src/index.ts";
 import { getRegistry } from "../src/lib/registry.ts";
 import { appRouter } from "../src/lib/router.ts";
 import { runWithRequestHeaders } from "../src/lib/request-headers.ts";
+import { injectStateManager } from "../src/index.ts";
 
 /**
  * Generic development server with component-defined routes.
@@ -60,32 +61,79 @@ Deno.serve({
     }
 
     try {
-      // 3. Handle root path (index.html rendering)
-      if (url.pathname === "/") {
-        const htmlTemplate = await Deno.readTextFile("./index.html");
+      // 3. SSR-render any HTML page (index.html and others)
+      if (url.pathname === "/" || url.pathname.endsWith(".html")) {
+        const file = url.pathname === "/" ? "./index.html" : `.${url.pathname}`;
+        let htmlTemplate = await Deno.readTextFile(file);
         const componentRegistry = getRegistry();
         const componentNames = Object.keys(componentRegistry);
-        const componentRegex = new RegExp(
-          `(<(${componentNames.join("|")})([^>]*)>)(</\\2>)`,
-          "g",
-        );
+        if (componentNames.length > 0) {
+          const componentRegex = new RegExp(
+            `(<(${componentNames.join("|")})([^>]*)>)(</\\2>)`,
+            "g",
+          );
+          const csrfToken = crypto.randomUUID();
+          const stateManagerScript = injectStateManager(false, { debugMode: true });
+          const stateAdapter = `
+            <script>
+              (function(){
+                function ready(fn){
+                  if (document.readyState !== 'loading') return fn();
+                  document.addEventListener('DOMContentLoaded', fn);
+                }
+                ready(function(){
+                  if (!window.funcwcState) return;
+                  const api = window.funcwcState;
+                  const adapter = {
+                    publish: api.publish.bind(api),
+                    subscribe: api.subscribe.bind(api),
+                    getState: api.getState.bind(api),
+                    getTopics: api.getTopics.bind(api),
+                    persistState: function(){
+                      try {
+                        const topics = ['todos','user-preferences','dashboard-settings','cart'];
+                        const data = {};
+                        topics.forEach((t)=>{ const v = api.getState(t); if (v !== undefined) data[t] = v; });
+                        localStorage.setItem('funcwc-app-state', JSON.stringify(data));
+                      } catch (_) { /* ignore */ }
+                    },
+                    restoreState: function(){
+                      try {
+                        const saved = localStorage.getItem('funcwc-app-state');
+                        if (!saved) return;
+                        const data = JSON.parse(saved);
+                        Object.entries(data).forEach(([k,v]) => api.publish(k, v));
+                      } catch (_) { /* ignore */ }
+                    }
+                  };
+                  window.StateManager = adapter;
+                  adapter.restoreState();
+                  setInterval(adapter.persistState, 30000);
+                });
+              })();
+            </script>`;
+          htmlTemplate = htmlTemplate.replace("</head>", `${stateManagerScript}\n${stateAdapter}\n</head>`);
 
-        const csrfToken = crypto.randomUUID();
-        const rendered = runWithRequestHeaders({
-          "X-CSRF-Token": csrfToken,
-        }, () =>
-          htmlTemplate.replace(
-            componentRegex,
-            (_match, _openTag, tagName, attrString) => {
-              console.log(`[Server] Rendering component: <${tagName}>`);
-              const props = parseAttributes(attrString.trim());
-              return renderComponent(tagName, props);
-            },
-          ));
+          const rendered = runWithRequestHeaders({
+            "X-CSRF-Token": csrfToken,
+          }, () =>
+            htmlTemplate.replace(
+              componentRegex,
+              (_match, _openTag, tagName, attrString) => {
+                console.log(`[Server] Rendering component: <${tagName}>`);
+                const props = parseAttributes(attrString.trim());
+                return renderComponent(tagName, props);
+              },
+            ));
 
-        return new Response(rendered, {
-          headers: { "content-type": "text/html; charset=utf-8" },
-        });
+          return new Response(rendered, {
+            headers: { "content-type": "text/html; charset=utf-8" },
+          });
+        } else {
+          return new Response(htmlTemplate, {
+            headers: { "content-type": "text/html; charset=utf-8" },
+          });
+        }
       }
 
       // 4. If still no match, fall back to serving static files

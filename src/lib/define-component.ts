@@ -9,6 +9,7 @@ import {
 // Re-export for use in reactive components
 export type { GeneratedApiMap };
 import { appRouter } from "./router.ts";
+import { subscribeToState, listensFor } from "./reactive-helpers.ts";
 import {
   isUnifiedStyles,
   parseUnifiedStyles,
@@ -36,7 +37,17 @@ export type ClassMap = Record<string, string>;
 export type StylesInput = string | UnifiedStyles;
 
 // New config types: infer props directly from render parameter or optional transformer
-export interface ComponentConfigWithApi<TProps> {
+// Reactive options (optional, additive)
+interface ReactiveOptions {
+  cssReactions?: Record<string, string>;
+  stateSubscriptions?: Record<string, string>;
+  eventListeners?: Record<string, string>;
+  onMount?: string;
+  onUnmount?: string;
+  autoInjectReactive?: boolean; // default true
+}
+
+export interface ComponentConfigWithApi<TProps> extends ReactiveOptions {
   props?: PropsTransformer<Record<string, string>, TProps>;
   styles?: StylesInput; // Can be string or unified styles object
   classes?: ClassMap; // Optional when using unified styles
@@ -44,7 +55,7 @@ export interface ComponentConfigWithApi<TProps> {
   render: (props: TProps, api: GeneratedApiMap, classes?: ClassMap) => string;
 }
 
-export interface ComponentConfigWithoutApi<TProps> {
+export interface ComponentConfigWithoutApi<TProps> extends ReactiveOptions {
   props?: PropsTransformer<Record<string, string>, TProps>;
   styles?: StylesInput; // Can be string or unified styles object
   classes?: ClassMap; // Optional when using unified styles
@@ -110,6 +121,13 @@ export function defineComponent<TProps = Record<string, string>>(
     styles: stylesInput,
     classes: providedClassMap,
     api: apiMap,
+    // Reactive options
+    cssReactions,
+    stateSubscriptions,
+    eventListeners,
+    onMount,
+    onUnmount,
+    autoInjectReactive = true,
     render,
   } = config;
 
@@ -159,6 +177,16 @@ export function defineComponent<TProps = Record<string, string>>(
     classMap = providedClassMap;
   }
 
+  // Enhance CSS with reactive rules if requested
+  if (cssReactions) {
+    const reactiveCssRules = Object.entries(cssReactions)
+      .map(([property, rule]) => {
+        return `[data-component="${name}"] { ${rule.replace(/var\(--[\w-]+\)/g, `var(--${property})`)} }`;
+      })
+      .join("\n");
+    css = css ? `${css}\n${reactiveCssRules}` : reactiveCssRules;
+  }
+
   // Validate required configuration
   if (!render) {
     throw new Error(
@@ -192,8 +220,11 @@ export function defineComponent<TProps = Record<string, string>>(
     }
   }
 
-  // Register the component in the SSR registry
+  // Register the component in the SSR registry with collision detection
   const registry = getRegistry();
+  if (registry[name]) {
+    console.warn(`⚠️  Component "${name}" already exists and will be overwritten!`);
+  }
   registry[name] = {
     props: undefined, // transformer is handled manually here
     css,
@@ -203,27 +234,89 @@ export function defineComponent<TProps = Record<string, string>>(
         ? finalPropsTransformer(rawAttrs as Record<string, string>)
         : (rawAttrs as unknown as TProps);
 
-      if (generatedApi) {
-        const html = (render as (
-          p: TProps,
-          a: GeneratedApiMap,
-          c?: ClassMap,
-        ) => string)(
+      // helper to inject reactive attrs (optional)
+      const applyReactiveAttrs = (markup: string): string => {
+        if (!autoInjectReactive) return markup;
+
+        const reactiveAttrs: string[] = [];
+        const reactiveCode: string[] = [];
+
+        if (stateSubscriptions) {
+          for (const [topic, handler] of Object.entries(stateSubscriptions)) {
+            reactiveCode.push(subscribeToState(topic, handler));
+          }
+        }
+        if (eventListeners) {
+          for (const [ev, handler] of Object.entries(eventListeners)) {
+            reactiveAttrs.push(listensFor(ev, handler));
+          }
+        }
+        if (onMount || reactiveCode.length > 0 || onUnmount) {
+          let lifecycleCode = "";
+          if (onMount || reactiveCode.length > 0) {
+            const mountCode = [
+              ...(reactiveCode.length > 0 ? reactiveCode : []),
+              ...(onMount ? [onMount] : []),
+            ].join(";\n");
+            lifecycleCode += mountCode;
+          }
+          if (onUnmount) {
+            lifecycleCode += `\n\n// Setup unmount observer\n`;
+            lifecycleCode += `
+              if (typeof MutationObserver !== 'undefined') {
+                const observer = new MutationObserver((mutations) => {
+                  mutations.forEach((mutation) => {
+                    mutation.removedNodes.forEach((node) => {
+                      if (node === this || (node.nodeType === 1 && node.contains(this))) {
+                        try { ${onUnmount} } catch(e) { console.warn('funcwc unmount error:', e); }
+                        observer.disconnect();
+                      }
+                    });
+                  });
+                });
+                observer.observe(document.body, { childList: true, subtree: true });
+              }
+            `.trim();
+          }
+          if (lifecycleCode) {
+            const code = lifecycleCode.replace(/"/g, "&quot;");
+            reactiveAttrs.push(`hx-on="htmx:load: ${code}"`);
+          }
+        }
+
+        if (reactiveAttrs.length === 0) return markup;
+        const firstTagMatch = markup.match(/^(\s*)(<[a-zA-Z][^>]*)(>)/);
+        if (!firstTagMatch) return markup;
+        const [, whitespace, openTag, closeAngle] = firstTagMatch;
+
+        // Merge hx-on if already present on the root tag
+        const existingHxOnMatch = openTag.match(/\s(hx-on)="([^"]*)"/);
+        let newOpenTag = openTag;
+        const injected = reactiveAttrs.join(" ");
+        if (existingHxOnMatch) {
+          const existing = existingHxOnMatch[2];
+          // Merge by concatenating with a newline
+          const merged = `${existing}\n${injected.replace(/^hx-on="|"$/g, "")}`;
+          newOpenTag = openTag.replace(existingHxOnMatch[0], ` hx-on="${merged}"`);
+        } else {
+          newOpenTag = `${openTag} ${injected}`;
+        }
+        const enhancedTag = `${whitespace}${newOpenTag}${closeAngle}`;
+        return markup.replace(firstTagMatch[0], enhancedTag);
+      };
+      const html = generatedApi
+        ? (render as (p: TProps, a: GeneratedApiMap, c?: ClassMap) => string)(
           finalProps as TProps,
           generatedApi,
           classMap,
-        );
-        // Always add data-component for scoping/targets on the first root element
-        return injectDataComponent(html, name);
-      } else {
-        const html = (render as (p: TProps, a?: undefined, c?: ClassMap) => string)(
+        )
+        : (render as (p: TProps, a?: undefined, c?: ClassMap) => string)(
           finalProps as TProps,
           undefined,
           classMap,
         );
-        // Always add data-component for scoping/targets on the first root element
-        return injectDataComponent(html, name);
-      }
+      // Inject reactive attrs only if present, then add data-component
+      return injectDataComponent(applyReactiveAttrs(html), name);
     },
   };
 }

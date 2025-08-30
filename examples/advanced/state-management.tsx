@@ -1,12 +1,12 @@
 /** @jsx h */
-import { defineComponent, defineReactiveComponent, h, string, number, array, object, boolean } from "../../src/index.ts";
+import { defineComponent, h, string, number, array, object, boolean } from "../../src/index.ts";
 
 // Advanced State Management Patterns
 
 console.log("🚀 Loading Advanced State Management examples...");
 
 // 1. State Synchronizer - Keeps multiple UI elements in sync
-defineReactiveComponent("state-synchronizer", {
+defineComponent("state-synchronizer", {
   styles: {
     container: { padding: '2rem', background: 'var(--theme-bg, #ffffff)', border: '2px solid var(--theme-border, #e2e8f0)', borderRadius: '12px', margin: '1rem 0' },
     grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginTop: '1.5rem' },
@@ -45,7 +45,7 @@ defineReactiveComponent("state-synchronizer", {
       this.updateColorValue(channel, value);
     });
   `,
-  render: ({}, api, classes) => (
+  render: ({}, api: any, classes: any) => (
     h('div', { class: classes!.container },
       h('h3', {}, '🎨 State Synchronizer'),
       h('p', {}, 'Multiple controls stay perfectly synchronized through pub/sub state management.'),
@@ -87,7 +87,7 @@ defineReactiveComponent("state-synchronizer", {
 } as any);
 
 // 2. Cross-Component Data Flow - Shopping Cart System
-defineReactiveComponent("cart-manager", {
+defineComponent("cart-manager", {
   styles: {
     container: `{
       padding: 1.5rem;
@@ -163,7 +163,7 @@ defineReactiveComponent("cart-manager", {
       ]);
     }
   `,
-  render: ({}, api, classes) => (
+  render: ({}, api: any, classes: any) => (
     h('div', { class: classes!.container },
       h('div', { class: classes!.header },
         h('h3', {}, '🛒 Shopping Cart Manager'),
@@ -196,7 +196,7 @@ defineReactiveComponent("cart-manager", {
 } as any);
 
 // 3. Cart Item Component - Individual cart items that sync with manager
-defineReactiveComponent("cart-item-reactive", {
+defineComponent("cart-item-reactive", {
   styles: {
     container: `{
       display: flex;
@@ -275,7 +275,7 @@ defineReactiveComponent("cart-item-reactive", {
     name = string("Item"), 
     price = number(0), 
     quantity = number(1) 
-  }, api, classes) => (
+  }: any, api: any, classes: any) => (
     h('div', { 
       class: classes!.container,
       'data-item-id': itemId.toString()
@@ -324,7 +324,7 @@ defineReactiveComponent("cart-item-reactive", {
 } as any);
 
 // 4. Global State Monitor - Visual representation of all state
-defineReactiveComponent("global-state-monitor", {
+defineComponent("global-state-monitor", {
   styles: {
     container: `{
       padding: 2rem;
@@ -376,16 +376,16 @@ defineReactiveComponent("global-state-monitor", {
       if (!stateContainer) return;
       
       // Get all current state from StateManager
-      const allTopics = window.StateManager?.topics || new Map();
+      const topics = window.StateManager?.getTopics ? window.StateManager.getTopics() : [];
       
       stateContainer.innerHTML = '';
       
-      if (allTopics.size === 0) {
+      if ((topics?.length || 0) === 0) {
         stateContainer.innerHTML = '<div style="text-align: center; color: #64748b; font-style: italic;">No state data available</div>';
         return;
       }
       
-      allTopics.forEach((value, key) => {
+      topics.forEach((key) => {
         const stateItem = document.createElement('div');
         stateItem.className = 'state-item';
         
@@ -398,6 +398,7 @@ defineReactiveComponent("global-state-monitor", {
         
         let displayValue;
         try {
+          const value = window.StateManager?.getState ? window.StateManager.getState(key) : undefined;
           displayValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
         } catch {
           displayValue = '[Complex Object]';
@@ -419,7 +420,7 @@ defineReactiveComponent("global-state-monitor", {
     // Initial display
     setTimeout(() => this.updateStateDisplay(), 100);
   `,
-  render: ({}, api, classes) => (
+  render: ({}, api: any, classes: any) => (
     h('div', { class: classes!.container },
       h('h3', {}, '🔍 Global State Monitor'),
       h('p', {}, 'Real-time view of all application state managed by StateManager.'),

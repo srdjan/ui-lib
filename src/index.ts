@@ -16,8 +16,7 @@ export {
   remove,
 } from "./lib/api-helpers.ts";
 
-// Legacy pipeline API is no longer exported. Prefer defineComponent with
-// function-style props inferred in the render signature.
+// Prefer defineComponent with function-style props inferred in the render signature.
 
 // Type-safe DOM helpers for event handlers
 export { toggleClass, toggleClasses } from "./lib/dom-helpers.ts";
@@ -67,17 +66,7 @@ export {
 // Utility TS types
 export type { PropsOf, UnwrapHelpers } from "./lib/types.ts";
 
-// Hybrid Reactivity System - Three-tier client-side component communication
-
-// Enhanced reactive component definition
-export {
-  defineReactiveComponent,
-  defineCSSReactiveComponent,
-  defineMultiStateComponent,
-  createReactiveCSSClasses,
-  type ReactiveComponentConfig,
-  type MultiStateComponentConfig,
-} from "./lib/reactive-component.ts";
+// Hybrid Reactivity System helpers (use with defineComponent reactive options)
 
 // CSS Property Reactivity (Tier 1)
 export {
@@ -93,14 +82,12 @@ export {
   subscribeToState,
   getState,
   createCartAction,
+  listensFor,
+  hxOn,
 } from "./lib/reactive-helpers.ts";
 
 // DOM Event Communication (Tier 3)
-export {
-  dispatchEvent,
-  listensFor,
-  createNotification,
-} from "./lib/reactive-helpers.ts";
+export { dispatchEvent, createNotification } from "./lib/reactive-helpers.ts";
 
 // State Manager Infrastructure
 export {

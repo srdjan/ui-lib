@@ -8,13 +8,11 @@ This document provides context for the Gemini code assistant to understand the
 `funcwc` is a lightweight, functional programming library for building
 server-side rendered (SSR) web components using Deno and TypeScript. It
 emphasizes an SSR-only approach, meaning no JavaScript is sent to the browser
-for component rendering. The library provides a simple and elegant Pipeline API
-for defining components, managing state, and handling user actions, all on the
-server.
+for component rendering. The library provides a simple and elegant API
+for defining components and handling SSR rendering on the server.
 
 The core of the library is a tagged template literal `html` for creating safe,
-escaped HTML strings. It also supports a JSX-based pipeline API, which is
-currently being redesigned and is considered experimental.
+escaped HTML strings. It also supports a JSX-based authoring API.
 
 The project is built and managed with Deno, using `deno.json` for task
 definitions and dependency management.

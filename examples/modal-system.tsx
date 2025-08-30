@@ -2,7 +2,6 @@
 /// <reference path="../src/lib/jsx.d.ts" />
 import {
   defineComponent,
-  defineReactiveComponent,
   h,
   string,
   boolean,
@@ -38,14 +37,9 @@ defineComponent("modal-trigger", {
   }) => (
     <button 
       class={`trigger trigger-${modalType}`}
-      hx-on:click={dispatchEvent("open-modal", {
-        modalId,
-        title: modalTitle,
-        content: modalContent,
-        type: modalType
-      })}
-      hx-on:mouseover="this.classList.add('trigger-hover')"
-      hx-on:mouseout="this.classList.remove('trigger-hover')"
+      hx-on={`click: ${dispatchEvent("open-modal", { modalId, title: modalTitle, content: modalContent, type: modalType })}
+mouseover: this.classList.add('trigger-hover')
+mouseout: this.classList.remove('trigger-hover')`}
     >
       <span>{icon}</span>
       <span>{buttonText}</span>
@@ -54,7 +48,7 @@ defineComponent("modal-trigger", {
 });
 
 // Universal Modal Component
-defineReactiveComponent("modal", {
+defineComponent("modal", {
   eventListeners: {
     "open-modal": `
       if (event.detail.modalId === this.dataset.modalId) {
@@ -148,20 +142,17 @@ defineReactiveComponent("modal", {
     <div 
       class="overlay"
       data-modal-id={id}
-      hx-on:click={`
+      hx-on={`click: 
         if (event.target === this) {
           document.dispatchEvent(new CustomEvent('funcwc:close-modal', {
             detail: { modalId: this.dataset.modalId }
           }));
-        }
-      `}
+        }`}
     >
       <div class="modal modal-info">
         <button 
           class="close-btn"
-          hx-on:click={dispatchEvent("close-modal", { modalId: id })}
-          hx-on:mouseover="this.classList.add('close-btn-hover')"
-          hx-on:mouseout="this.classList.remove('close-btn-hover')"
+          hx-on={`click: ${dispatchEvent("close-modal", { modalId: id })}\nmouseover: this.classList.add('close-btn-hover')\nmouseout: this.classList.remove('close-btn-hover')`}
           title="Close modal"
         >
           ×
@@ -173,13 +164,13 @@ defineReactiveComponent("modal", {
         <div class="modal-actions">
           <button 
             class="action-btn secondary-btn"
-            hx-on:click={dispatchEvent("close-modal", { modalId: id })}
+            hx-on={`click: ${dispatchEvent("close-modal", { modalId: id })}`}
           >
             Cancel
           </button>
           <button 
             class="action-btn primary-btn"
-            hx-on:click={`
+            hx-on={`click: 
               alert('Action confirmed!');
               document.dispatchEvent(new CustomEvent('funcwc:close-modal', {
                 detail: { modalId: '${id}' }
@@ -292,13 +283,12 @@ defineComponent("notification-sender", {
         />
         <button 
           class="send-btn"
-          hx-on:click={`
+          hx-on={`click: 
             const message = document.getElementById('notification-input').value;
             if (!message.trim()) {
               alert('Please enter a message!');
               return;
             }
-            
             ${createNotification("message", "info", 3000)}
             document.getElementById('notification-input').value = '';
           `}
@@ -310,25 +300,25 @@ defineComponent("notification-sender", {
       <div class="type-buttons">
         <button 
           class="type-button success-btn"
-          hx-on:click={createNotification("✅ Success! Operation completed successfully.", "success", 3000)}
+          hx-on={`click: ${createNotification("✅ Success! Operation completed successfully.", "success", 3000)}`}
         >
           <span>✅</span> Success
         </button>
         <button 
           class="type-button error-btn"
-          hx-on:click={createNotification("❌ Error! Something went wrong.", "error", 5000)}
+          hx-on={`click: ${createNotification("❌ Error! Something went wrong.", "error", 5000)}`}
         >
           <span>❌</span> Error
         </button>
         <button 
           class="type-button warning-btn"
-          hx-on:click={createNotification("⚠️ Warning! Please check your input.", "warning", 4000)}
+          hx-on={`click: ${createNotification("⚠️ Warning! Please check your input.", "warning", 4000)}`}
         >
           <span>⚠️</span> Warning
         </button>
         <button 
           class="type-button info-btn"
-          hx-on:click={createNotification("ℹ️ Info: This is an informational message.", "info", 3000)}
+          hx-on={`click: ${createNotification("ℹ️ Info: This is an informational message.", "info", 3000)}`}
         >
           <span>ℹ️</span> Info
         </button>
@@ -339,7 +329,7 @@ defineComponent("notification-sender", {
         <div class="preset-buttons">
           <button 
             class="type-button success-btn"
-            hx-on:click={`
+            hx-on={`click: 
               // Sequential notifications
               ${createNotification("🚀 Starting process...", "info", 2000)}
               setTimeout(() => {
@@ -354,24 +344,24 @@ defineComponent("notification-sender", {
           </button>
           <button 
             class="type-button warning-btn"
-            hx-on:click={`
+            hx-on={`click: 
               // Long notification
               ${createNotification("📖 This is a very long notification message that demonstrates how the system handles longer content gracefully with proper text wrapping and spacing.", "info", 6000)}
             `}
           >
             📖 Long Text
           </button>
-          <button 
-            class="type-button error-btn"
-            hx-on:click={`
-              // Multiple quick notifications
-              setTimeout(() => { ${createNotification("🔢 Message 1 of 5", "success", 2000)} }, 500);
-              setTimeout(() => { ${createNotification("🔢 Message 2 of 5", "success", 2000)} }, 1000);
-              setTimeout(() => { ${createNotification("🔢 Message 3 of 5", "success", 2000)} }, 1500);
-              setTimeout(() => { ${createNotification("🔢 Message 4 of 5", "success", 2000)} }, 2000);
-              setTimeout(() => { ${createNotification("🔢 Message 5 of 5", "success", 2000)} }, 2500);
-            `}
-          >
+        <button 
+          class="type-button error-btn"
+          hx-on={`click: 
+            // Multiple quick notifications
+            setTimeout(() => { ${createNotification("🔢 Message 1 of 5", "success", 2000)} }, 500);
+            setTimeout(() => { ${createNotification("🔢 Message 2 of 5", "success", 2000)} }, 1000);
+            setTimeout(() => { ${createNotification("🔢 Message 3 of 5", "success", 2000)} }, 1500);
+            setTimeout(() => { ${createNotification("🔢 Message 4 of 5", "success", 2000)} }, 2000);
+            setTimeout(() => { ${createNotification("🔢 Message 5 of 5", "success", 2000)} }, 2500);
+          `}
+        >
             🔢 Burst
           </button>
         </div>
@@ -470,7 +460,7 @@ defineComponent("notification-display", {
   render: () => (
     <div
       class="container"
-      hx-on:show-notification={`
+      hx-on={`funcwc:show-notification: 
         const { message, type = 'info', duration = 3000 } = event.detail;
         
         // Create toast element
@@ -635,14 +625,14 @@ defineComponent("modal-control-panel", {
         <div class="button-group">
           <button 
             class="control-btn"
-            hx-on:click={dispatchEvent("close-all-modals")}
+            hx-on={`click: ${dispatchEvent("close-all-modals")}`}
           >
             🚫 Close All Modals
           </button>
           
           <button 
             class="control-btn"
-            hx-on:click={`
+            hx-on={`click: 
               // Demo: Open multiple modals in sequence
               ${dispatchEvent("open-modal", {
                 modalId: "demo-1",
@@ -728,7 +718,7 @@ defineComponent("event-demo", {
     h('div', { 
       class: 'log',
       id: 'event-log',
-      'hx-on:funcwc:demo-event': `
+      'hx-on': `funcwc:demo-event: 
         const log = document.getElementById('event-log');
         const time = new Date().toLocaleTimeString();
         log.innerHTML += '<div>' + time + ': Received demo event - ' + JSON.stringify(event.detail) + '</div>';
@@ -737,14 +727,14 @@ defineComponent("event-demo", {
     }, 'Event log will appear here...'),
     h('button', {
       class: 'clear-btn',
-      'hx-on:click': `document.getElementById('event-log').innerHTML = 'Event log cleared...';`
+      'hx-on': `click: document.getElementById('event-log').innerHTML = 'Event log cleared...';`
     }, 'Clear Log'),
     h('br', {}),
     h('br', {}),
     h('button', {
       class: 'control-btn',
       style: 'background: #28a745; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; margin: 0.25rem;',
-      'hx-on:click': `${dispatchEvent("demo-event", { message: "Hello from button!", timestamp: Date.now() })}`
+      'hx-on': `click: ${dispatchEvent("demo-event", { message: "Hello from button!", timestamp: Date.now() })}`
     }, '📤 Send Demo Event')
   ])
 });

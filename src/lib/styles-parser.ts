@@ -29,7 +29,7 @@ export function parseUnifiedStyles(
       continue;
     }
 
-    // Legacy selector format: extract class name
+    // Selector string format: extract class name
     const classMatch = cssText.match(/\.([a-zA-Z][a-zA-Z0-9-_]*)/);
     if (classMatch) {
       classMap[key] = classMatch[1];

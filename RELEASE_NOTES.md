@@ -125,7 +125,7 @@ Release date: 2025-08-25
 
 ## Breaking Changes
 
-- Removed legacy `.state()` / `.actions()` pipeline and related SSR
+- Removed obsolete APIs and aligned around a single defineComponent entry point
   services/tests.
 - Core `ComponentAction` now includes only `toggleClass` and `toggleClasses`.
 - Example-specific helpers (e.g., `updateParentCounter`, `activateTab`, etc.)

@@ -13,7 +13,7 @@ import {
 } from "../src/lib/reactive-helpers.ts";
 
 // Theme Controller - Master component that manages global theme
-defineComponent("theme-controller", {
+defineComponent("main-theme-controller", {
   styles: {
     container: { display: 'inline-flex', gap: '0.5rem', alignItems: 'center', padding: '1rem', border: '2px solid var(--theme-border, #ddd)', borderRadius: '8px', background: 'var(--theme-card-bg, #f8f9fa)', transition: 'all 0.3s ease' },
     button: { background: 'var(--theme-button-bg, #007bff)', color: 'var(--theme-button-text, white)', border: '1px solid var(--theme-button-border, #007bff)', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', transition: 'all 0.2s ease', marginRight: '0.5rem' },
@@ -28,7 +28,7 @@ defineComponent("theme-controller", {
       {/* Light theme button */}
       <button 
         class="button"
-        hx-on:click={createThemeToggle(
+        hx-on={`click: ${createThemeToggle(
           // Light theme properties
           {
             "theme-mode": "light",
@@ -53,7 +53,7 @@ defineComponent("theme-controller", {
             "theme-button-border": "#63b3ed",
             "theme-debug-bg": "#805ad5"
           }
-        )}
+        )}`}
       >
         🌓 Toggle Theme
       </button>
@@ -62,7 +62,7 @@ defineComponent("theme-controller", {
       <button 
         class="button"
         style="background: #e3f2fd; color: #1976d2;"
-        hx-on:click={[
+        hx-on={`click: ${[
           setCSSProperty("theme-mode", "blue"),
           setCSSProperty("theme-bg", "#e3f2fd"),
           setCSSProperty("theme-text", "#1976d2"),
@@ -72,7 +72,7 @@ defineComponent("theme-controller", {
           setCSSProperty("theme-button-text", "white"),
           "this.textContent = '✓ Blue Theme'",
           "setTimeout(() => this.textContent = '🔵 Blue', 1000)"
-        ].join("; ")}
+        ].join("; ")}`}
       >
         🔵 Blue
       </button>
@@ -80,7 +80,7 @@ defineComponent("theme-controller", {
       <button 
         class="button"
         style="background: #f3e5f5; color: #7b1fa2;"
-        hx-on:click={[
+        hx-on={`click: ${[
           setCSSProperty("theme-mode", "purple"),
           setCSSProperty("theme-bg", "#f3e5f5"),
           setCSSProperty("theme-text", "#7b1fa2"),
@@ -90,7 +90,7 @@ defineComponent("theme-controller", {
           setCSSProperty("theme-button-text", "white"),
           "this.textContent = '✓ Purple Theme'",
           "setTimeout(() => this.textContent = '🟣 Purple', 1000)"
-        ].join("; ")}
+        ].join("; ")}`}
       >
         🟣 Purple
       </button>
@@ -98,7 +98,7 @@ defineComponent("theme-controller", {
       <button 
         class="button"
         style="background: #e8f5e8; color: #2e7d32;"
-        hx-on:click={[
+        hx-on={`click: ${[
           setCSSProperty("theme-mode", "green"),
           setCSSProperty("theme-bg", "#e8f5e8"),
           setCSSProperty("theme-text", "#2e7d32"),
@@ -108,7 +108,7 @@ defineComponent("theme-controller", {
           setCSSProperty("theme-button-text", "white"),
           "this.textContent = '✓ Green Theme'",
           "setTimeout(() => this.textContent = '🟢 Green', 1000)"
-        ].join("; ")}
+        ].join("; ")}`}
       >
         🟢 Green
       </button>
@@ -116,7 +116,7 @@ defineComponent("theme-controller", {
       {/* Debug button */}
       <button 
         class="button debug-button"
-        hx-on:click={debugReactiveState("Theme Controller", true, false)}
+        hx-on={`click: ${debugReactiveState("Theme Controller", true, false)}`}
       >
         🐛 Debug
       </button>
@@ -125,7 +125,7 @@ defineComponent("theme-controller", {
 });
 
 // Reactive Card - Automatically responds to theme changes
-defineComponent("reactive-card", {
+defineComponent("theme-reactive-card", {
   styles: {
     card: { background: 'var(--theme-card-bg, #f8f9fa)', border: '2px solid var(--theme-border, #ddd)', color: 'var(--theme-text, #333)', padding: '1.5rem', borderRadius: '12px', margin: '1rem 0', transition: 'all 0.3s ease', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' },
     title: { color: 'var(--theme-text, #333)', marginBottom: '0.75rem', fontWeight: 'bold', fontSize: '1.25rem' },
@@ -247,25 +247,21 @@ defineComponent("theme-status", {
     }`
   },
   render: () => (
-    <div 
-      class="status"
-      hx-on:load={`
-        // Update theme display on mount
-        const updateDisplay = () => {
-          const mode = getComputedStyle(document.documentElement).getPropertyValue('--theme-mode').trim();
-          const bg = getComputedStyle(document.documentElement).getPropertyValue('--theme-bg').trim();
-          const text = getComputedStyle(document.documentElement).getPropertyValue('--theme-text').trim();
-          
-          this.querySelector('.current-theme').textContent = mode || 'default';
-          this.querySelector('.bg-value').textContent = bg || 'default';
-          this.querySelector('.text-value').textContent = text || 'default';
-          
-          // Update every second to show live changes
-          setTimeout(updateDisplay, 1000);
-        };
-        updateDisplay();
-      `}
-    >
+    <div class="status" hx-on={`htmx:load: 
+      const updateDisplay = () => {
+        const mode = getComputedStyle(document.documentElement).getPropertyValue('--theme-mode').trim();
+        const bg = getComputedStyle(document.documentElement).getPropertyValue('--theme-bg').trim();
+        const text = getComputedStyle(document.documentElement).getPropertyValue('--theme-text').trim();
+        const ct = this.querySelector('.current-theme');
+        const bv = this.querySelector('.bg-value');
+        const tv = this.querySelector('.text-value');
+        if (ct) ct.textContent = mode || 'default';
+        if (bv) bv.textContent = bg || 'default';
+        if (tv) tv.textContent = text || 'default';
+        setTimeout(updateDisplay, 1000);
+      };
+      updateDisplay();
+    `}>
       <div class="title">🔍 Live Theme Properties</div>
       <div class="property">
         <span>--theme-mode:</span>
@@ -333,61 +329,61 @@ defineComponent("theme-playground", {
           class="color-button"
           style="background: #ff6b6b;"
           title="Red"
-          hx-on:click={[
+          hx-on={`click: ${[
             setCSSProperty("playground-bg", "#ffe0e0"),
             setCSSProperty("playground-text", "#d63031"),
             setCSSProperty("playground-border", "#ff7675")
-          ].join("; ")}
+          ].join("; ")}`}
         ></button>
         <button 
           class="color-button"
           style="background: #4ecdc4;"
           title="Teal"
-          hx-on:click={[
+          hx-on={`click: ${[
             setCSSProperty("playground-bg", "#e0f7f7"),
             setCSSProperty("playground-text", "#00b894"),
             setCSSProperty("playground-border", "#55efc4")
-          ].join("; ")}
+          ].join("; ")}`}
         ></button>
         <button 
           class="color-button"
           style="background: #45b7d1;"
           title="Blue"
-          hx-on:click={[
+          hx-on={`click: ${[
             setCSSProperty("playground-bg", "#e3f2fd"),
             setCSSProperty("playground-text", "#0984e3"),
             setCSSProperty("playground-border", "#74b9ff")
-          ].join("; ")}
+          ].join("; ")}`}
         ></button>
         <button 
           class="color-button"
           style="background: #f9ca24;"
           title="Yellow"
-          hx-on:click={[
+          hx-on={`click: ${[
             setCSSProperty("playground-bg", "#fff9e6"),
             setCSSProperty("playground-text", "#e17055"),
             setCSSProperty("playground-border", "#fdcb6e")
-          ].join("; ")}
+          ].join("; ")}`}
         ></button>
         <button 
           class="color-button"
           style="background: #6c5ce7;"
           title="Purple"
-          hx-on:click={[
+          hx-on={`click: ${[
             setCSSProperty("playground-bg", "#f3e5f5"),
             setCSSProperty("playground-text", "#6c5ce7"),
             setCSSProperty("playground-border", "#a29bfe")
-          ].join("; ")}
+          ].join("; ")}`}
         ></button>
         <button 
           class="color-button"
           style="background: #fd79a8;"
           title="Pink"
-          hx-on:click={[
+          hx-on={`click: ${[
             setCSSProperty("playground-bg", "#ffeaa7"),
             setCSSProperty("playground-text", "#e84393"),
             setCSSProperty("playground-border", "#fd79a8")
-          ].join("; ")}
+          ].join("; ")}`}
         ></button>
       </div>
       <div class="sample">

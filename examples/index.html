@@ -7,101 +7,9 @@
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
     
-    <!-- Enhanced State Manager for Complex Applications -->
-    <script>
-      window.StateManager = {
-        topics: new Map(),
-        subscribers: new Map(),
-        publish(topic, data) {
-          const callbacks = this.subscribers.get(topic) || [];
-          const universalCallbacks = this.subscribers.get("*") || [];
-          
-          [...callbacks, ...universalCallbacks].forEach(({ callback, element }) => {
-            if (document.contains(element)) {
-              try {
-                callback.call(element, data, topic);
-              } catch (e) {
-                console.warn('State callback error:', e);
-              }
-            } else {
-              this.unsubscribe(topic, callback, element);
-            }
-          });
-          
-          this.topics.set(topic, data);
-          
-          // Persist certain data to localStorage
-          if (topic === 'todos') {
-            try {
-              localStorage.setItem('funcwc-todos', JSON.stringify(data));
-            } catch (e) {
-              console.warn('Failed to persist todos:', e);
-            }
-          }
-        },
-        subscribe(topic, callback, element) {
-          if (!this.subscribers.has(topic)) this.subscribers.set(topic, []);
-          this.subscribers.get(topic).push({ callback, element });
-          
-          if (topic !== "*") {
-            const currentData = this.topics.get(topic);
-            if (currentData !== undefined) {
-              try {
-                callback.call(element, currentData, topic);
-              } catch (e) {
-                console.warn('Initial state callback error:', e);
-              }
-            }
-          }
-        },
-        getState(topic) { 
-          return this.topics.get(topic); 
-        },
-        unsubscribe(topic, callback, element) {
-          const subs = this.subscribers.get(topic) || [];
-          this.subscribers.set(topic, subs.filter(s => s.callback !== callback || s.element !== element));
-        },
-        // Enhanced methods for real-world apps
-        persistState() {
-          const stateToPersist = {};
-          this.topics.forEach((value, key) => {
-            if (['todos', 'user-preferences', 'dashboard-settings'].includes(key)) {
-              stateToPersist[key] = value;
-            }
-          });
-          try {
-            localStorage.setItem('funcwc-app-state', JSON.stringify(stateToPersist));
-          } catch (e) {
-            console.warn('Failed to persist app state:', e);
-          }
-        },
-        restoreState() {
-          try {
-            const saved = localStorage.getItem('funcwc-app-state');
-            if (saved) {
-              const state = JSON.parse(saved);
-              Object.entries(state).forEach(([key, value]) => {
-                this.publish(key, value);
-              });
-            }
-          } catch (e) {
-            console.warn('Failed to restore app state:', e);
-          }
-        }
-      };
-      
-      // Auto-restore state on load
-      document.addEventListener('DOMContentLoaded', () => {
-        window.StateManager.restoreState();
-      });
-      
-      // Auto-persist state periodically
-      setInterval(() => {
-        window.StateManager.persistState();
-      }, 30000); // Every 30 seconds
-    </script>
+    <!-- State manager is injected by the dev server (examples/server.ts) -->
     
-    <script type="module" src="main.ts"></script>
+    <!-- Server imports examples/main.ts to register components; no client import needed. -->
     
     <style>
         :root {
@@ -239,12 +147,13 @@
           border-radius: 20px;
           padding: 3rem 2rem;
           box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+          overflow-x: hidden;
         }
         
         /* Demo Grid */
         .demo-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
           gap: 2rem;
           margin: 2rem 0;
         }
@@ -395,6 +304,9 @@
           .content-section {
             padding: 1rem;
           }
+          .section-content {
+            padding: 1.5rem 1rem;
+          }
           
           .section-title {
             font-size: 2.5rem;
@@ -404,6 +316,11 @@
             grid-template-columns: 1fr;
             gap: 1rem;
           }
+        }
+        /* Prevent horizontal overflow */
+        html, body {
+          max-width: 100%;
+          overflow-x: hidden;
         }
     </style>
 </head>
@@ -662,8 +579,8 @@
                         <div class="demo-description">
                             Global theme management using CSS property reactivity. Watch components instantly adapt to theme changes!
                         </div>
-                        <theme-controller current-theme="light"></theme-controller>
-                        <reactive-card title="Reactive Card" content="I automatically adapt to theme changes!"></reactive-card>
+                        <main-theme-controller current-theme="light"></main-theme-controller>
+                        <theme-reactive-card title="Reactive Card" content="I automatically adapt to theme changes!"></theme-reactive-card>
                     </div>
                     
                     <div class="demo-card">
@@ -793,10 +710,11 @@ defineComponent("component-name", {
                     
                     <div style="background: white; border: 1px solid #e2e8f0; border-radius: 15px; padding: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
                         <div style="font-size: 3rem; margin-bottom: 1rem;">⚛️</div>
-                        <h3 style="font-size: 1.5rem; font-weight: 600; color: #1e293b; margin-bottom: 1rem;">defineReactiveComponent</h3>
-                        <p style="color: #64748b; margin-bottom: 1.5rem;">Enhanced component API with hybrid reactivity system for complex state management.</p>
+                        <h3 style="font-size: 1.5rem; font-weight: 600; color: #1e293b; margin-bottom: 1rem;">defineComponent (Reactive Options)</h3>
+                        <p style="color: #64748b; margin-bottom: 1.5rem;">The same core API also supports optional reactive wiring for state/events.</p>
                         <div class="code-block">
-defineReactiveComponent("reactive-name", {
+defineComponent("reactive-name", {
+  // Optional, additive reactivity
   cssReactions: { /* CSS property reactivity */ },
   stateSubscriptions: { /* Pub/sub state */ },
   eventListeners: { /* DOM events */ },

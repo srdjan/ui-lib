@@ -33,7 +33,7 @@ defineComponent("toggle-class-demo", {
   },
   render: ({ 
     title = string("Toggle Classes Demo")
-  }, _api, classes) => (
+  }: any, _api: any, classes: any) => (
     <div class={`${classes!.container} toggle-demo-container`}>
       <h3 class={`${classes!.title} toggle-demo-title`}>{title}</h3>
       <p style="color: #6c757d; margin-bottom: 1.5rem;">
@@ -46,18 +46,25 @@ defineComponent("toggle-class-demo", {
         <button
           type="button"
           class={`${classes!.button} hover:${classes!.buttonHover}`}
-          onclick={toggleClass("active")}
+          onclick={`
+            const container = this.closest('.toggle-demo-container');
+            container.classList.toggle('${classes!.containerActive}');
+          `}
         >
-          🎯 Toggle "active" Class
+          🎯 Toggle Active Style
         </button>
 
         {/* Multiple classes toggle */}
         <button
           type="button"
           class={`${classes!.button} hover:${classes!.buttonHover}`}
-          onclick={toggleClasses(["active", "danger"])}
+          onclick={`
+            const container = this.closest('.toggle-demo-container');
+            container.classList.toggle('${classes!.containerActive}');
+            container.classList.toggle('${classes!.containerDanger}');
+          `}
         >
-          🔄 Toggle Multiple Classes
+          🔄 Toggle Active/Danger
         </button>
 
         {/* Conditional class with state check */}
@@ -66,17 +73,17 @@ defineComponent("toggle-class-demo", {
           class={`${classes!.button} hover:${classes!.buttonHover}`}
           onclick={`
             const container = this.closest('.toggle-demo-container');
-            const hasActive = container.classList.contains('active');
+            const hasActive = container.classList.contains('${classes!.containerActive}');
             if (hasActive) {
-              container.classList.add('success');
-              container.classList.remove('warning');
+              container.classList.add('${classes!.containerDanger}');
+              container.classList.remove('${classes!.containerActive}');
             } else {
-              container.classList.add('warning');
-              container.classList.remove('success');
+              container.classList.add('${classes!.containerActive}');
+              container.classList.remove('${classes!.containerDanger}');
             }
           `}
         >
-          ⚖️ Conditional Classes
+          ⚖️ Swap Active/Danger
         </button>
 
         {/* Complex DOM manipulation */}
@@ -151,30 +158,20 @@ defineComponent("data-attributes-demo", {
     userName = string("John Doe"),
     userRole = string("admin"),
     isActive = boolean(true)
-  }, _api, classes) => {
-    // Using dataAttrs utility to generate data attributes
-    const userData = dataAttrs({
-      userId,
-      userName,
-      role: userRole,
-      active: isActive,
-      timestamp: Date.now(),
-      version: "1.0"
-    });
-
-    // Using spreadAttrs for HTMX attributes
-    const htmxAttrs = spreadAttrs({
-      "hx-get": "/api/user-status",
-      "hx-trigger": "click",
-      "hx-target": "#user-info",
-      "hx-swap": "innerHTML"
-    });
-
+  }: any, _api: any, classes: any) => {
     return (
       <div 
         class={classes!.card}
-        {...userData}
-        {...htmxAttrs}
+        data-user-id={userId}
+        data-user-name={userName}
+        data-role={userRole}
+        data-active={isActive}
+        data-timestamp={Date.now()}
+        data-version="1.0"
+        hx-get="/api/user-status"
+        hx-trigger="click"
+        hx-target="#user-info"
+        hx-swap="innerHTML"
       >
         <h3 style="margin: 0 0 1rem 0;">🏷️ Data Attributes Demo</h3>
         <p style="opacity: 0.9; margin: 0 0 1rem 0;">
@@ -193,7 +190,7 @@ defineComponent("data-attributes-demo", {
             class={`${classes!.button} hover:${classes!.buttonHover}`}
             onclick={`
               // Update data attributes dynamically
-              const card = this.closest('[${userData['data-user-id'] ? 'data-user-id' : 'class'}]');
+              const card = this.closest('[data-user-id]');
               const currentRole = card.dataset.role;
               const newRole = currentRole === 'admin' ? 'user' : 'admin';
               
@@ -318,7 +315,7 @@ defineComponent("event-handling-demo", {
       color: #212529;
     }`
   },
-  render: ({ targetText = string("Click me or use controls below!") }, _api, classes) => (
+  render: ({ targetText = string("Click me or use controls below!") }: any, _api: any, classes: any) => (
     <div class={classes!.playground}>
       <h3 style="margin: 0 0 1rem 0; color: #495057;">🎮 Event Handling Playground</h3>
       <p style="color: #6c757d; margin-bottom: 1.5rem;">

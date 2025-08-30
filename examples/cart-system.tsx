@@ -4,7 +4,6 @@ import {
   array,
   boolean,
   defineComponent,
-  defineReactiveComponent,
   h,
   number,
   renderComponent,
@@ -29,7 +28,7 @@ const sampleProducts = [
 ];
 
 // Main Shopping Cart Component - Manages the cart state
-defineReactiveComponent("shopping-cart", {
+defineComponent("shopping-cart", {
   stateSubscriptions: {
     cart: `
       // Update the cart display when state changes
@@ -153,7 +152,7 @@ defineReactiveComponent("shopping-cart", {
         </div>
         <button 
           class="clear-button"
-          hx-on:click={publishState("cart", { items: [], count: 0, total: 0, isEmpty: true })}
+          hx-on={`click: ${publishState("cart", { items: [], count: 0, total: 0, isEmpty: true })}`}
         >
           Clear Cart
         </button>
@@ -175,7 +174,7 @@ defineReactiveComponent("shopping-cart", {
         <button 
           class="clear-button"
           style="background: #28a745;"
-          hx-on:click={debugReactiveState("Shopping Cart", false, true)}
+          hx-on={`click: ${debugReactiveState("Shopping Cart", false, true)}`}
         >
           🐛 Debug State
         </button>
@@ -185,7 +184,7 @@ defineReactiveComponent("shopping-cart", {
 });
 
 // Cart Badge - Shows cart summary in header/nav
-defineReactiveComponent("cart-badge", {
+defineComponent("cart-badge", {
   stateSubscriptions: {
     cart: `
       const countEl = this.querySelector('.count');
@@ -262,7 +261,7 @@ defineReactiveComponent("cart-badge", {
 });
 
 // Checkout Button - Enables/disables based on cart state
-defineReactiveComponent("checkout-button", {
+defineComponent("checkout-button", {
   stateSubscriptions: {
     cart: `
       const isEmpty = data.isEmpty;
@@ -309,7 +308,7 @@ defineReactiveComponent("checkout-button", {
     <button 
       class={`button ${!enabled ? 'disabled' : 'ready'}`}
       disabled={!enabled}
-      hx-on:click={`
+      hx-on={`click: 
         const cartData = window.funcwcState.getState('cart');
         if (!cartData || cartData.isEmpty) return;
         
@@ -411,15 +410,7 @@ defineComponent("product-grid", {
           <div class="product-price">${product.price.toFixed(2)}</div>
           <button 
             class="add-button"
-            hx-on:click={createCartAction("add", JSON.stringify({
-              id: product.id,
-              name: product.name,
-              price: product.price,
-              image: product.image,
-              quantity: 1
-            }))}
-            hx-on:mouseover="this.classList.add('add-button-hover')"
-            hx-on:mouseout="this.classList.remove('add-button-hover')"
+            hx-on={`click: ${createCartAction("add", JSON.stringify({ id: product.id, name: product.name, price: product.price, image: product.image, quantity: 1 }))}\nmouseover: this.classList.add('add-button-hover')\nmouseout: this.classList.remove('add-button-hover')`}
           >
             Add to Cart
           </button>
@@ -430,7 +421,7 @@ defineComponent("product-grid", {
 });
 
 // Cart Statistics - Shows detailed cart analytics
-defineReactiveComponent("cart-statistics", {
+defineComponent("cart-statistics", {
   stateSubscriptions: {
     cart: `
       const stats = this.querySelector('.stats-content');
@@ -540,29 +531,26 @@ defineComponent("quick-add-panel", {
       <div class="buttons">
         <button 
           class="quick-button"
-          hx-on:click={createCartAction("add", JSON.stringify({
-            id: "quick-1", name: "Random Item", price: Math.floor(Math.random() * 50) + 10,
-            image: "🎁", quantity: 1
-          }))}
+          hx-on={`click: ${createCartAction("add", JSON.stringify({ id: "quick-1", name: "Random Item", price: Math.floor(Math.random() * 50) + 10, image: "🎁", quantity: 1 }))}`}
         >
           🎁 Random Item
         </button>
         <button 
           class="quick-button"
-          hx-on:click={`
+          hx-on={`click: 
             // Add multiple random items
             const items = ['🎮 Gaming Mouse', '⌨️ Keyboard', '🖥️ Monitor', '🎧 Headset', '📱 Phone Case'];
             const randomItem = items[Math.floor(Math.random() * items.length)];
             const emoji = randomItem.split(' ')[0];
             const name = randomItem.substring(2);
-            
-            ${createCartAction("add", `{
-              id: "bulk-" + Date.now(), 
-              name: name, 
+            const payload = JSON.stringify({
+              id: 'bulk-' + Date.now(),
+              name: name,
               price: Math.floor(Math.random() * 100) + 20,
-              image: emoji, 
+              image: emoji,
               quantity: Math.floor(Math.random() * 3) + 1
-            }`)}
+            });
+            ${createCartAction("add", "payload")}
           `}
         >
           🛍️ Bulk Add
@@ -570,15 +558,9 @@ defineComponent("quick-add-panel", {
         <button 
           class="quick-button"
           style="background: #28a745;"
-          hx-on:click={`
+          hx-on={`click: 
             // Add a discounted bundle
-            ${createCartAction("add", JSON.stringify({
-              id: "bundle-" + Date.now(), 
-              name: "Special Bundle", 
-              price: 99.99,
-              image: "📦", 
-              quantity: 1
-            }))}
+            ${createCartAction("add", JSON.stringify({ id: "bundle-" + Date.now(), name: "Special Bundle", price: 99.99, image: "📦", quantity: 1 }))}
           `}
         >
           📦 Bundle Deal

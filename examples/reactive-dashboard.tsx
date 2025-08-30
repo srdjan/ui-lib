@@ -46,7 +46,7 @@ defineComponent("reactive-dashboard", {
         <div class="quick-controls">
           <button 
             class="quick-btn"
-            hx-on:click={debugReactiveState("Full Dashboard Debug", true, true)}
+            hx-on={`click: ${debugReactiveState("Full Dashboard Debug", true, true)}`}
           >
             <span>🐛</span> Debug All Systems
           </button>
@@ -54,7 +54,7 @@ defineComponent("reactive-dashboard", {
           <button 
             class="quick-btn"
             style="background: #28a745;"
-            hx-on:click={`
+            hx-on={`click: 
               // Reset everything to defaults
               ${setCSSProperty("theme-mode", "light")}
               ${setCSSProperty("theme-bg", "white")}
@@ -78,7 +78,7 @@ defineComponent("reactive-dashboard", {
           <button 
             class="quick-btn"
             style="background: #6f42c1;"
-            hx-on:click={`
+            hx-on={`click: 
               // Demo mode - show off all features
               ${setCSSProperty("theme-mode", "demo")}
               ${setCSSProperty("theme-bg", "linear-gradient(135deg, #667eea 0%, #764ba2 100%)")}
@@ -303,39 +303,32 @@ defineComponent("reactive-stat-card", {
   }) => (
     <div 
       class="card"
-      hx-on:load={`
-        // Update stats every 2 seconds
+      hx-on={`htmx:load: 
         const updateStats = () => {
           const title = this.querySelector('.stat-label').textContent;
           const valueEl = this.querySelector('.stat-number');
-          
-          if (title.includes('CSS Properties')) {
-            // Count CSS custom properties
-            let count = 0;
-            for (let prop of document.documentElement.style) {
-              if (prop.startsWith('--')) count++;
+          if (title && valueEl) {
+            if (title.includes('CSS Properties')) {
+              let count = 0;
+              for (let prop of document.documentElement.style) {
+                if (prop.startsWith('--')) count++;
+              }
+              valueEl.textContent = count || '⚡';
+            } else if (title.includes('State')) {
+              const topics = window.funcwcState ? window.funcwcState.getTopics().length : 0;
+              valueEl.textContent = topics || '🔄';
+            } else if (title.includes('Events')) {
+              const now = new Date();
+              valueEl.textContent = now.getSeconds() % 10 || '📡';
+            } else if (title.includes('Performance')) {
+              const perf = Math.round(performance.now() / 100) % 100;
+              valueEl.textContent = perf < 50 ? '🚀' : '⚡';
             }
-            valueEl.textContent = count || '⚡';
-          } else if (title.includes('State')) {
-            // Count state topics
-            const topics = window.funcwcState ? window.funcwcState.getTopics().length : 0;
-            valueEl.textContent = topics || '🔄';
-          } else if (title.includes('Events')) {
-            // This is more of a demo - in reality you'd track actual events
-            const now = new Date();
-            valueEl.textContent = now.getSeconds() % 10 || '📡';
-          } else if (title.includes('Performance')) {
-            // Show a performance indicator
-            const perf = Math.round(performance.now() / 100) % 100;
-            valueEl.textContent = perf < 50 ? '🚀' : '⚡';
           }
-          
           setTimeout(updateStats, 2000);
         };
         updateStats();
-      `}
-      hx-on:mouseover="this.classList.add('card-hover')"
-      hx-on:mouseout="this.classList.remove('card-hover')"
+      \nmouseover: this.classList.add('card-hover')\nmouseout: this.classList.remove('card-hover')`}
     >
       <div class="number stat-number">{value}</div>
       <div class="label stat-label">{label}</div>
@@ -402,14 +395,10 @@ defineComponent("integration-demo", {
     }`
   },
   render: () => (
-    <div 
-      class="demo"
-      hx-on:load={`
-        // Initialize integration status
-        const statusEl = this.querySelector('.integration-status');
-        statusEl.innerHTML = '🔄 Integration demo ready • All systems online';
-      `}
-    >
+    <div class="demo" hx-on={`htmx:load: 
+      const statusEl = this.querySelector('.integration-status');
+      if (statusEl) statusEl.innerHTML = '🔄 Integration demo ready • All systems online';
+    `}>
       <div class="overlay"></div>
       <h3 class="title">🔗 All Systems Integration</h3>
       <p>This demo coordinates all three reactivity systems simultaneously:</p>
@@ -420,7 +409,7 @@ defineComponent("integration-demo", {
       
       <button 
         class="action-btn integration-action"
-        hx-on:click={`
+        hx-on={`click: 
           const currentCart = window.funcwcState?.getState('cart') || { items: [], isEmpty: true };
           
           if (currentCart.isEmpty) {
@@ -467,9 +456,7 @@ defineComponent("integration-demo", {
               })}
             }, 1000);
           }
-        `}
-        hx-on:mouseover="this.classList.add('action-btn-hover')"
-        hx-on:mouseout="this.classList.remove('action-btn-hover')"
+        \nmouseover: this.classList.add('action-btn-hover')\nmouseout: this.classList.remove('action-btn-hover')`}
       >
         🎯 Start Integration Demo
       </button>

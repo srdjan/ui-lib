@@ -15,3 +15,13 @@ export function getRegistry(): SSRRegistry {
   (g.__FWC_SSR__ as SSRRegistry | undefined) ??= {} as SSRRegistry;
   return g.__FWC_SSR__ as SSRRegistry;
 }
+
+export function registerComponent(name: string, entry: SSRRegistryEntry): void {
+  const registry = getRegistry();
+  if (registry[name]) {
+    console.warn(`⚠️  Component "${name}" already exists and will be overwritten!`);
+    console.warn(`   Previous: ${Object.keys(registry[name]).join(', ')}`);
+    console.warn(`   New: ${Object.keys(entry).join(', ')}`);
+  }
+  registry[name] = entry;
+}

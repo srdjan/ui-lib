@@ -26,7 +26,7 @@ export function renderComponent(
   // The registry no longer stores complex prop specs
   const rawProps = props;
 
-  // Generate client API functions if available (should match component-pipeline logic)
+  // Generate client API functions if available
   let apiCreators = undefined;
   if (entry.api) {
     // Note: entry.api should contain generated client functions, not route handlers

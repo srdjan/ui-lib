@@ -8,7 +8,7 @@ import {
 } from "../src/index.ts";
 
 // Simple theme controller for demo
-defineComponent("theme-controller", {
+defineComponent("simple-theme-controller", {
   styles: {
     container: {
       display: 'flex', gap: '1rem', alignItems: 'center', padding: '1rem', border: '2px solid #ddd', borderRadius: '8px', background: '#f8f9fa',
@@ -27,7 +27,7 @@ defineComponent("theme-controller", {
 });
 
 // Simple reactive card
-defineComponent("reactive-card", {
+defineComponent("simple-reactive-card", {
   styles: {
     card: {
       padding: '1rem', border: '1px solid #ddd', borderRadius: '6px', background: 'var(--theme-bg, white)', color: 'var(--theme-text, black)', transition: 'all 0.3s ease',

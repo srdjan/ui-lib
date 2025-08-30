@@ -8,6 +8,8 @@ a revolutionary approach to state management: **the DOM _is_ the state**. No
 JavaScript state objects, no synchronization overhead, just pure DOM
 manipulation with a delightful developer experience.
 
+State manager: For cross‑component state, inject the built‑in pub/sub script into your pages. Use `injectStateManager()` (exported from `src/index.ts`) to embed the script and expose `window.funcwcState`. In development, the examples dev server auto‑injects the state manager and bridges `window.StateManager` → `window.funcwcState` for compatibility.
+
 ## Ergonomics
 
 ### ✨ Function-Style Props (Zero Duplication!)
@@ -366,13 +368,7 @@ defineComponent("tabs", {
               class={`${classes!.button} ${
                 tab === active ? classes!.buttonActive : ""
               }`}
-              hx-on:click={`const C=this.closest('.${
-                classes!.container
-              }');if(!C)return;C.querySelectorAll('.${
-                classes!.button
-              }').forEach(b=>b.classList.remove('${
-                classes!.buttonActive
-              }'));this.classList.add('${classes!.buttonActive}');`}
+              hx-on={`click: const C=this.closest('.${classes!.container}');if(!C)return;C.querySelectorAll('.${classes!.button}').forEach(b=>b.classList.remove('${classes!.buttonActive}'));this.classList.add('${classes!.buttonActive}')`}
               {...api.load(tab, {
                 target: `closest .${classes!.content}`,
                 swap: "innerHTML",
@@ -562,7 +558,6 @@ styles: {
 // CSS-only format is the default and recommended approach.
 ```
 
-<!-- Legacy props system removed to focus on the current authoring model. -->
 
 ### Unified API System
 

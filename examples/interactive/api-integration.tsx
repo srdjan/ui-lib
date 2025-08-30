@@ -89,7 +89,7 @@ defineComponent("api-counter", {
     currentValue = number(0),
     step = number(1),
     lastAction = string("none")
-  }, api: GeneratedApiMap, classes) => (
+  }, api: GeneratedApiMap, classes: any) => (
     <div class={classes!.container} data-last-action={lastAction}>
       <button
         type="button"
@@ -252,8 +252,8 @@ defineComponent("user-profile-editor", {
     bio = string(""),
     errors = string("{}"),
     success = boolean(false)
-  }, api: GeneratedApiMap, classes) => {
-    const errorObj = JSON.parse(errors);
+  }, api: GeneratedApiMap, classes: any) => {
+    const errorObj = JSON.parse(String(errors));
     
     return (
       <form 
@@ -415,7 +415,7 @@ defineComponent("search-autocomplete", {
       });
     })
   },
-  render: ({ placeholder = string("Search for anything...") }, api: GeneratedApiMap, classes) => (
+  render: ({ placeholder = string("Search for anything...") }, api: GeneratedApiMap, classes: any) => (
     <div class={classes!.container}>
       <input
         type="text"

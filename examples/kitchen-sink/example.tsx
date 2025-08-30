@@ -1,5 +1,5 @@
 /** @jsx h */
-/// <reference path="../src/lib/jsx.d.ts" />
+/// <reference path="../../src/lib/jsx.d.ts" />
 import {
   boolean,
   defineComponent,
@@ -12,8 +12,8 @@ import {
   renderComponent,
   string,
   toggleClasses,
-} from "../src/index.ts";
-import type { GeneratedApiMap } from "../src/index.ts";
+} from "../../src/index.ts";
+import type { GeneratedApiMap } from "../../src/index.ts";
 
 defineComponent("unified-card", {
   styles: {
@@ -43,8 +43,7 @@ defineComponent("unified-card", {
       title = string("Unified Styles"),
       highlighted = boolean(false),
     },
-    _api: undefined,
-    c?: Record<string, string>,
+    _api, c,
   ) => (
     <div class={`${c!.card} ${highlighted ? c!.highlight : ""}`}>
       <h3 class={c!.title}>{title}</h3>
@@ -253,9 +252,7 @@ defineComponent("todo-item", {
           class={c!.checkbox}
           checked={done}
           {...api.toggle(id, { done: !done })}
-          hx-on:change={`this.closest('[data-id]')?.classList.toggle('${
-            c!.itemDone
-          }', this.checked)`}
+          hx-on={`change: this.closest('[data-id]')?.classList.toggle('${c!.itemDone}', this.checked)`}
         />
         <span class={textClass}>{text}</span>
         <button type="button" class={c!.deleteBtn} {...api.remove(id)}>
@@ -358,13 +355,7 @@ defineComponent("tabs", {
             <button
               type="button"
               class={`${c!.button} ${tab === active ? c!.buttonActive : ""}`}
-              hx-on:click={`const C=this.closest('.${
-                c!.container
-              }');if(!C)return;C.querySelectorAll('.${
-                c!.button
-              }').forEach(b=>b.classList.remove('${
-                c!.buttonActive
-              }'));this.classList.add('${c!.buttonActive}');`}
+              hx-on={`click: const C=this.closest('.${c!.container}');if(!C)return;C.querySelectorAll('.${c!.button}').forEach(b=>b.classList.remove('${c!.buttonActive}'));this.classList.add('${c!.buttonActive}')`}
               {
                 // Loads HTML for the given tab via GET; injects into content container
                 ...(api as GeneratedApiMap).load(tab, {

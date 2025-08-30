@@ -1,12 +1,12 @@
 /** @jsx h */
-import { defineReactiveComponent, h, boolean, string, number, object } from "../../src/index.ts";
+import { defineComponent, h, boolean, string, number, object } from "../../src/index.ts";
 
 // Advanced Reactive System Components demonstrating the Hybrid Reactivity System
 
 console.log("🚀 Loading Advanced Reactive System examples..."); 
 
 // 1. CSS Property Reactivity - Theme Controller with Global State
-defineReactiveComponent("theme-controller", {
+defineComponent("advanced-theme-controller", {
   styles: {
     container: {
       padding: '1.5rem', background: 'var(--theme-bg, #ffffff)', color: 'var(--theme-text, #000000)', border: '2px solid var(--theme-border, #e2e8f0)', borderRadius: '12px', transition: 'all 0.3s ease',
@@ -34,7 +34,7 @@ defineReactiveComponent("theme-controller", {
       }
     `
   },
-  render: ({ currentTheme = string("light") }, api, classes) => (
+  render: ({ currentTheme = string("light") }: any, api: any, classes: any) => (
     h('div', { class: classes!.container },
       h('h3', {}, '🎨 Global Theme Controller'),
       h('p', {}, 'Controls theme for all reactive components using CSS custom properties.'),
@@ -55,7 +55,7 @@ defineReactiveComponent("theme-controller", {
 } as any);
 
 // 2. Reactive Cards that respond to theme changes
-defineReactiveComponent("reactive-card", {
+defineComponent("advanced-reactive-card", {
   styles: {
     card: {
       padding: '1.5rem', background: 'var(--theme-bg, #ffffff)', color: 'var(--theme-text, #000000)', border: '1px solid var(--theme-border, #e2e8f0)', borderRadius: '8px', margin: '1rem 0', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', transition: 'all 0.3s ease',
@@ -71,7 +71,7 @@ defineReactiveComponent("reactive-card", {
       }
     `
   },
-  render: ({ title = string("Reactive Card"), content = string("This card responds to theme changes automatically!") }, api, classes) => (
+  render: ({ title = string("Reactive Card"), content = string("This card responds to theme changes automatically!") }: any, api: any, classes: any) => (
     h('div', { class: classes!.card },
       h('h4', {}, title, ' ', h('span', { class: classes!.badge }, 'Reactive')),
       h('p', {}, content)
@@ -80,7 +80,7 @@ defineReactiveComponent("reactive-card", {
 } as any);
 
 // 3. Pub/Sub State Management - Counter Network
-defineReactiveComponent("pub-sub-counter", {
+defineComponent("pub-sub-counter", {
   styles: {
     container: { display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.5rem', background: 'var(--theme-bg, #ffffff)', border: '2px solid var(--theme-border, #e2e8f0)', borderRadius: '10px', margin: '1rem 0' },
     button: { padding: '0.5rem 1rem', background: 'var(--theme-primary, #3b82f6)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' },
@@ -112,7 +112,7 @@ defineReactiveComponent("pub-sub-counter", {
     counterName = string("Counter A"), 
     initialValue = number(0),
     step = number(1)
-  }, api, classes) => (
+  }: any, api: any, classes: any) => (
     h('div', { class: classes!.container },
       h('span', { class: classes!.label }, counterName + ':'),
       h('button', { 
@@ -135,7 +135,7 @@ defineReactiveComponent("pub-sub-counter", {
 } as any);
 
 // 4. DOM Event Communication - Message Board
-defineReactiveComponent("message-broadcaster", {
+defineComponent("message-broadcaster", {
   styles: {
     container: { padding: '1.5rem', background: 'var(--theme-bg, #ffffff)', border: '2px solid var(--theme-border, #e2e8f0)', borderRadius: '10px', margin: '1rem 0' },
     input: { width: '100%', padding: '0.75rem', border: '1px solid var(--theme-border, #e2e8f0)', borderRadius: '6px', marginBottom: '1rem', fontSize: '1rem' },
@@ -157,7 +157,7 @@ defineReactiveComponent("message-broadcaster", {
       }
     `
   },
-  render: ({ broadcasterId = string("Broadcaster-1") }, api, classes) => (
+  render: ({ broadcasterId = string("Broadcaster-1") }: any, api: any, classes: any) => (
     h('div', { class: classes!.container },
       h('h4', {}, `📢 Message Broadcaster (${broadcasterId})`),
       h('input', { 
@@ -186,7 +186,7 @@ defineReactiveComponent("message-broadcaster", {
 } as any);
 
 // 5. Message Receiver - Displays received messages
-defineReactiveComponent("message-receiver", {
+defineComponent("message-receiver", {
   styles: {
     container: `{
       padding: 1.5rem;
@@ -243,7 +243,7 @@ defineReactiveComponent("message-receiver", {
       }
     `
   },
-  render: ({ receiverId = string("Receiver-1") }, api, classes) => (
+  render: ({ receiverId = string("Receiver-1") }: any, api: any, classes: any) => (
     h('div', { class: classes!.container },
       h('h4', {}, `📨 Message Receiver (${receiverId})`),
       h('div', { class: classes!.messageList, id: `messages-${receiverId}` },
@@ -256,7 +256,7 @@ defineReactiveComponent("message-receiver", {
 } as any);
 
 // 6. Complex State Orchestrator - Coordinates multiple reactive systems
-defineReactiveComponent("state-orchestrator", {
+defineComponent("state-orchestrator", {
   styles: {
     container: { padding: '2rem', background: 'linear-gradient(135deg, var(--theme-bg, #ffffff) 0%, var(--theme-secondary, #f1f5f9) 100%)', border: '2px dashed var(--theme-primary, #3b82f6)', borderRadius: '15px', margin: '2rem 0', textAlign: 'center' },
     statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '1.5rem' },
@@ -300,7 +300,7 @@ defineReactiveComponent("state-orchestrator", {
     if (counterStat) counterStat.textContent = counterValue.toString();
     if (themeStat) themeStat.textContent = themeValue.charAt(0).toUpperCase() + themeValue.slice(1);
   `,
-  render: ({}, api, classes) => (
+  render: ({}, api: any, classes: any) => (
     h('div', { class: classes!.container },
       h('h3', {}, '🎛️ State Orchestrator'),
       h('p', {}, 'Monitors and coordinates all reactive systems in real-time.'),

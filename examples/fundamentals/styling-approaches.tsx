@@ -47,7 +47,7 @@ defineComponent("modern-styled-card", {
   )
 });
 
-// 2. Traditional Classes Approach (Legacy Support)
+// 2. Traditional Classes Approach
 defineComponent("traditional-styled-card", {
   classes: {
     container: "traditional-card",
@@ -200,8 +200,8 @@ defineComponent("layout-demo-card", {
     contentSection: { padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' },
     header: { marginBottom: '1rem' },
     title: { fontSize: '1.8rem', fontWeight: '700', color: '#2c3e50', margin: '0 0 0.5rem 0', lineHeight: '1.2' },
-    subtitle: { color: '#7f8c8d', fontSize: '1rem', margin: 0 },
-    features: { listStyle: 'none', padding: 0, margin: '1.5rem 0' },
+    subtitle: { color: '#7f8c8d', fontSize: '1rem', margin: '0' },
+    features: { listStyle: 'none', padding: '0', margin: '1.5rem 0' },
     feature: { display: 'flex', alignItems: 'center', marginBottom: '0.75rem', color: '#34495e' },
     icon: { width: '20px', height: '20px', background: '#27ae60', borderRadius: '50%', marginRight: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.8rem', fontWeight: 'bold' },
     footer: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1rem', borderTop: '1px solid #ecf0f1' },

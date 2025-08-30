@@ -1,5 +1,5 @@
 /** @jsx h */
-import { defineComponent, defineReactiveComponent, h, string, number, boolean, array, object } from "../../src/index.ts";
+import { defineComponent, h, string, number, boolean, array, object } from "../../src/index.ts";
 import { post, patch, del, get } from "../../src/index.ts";
 import { renderComponent } from "../../src/index.ts";
 
@@ -46,7 +46,7 @@ const dashboardData = {
 };
 
 // 1. Dashboard Container - Main dashboard layout
-defineReactiveComponent("dashboard-app", {
+defineComponent("dashboard-app", {
   styles: {
     container: { maxWidth: '1400px', margin: '0 auto', padding: '2rem', background: 'var(--theme-bg, #ffffff)' },
     header: {
@@ -84,11 +84,23 @@ defineReactiveComponent("dashboard-app", {
       }
     };
     
-    // Initialize dashboard data
-    window.StateManager?.publish('dashboard-metrics', dashboardData.metrics);
-    window.StateManager?.publish('dashboard-activity', dashboardData.recentActivity);
-    window.StateManager?.publish('dashboard-projects', dashboardData.projects);
-    window.StateManager?.publish('dashboard-charts', dashboardData.chartData);
+    // Initialize dashboard data (client-side version)
+    const sampleMetrics = {
+      totalUsers: 12567,
+      revenue: 45320.50,
+      conversionRate: 3.2,
+      activeProjects: 23
+    };
+    
+    const sampleActivity = [
+      { id: 1, type: 'user_signup', message: 'New user registered: john@example.com', timestamp: new Date(Date.now() - 5000).toISOString() },
+      { id: 2, type: 'payment', message: 'Payment received: $299.00', timestamp: new Date(Date.now() - 15000).toISOString() },
+      { id: 3, type: 'project', message: 'Project "Website Redesign" completed', timestamp: new Date(Date.now() - 45000).toISOString() },
+      { id: 4, type: 'error', message: 'Server alert: High CPU usage detected', timestamp: new Date(Date.now() - 120000).toISOString() }
+    ];
+    
+    window.StateManager?.publish('dashboard-metrics', sampleMetrics);
+    window.StateManager?.publish('dashboard-activity', sampleActivity);
     
     // Update time every second
     this.timeInterval = setInterval(() => {
@@ -98,7 +110,7 @@ defineReactiveComponent("dashboard-app", {
     // Initial time update
     this.updateDateTime();
   `,
-  render: ({}, api, classes) => (
+  render: ({}, api: any, classes: any) => (
     h('div', { class: classes!.container },
       h('div', { class: classes!.header },
         h('div', {},
@@ -109,13 +121,13 @@ defineReactiveComponent("dashboard-app", {
       ),
       h('div', { class: `${classes!.grid} ${classes!.mobileStack}` },
         h('div', { class: classes!.leftColumn },
-          h('metrics-overview'),
-          h('sales-chart'),
-          h('projects-overview')
+          h('metrics-overview', {}),
+          h('sales-chart', {}),
+          h('projects-overview', {})
         ),
         h('div', { class: classes!.rightColumn },
-          h('activity-feed'),
-          h('quick-stats')
+          h('activity-feed', {}),
+          h('quick-stats', {})
         )
       )
     )
@@ -123,7 +135,7 @@ defineReactiveComponent("dashboard-app", {
 } as any);
 
 // 2. Metrics Overview - Key performance indicators
-defineReactiveComponent("metrics-overview", {
+defineComponent("metrics-overview", {
   styles: {
     container: { background: 'var(--theme-bg, #ffffff)', border: '1px solid var(--theme-border, #e2e8f0)', borderRadius: '12px', padding: '2rem', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' },
     title: { fontSize: '1.5rem', fontWeight: '600', color: 'var(--theme-text, #1e293b)', margin: '0 0 1.5rem 0' },
@@ -154,7 +166,7 @@ defineReactiveComponent("metrics-overview", {
       if (projectsEl) projectsEl.textContent = metrics.activeProjects?.toString() || '0';
     `
   },
-  render: ({}, api, classes) => (
+  render: ({}, api: any, classes: any) => (
     h('div', { class: classes!.container },
       h('h2', { class: classes!.title }, '📈 Key Metrics'),
       h('div', { class: classes!.grid },
@@ -188,7 +200,7 @@ defineReactiveComponent("metrics-overview", {
 } as any);
 
 // 3. Sales Chart - Visual data representation (simplified)
-defineReactiveComponent("sales-chart", {
+defineComponent("sales-chart", {
   styles: {
     container: { background: 'var(--theme-bg, #ffffff)', border: '1px solid var(--theme-border, #e2e8f0)', borderRadius: '12px', padding: '2rem', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' },
     title: { fontSize: '1.5rem', fontWeight: '600', color: 'var(--theme-text, #1e293b)', margin: '0 0 1.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' },
@@ -220,7 +232,7 @@ defineReactiveComponent("sales-chart", {
       }).join('');
     `
   },
-  render: ({}, api, classes) => (
+  render: ({}, api: any, classes: any) => (
     h('div', { class: classes!.container },
       h('h2', { class: classes!.title }, '📊 Sales Overview'),
       h('div', { class: classes!.chart, id: 'sales-chart-container' },
@@ -231,7 +243,7 @@ defineReactiveComponent("sales-chart", {
 } as any);
 
 // 4. Activity Feed - Recent system activity
-defineReactiveComponent("activity-feed", {
+defineComponent("activity-feed", {
   styles: {
     container: `{
       background: var(--theme-bg, #ffffff);
@@ -344,7 +356,7 @@ defineReactiveComponent("activity-feed", {
       return icons[type] || { icon: '📝', iconClass: 'icon-info' };
     };
   `,
-  render: ({}, api, classes) => (
+  render: ({}, api: any, classes: any) => (
     h('div', { class: classes!.container },
       h('h2', { class: classes!.title }, '📋 Recent Activity'),
       h('div', { id: 'activity-feed-content' },
@@ -355,7 +367,7 @@ defineReactiveComponent("activity-feed", {
 } as any);
 
 // 5. Projects Overview - Project status and management
-defineReactiveComponent("projects-overview", {
+defineComponent("projects-overview", {
   styles: {
     container: `{
       background: var(--theme-bg, #ffffff);
@@ -466,7 +478,7 @@ defineReactiveComponent("projects-overview", {
       }).join('');
     `
   },
-  render: ({}, api, classes) => (
+  render: ({}, api: any, classes: any) => (
     h('div', { class: classes!.container },
       h('h2', { class: classes!.title }, '📋 Projects Overview'),
       h('div', { id: 'projects-list' },
@@ -477,7 +489,7 @@ defineReactiveComponent("projects-overview", {
 } as any);
 
 // 6. Quick Stats - Additional metrics widget
-defineReactiveComponent("quick-stats", {
+defineComponent("quick-stats", {
   styles: {
     container: { background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderRadius: '12px', padding: '2rem', color: 'white', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' },
     title: { fontSize: '1.5rem', fontWeight: '600', margin: '0 0 1.5rem 0' },
@@ -485,7 +497,7 @@ defineReactiveComponent("quick-stats", {
     statLabel: { opacity: '0.9' },
     statValue: { fontWeight: 'bold', fontSize: '1.1rem' }
   },
-  render: ({}, api, classes) => (
+  render: ({}, api: any, classes: any) => (
     h('div', { class: classes!.container },
       h('h2', { class: classes!.title }, '⚡ Quick Stats'),
       h('div', { class: classes!.stat },

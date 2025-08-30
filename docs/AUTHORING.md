@@ -14,7 +14,7 @@ funcwc focuses on a clean authoring model that eliminates duplication:
 
 ### Unified Component API
 
-- Use `defineComponent()` for all components; there is no builder/pipeline API.
+- Use `defineComponent()` for all components.
 - Prefer function‑style props declared directly in the `render` parameter using
   `string()`, `number()`, `boolean()`, etc. This keeps props, defaults and
   types in one place and lets the library auto‑generate the parser.
@@ -194,7 +194,7 @@ defineComponent("beautiful-button", {
 | --- | --- | --- | --- |
 | Object (preferred) | `styles: { button: { padding: '0.5rem', borderRadius: '6px' } }` | Key → kebab: `button` → `.button` | Most cases; typeable, lintable, easy to refactor |
 | Brace string | ``styles: { button: `{ padding: 0.5rem; border-radius: 6px; }` }`` | Key → kebab: `button` → `.button` | Quick copy/paste of CSS declarations |
-| Legacy selector string | ``styles: { custom: `.card > .title { font-weight: 700; }` }`` | First selector’s class | Complex selectors, combinators, pseudo-classes |
+| Selector string | ``styles: { custom: `.card > .title { font-weight: 700; }` }`` | First selector’s class | Complex selectors, combinators, pseudo-classes |
 
 - Deduplication: Component CSS is injected once per component type per response.
 - Overrides: If you pass `classes`, it merges last and can replace generated class names.
@@ -269,7 +269,53 @@ defineComponent("modern-card", {
 });
 ```
 
-<!-- Legacy props/classes approach removed to keep docs focused on the current model. -->
+### ⚛️ Reactive Options (Optional, Additive)
+
+Use reactive wiring directly on `defineComponent` via `stateSubscriptions`, `eventListeners`, `onMount`, and `onUnmount`. Nothing is injected unless you include these options.
+
+```tsx
+import { defineComponent, h, string } from "../src/index.ts";
+
+// Badge that reflects cart state published via window.funcwcState
+defineComponent("cart-badge", {
+  styles: {
+    badge: `{ display: inline-flex; gap: .5rem; padding: .5rem .75rem; border-radius: 9999px; background: #0ea5e9; color: white; font-weight: 600; }`,
+    count: `{ background: white; color: #0ea5e9; border-radius: 9999px; min-width: 1.25rem; text-align: center; padding: 0 .4rem; }`,
+  },
+  stateSubscriptions: {
+    cart: `
+      const countEl = this.querySelector('.count');
+      const totalEl = this.querySelector('.total');
+      if (!countEl || !totalEl) return;
+      const n = (value && value.count) || 0;
+      const t = (value && value.total) || 0;
+      countEl.textContent = String(n);
+      totalEl.textContent = '$' + Number(t).toFixed(2);
+    `,
+  },
+  onMount: `
+    // Initialize from current state when mounted
+    const s = window.funcwcState?.getState('cart') || { count: 0, total: 0 };
+    const countEl = this.querySelector('.count');
+    const totalEl = this.querySelector('.total');
+    if (countEl) countEl.textContent = String(s.count);
+    if (totalEl) totalEl.textContent = '$' + Number(s.total).toFixed(2);
+  `,
+  render: ({ label = string('Cart') }) => (
+    <div class="badge">
+      <span>{label}</span>
+      <span class="count">0</span>
+      <span class="total">$0.00</span>
+    </div>
+  ),
+});
+```
+
+Notes:
+- `stateSubscriptions` adds an `htmx:load` handler via the aggregated `hx-on` attribute only when present (wires subscriptions on load).
+- `onMount` runs once on load; `onUnmount` supports a simple MutationObserver cleanup.
+- Use `eventListeners` to attach aggregated `hx-on` handlers for custom events like `funcwc:<name>`.
+
 
 ## Smart Type Helpers
 
@@ -326,6 +372,33 @@ import { toggleClass, toggleClasses } from "../src/index.ts";
 `}>
   Increment
 </button>
+```
+
+### hx-on aggregator (multiple events)
+
+When you need to attach multiple event handlers to the root, prefer the aggregated form to avoid JSX parsing issues with colons in attribute names. Use the `hxOn()` helper to compose a single `hx-on` string.
+
+```tsx
+import { defineComponent, h, hxOn, listensFor } from "../src/index.ts";
+
+defineComponent("loader-box", {
+  styles: { box: `{ padding: 1rem; border: 1px solid #ddd; border-radius: 8px; }` },
+  // Listen for a custom event (funcwc:refresh) and initialize on htmx:load
+  render: () => (
+    <div
+      class="box"
+      hx-on={hxOn({
+        'htmx:load': `this.textContent = 'Ready @ ' + new Date().toLocaleTimeString();`,
+        'funcwc:refresh': `this.textContent = 'Refreshed @ ' + new Date().toLocaleTimeString();`,
+      })}
+    >
+      Loading...
+    </div>
+  ),
+});
+
+// Elsewhere, you can generate a listener attribute for custom events:
+// listensFor('refresh', 'console.log("refresh received")')
 ```
 
 ### Example-only Helpers
@@ -587,6 +660,53 @@ defineComponent("accordion", {
 - Programmatic SSR is available via `renderComponent(name, props)` from
   `src/index.ts`
 - Server runs from `examples/` folder: `deno task serve` → http://localhost:8080
+
+### Reactive State Manager
+
+To enable cross‑component pub/sub state, inject the built‑in state manager. It exposes a single global: `window.funcwcState` with `publish`, `subscribe`, and `getState`.
+
+Recommended: inject via server before `</head>` using the helper:
+
+```ts
+// server.ts (pseudo‑code)
+import { injectStateManager } from "../src/index.ts";
+
+let html = await Deno.readTextFile("./index.html");
+html = html.replace("</head>", `${injectStateManager(false, { debugMode: true })}\n</head>`);
+```
+
+Minimal production variant:
+
+```ts
+injectStateManager(true); // smaller script, no debug utilities
+```
+
+API surface (global `window.funcwcState`):
+
+- `publish(topic, data)`: Broadcast state to a topic.
+- `subscribe(topic, (data) => void, element)`: Receive updates; auto‑cleans when `element` is removed.
+- `getState(topic)`: Read current state for a topic.
+- `getTopics()`, `getSubscriberCount(topic)`, `debug()`: Debug/inspection helpers.
+
+Adapter (optional): For code expecting `window.StateManager`, alias it to `funcwcState`:
+
+```html
+<script>
+  (function(){
+    function ready(fn){ if (document.readyState !== 'loading') return fn(); document.addEventListener('DOMContentLoaded', fn); }
+    ready(function(){
+      if (!window.funcwcState) return;
+      const api = window.funcwcState;
+      window.StateManager = {
+        publish: api.publish.bind(api),
+        subscribe: api.subscribe.bind(api),
+        getState: api.getState.bind(api),
+        getTopics: api.getTopics.bind(api)
+      };
+    });
+  })();
+  </script>
+```
 
 ## Best Practices & Conventions
 
