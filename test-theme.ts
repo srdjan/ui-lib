@@ -1,7 +1,7 @@
 #!/usr/bin/env deno run --allow-read --allow-net
-import { parseRenderParameters } from './src/lib/render-parameter-parser.ts';
-import { string } from './src/lib/prop-helpers.ts';
-import { h } from './src/lib/jsx-runtime.ts';
+import { parseRenderParameters } from './lib/render-parameter-parser.ts';
+import { string } from './lib/prop-helpers.ts';
+import { h } from './lib/jsx-runtime.ts';
 
 // Test the theme-controller render function
 const testRenderFunction = ({ currentTheme = string("light") }, api, classes) => (

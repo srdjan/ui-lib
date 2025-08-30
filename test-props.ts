@@ -1,5 +1,5 @@
 #!/usr/bin/env deno run --allow-read --allow-net
-import { number, string } from './src/lib/prop-helpers.ts';
+import { number, string } from './lib/prop-helpers.ts';
 
 // Test prop helper kebab-case conversion
 const numberHelper = number(0);

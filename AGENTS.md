@@ -1,43 +1,38 @@
 # Repository Guidelines
 
-This guide helps contributors navigate the codebase, run it locally, and submit high‑quality changes. Keep changes focused and align with the patterns below.
+This guide explains how to work on funcwc, run checks locally, and submit high‑quality changes. Keep PRs focused and align with the patterns below.
 
 ## Project Structure & Module Organization
-- `src/`: Core library exports (`index.ts`) and implementation under `src/lib/*`.
-- `src/lib/*.ts`: Modules; colocated tests as `*.test.ts`.
-- `examples/`: Runnable TSX demos (`*.tsx`), `index.html`, `main.ts`.
-- `docs/`: Authoring and API docs (`AUTHORING.md`, `UNIFIED-API.md`).
-- `server.ts`: Dev SSR server used by examples.
-- `deno.json` / `tsconfig.json`: Tasks, JSX runtime, strict TS config.
+- `index.ts`: Public API entry point.
+- `lib/`: Core implementation modules; tests colocated as `*.test.ts`.
+- `docs/`: Authoring and API docs (see `docs/AUTHORING.md`, `docs/UNIFIED-API.md`).
+- `deno.json` / `tsconfig.json`: Tasks, JSX runtime, and strict TS config.
 
 ## Build, Test, and Development Commands
-- `deno task start`: Type‑checks then runs the dev server → `http://localhost:8080`.
-- `deno task serve`: Start server only (requires `--allow-net --allow-read --allow-env`).
-- `deno task check`: Type‑check `examples/*.tsx` and `src/**/*.ts`.
+- `deno task check`: Type‑checks `index.ts` and `lib/**/*.ts`.
 - `deno task test`: Run all tests.
 - `deno task coverage`: Write `coverage/` and `coverage.lcov` (LCOV format).
 - `deno task fmt` / `deno task fmt:check`: Format / verify formatting.
 - `deno task lint`: Lint with Deno’s linter.
-- `deno task docs`: Generate API docs for `src/index.ts`.
+- `deno task docs`: Generate API docs for `index.ts`.
 
 ## Coding Style & Naming Conventions
-- **Language**: TypeScript in strict mode. Prefer pure, side‑effect‑free helpers.
+- **Language**: TypeScript in strict mode; prefer pure, side‑effect‑free helpers.
 - **Indent/format**: 2‑space indent; rely on `deno fmt` and `deno lint`.
 - **Components**: kebab‑case names (e.g., `defineComponent("theme-toggle", …)`).
-- **Files**: library `.ts`, demos `.tsx`, tests `*.test.ts` next to sources.
-- **Philosophy**: The DOM is the state; prefer class/data attributes over JS state.
+- **Files**: library `.ts`; tests `*.test.ts` live next to sources.
+- **Philosophy**: The DOM is the state; use class/data attributes over JS state.
 
 ## Testing Guidelines
 - **Framework**: Deno built‑in `deno test`.
-- **Location**: `src/lib/**.test.ts` colocated with modules.
-- **Single file**: `deno test src/lib/ssr.test.ts`.
-- **Coverage**: `deno task coverage` produces `coverage/` and `coverage.lcov` for CI.
+- **Location**: Colocated tests in `lib/**.test.ts`.
+- **Single file**: `deno test lib/ssr.test.ts`.
+- **Coverage**: Run `deno task coverage` to populate `coverage/` and `coverage.lcov` for CI.
 
 ## Commit & Pull Request Guidelines
-- **Commits**: Short, imperative subjects (e.g., "linter fixes", `router: improve matching`); version tags like `v0.4.0` when applicable.
-- **PRs**: Describe changes, link issues, include tests/docs updates, and pass: `deno task check fmt:check lint test`.
+- **Commits**: Short, imperative subjects (e.g., "linter fixes", `router: improve matching`); tag releases like `v0.4.0` when applicable.
+- **PRs**: Include a clear description, link issues, and update tests/docs as needed. Must pass: `deno task check fmt:check lint test`.
 
 ## Security & Configuration Tips
-- Server reads `PORT` (default `8080`) and requires `--allow-net --allow-read --allow-env`.
-- Avoid adding client runtime dependencies; keep examples self‑contained under `examples/`.
-
+- Library has no runtime network/env requirements. Avoid adding runtime deps.
+- If code requires Deno permissions for tooling, keep them scoped and documented in `deno.json`.

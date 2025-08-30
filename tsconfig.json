@@ -17,5 +17,5 @@
     "jsxFactory": "h",
     "jsxFragmentFactory": "Fragment"
   },
-  "include": ["src", "examples"]
+  "include": ["lib", "examples"]
 }
