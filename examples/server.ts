@@ -45,6 +45,21 @@ async function handler(request: Request): Promise<Response> {
       }
     }
 
+    // Demo content endpoints for HTMX partial updates
+    if (pathname.startsWith("/demo/")) {
+      const demoType = pathname.split("/")[2]; // Extract demo type (welcome, basic, reactive)
+      if (["welcome", "basic", "reactive"].includes(demoType)) {
+        // Use renderComponent with demo props for partial content
+        const content = renderComponent("app-layout", { currentDemo: demoType });
+        // Extract just the main content area from the full component
+        const mainContentMatch = content.match(/<main[^>]*id="content-area"[^>]*>([\s\S]*?)<\/main>/);
+        const mainContent = mainContentMatch ? mainContentMatch[1] : content;
+        return new Response(mainContent, {
+          headers: { "Content-Type": "text/html; charset=utf-8" },
+        });
+      }
+    }
+
     // API endpoints (placeholder for future steps)
     if (pathname.startsWith("/api/")) {
       return new Response(

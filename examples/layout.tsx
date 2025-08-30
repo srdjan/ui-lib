@@ -1,5 +1,5 @@
 /** @jsx h */
-import { defineComponent, h, string, boolean, object } from "../index.ts";
+import { defineComponent, h, string, boolean, object, get } from "../index.ts";
 
 /**
  * 🎯 funcwc Layout Component - Showcasing Library Patterns
@@ -19,10 +19,42 @@ import { defineComponent, h, string, boolean, object } from "../index.ts";
  *    - h() function converts JSX to HTML strings
  *    - Zero client-side JavaScript dependencies
  * 
+ * 🔗 Unified API System: Server routes auto-generate HTMX client attributes
+ *    - get("/", handler) → {...api.welcome()} with auto-generated HTMX
+ *    - No manual HTMX attribute writing required
+ * 
  * ⚡ CSS Property Reactivity: Theme switching via CSS custom properties
  *    - --theme-bg, --theme-text variables for instant visual updates
  */
 defineComponent("app-layout", {
+  // 🔗 Unified API System - Server routes auto-generate HTMX attributes!
+  api: {
+    welcome: get("/demo/welcome", (req) => {
+      // Return partial HTML for HTMX to swap into the main content area
+      const classes = {}; // In a real app, classes would be provided by the system
+      const content = renderCurrentDemo("welcome", classes);
+      return new Response(content, {
+        headers: { "Content-Type": "text/html" }
+      });
+    }),
+    basic: get("/demo/basic", (req) => {
+      // Return partial HTML for HTMX to swap into the main content area
+      const classes = {}; // In a real app, classes would be provided by the system
+      const content = renderCurrentDemo("basic", classes);
+      return new Response(content, {
+        headers: { "Content-Type": "text/html" }
+      });
+    }),
+    reactive: get("/demo/reactive", (req) => {
+      // Return partial HTML for HTMX to swap into the main content area
+      const classes = {}; // In a real app, classes would be provided by the system
+      const content = renderCurrentDemo("reactive", classes);
+      return new Response(content, {
+        headers: { "Content-Type": "text/html" }
+      });
+    }),
+  },
+
   // ✨ CSS-Only Format - Auto-generated class names!
   styles: {
     container: `{ 
@@ -56,12 +88,12 @@ defineComponent("app-layout", {
   render: ({ 
     currentDemo = string("welcome"),           // Auto-inferred string prop with default
     showBeta = boolean(false),                // Boolean prop for beta features
-    branding = object({ 
+    _branding = object({ 
       title: "funcwc", 
       tagline: "SSR-First Component Library" 
     })                                        // Object prop with structured default
-  }, _api, classes) => {
-    const demo = typeof currentDemo === 'string' ? currentDemo : 'welcome';
+  }, api: any, classes: any) => {
+    const demo: string = typeof currentDemo === 'string' ? currentDemo : 'welcome';
     // For demo purposes, use default branding - the prop system works for simple cases
     const brand = { title: "funcwc", tagline: "SSR-First Component Library" };
     const isBeta = typeof showBeta === 'boolean' ? showBeta : false;
@@ -78,10 +110,7 @@ defineComponent("app-layout", {
             <li>
               <a 
                 class={`${classes!.navItem} ${demo === "welcome" ? classes!.navItemActive : ""}`}
-                hx-get="/?demo=welcome"
-                hx-target="main#content-area"
-                hx-select="main#content-area"
-                href="/?demo=welcome"
+                {...api.welcome(undefined, { target: "#content-area", swap: "innerHTML" })}
               >
                 Home
               </a>
@@ -89,10 +118,7 @@ defineComponent("app-layout", {
             <li>
               <a 
                 class={`${classes!.navItem} ${demo === "basic" ? classes!.navItemActive : ""}`}
-                hx-get="/?demo=basic"
-                hx-target="main#content-area"
-                hx-select="main#content-area"
-                href="/?demo=basic"
+                {...api.basic(undefined, { target: "#content-area", swap: "innerHTML" })}
               >
                 Basic Components
               </a>
@@ -100,10 +126,7 @@ defineComponent("app-layout", {
             <li>
               <a 
                 class={`${classes!.navItem} ${demo === "reactive" ? classes!.navItemActive : ""}`}
-                hx-get="/?demo=reactive"
-                hx-target="main#content-area"
-                hx-select="main#content-area"
-                href="/?demo=reactive"
+                {...api.reactive(undefined, { target: "#content-area", swap: "innerHTML" })}
               >
                 Reactivity
               </a>
@@ -130,95 +153,101 @@ defineComponent("app-layout", {
 
 
 // Render different demo content based on current demo
-function renderCurrentDemo(demo: string, classes: Record<string, string> | undefined, _props: Record<string, unknown> = {}): string {
+export function renderCurrentDemo(demo: string, classes: Record<string, string> | undefined, _props: Record<string, unknown> = {}): string {
   const c = classes || {};
   
   switch (demo) {
     case "basic":
-      return h('div', { class: c.welcome },
-        h('h2', { class: c.title }, '🧩 Basic Components Demo'),
-        h('p', { class: c.subtitle }, 'Explore function-style props, CSS-only format, and auto-generated class names'),
-        h('div', { class: c.features },
-          h('div', { class: c.feature },
-            h('div', { class: c.featureIcon }, '✨'),
-            h('h3', { class: c.featureTitle }, 'Function-Style Props'),
-            h('p', { class: c.featureDesc }, 'Define props directly in render parameters with zero duplication. Types are automatically inferred.')
-          ),
-          h('div', { class: c.feature },
-            h('div', { class: c.featureIcon }, '🎨'),
-            h('h3', { class: c.featureTitle }, 'CSS-Only Format'),
-            h('p', { class: c.featureDesc }, 'Write CSS properties, get auto-generated class names. No CSS-in-JS overhead.')
-          ),
-          h('div', { class: c.feature },
-            h('div', { class: c.featureIcon }, '🔧'),
-            h('h3', { class: c.featureTitle }, 'Smart Type Helpers'),
-            h('p', { class: c.featureDesc }, 'string(), number(), boolean(), array(), object() helpers with defaults and validation.')
-          )
-        )
+      return (
+        <div class={c.welcome}>
+          <h2 class={c.title}>🧩 Basic Components Demo</h2>
+          <p class={c.subtitle}>Explore function-style props, CSS-only format, and auto-generated class names</p>
+          <div class={c.features}>
+            <div class={c.feature}>
+              <div class={c.featureIcon}>✨</div>
+              <h3 class={c.featureTitle}>Function-Style Props</h3>
+              <p class={c.featureDesc}>Define props directly in render parameters with zero duplication. Types are automatically inferred.</p>
+            </div>
+            <div class={c.feature}>
+              <div class={c.featureIcon}>🎨</div>
+              <h3 class={c.featureTitle}>CSS-Only Format</h3>
+              <p class={c.featureDesc}>Write CSS properties, get auto-generated class names. No CSS-in-JS overhead.</p>
+            </div>
+            <div class={c.feature}>
+              <div class={c.featureIcon}>🔧</div>
+              <h3 class={c.featureTitle}>Smart Type Helpers</h3>
+              <p class={c.featureDesc}>string(), number(), boolean(), array(), object() helpers with defaults and validation.</p>
+            </div>
+          </div>
+        </div>
       );
     
     case "reactive":
-      return h('div', { class: c.welcome },
-        h('h2', { class: c.title }, '⚡ Hybrid Reactivity Demo'),
-        h('p', { class: c.subtitle }, 'Three-tier reactivity system: CSS properties, pub/sub state, and DOM events'),
-        h('div', { class: c.features },
-          h('div', { class: c.feature },
-            h('div', { class: c.featureIcon }, '🎨'),
-            h('h3', { class: c.featureTitle }, 'Tier 1: CSS Properties'),
-            h('p', { class: c.featureDesc }, 'Theme switching and visual coordination using CSS custom properties for instant updates.')
-          ),
-          h('div', { class: c.feature },
-            h('div', { class: c.featureIcon }, '📡'),
-            h('h3', { class: c.featureTitle }, 'Tier 2: Pub/Sub State'),
-            h('p', { class: c.featureDesc }, 'Cross-component state management with topic-based subscriptions and automatic cleanup.')
-          ),
-          h('div', { class: c.feature },
-            h('div', { class: c.featureIcon }, '🔄'),
-            h('h3', { class: c.featureTitle }, 'Tier 3: DOM Events'),
-            h('p', { class: c.featureDesc }, 'Component-to-component communication via custom DOM events with structured payloads.')
-          )
-        )
+      return (
+        <div class={c.welcome}>
+          <h2 class={c.title}>⚡ Hybrid Reactivity Demo</h2>
+          <p class={c.subtitle}>Three-tier reactivity system: CSS properties, pub/sub state, and DOM events</p>
+          <div class={c.features}>
+            <div class={c.feature}>
+              <div class={c.featureIcon}>🎨</div>
+              <h3 class={c.featureTitle}>Tier 1: CSS Properties</h3>
+              <p class={c.featureDesc}>Theme switching and visual coordination using CSS custom properties for instant updates.</p>
+            </div>
+            <div class={c.feature}>
+              <div class={c.featureIcon}>📡</div>
+              <h3 class={c.featureTitle}>Tier 2: Pub/Sub State</h3>
+              <p class={c.featureDesc}>Cross-component state management with topic-based subscriptions and automatic cleanup.</p>
+            </div>
+            <div class={c.feature}>
+              <div class={c.featureIcon}>🔄</div>
+              <h3 class={c.featureTitle}>Tier 3: DOM Events</h3>
+              <p class={c.featureDesc}>Component-to-component communication via custom DOM events with structured payloads.</p>
+            </div>
+          </div>
+        </div>
       );
     
     default: { // welcome
       const brand = { title: "funcwc", tagline: "SSR-First Component Library" };
-      return h('div', { class: c.welcome },
-        h('h1', { class: c.title }, `Welcome to ${brand.title}`),
-        h('p', { class: c.subtitle }, 
-          'The revolutionary SSR-first component library with zero client dependencies, function-style props, and a three-tier hybrid reactivity system.'
-        ),
-        h('div', { class: c.features },
-          h('div', { class: c.feature },
-            h('div', { class: c.featureIcon }, '🚀'),
-            h('h3', { class: c.featureTitle }, 'SSR-First'),
-            h('p', { class: c.featureDesc }, 'Components render to HTML strings on the server with zero client-side JavaScript required.')
-          ),
-          h('div', { class: c.feature },
-            h('div', { class: c.featureIcon }, '✨'),
-            h('h3', { class: c.featureTitle }, 'Function-Style Props'),
-            h('p', { class: c.featureDesc }, 'Zero duplication between prop definitions and render parameters. Auto-generated type inference.')
-          ),
-          h('div', { class: c.feature },
-            h('div', { class: c.featureIcon }, '🎨'),
-            h('h3', { class: c.featureTitle }, 'CSS-Only Format'),
-            h('p', { class: c.featureDesc }, 'Auto-generated class names from CSS properties. No CSS-in-JS overhead.')
-          ),
-          h('div', { class: c.feature },
-            h('div', { class: c.featureIcon }, '⚡'),
-            h('h3', { class: c.featureTitle }, 'Hybrid Reactivity'),
-            h('p', { class: c.featureDesc }, 'Three-tier system: CSS properties, pub/sub state, and DOM events for optimal performance.')
-          ),
-          h('div', { class: c.feature },
-            h('div', { class: c.featureIcon }, '🔗'),
-            h('h3', { class: c.featureTitle }, 'Unified API'),
-            h('p', { class: c.featureDesc }, 'Server route definitions automatically generate HTMX client attributes.')
-          ),
-          h('div', { class: c.feature },
-            h('div', { class: c.featureIcon }, '🛡️'),
-            h('h3', { class: c.featureTitle }, 'Type Safe'),
-            h('p', { class: c.featureDesc }, 'Full TypeScript inference throughout the system with zero runtime type checks.')
-          )
-        )
+      return (
+        <div class={c.welcome}>
+          <h1 class={c.title}>Welcome to {brand.title}</h1>
+          <p class={c.subtitle}>
+            The revolutionary SSR-first component library with zero client dependencies, function-style props, and a three-tier hybrid reactivity system.
+          </p>
+          <div class={c.features}>
+            <div class={c.feature}>
+              <div class={c.featureIcon}>🚀</div>
+              <h3 class={c.featureTitle}>SSR-First</h3>
+              <p class={c.featureDesc}>Components render to HTML strings on the server with zero client-side JavaScript required.</p>
+            </div>
+            <div class={c.feature}>
+              <div class={c.featureIcon}>✨</div>
+              <h3 class={c.featureTitle}>Function-Style Props</h3>
+              <p class={c.featureDesc}>Zero duplication between prop definitions and render parameters. Auto-generated type inference.</p>
+            </div>
+            <div class={c.feature}>
+              <div class={c.featureIcon}>🎨</div>
+              <h3 class={c.featureTitle}>CSS-Only Format</h3>
+              <p class={c.featureDesc}>Auto-generated class names from CSS properties. No CSS-in-JS overhead.</p>
+            </div>
+            <div class={c.feature}>
+              <div class={c.featureIcon}>⚡</div>
+              <h3 class={c.featureTitle}>Hybrid Reactivity</h3>
+              <p class={c.featureDesc}>Three-tier system: CSS properties, pub/sub state, and DOM events for optimal performance.</p>
+            </div>
+            <div class={c.feature}>
+              <div class={c.featureIcon}>🔗</div>
+              <h3 class={c.featureTitle}>Unified API</h3>
+              <p class={c.featureDesc}>Server route definitions automatically generate HTMX client attributes.</p>
+            </div>
+            <div class={c.feature}>
+              <div class={c.featureIcon}>🛡️</div>
+              <h3 class={c.featureTitle}>Type Safe</h3>
+              <p class={c.featureDesc}>Full TypeScript inference throughout the system with zero runtime type checks.</p>
+            </div>
+          </div>
+        </div>
       );
     }
   }
