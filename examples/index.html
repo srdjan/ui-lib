@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>funcwc - SSR-First Component Library Demo</title>
+  
+  <!-- Base CSS library -->
+  <link href="https://cdn.jsdelivr.net/npm/ui@1.0.0/dist/ui.min.css" rel="stylesheet">
+  
+  <!-- HTMX for reactivity -->
+  <script src="https://unpkg.com/htmx.org@2.0.6"></script>
+  <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+  
+  <!-- CSS theme variables for reactivity -->
+  <style>
+    :root {
+      --theme-mode: light;
+      --theme-bg: white;
+      --theme-text: #333;
+      --theme-accent: #007bff;
+    }
+    
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--theme-bg);
+      color: var(--theme-text);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+  </style>
+</head>
+<body hx-ext="json-enc" hx-encoding="json">
+  <!-- Single component - the entire app -->
+  <app-layout></app-layout>
+
+  <!-- State manager script for pub/sub reactivity -->
+  <script>
+    // Minimal state manager for funcwc reactive features
+    window.funcwcState = new Map();
+    window.funcwcSubscribers = new Map();
+    
+    window.funcwc = {
+      publishState: (topic, data) => {
+        window.funcwcState.set(topic, data);
+        const subscribers = window.funcwcSubscribers.get(topic) || [];
+        subscribers.forEach(callback => {
+          try {
+            callback(data);
+          } catch (e) {
+            console.warn('funcwc state callback error:', e);
+          }
+        });
+      },
+      
+      subscribeToState: (topic, callback) => {
+        if (!window.funcwcSubscribers.has(topic)) {
+          window.funcwcSubscribers.set(topic, []);
+        }
+        window.funcwcSubscribers.get(topic).push(callback);
+        
+        // Send current state if available
+        if (window.funcwcState.has(topic)) {
+          callback(window.funcwcState.get(topic));
+        }
+      },
+      
+      getState: (topic) => {
+        return window.funcwcState.get(topic);
+      }
+    };
+  </script>
+</body>
+</html>
