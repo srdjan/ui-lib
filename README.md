@@ -12,6 +12,12 @@ a revolutionary approach to state management: **the DOM _is_ the state**. No
 JavaScript state objects, no synchronization overhead, just pure DOM
 manipulation with the most ergonomic developer experience ever created.
 
+## 📚 Documentation
+
+- Developer Guide (idiomatic usage): docs/dev-guide.md
+- Authoring Components: docs/AUTHORING.md
+- Unified API (HTMX integration): docs/UNIFIED-API.md
+
 ## 🌟 What Makes funcwc Special?
 
 - **🎯 DOM-Native Philosophy**: Your component state lives where it belongs - in
