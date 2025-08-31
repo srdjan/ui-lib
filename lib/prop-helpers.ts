@@ -13,7 +13,7 @@ export interface PropHelper<T = unknown> {
  * Convert camelCase to kebab-case for HTML attribute lookup
  */
 function camelToKebab(str: string): string {
-  return str.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
+  return str.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 }
 
 /**

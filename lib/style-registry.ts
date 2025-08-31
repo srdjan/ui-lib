@@ -22,4 +22,3 @@ export function shouldInjectStyle(key: string): boolean {
   top.add(key);
   return true;
 }
-

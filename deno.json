@@ -1,4 +1,28 @@
 {
+  "name": "@funcwc/core",
+  "version": "1.0.0",
+  "description": "Ultra-lightweight, type-safe SSR components with DOM-native state management and hybrid reactivity",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/username/funcwc.git"
+  },
+  "keywords": [
+    "ssr",
+    "components",
+    "typescript",
+    "deno",
+    "htmx",
+    "dom-native",
+    "reactivity",
+    "web-components",
+    "functional",
+    "zero-runtime"
+  ],
+  "exports": {
+    ".": "./index.ts"
+  },
+
   "tasks": {
     "check": "deno check index.ts lib/**/*.ts examples/**/*.ts examples/**/*.tsx",
     "test": "deno test",

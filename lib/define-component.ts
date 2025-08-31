@@ -9,7 +9,7 @@ import {
 // Re-export for use in reactive components
 export type { GeneratedApiMap };
 import { appRouter } from "./router.ts";
-import { subscribeToState, listensFor } from "./reactive-helpers.ts";
+import { listensFor, subscribeToState } from "./reactive-helpers.ts";
 import {
   isUnifiedStyles,
   parseUnifiedStyles,
@@ -181,7 +181,9 @@ export function defineComponent<TProps = Record<string, string>>(
   if (cssReactions) {
     const reactiveCssRules = Object.entries(cssReactions)
       .map(([property, rule]) => {
-        return `[data-component="${name}"] { ${rule.replace(/var\(--[\w-]+\)/g, `var(--${property})`)} }`;
+        return `[data-component="${name}"] { ${
+          rule.replace(/var\(--[\w-]+\)/g, `var(--${property})`)
+        } }`;
       })
       .join("\n");
     css = css ? `${css}\n${reactiveCssRules}` : reactiveCssRules;
@@ -223,7 +225,9 @@ export function defineComponent<TProps = Record<string, string>>(
   // Register the component in the SSR registry with collision detection
   const registry = getRegistry();
   if (registry[name]) {
-    console.warn(`⚠️  Component "${name}" already exists and will be overwritten!`);
+    console.warn(
+      `⚠️  Component "${name}" already exists and will be overwritten!`,
+    );
   }
   registry[name] = {
     props: undefined, // transformer is handled manually here
@@ -297,7 +301,10 @@ export function defineComponent<TProps = Record<string, string>>(
           const existing = existingHxOnMatch[2];
           // Merge by concatenating with a newline
           const merged = `${existing}\n${injected.replace(/^hx-on="|"$/g, "")}`;
-          newOpenTag = openTag.replace(existingHxOnMatch[0], ` hx-on="${merged}"`);
+          newOpenTag = openTag.replace(
+            existingHxOnMatch[0],
+            ` hx-on="${merged}"`,
+          );
         } else {
           newOpenTag = `${openTag} ${injected}`;
         }
@@ -327,6 +334,7 @@ function injectDataComponent(html: string, name: string): string {
   if (!firstTagMatch) return html;
   const [full, whitespace, openTag, closeAngle] = firstTagMatch;
   if (openTag.includes("data-component=")) return html; // already present
-  const enhancedTag = `${whitespace}${openTag} data-component="${name}"${closeAngle}`;
+  const enhancedTag =
+    `${whitespace}${openTag} data-component="${name}"${closeAngle}`;
   return html.replace(full, enhancedTag);
 }

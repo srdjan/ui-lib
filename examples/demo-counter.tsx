@@ -1,9 +1,9 @@
 /** @jsx h */
-import { defineComponent, h, number, boolean, string } from "../index.ts";
+import { boolean, defineComponent, h, number, string } from "../index.ts";
 
 /**
  * 🎯 Interactive Counter Demo - Showcasing Function-Style Props
- * 
+ *
  * Demonstrates:
  * ✨ Function-style props with smart type helpers
  * 🎨 CSS-only format with auto-generated classes
@@ -24,7 +24,7 @@ defineComponent("demo-counter", {
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       transition: all 0.3s ease;
     }`,
-    
+
     button: `{ 
       padding: 0.75rem; 
       background: var(--counter-button-bg, #007bff); 
@@ -37,9 +37,10 @@ defineComponent("demo-counter", {
       min-width: 3rem;
       transition: all 0.2s ease;
     }`,
-    
-    buttonHover: `{ transform: scale(1.05); background: var(--counter-button-hover, #0056b3); }`,
-    
+
+    buttonHover:
+      `{ transform: scale(1.05); background: var(--counter-button-hover, #0056b3); }`,
+
     display: `{ 
       font-size: 2rem; 
       font-weight: bold; 
@@ -51,21 +52,21 @@ defineComponent("demo-counter", {
       border-radius: 8px;
       border: 2px solid var(--counter-display-border, #e9ecef);
     }`,
-    
+
     controls: `{ display: flex; flex-direction: column; gap: 0.5rem; }`,
-    
+
     label: `{ 
       font-size: 0.875rem; 
       color: var(--counter-label, #666); 
       font-weight: 500;
     }`,
-    
+
     disabled: `{ 
       opacity: 0.5; 
       cursor: not-allowed; 
       pointer-events: none; 
     }`,
-    
+
     maxReached: `{ 
       border-color: var(--counter-warning, #dc3545); 
       background: var(--counter-warning-bg, #f8d7da); 
@@ -73,31 +74,37 @@ defineComponent("demo-counter", {
   },
 
   // ✨ Function-Style Props - Zero duplication!
-  render: ({
-    initialCount = number(0),        // Starting count value
-    step = number(1),                // Increment/decrement step
-    maxValue = number(10),           // Maximum allowed value  
-    minValue = number(0),            // Minimum allowed value
-    disabled = boolean(false),       // Disable the counter
-    theme = string("blue"),          // Color theme
-    showControls = boolean(true),    // Show increment/decrement controls
-    label = string("Counter"),       // Counter label
-  }, api, classes) => {
-    const currentCount = typeof initialCount === 'number' ? initialCount : 0;
-    const stepSize = typeof step === 'number' ? step : 1;
-    const max = typeof maxValue === 'number' ? maxValue : 10;
-    const min = typeof minValue === 'number' ? minValue : 0;
-    const isDisabled = typeof disabled === 'boolean' ? disabled : false;
-    const counterTheme = typeof theme === 'string' ? theme : 'blue';
-    const showButtons = typeof showControls === 'boolean' ? showControls : true;
-    const counterLabel = typeof label === 'string' ? label : 'Counter';
-    
+  render: (
+    {
+      initialCount = number(0), // Starting count value
+      step = number(1), // Increment/decrement step
+      maxValue = number(10), // Maximum allowed value
+      minValue = number(0), // Minimum allowed value
+      disabled = boolean(false), // Disable the counter
+      theme = string("blue"), // Color theme
+      showControls = boolean(true), // Show increment/decrement controls
+      label = string("Counter"), // Counter label
+    },
+    api,
+    classes,
+  ) => {
+    const currentCount = typeof initialCount === "number" ? initialCount : 0;
+    const stepSize = typeof step === "number" ? step : 1;
+    const max = typeof maxValue === "number" ? maxValue : 10;
+    const min = typeof minValue === "number" ? minValue : 0;
+    const isDisabled = typeof disabled === "boolean" ? disabled : false;
+    const counterTheme = typeof theme === "string" ? theme : "blue";
+    const showButtons = typeof showControls === "boolean" ? showControls : true;
+    const counterLabel = typeof label === "string" ? label : "Counter";
+
     const atMax = currentCount >= max;
     const atMin = currentCount <= min;
-    
+
     return (
-      <div 
-        class={`${classes!.counterContainer} ${atMax ? classes!.maxReached : ''} ${isDisabled ? classes!.disabled : ''}`}
+      <div
+        class={`${classes!.counterContainer} ${
+          atMax ? classes!.maxReached : ""
+        } ${isDisabled ? classes!.disabled : ""}`}
         data-count={currentCount}
         data-theme={counterTheme}
       >
@@ -106,10 +113,12 @@ defineComponent("demo-counter", {
           {showButtons && (
             <div style="display: flex; gap: 0.5rem;">
               <button
-                class={`${classes!.button} ${atMin ? classes!.disabled : ''}`}
+                class={`${classes!.button} ${atMin ? classes!.disabled : ""}`}
                 onclick={`
                   const container = this.closest('[data-count]');
-                  const display = container.querySelector('.${classes!.display}');
+                  const display = container.querySelector('.${
+                  classes!.display
+                }');
                   const current = parseInt(container.dataset.count);
                   const newCount = Math.max(${min}, current - ${stepSize});
                   container.dataset.count = newCount;
@@ -117,22 +126,30 @@ defineComponent("demo-counter", {
                   
                   // Update button states
                   const buttons = container.querySelectorAll('button');
-                  buttons[0].classList.toggle('${classes!.disabled}', newCount <= ${min});
-                  buttons[1].classList.toggle('${classes!.disabled}', newCount >= ${max});
+                  buttons[0].classList.toggle('${
+                  classes!.disabled
+                }', newCount <= ${min});
+                  buttons[1].classList.toggle('${
+                  classes!.disabled
+                }', newCount >= ${max});
                   
                   // Update container state
-                  container.classList.toggle('${classes!.maxReached}', newCount >= ${max});
+                  container.classList.toggle('${
+                  classes!.maxReached
+                }', newCount >= ${max});
                 `}
                 disabled={atMin || isDisabled}
               >
                 -{stepSize}
               </button>
-              
+
               <button
-                class={`${classes!.button} ${atMax ? classes!.disabled : ''}`}
+                class={`${classes!.button} ${atMax ? classes!.disabled : ""}`}
                 onclick={`
                   const container = this.closest('[data-count]');
-                  const display = container.querySelector('.${classes!.display}');
+                  const display = container.querySelector('.${
+                  classes!.display
+                }');
                   const current = parseInt(container.dataset.count);
                   const newCount = Math.min(${max}, current + ${stepSize});
                   container.dataset.count = newCount;
@@ -140,11 +157,17 @@ defineComponent("demo-counter", {
                   
                   // Update button states  
                   const buttons = container.querySelectorAll('button');
-                  buttons[0].classList.toggle('${classes!.disabled}', newCount <= ${min});
-                  buttons[1].classList.toggle('${classes!.disabled}', newCount >= ${max});
+                  buttons[0].classList.toggle('${
+                  classes!.disabled
+                }', newCount <= ${min});
+                  buttons[1].classList.toggle('${
+                  classes!.disabled
+                }', newCount >= ${max});
                   
                   // Update container state
-                  container.classList.toggle('${classes!.maxReached}', newCount >= ${max});
+                  container.classList.toggle('${
+                  classes!.maxReached
+                }', newCount >= ${max});
                 `}
                 disabled={atMax || isDisabled}
               >
@@ -153,9 +176,9 @@ defineComponent("demo-counter", {
             </div>
           )}
         </div>
-        
+
         <div class={classes!.display}>{currentCount}</div>
-        
+
         <div class={classes!.controls}>
           <div class={classes!.label}>
             Range: {min}-{max}

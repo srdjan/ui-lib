@@ -28,11 +28,24 @@ defineComponent("todo-item", {
   // 🎨 Unified styles with object form (preferred)
   styles: {
     item: {
-      display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem',
-      border: '1px solid #ddd', borderRadius: '4px', background: 'white',
+      display: "flex",
+      alignItems: "center",
+      gap: "0.5rem",
+      padding: "0.75rem",
+      border: "1px solid #ddd",
+      borderRadius: "4px",
+      background: "white",
     },
-    checkbox: { marginRight: '0.5rem' },
-    deleteBtn: { background: '#dc3545', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer' },
+    checkbox: { marginRight: "0.5rem" },
+    deleteBtn: {
+      background: "#dc3545",
+      color: "white",
+      border: "none",
+      borderRadius: "50%",
+      width: "24px",
+      height: "24px",
+      cursor: "pointer",
+    },
   },
   api: {
     // ✨ These are actual server handlers that will process requests
@@ -89,17 +102,17 @@ defineComponent("todo-item", {
 
 funcwc analyzes your routes and creates client functions automatically:
 
-| Server Route Definition                   | Generated Function | What It Returns                                                                                 |
-| ----------------------------------------- | ------------------ | ----------------------------------------------------------------------------------------------- |
+| Server Route Definition                   | Generated Function | What It Returns                                                                                            |
+| ----------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------- |
 | `patch("/api/todos/:id/toggle", handler)` | `api.toggle(id)`   | `{ "hx-patch": "/api/todos/123/toggle", "hx-target": "closest [data-component]", "hx-swap": "outerHTML" }` |
 | `del("/api/todos/:id", handler)`          | `api.remove(id)`   | `{ "hx-delete": "/api/todos/123", "hx-target": "closest [data-component]", "hx-swap": "outerHTML" }`       |
-| `post("/api/todos", handler)`             | `api.create()`     | `{ "hx-post": "/api/todos", "hx-target": "closest [data-component]", "hx-swap": "outerHTML" }`              |
-| `get("/api/todos/:id", handler)`          | `api.get(id)`      | `{ "hx-get": "/api/todos/123" }`                                                            |
+| `post("/api/todos", handler)`             | `api.create()`     | `{ "hx-post": "/api/todos", "hx-target": "closest [data-component]", "hx-swap": "outerHTML" }`             |
+| `get("/api/todos/:id", handler)`          | `api.get(id)`      | `{ "hx-get": "/api/todos/123" }`                                                                           |
 
 Note: For non-GET requests, funcwc defaults to `hx-swap="outerHTML"` and
 `hx-target="closest [data-component]"`. Components automatically render with a
-`data-component="<name>"` attribute on the root element to enable these
-defaults and make scoping trivial.
+`data-component="<name>"` attribute on the root element to enable these defaults
+and make scoping trivial.
 
 Callout: When to use selector strings
 

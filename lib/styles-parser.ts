@@ -80,7 +80,8 @@ export function isUnifiedStyles(styles: unknown): styles is UnifiedStyles {
     styles !== null &&
     !Array.isArray(styles) &&
     Object.values(styles).every((value) =>
-      typeof value === "string" || (typeof value === "object" && value !== null && !Array.isArray(value))
+      typeof value === "string" ||
+      (typeof value === "object" && value !== null && !Array.isArray(value))
     )
   );
 }

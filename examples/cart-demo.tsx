@@ -1,9 +1,9 @@
 /** @jsx h */
-import { defineComponent, h, string, number } from "../index.ts";
+import { defineComponent, h, number, string } from "../index.ts";
 
 /**
  * 📡 Cart Manager - Demonstrates Tier 2: Pub/Sub State Manager
- * 
+ *
  * Shows how complex application state can be shared between components
  * using topic-based subscriptions.
  */
@@ -16,21 +16,21 @@ defineComponent("cart-manager", {
       border: 1px solid #dee2e6;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }`,
-    
+
     cartTitle: `{
       font-size: 1.5rem;
       color: #495057;
       margin-bottom: 1rem;
       font-weight: bold;
     }`,
-    
+
     productGrid: `{
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 1rem;
       margin: 1.5rem 0;
     }`,
-    
+
     productCard: `{
       border: 1px solid #dee2e6;
       border-radius: 8px;
@@ -38,19 +38,19 @@ defineComponent("cart-manager", {
       text-align: center;
       transition: transform 0.2s ease;
     }`,
-    
+
     productName: `{
       font-weight: bold;
       margin-bottom: 0.5rem;
       color: #495057;
     }`,
-    
+
     productPrice: `{
       color: #28a745;
       font-size: 1.2rem;
       margin-bottom: 1rem;
     }`,
-    
+
     addButton: `{
       background: #007bff;
       color: white;
@@ -60,22 +60,29 @@ defineComponent("cart-manager", {
       cursor: pointer;
       transition: background 0.2s ease;
     }`,
-    
+
     addButtonHover: `{
       background: #0056b3;
-    }`
+    }`,
   },
 
-  render: ({ 
-    storeId = string("demo-store") 
-  }, api, classes) => {
-    const store = typeof storeId === 'string' ? storeId : 'demo-store';
-    
+  render: (
+    {
+      storeId = string("demo-store"),
+    },
+    api,
+    classes,
+  ) => {
+    const store = typeof storeId === "string" ? storeId : "demo-store";
+
     return (
       <div class={classes!.cartPanel}>
         <h3 class={classes!.cartTitle}>📡 Pub/Sub State Manager</h3>
-        <p>Add items to your cart - other components will automatically update via state subscriptions:</p>
-        
+        <p>
+          Add items to your cart - other components will automatically update
+          via state subscriptions:
+        </p>
+
         <div class={classes!.productGrid}>
           <div class={classes!.productCard}>
             <div class={classes!.productName}>📱 Smartphone</div>
@@ -87,7 +94,7 @@ defineComponent("cart-manager", {
               Add to Cart
             </button>
           </div>
-          
+
           <div class={classes!.productCard}>
             <div class={classes!.productName}>💻 Laptop</div>
             <div class={classes!.productPrice}>$1299</div>
@@ -98,7 +105,7 @@ defineComponent("cart-manager", {
               Add to Cart
             </button>
           </div>
-          
+
           <div class={classes!.productCard}>
             <div class={classes!.productName}>🎧 Headphones</div>
             <div class={classes!.productPrice}>$199</div>
@@ -112,7 +119,7 @@ defineComponent("cart-manager", {
         </div>
       </div>
     );
-  }
+  },
 });
 
 /**
@@ -129,26 +136,30 @@ defineComponent("cart-badge", {
       margin-top: 1rem;
       transition: all 0.3s ease;
     }`,
-    
+
     badgeCount: `{
       font-size: 1.5rem;
       font-weight: bold;
       margin-bottom: 0.5rem;
     }`,
-    
+
     badgeTotal: `{
       font-size: 1.2rem;
       opacity: 0.9;
-    }`
+    }`,
   },
 
-  render: ({ 
-    cartId = string("default") 
-  }, api, classes) => {
-    const id = typeof cartId === 'string' ? cartId : 'default';
-    
+  render: (
+    {
+      cartId = string("default"),
+    },
+    api,
+    classes,
+  ) => {
+    const id = typeof cartId === "string" ? cartId : "default";
+
     return (
-      <div 
+      <div
         class={`${classes!.badge} cart-badge-reactive`}
         data-cart-id={id}
       >
@@ -159,5 +170,5 @@ defineComponent("cart-badge", {
         </p>
       </div>
     );
-  }
+  },
 });

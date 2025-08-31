@@ -3,7 +3,7 @@
 export type HeaderMap = Record<string, string>;
 
 const headerStack: HeaderMap[] = [];
-import { pushStyleContext, popStyleContext } from "./style-registry.ts";
+import { popStyleContext, pushStyleContext } from "./style-registry.ts";
 
 export function runWithRequestHeaders<T>(headers: HeaderMap, fn: () => T): T {
   headerStack.push(headers);

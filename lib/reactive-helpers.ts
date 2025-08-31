@@ -25,7 +25,7 @@ export const setCSSProperty = (
 
 /**
  * Generate inline JavaScript to get a CSS custom property value
- * @param property - Property name (without -- prefix)  
+ * @param property - Property name (without -- prefix)
  * @param scope - 'global' for document root, 'component' for closest component container
  */
 export const getCSSProperty = (
@@ -62,7 +62,7 @@ export const toggleCSSProperty = (
 };
 
 /**
- * Pub/Sub State Manager Helpers  
+ * Pub/Sub State Manager Helpers
  * For complex business logic state sharing
  */
 
@@ -115,9 +115,7 @@ export const dispatchEvent = (
     ? "this.parentElement"
     : "document";
 
-  const eventData = data
-    ? `, { detail: ${JSON.stringify(data)} }`
-    : "";
+  const eventData = data ? `, { detail: ${JSON.stringify(data)} }` : "";
 
   return `${targetElement}.dispatchEvent(new CustomEvent('funcwc:${eventName}'${eventData}))`;
 };
@@ -139,7 +137,7 @@ export const hxOn = (events: Record<string, string>): string => {
  */
 export const listensFor = (eventName: string, handler: string): string => {
   // Prefer consolidated hx-on attribute to avoid JSX parser issues with colons in names
-  const safe = handler.replace(/"/g, '&quot;');
+  const safe = handler.replace(/"/g, "&quot;");
   return `hx-on="funcwc:${eventName}: ${safe}"`;
 };
 
@@ -275,7 +273,9 @@ export const createCartAction = (
   itemData: string,
 ): string => {
   return `
-    const currentCart = ${getState("cart")} || { items: [], count: 0, total: 0 };
+    const currentCart = ${
+    getState("cart")
+  } || { items: [], count: 0, total: 0 };
     const itemData = ${itemData};
     let newItems = [...currentCart.items];
     

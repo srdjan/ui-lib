@@ -16,8 +16,8 @@ funcwc focuses on a clean authoring model that eliminates duplication:
 
 - Use `defineComponent()` for all components.
 - Prefer function‑style props declared directly in the `render` parameter using
-  `string()`, `number()`, `boolean()`, etc. This keeps props, defaults and
-  types in one place and lets the library auto‑generate the parser.
+  `string()`, `number()`, `boolean()`, etc. This keeps props, defaults and types
+  in one place and lets the library auto‑generate the parser.
 - Advanced cases may still provide a `props` transformer, but function‑style is
   the recommended default.
 
@@ -148,14 +148,26 @@ defineComponent("beautiful-button", {
   styles: {
     // ✨ Object-form supported (preferred)
     button: {
-      padding: '0.5rem 1rem', background: '#007bff', color: 'white', border: 'none',
-      borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold',
+      padding: "0.5rem 1rem",
+      background: "#007bff",
+      color: "white",
+      border: "none",
+      borderRadius: "4px",
+      cursor: "pointer",
+      fontWeight: "bold",
     },
-    buttonHover: { background: '#0056b3' }, // → .button-hover
-    buttonActive: { transform: 'translateY(1px)' }, // → .button-active
+    buttonHover: { background: "#0056b3" }, // → .button-hover
+    buttonActive: { transform: "translateY(1px)" }, // → .button-active
   },
-  render: ({ text = string('Click me'), disabled = boolean(false) }, _api, c) => (
-    <button class={`${c!.button} hover:${c!.buttonHover} active:${c!.buttonActive}`} disabled={disabled}>
+  render: (
+    { text = string("Click me"), disabled = boolean(false) },
+    _api,
+    c,
+  ) => (
+    <button
+      class={`${c!.button} hover:${c!.buttonHover} active:${c!.buttonActive}`}
+      disabled={disabled}
+    >
       {text}
     </button>
   ),
@@ -177,36 +189,39 @@ defineComponent("beautiful-button", {
   `data-component="<name>"`. This enables the default target, simplifies
   selectors, and keeps behaviors scoped to a component instance.
 - **Styles guidance**: Prefer unified `styles` objects (auto class generation).
-  `classes` remains optional and merges last for overrides, but is generally
-  not needed.
+  `classes` remains optional and merges last for overrides, but is generally not
+  needed.
 
 ### Event Handlers
 
 - JSX `onClick`, `onChange`, etc. are lower‑cased in output (e.g., `onclick`).
 - Handlers accept either a code string or a `ComponentAction` (e.g., from
   `toggleClass()`), which renders to inline JS.
-- Quotes in handler code are safely escaped as `&quot;` to produce valid HTML; the
-  browser decodes these when parsing.
+- Quotes in handler code are safely escaped as `&quot;` to produce valid HTML;
+  the browser decodes these when parsing.
 
 ### Styles Input Options
 
-| Format | Example | Class Name Generation | Use When |
-| --- | --- | --- | --- |
-| Object (preferred) | `styles: { button: { padding: '0.5rem', borderRadius: '6px' } }` | Key → kebab: `button` → `.button` | Most cases; typeable, lintable, easy to refactor |
-| Brace string | ``styles: { button: `{ padding: 0.5rem; border-radius: 6px; }` }`` | Key → kebab: `button` → `.button` | Quick copy/paste of CSS declarations |
-| Selector string | ``styles: { custom: `.card > .title { font-weight: 700; }` }`` | First selector’s class | Complex selectors, combinators, pseudo-classes |
+| Format             | Example                                                            | Class Name Generation             | Use When                                         |
+| ------------------ | ------------------------------------------------------------------ | --------------------------------- | ------------------------------------------------ |
+| Object (preferred) | `styles: { button: { padding: '0.5rem', borderRadius: '6px' } }`   | Key → kebab: `button` → `.button` | Most cases; typeable, lintable, easy to refactor |
+| Brace string       | ``styles: { button: `{ padding: 0.5rem; border-radius: 6px; }` }`` | Key → kebab: `button` → `.button` | Quick copy/paste of CSS declarations             |
+| Selector string    | ``styles: { custom: `.card > .title { font-weight: 700; }` }``     | First selector’s class            | Complex selectors, combinators, pseudo-classes   |
 
 - Deduplication: Component CSS is injected once per component type per response.
-- Overrides: If you pass `classes`, it merges last and can replace generated class names.
+- Overrides: If you pass `classes`, it merges last and can replace generated
+  class names.
 
 Selector best practices
 
 - Prefer single-class rules in object form for most component styling.
 - Use selector strings for:
   - Combinators (e.g., `.btn .icon`, `.card > .title`)
-  - Pseudo-classes/elements (e.g., `.btn:hover`, `.field:focus`, `.input::placeholder`)
+  - Pseudo-classes/elements (e.g., `.btn:hover`, `.field:focus`,
+    `.input::placeholder`)
   - Advanced scoping where a generated single class is insufficient
-- Keep media queries in strings for now; object-form styles serialize flat rule bodies.
+- Keep media queries in strings for now; object-form styles serialize flat rule
+  bodies.
 - **JSON-in, HTML-out**: All htmx requests are JSON-encoded; server returns HTML
   for swapping
 
@@ -271,7 +286,9 @@ defineComponent("modern-card", {
 
 ### ⚛️ Reactive Options (Optional, Additive)
 
-Use reactive wiring directly on `defineComponent` via `stateSubscriptions`, `eventListeners`, `onMount`, and `onUnmount`. Nothing is injected unless you include these options.
+Use reactive wiring directly on `defineComponent` via `stateSubscriptions`,
+`eventListeners`, `onMount`, and `onUnmount`. Nothing is injected unless you
+include these options.
 
 ```tsx
 import { defineComponent, h, string } from "../src/index.ts";
@@ -279,8 +296,10 @@ import { defineComponent, h, string } from "../src/index.ts";
 // Badge that reflects cart state published via window.funcwcState
 defineComponent("cart-badge", {
   styles: {
-    badge: `{ display: inline-flex; gap: .5rem; padding: .5rem .75rem; border-radius: 9999px; background: #0ea5e9; color: white; font-weight: 600; }`,
-    count: `{ background: white; color: #0ea5e9; border-radius: 9999px; min-width: 1.25rem; text-align: center; padding: 0 .4rem; }`,
+    badge:
+      `{ display: inline-flex; gap: .5rem; padding: .5rem .75rem; border-radius: 9999px; background: #0ea5e9; color: white; font-weight: 600; }`,
+    count:
+      `{ background: white; color: #0ea5e9; border-radius: 9999px; min-width: 1.25rem; text-align: center; padding: 0 .4rem; }`,
   },
   stateSubscriptions: {
     cart: `
@@ -301,7 +320,7 @@ defineComponent("cart-badge", {
     if (countEl) countEl.textContent = String(s.count);
     if (totalEl) totalEl.textContent = '$' + Number(s.total).toFixed(2);
   `,
-  render: ({ label = string('Cart') }) => (
+  render: ({ label = string("Cart") }) => (
     <div class="badge">
       <span>{label}</span>
       <span class="count">0</span>
@@ -312,10 +331,13 @@ defineComponent("cart-badge", {
 ```
 
 Notes:
-- `stateSubscriptions` adds an `htmx:load` handler via the aggregated `hx-on` attribute only when present (wires subscriptions on load).
-- `onMount` runs once on load; `onUnmount` supports a simple MutationObserver cleanup.
-- Use `eventListeners` to attach aggregated `hx-on` handlers for custom events like `funcwc:<name>`.
 
+- `stateSubscriptions` adds an `htmx:load` handler via the aggregated `hx-on`
+  attribute only when present (wires subscriptions on load).
+- `onMount` runs once on load; `onUnmount` supports a simple MutationObserver
+  cleanup.
+- Use `eventListeners` to attach aggregated `hx-on` handlers for custom events
+  like `funcwc:<name>`.
 
 ## Smart Type Helpers
 
@@ -376,20 +398,26 @@ import { toggleClass, toggleClasses } from "../src/index.ts";
 
 ### hx-on aggregator (multiple events)
 
-When you need to attach multiple event handlers to the root, prefer the aggregated form to avoid JSX parsing issues with colons in attribute names. Use the `hxOn()` helper to compose a single `hx-on` string.
+When you need to attach multiple event handlers to the root, prefer the
+aggregated form to avoid JSX parsing issues with colons in attribute names. Use
+the `hxOn()` helper to compose a single `hx-on` string.
 
 ```tsx
 import { defineComponent, h, hxOn, listensFor } from "../src/index.ts";
 
 defineComponent("loader-box", {
-  styles: { box: `{ padding: 1rem; border: 1px solid #ddd; border-radius: 8px; }` },
+  styles: {
+    box: `{ padding: 1rem; border: 1px solid #ddd; border-radius: 8px; }`,
+  },
   // Listen for a custom event (funcwc:refresh) and initialize on htmx:load
   render: () => (
     <div
       class="box"
       hx-on={hxOn({
-        'htmx:load': `this.textContent = 'Ready @ ' + new Date().toLocaleTimeString();`,
-        'funcwc:refresh': `this.textContent = 'Refreshed @ ' + new Date().toLocaleTimeString();`,
+        "htmx:load":
+          `this.textContent = 'Ready @ ' + new Date().toLocaleTimeString();`,
+        "funcwc:refresh":
+          `this.textContent = 'Refreshed @ ' + new Date().toLocaleTimeString();`,
       })}
     >
       Loading...
@@ -663,7 +691,9 @@ defineComponent("accordion", {
 
 ### Reactive State Manager
 
-To enable cross‑component pub/sub state, inject the built‑in state manager. It exposes a single global: `window.funcwcState` with `publish`, `subscribe`, and `getState`.
+To enable cross‑component pub/sub state, inject the built‑in state manager. It
+exposes a single global: `window.funcwcState` with `publish`, `subscribe`, and
+`getState`.
 
 Recommended: inject via server before `</head>` using the helper:
 
@@ -672,7 +702,10 @@ Recommended: inject via server before `</head>` using the helper:
 import { injectStateManager } from "../src/index.ts";
 
 let html = await Deno.readTextFile("./index.html");
-html = html.replace("</head>", `${injectStateManager(false, { debugMode: true })}\n</head>`);
+html = html.replace(
+  "</head>",
+  `${injectStateManager(false, { debugMode: true })}\n</head>`,
+);
 ```
 
 Minimal production variant:
@@ -684,28 +717,34 @@ injectStateManager(true); // smaller script, no debug utilities
 API surface (global `window.funcwcState`):
 
 - `publish(topic, data)`: Broadcast state to a topic.
-- `subscribe(topic, (data) => void, element)`: Receive updates; auto‑cleans when `element` is removed.
+- `subscribe(topic, (data) => void, element)`: Receive updates; auto‑cleans when
+  `element` is removed.
 - `getState(topic)`: Read current state for a topic.
-- `getTopics()`, `getSubscriberCount(topic)`, `debug()`: Debug/inspection helpers.
+- `getTopics()`, `getSubscriberCount(topic)`, `debug()`: Debug/inspection
+  helpers.
 
-Adapter (optional): For code expecting `window.StateManager`, alias it to `funcwcState`:
+Adapter (optional): For code expecting `window.StateManager`, alias it to
+`funcwcState`:
 
 ```html
 <script>
-  (function(){
-    function ready(fn){ if (document.readyState !== 'loading') return fn(); document.addEventListener('DOMContentLoaded', fn); }
-    ready(function(){
+  (function () {
+    function ready(fn) {
+      if (document.readyState !== "loading") return fn();
+      document.addEventListener("DOMContentLoaded", fn);
+    }
+    ready(function () {
       if (!window.funcwcState) return;
       const api = window.funcwcState;
       window.StateManager = {
         publish: api.publish.bind(api),
         subscribe: api.subscribe.bind(api),
         getState: api.getState.bind(api),
-        getTopics: api.getTopics.bind(api)
+        getTopics: api.getTopics.bind(api),
       };
     });
   })();
-  </script>
+</script>
 ```
 
 ## Best Practices & Conventions

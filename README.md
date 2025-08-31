@@ -1,14 +1,33 @@
 # funcwc - DOM-Native SSR Components
 
-**Ultra-lightweight, type-safe SSR components with the DOM as your state
-container.**
+[![Deno](https://img.shields.io/badge/deno-2.0+-black?logo=deno&logoColor=white)](https://deno.land/)
+[![TypeScript](https://img.shields.io/badge/typescript-5.0+-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+
+**Ultra-lightweight, type-safe SSR components with DOM-native state management
+and hybrid reactivity.**
 
 Built for Deno + TypeScript with an SSR-first approach using HTMX, funcwc takes
 a revolutionary approach to state management: **the DOM _is_ the state**. No
 JavaScript state objects, no synchronization overhead, just pure DOM
-manipulation with a delightful developer experience.
+manipulation with the most ergonomic developer experience ever created.
 
-State manager: For cross‑component state, inject the built‑in pub/sub script into your pages. Use `injectStateManager()` (exported from `src/index.ts`) to embed the script and expose `window.funcwcState`. In development, the examples dev server auto‑injects the state manager and bridges `window.StateManager` → `window.funcwcState` for compatibility.
+## 🌟 What Makes funcwc Special?
+
+- **🎯 DOM-Native Philosophy**: Your component state lives where it belongs - in
+  the DOM
+- **⚡ Hybrid Reactivity**: Three-tier system covering every reactivity need
+- **✨ Zero Duplication**: Function-style props eliminate boilerplate entirely
+- **🎨 Auto-Generated Classes**: Just write CSS properties, get scoped class
+  names
+- **📦 Zero Runtime**: No client-side framework dependencies
+- **🚀 Maximum Ergonomics**: The most productive component library ever built
+
+State manager: For cross‑component state, inject the built‑in pub/sub script
+into your pages. Use `injectStateManager()` (exported from `src/index.ts`) to
+embed the script and expose `window.funcwcState`. In development, the examples
+dev server auto‑injects the state manager and bridges `window.StateManager` →
+`window.funcwcState` for compatibility.
 
 ## Ergonomics
 
@@ -61,6 +80,8 @@ defineComponent("beautiful-card", {
 
 - **🎯 DOM-Native State**: Component state lives in CSS classes, data
   attributes, and element content
+- **⚡ Hybrid Reactivity**: Revolutionary three-tier system (CSS Properties,
+  Pub/Sub State, DOM Events)
 - **🚀 Function-Style Props**: Zero duplication between props and render
   parameters
 - **🎨 CSS-Only Format**: Auto-generated class names from CSS properties
@@ -70,6 +91,87 @@ defineComponent("beautiful-card", {
 - **🎭 SSR-First**: Render on server, send optimized HTML
 - **🧾 JSON Requests, HTML Responses**: Standardized JSON-encoded htmx requests;
   server returns HTML snippets for swapping
+
+## ⚡ Hybrid Reactivity System
+
+funcwc features a revolutionary **three-tier hybrid reactivity system** that
+enables powerful component communication while maintaining the DOM-native
+philosophy. Each tier is optimized for different use cases and performance
+characteristics:
+
+### 🎨 Tier 1: CSS Property Reactivity
+
+**Use Case**: Visual state coordination, theming, styling changes\
+**Mechanism**: CSS custom properties as reactive state\
+**Performance**: Instant updates via CSS engine, zero JavaScript overhead
+
+```tsx
+// Theme controller updates CSS properties
+<button onclick="document.documentElement.style.setProperty('--theme-mode', 'dark')">
+  Switch to Dark Theme
+</button>;
+
+// Components automatically react via CSS
+defineComponent("themed-card", {
+  styles: {
+    card: `{ 
+      background: var(--theme-bg, white);
+      color: var(--theme-text, #333);
+      transition: all 0.3s ease;
+    }`,
+  },
+});
+```
+
+### 📡 Tier 2: Pub/Sub State Manager
+
+**Use Case**: Complex application state, shopping carts, user data\
+**Mechanism**: JavaScript state manager with topic-based subscriptions\
+**Performance**: Efficient subscription model with automatic cleanup
+
+```tsx
+// Publisher - shopping cart updates
+window.funcwc.publishState("cart", {
+  count: items.length,
+  total: calculateTotal(items),
+});
+
+// Subscriber - cart badge automatically updates
+window.funcwc.subscribeToState("cart", function (cartData) {
+  badge.querySelector(".count").textContent = cartData.count;
+  badge.querySelector(".total").textContent = "$" + cartData.total.toFixed(2);
+});
+```
+
+### 🔔 Tier 3: DOM Event Communication
+
+**Use Case**: Component-to-component messaging, modals, notifications\
+**Mechanism**: Custom DOM events with structured payloads\
+**Performance**: Native browser event system with event bubbling
+
+```tsx
+// Event dispatcher - notification trigger
+<button onclick="
+  document.dispatchEvent(new CustomEvent('show-notification', {
+    bubbles: true,
+    detail: { type: 'success', message: 'Operation completed!' }
+  }))
+">
+  Show Notification
+</button>;
+
+// Event listener - notification display
+document.addEventListener("show-notification", (event) => {
+  showNotification(event.detail.type, event.detail.message);
+});
+```
+
+**Why Three Tiers?**
+
+- **CSS Properties**: Best for visual coordination (themes, colors, sizing)
+- **Pub/Sub State**: Best for business logic state (cart, user data, app state)
+- **DOM Events**: Best for UI interactions (modals, notifications, component
+  messages)
 
 ## 🚀 Quick Start
 
@@ -96,13 +198,12 @@ inspect the DOM!
 Run `deno task serve` and visit http://localhost:8080 to see all examples
 working:
 
-- **🎉 Function-Style Props**: Zero duplication demonstration
-- **🎨 Theme Toggle**: CSS class switching
-- **🔢 Counter**: Function-style props + CSS-only format
-- **✅ Todo Items**: HTMX integration + auto-generated classes
-- **📁 Accordion**: Pure CSS transitions + function-style props
-- **📑 Tabs**: Multi-element state coordination
-- **❤️ Like Card**: HTMX payloads (hx-vals) with server inspection
+- **🎉 Basic Components**: Function-style props + CSS-only format demonstration
+- **⚡ Hybrid Reactivity**: Complete three-tier reactivity system showcase:
+  - **🎨 CSS Properties**: Instant theme switching with zero JavaScript overhead
+  - **📡 Pub/Sub State**: Shopping cart with cross-component state
+    synchronization
+  - **🔔 DOM Events**: Notification system with component-to-component messaging
 
 ### Global HTMX setup (JSON requests)
 
@@ -135,8 +236,8 @@ Responses remain HTML and are swapped by htmx.
 - Swap/target: Non-GET actions default to `hx-swap="outerHTML"` and target the
   closest component container (via `data-component`), configurable per call via
   the generated client helpers.
-- Scoping: Components automatically inject `data-component="<name>"` on the
-  root element to enable sensible defaults and safe selectors.
+- Scoping: Components automatically inject `data-component="<name>"` on the root
+  element to enable sensible defaults and safe selectors.
 - Files: Components live in `examples/*.tsx` and are imported by
   `examples/main.ts`.
 
@@ -368,7 +469,13 @@ defineComponent("tabs", {
               class={`${classes!.button} ${
                 tab === active ? classes!.buttonActive : ""
               }`}
-              hx-on={`click: const C=this.closest('.${classes!.container}');if(!C)return;C.querySelectorAll('.${classes!.button}').forEach(b=>b.classList.remove('${classes!.buttonActive}'));this.classList.add('${classes!.buttonActive}')`}
+              hx-on={`click: const C=this.closest('.${
+                classes!.container
+              }');if(!C)return;C.querySelectorAll('.${
+                classes!.button
+              }').forEach(b=>b.classList.remove('${
+                classes!.buttonActive
+              }'));this.classList.add('${classes!.buttonActive}')`}
               {...api.load(tab, {
                 target: `closest .${classes!.content}`,
                 swap: "innerHTML",
@@ -557,7 +664,6 @@ styles: {
 
 // CSS-only format is the default and recommended approach.
 ```
-
 
 ### Unified API System
 

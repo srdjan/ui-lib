@@ -70,40 +70,40 @@ export type { PropsOf, UnwrapHelpers } from "./lib/types.ts";
 
 // CSS Property Reactivity (Tier 1)
 export {
-  setCSSProperty,
-  getCSSProperty,
-  toggleCSSProperty,
   createThemeToggle,
+  getCSSProperty,
+  setCSSProperty,
+  toggleCSSProperty,
 } from "./lib/reactive-helpers.ts";
 
 // Pub/Sub State Manager (Tier 2)
 export {
+  createCartAction,
+  getState,
+  hxOn,
+  listensFor,
   publishState,
   subscribeToState,
-  getState,
-  createCartAction,
-  listensFor,
-  hxOn,
 } from "./lib/reactive-helpers.ts";
 
 // DOM Event Communication (Tier 3)
-export { dispatchEvent, createNotification } from "./lib/reactive-helpers.ts";
+export { createNotification, dispatchEvent } from "./lib/reactive-helpers.ts";
 
 // State Manager Infrastructure
 export {
-  createStateManagerScript,
   createMinimalStateManagerScript,
-  injectStateManager,
+  createStateManagerScript,
   defaultStateManagerConfig,
+  injectStateManager,
   type StateManager,
 } from "./lib/state-manager.ts";
 
 // Utility Helpers
 export {
-  findClosestComponent,
   conditionalAction,
-  safeExecute,
   debugReactiveState,
-  type ReactiveScope,
   type EventTarget,
+  findClosestComponent,
+  type ReactiveScope,
+  safeExecute,
 } from "./lib/reactive-helpers.ts";
