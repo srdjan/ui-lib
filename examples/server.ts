@@ -66,9 +66,22 @@ async function handler(request: Request): Promise<Response> {
           // Extract just the inner content (without the main tag wrapper)
           const innerStart = mainElement.indexOf('>') + 1;
           const innerEnd = mainElement.lastIndexOf('</main>');
-          const processedContent = mainElement.slice(innerStart, innerEnd);
+          let extractedContent = mainElement.slice(innerStart, innerEnd);
           
-          return new Response(processedContent, {
+          // Extract CSS styles from the full layout to include with the content
+          const styleMatches = fullLayoutContent.match(/<style[^>]*>[\s\S]*?<\/style>/g);
+          let stylesContent = '';
+          if (styleMatches) {
+            stylesContent = styleMatches.join('');
+          }
+          
+          // Process any remaining component tags in the extracted content
+          const processedContent = processComponentTags(extractedContent);
+          
+          // Combine styles and content
+          const finalContent = stylesContent + processedContent;
+          
+          return new Response(finalContent, {
             headers: { "Content-Type": "text/html; charset=utf-8" },
           });
         } else {

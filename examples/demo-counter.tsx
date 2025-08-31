@@ -13,7 +13,7 @@ import { defineComponent, h, number, boolean, string } from "../index.ts";
 defineComponent("demo-counter", {
   // 🎨 CSS-Only Format - Auto-generated class names!
   styles: {
-    container: `{ 
+    counterContainer: `{ 
       display: inline-flex; 
       align-items: center; 
       gap: 1rem; 
@@ -97,7 +97,7 @@ defineComponent("demo-counter", {
     
     return (
       <div 
-        class={`${classes!.container} ${atMax ? classes!.maxReached : ''} ${isDisabled ? classes!.disabled : ''}`}
+        class={`${classes!.counterContainer} ${atMax ? classes!.maxReached : ''} ${isDisabled ? classes!.disabled : ''}`}
         data-count={currentCount}
         data-theme={counterTheme}
       >

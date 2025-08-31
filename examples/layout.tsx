@@ -77,32 +77,9 @@ defineComponent("app-layout", {
     themeToggle: `{ background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; } .theme-toggle:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }`,
     
     main: `{ flex: 1; padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; transition: opacity 0.3s ease-in-out; }`,
-    
-    // Basic Components page layout - sidebar within content area
-    basicLayout: `{ display: grid; grid-template-columns: 250px 1fr; gap: 2rem; height: calc(100vh - 8rem); }`,
-    basicSidebar: `{ 
-      background: #f8f9fa; 
-      border-radius: 12px; 
-      padding: 1.5rem; 
-      border: 1px solid #dee2e6;
-      height: fit-content;
-    }`,
-    basicContent: `{ background: white; border-radius: 12px; padding: 2rem; border: 1px solid #dee2e6; overflow-y: auto; }`,
-    sidebarMenu: `{ list-style: none; margin: 0; padding: 0; }`,
-    sidebarMenuItem: `{ 
-      padding: 0.75rem 1rem; 
-      margin: 0.25rem 0;
-      border-radius: 8px; 
-      cursor: pointer; 
-      transition: all 0.2s ease;
-      color: #495057;
-    }`,
-    sidebarMenuItemActive: `{ background: #007bff; color: white; }`,
-    sidebarMenuItemHover: `{ background: #e9ecef; }`,
-    
-    welcome: `{ text-align: center; padding: 3rem 2rem; }`,
-    title: `{ font-size: 2.5rem; font-weight: bold; color: var(--theme-accent); margin-bottom: 1rem; }`,
-    subtitle: `{ font-size: 1.2rem; color: #666; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto; }`,
+    welcome: `{ width: 100%; padding: 3rem 0; margin: 0 auto; text-align: center; }`,
+    title: `{ font-size: 2.5rem; font-weight: bold; color: var(--theme-accent); margin-bottom: 1rem; text-align: center; }`,
+    subtitle: `{ font-size: 1.2rem; color: #666; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto; text-align: center; }`,
     features: `{ display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 3rem; }`,
     feature: `{ background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: left; border: 1px solid #eee; transition: transform 0.2s ease, box-shadow 0.2s ease; } .feature:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.15); }`,
     featureIcon: `{ font-size: 2rem; margin-bottom: 1rem; color: var(--theme-accent); }`,
@@ -185,51 +162,18 @@ export function renderCurrentDemo(demo: string, classes: Record<string, string> 
   switch (demo) {
     case "basic":
       return (
-        <div class={c.basicLayout}>
-          {/* Left Sidebar Menu */}
-          <div class={c.basicSidebar}>
-            <h3 style="margin-top: 0; color: #495057; font-size: 1.2rem;">Components</h3>
-            <ul class={c.sidebarMenu}>
-              <li class={`${c.sidebarMenuItem} ${c.sidebarMenuItemActive}`}>
-                📊 Counters
-              </li>
-              <li class={c.sidebarMenuItem}>
-                🎯 Buttons
-              </li>
-              <li class={c.sidebarMenuItem}>
-                📝 Forms
-              </li>
-              <li class={c.sidebarMenuItem}>
-                🎨 Cards
-              </li>
-              <li class={c.sidebarMenuItem}>
-                📑 Tables
-              </li>
-            </ul>
-            
-            <h4 style="margin-top: 2rem; color: #495057; font-size: 1rem;">Features</h4>
-            <ul class={c.sidebarMenu}>
-              <li class={c.sidebarMenuItem}>
-                ✨ Function Props
-              </li>
-              <li class={c.sidebarMenuItem}>
-                🎨 CSS-Only Format
-              </li>
-              <li class={c.sidebarMenuItem}>
-                🔧 Type Helpers
-              </li>
-            </ul>
-          </div>
+        <div class={c.welcome}>
+          <h2 class={c.title}>🧩 Basic Components Demo</h2>
+          <p class={c.subtitle}>Explore function-style props, CSS-only format, and auto-generated class names</p>
           
-          {/* Right Content Area */}
-          <div class={c.basicContent}>
-            <h2 style="margin-top: 0; color: #007bff; font-size: 2rem;">🧩 Interactive Demo: Counters</h2>
+          <div style="margin: 2rem 0; padding: 2rem; background: #f8f9fa; border-radius: 12px; border-left: 4px solid #007bff;">
+            <h3 style="margin-top: 0; color: #007bff;">🎯 Interactive Demo: Function-Style Props</h3>
             <p style="margin-bottom: 2rem; color: #666;">
               These counters demonstrate function-style props with smart type helpers. 
               Each counter shows different prop configurations - notice zero duplication between prop definitions and usage!
             </p>
             
-            <div style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; margin: 2rem 0;">
+            <div style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;">
               <demo-counter 
                 initial-count="5"
                 step="1" 
@@ -256,37 +200,29 @@ export function renderCurrentDemo(demo: string, classes: Record<string, string> 
               ></demo-counter>
             </div>
             
-            <div style="margin-top: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #007bff;">
-              <h4 style="margin-top: 0; color: #007bff;">Component Definition</h4>
-              <code style="color: #495057; font-size: 0.875rem; display: block; white-space: pre;">
-render: (&#123;
-  initialCount = number(0),
-  step = number(1), 
-  maxValue = number(10),
-  label = string("Counter")
-&#125;, api, classes) =&gt; &#123; /* JSX */ &#125;
+            <div style="margin-top: 2rem; padding: 1rem; background: white; border-radius: 8px;">
+              <p><strong>Component Definition:</strong></p>
+              <code style="color: #007bff; font-size: 0.875rem;">
+                render: (&#123; initialCount = number(0), step = number(1), maxValue = number(10), label = string("Counter") &#125;, api, classes) =&gt; &#123; /* JSX */ &#125;
               </code>
             </div>
+          </div>
 
-            <div style="margin-top: 2rem;">
-              <h4 style="color: #495057;">Key Features</h4>
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem;">
-                <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
-                  <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">✨</div>
-                  <h5 style="margin: 0; color: #007bff;">Function-Style Props</h5>
-                  <p style="margin: 0.5rem 0 0; color: #666; font-size: 0.875rem;">Zero duplication between prop definitions and usage</p>
-                </div>
-                <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
-                  <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🎨</div>
-                  <h5 style="margin: 0; color: #007bff;">CSS-Only Format</h5>
-                  <p style="margin: 0.5rem 0 0; color: #666; font-size: 0.875rem;">Auto-generated class names from CSS properties</p>
-                </div>
-                <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
-                  <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🔧</div>
-                  <h5 style="margin: 0; color: #007bff;">Smart Type Helpers</h5>
-                  <p style="margin: 0.5rem 0 0; color: #666; font-size: 0.875rem;">Full TypeScript inference with validation</p>
-                </div>
-              </div>
+          <div class={c.features}>
+            <div class={c.feature}>
+              <div class={c.featureIcon}>✨</div>
+              <h3 class={c.featureTitle}>Function-Style Props</h3>
+              <p class={c.featureDesc}>Define props directly in render parameters with zero duplication. Types are automatically inferred from smart helpers like number(), string(), boolean().</p>
+            </div>
+            <div class={c.feature}>
+              <div class={c.featureIcon}>🎨</div>
+              <h3 class={c.featureTitle}>CSS-Only Format</h3>
+              <p class={c.featureDesc}>Write CSS properties, get auto-generated class names. No CSS-in-JS overhead. Classes are scoped and collision-free.</p>
+            </div>
+            <div class={c.feature}>
+              <div class={c.featureIcon}>🔧</div>
+              <h3 class={c.featureTitle}>Smart Type Helpers</h3>
+              <p class={c.featureDesc}>string(), number(), boolean(), array(), object() helpers with defaults and validation. Full TypeScript inference throughout.</p>
             </div>
           </div>
         </div>
