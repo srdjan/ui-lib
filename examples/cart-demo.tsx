@@ -218,12 +218,11 @@ defineComponent("cart-badge", {
     
     return (
       <div 
-        class={classes!.badge}
+        class={`${classes!.badge} cart-badge-reactive`}
         data-cart-id={id}
-        hx-on="htmx:load: if (window.funcwc) { window.funcwc.subscribeToState('cart', function(cartData) { var countEl = this.querySelector('.badgeCount'); var totalEl = this.querySelector('.badgeTotal'); if (countEl) countEl.textContent = cartData.count + ' items'; if (totalEl) totalEl.textContent = '$' + cartData.total.toFixed(2); this.style.transform = 'scale(1.05)'; var self = this; setTimeout(function() { self.style.transform = 'scale(1)'; }, 200); }.bind(this)); }"
       >
-        <div class={`${classes!.badgeCount} badgeCount`}>0 items</div>
-        <div class={`${classes!.badgeTotal} badgeTotal`}>$0.00</div>
+        <div class={`${classes!.badgeCount} cart-count`}>0 items</div>
+        <div class={`${classes!.badgeTotal} cart-total`}>$0.00</div>
         <p style="margin: 0.5rem 0 0; font-size: 0.875rem; opacity: 0.8;">
           🔄 Updates automatically via pub/sub
         </p>

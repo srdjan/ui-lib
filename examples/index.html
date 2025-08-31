@@ -69,6 +69,25 @@
         return window.funcwcState.get(topic);
       }
     };
+    
+    // Auto-subscribe cart badges when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      const cartBadges = document.querySelectorAll('.cart-badge-reactive');
+      cartBadges.forEach(badge => {
+        window.funcwc.subscribeToState('cart', function(cartData) {
+          const countEl = badge.querySelector('.cart-count');
+          const totalEl = badge.querySelector('.cart-total');
+          
+          if (countEl) countEl.textContent = cartData.count + ' items';
+          if (totalEl) totalEl.textContent = '$' + cartData.total.toFixed(2);
+          
+          badge.style.transform = 'scale(1.05)';
+          setTimeout(function() {
+            badge.style.transform = 'scale(1)';
+          }, 200);
+        });
+      });
+    });
   </script>
 </body>
 </html>
