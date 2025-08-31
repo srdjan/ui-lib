@@ -152,7 +152,7 @@ window.funcwc.subscribeToState("cart", function (cartData) {
 ```tsx
 // Event dispatcher - notification trigger
 <button onclick="
-  document.dispatchEvent(new CustomEvent('show-notification', {
+  document.dispatchEvent(new CustomEvent('funcwc:show-notification', {
     bubbles: true,
     detail: { type: 'success', message: 'Operation completed!' }
   }))
@@ -161,7 +161,7 @@ window.funcwc.subscribeToState("cart", function (cartData) {
 </button>;
 
 // Event listener - notification display
-document.addEventListener("show-notification", (event) => {
+document.addEventListener("funcwc:show-notification", (event) => {
   showNotification(event.detail.type, event.detail.message);
 });
 ```

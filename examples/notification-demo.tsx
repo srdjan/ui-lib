@@ -1,5 +1,5 @@
 /** @jsx h */
-import { defineComponent, h, string } from "../index.ts";
+import { defineComponent, h, string, dispatchEvent, createNotification } from "../index.ts";
 
 /**
  * 🔔 Notification System - Demonstrates Tier 3: DOM Events
@@ -81,72 +81,55 @@ defineComponent("notification-trigger", {
         <div class={classes!.buttonGrid}>
           <button
             class={`${classes!.notifyButton} ${classes!.successButton}`}
-            onclick={`
-              const successEvent = new CustomEvent('show-notification', {
-                bubbles: true,
-                detail: {
-                  type: 'success',
-                  title: 'Success!',
-                  message: 'Operation completed successfully',
-                  duration: 3000
-                }
-              });
-              document.dispatchEvent(successEvent);
-            `}
+            onclick={createNotification("Saved!", "success", 2500)}
+          >
+            ✅ Simple
+          </button>
+
+          <button
+            class={`${classes!.notifyButton} ${classes!.successButton}`}
+            onclick={dispatchEvent("show-notification", {
+              type: "success",
+              title: "Success!",
+              message: "Operation completed successfully",
+              duration: 3000,
+            })}
           >
             ✅ Success
           </button>
 
           <button
             class={`${classes!.notifyButton} ${classes!.warningButton}`}
-            onclick={`
-              const warningEvent = new CustomEvent('show-notification', {
-                bubbles: true,
-                detail: {
-                  type: 'warning',
-                  title: 'Warning!',
-                  message: 'Please check your input',
-                  duration: 4000
-                }
-              });
-              document.dispatchEvent(warningEvent);
-            `}
+            onclick={dispatchEvent("show-notification", {
+              type: "warning",
+              title: "Warning!",
+              message: "Please check your input",
+              duration: 4000,
+            })}
           >
             ⚠️ Warning
           </button>
 
           <button
             class={`${classes!.notifyButton} ${classes!.errorButton}`}
-            onclick={`
-              const errorEvent = new CustomEvent('show-notification', {
-                bubbles: true,
-                detail: {
-                  type: 'error',
-                  title: 'Error!',
-                  message: 'Something went wrong',
-                  duration: 5000
-                }
-              });
-              document.dispatchEvent(errorEvent);
-            `}
+            onclick={dispatchEvent("show-notification", {
+              type: "error",
+              title: "Error!",
+              message: "Something went wrong",
+              duration: 5000,
+            })}
           >
             ❌ Error
           </button>
 
           <button
             class={`${classes!.notifyButton} ${classes!.infoButton}`}
-            onclick={`
-              const infoEvent = new CustomEvent('show-notification', {
-                bubbles: true,
-                detail: {
-                  type: 'info',
-                  title: 'Info',
-                  message: 'Here is some helpful information',
-                  duration: 3000
-                }
-              });
-              document.dispatchEvent(infoEvent);
-            `}
+            onclick={dispatchEvent("show-notification", {
+              type: "info",
+              title: "Info",
+              message: "Here is some helpful information",
+              duration: 3000,
+            })}
           >
             ℹ️ Info
           </button>
@@ -222,6 +205,8 @@ defineComponent("notification-display", {
     }`,
   },
 
+  // Listener managed globally in examples/index.html
+
   render: (
     {
       maxNotifications = string("5"),
@@ -236,60 +221,15 @@ defineComponent("notification-display", {
     return (
       <div
         class={classes!.notificationContainer}
-        hx-on={`htmx:load:
-          // Listen for notification events
-          document.addEventListener('show-notification', (event) => {
-            const { type, title, message, duration } = event.detail;
-            
-            // Create notification element
-            const notification = document.createElement('div');
-            notification.className = '${classes!.notification}';
-            
-            // Add type-specific class
-            if (type === 'success') notification.classList.add('${
-          classes!.notificationSuccess
-        }');
-            else if (type === 'warning') notification.classList.add('${
-          classes!.notificationWarning
-        }');
-            else if (type === 'error') notification.classList.add('${
-          classes!.notificationError
-        }');
-            else if (type === 'info') notification.classList.add('${
-          classes!.notificationInfo
-        }');
-            
-            notification.innerHTML = \`
-              <div class="${classes!.notificationTitle}">\${title}</div>
-              <p class="${classes!.notificationMessage}">\${message}</p>
-            \`;
-            
-            // Add to container
-            this.appendChild(notification);
-            
-            // Show notification
-            setTimeout(() => {
-              notification.classList.add('${classes!.notificationVisible}');
-            }, 10);
-            
-            // Auto-remove after duration
-            setTimeout(() => {
-              notification.style.opacity = '0';
-              notification.style.transform = 'translateX(100%)';
-              setTimeout(() => {
-                if (notification.parentNode) {
-                  notification.parentNode.removeChild(notification);
-                }
-              }, 300);
-            }, duration || 3000);
-            
-            // Limit max notifications
-            while (this.children.length > ${max}) {
-              this.removeChild(this.children[0]);
-            }
-          });
-        `}
         data-max-notifications={max}
+        data-class-notification={classes!.notification}
+        data-class-visible={classes!.notificationVisible}
+        data-class-success={classes!.notificationSuccess}
+        data-class-warning={classes!.notificationWarning}
+        data-class-error={classes!.notificationError}
+        data-class-info={classes!.notificationInfo}
+        data-class-title={classes!.notificationTitle}
+        data-class-message={classes!.notificationMessage}
       >
         {/* Notifications will be dynamically added here */}
       </div>
