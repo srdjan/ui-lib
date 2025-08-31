@@ -4,6 +4,9 @@ import { renderComponent } from "../index.ts";
 // Import components to register them
 import "./layout.tsx";
 import "./demo-counter.tsx";
+import "./theme-controller.tsx";
+import "./cart-demo.tsx";
+import "./notification-demo.tsx";
 
 const PORT = 8080;
 

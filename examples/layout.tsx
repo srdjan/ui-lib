@@ -231,25 +231,77 @@ export function renderCurrentDemo(demo: string, classes: Record<string, string> 
     case "reactive":
       return (
         <div class={c.welcome}>
-          <h2 class={c.title}>⚡ Hybrid Reactivity Demo</h2>
-          <p class={c.subtitle}>Three-tier reactivity system: CSS properties, pub/sub state, and DOM events</p>
-          <div class={c.features}>
-            <div class={c.feature}>
-              <div class={c.featureIcon}>🎨</div>
-              <h3 class={c.featureTitle}>Tier 1: CSS Properties</h3>
-              <p class={c.featureDesc}>Theme switching and visual coordination using CSS custom properties for instant updates.</p>
+          <h2 class={c.title}>⚡ Hybrid Reactivity System</h2>
+          <p class={c.subtitle}>Interactive demos of funcwc's three-tier reactivity architecture</p>
+          
+          <div style="margin: 2rem 0; padding: 2rem; background: #f8f9fa; border-radius: 12px; border-left: 4px solid #6f42c1;">
+            <h3 style="margin-top: 0; color: #6f42c1;">🚀 Interactive Reactivity Demos</h3>
+            <p style="margin-bottom: 2rem; color: #666;">
+              Explore funcwc's revolutionary three-tier hybrid reactivity system. Each tier is optimized 
+              for different use cases and performance characteristics.
+            </p>
+            
+            {/* Tier 1: CSS Property Reactivity */}
+            <div style="margin: 2rem 0;">
+              <theme-controller current-theme="blue"></theme-controller>
             </div>
-            <div class={c.feature}>
-              <div class={c.featureIcon}>📡</div>
-              <h3 class={c.featureTitle}>Tier 2: Pub/Sub State</h3>
-              <p class={c.featureDesc}>Cross-component state management with topic-based subscriptions and automatic cleanup.</p>
+            
+            {/* Tier 2: Pub/Sub State Manager */}
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin: 2rem 0;">
+              <cart-manager store-id="demo-store"></cart-manager>
+              <cart-badge cart-id="default"></cart-badge>
             </div>
-            <div class={c.feature}>
-              <div class={c.featureIcon}>🔄</div>
-              <h3 class={c.featureTitle}>Tier 3: DOM Events</h3>
-              <p class={c.featureDesc}>Component-to-component communication via custom DOM events with structured payloads.</p>
+            
+            {/* Tier 3: DOM Events */}
+            <div style="margin: 2rem 0;">
+              <notification-trigger channel-id="notifications"></notification-trigger>
+            </div>
+            
+            <div style="margin-top: 2rem; padding: 1rem; background: white; border-radius: 8px;">
+              <h4 style="margin-top: 0; color: #6f42c1;">🎯 Architecture Overview</h4>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                  <strong style="color: #6f42c1;">⚡ CSS Properties</strong>
+                  <p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: #666;">
+                    Zero JS overhead. Instant visual updates. Perfect for themes and styling coordination.
+                  </p>
+                </div>
+                <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                  <strong style="color: #6f42c1;">📡 Pub/Sub State</strong>
+                  <p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: #666;">
+                    Business logic state. Topic-based subscriptions. Automatic cleanup and persistence.
+                  </p>
+                </div>
+                <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                  <strong style="color: #6f42c1;">🔄 DOM Events</strong>
+                  <p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: #666;">
+                    Component communication. Structured payloads. Native browser event optimization.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
+
+          <div class={c.features}>
+            <div class={c.feature}>
+              <div class={c.featureIcon}>⚡</div>
+              <h3 class={c.featureTitle}>Optimal Performance</h3>
+              <p class={c.featureDesc}>Each reactivity tier is optimized for its specific use case, delivering exceptional performance with minimal bundle size (~2KB total).</p>
+            </div>
+            <div class={c.feature}>
+              <div class={c.featureIcon}>🔧</div>
+              <h3 class={c.featureTitle}>Zero Configuration</h3>
+              <p class={c.featureDesc}>No complex setup or boilerplate. Components automatically get reactive capabilities through simple, declarative APIs.</p>
+            </div>
+            <div class={c.feature}>
+              <div class={c.featureIcon}>🌊</div>
+              <h3 class={c.featureTitle}>DOM-Native</h3>
+              <p class={c.featureDesc}>Built on web standards. No virtual DOM. The real DOM is your single source of truth for maximum compatibility.</p>
+            </div>
+          </div>
+          
+          {/* Notification display component */}
+          <notification-display max-notifications="3"></notification-display>
         </div>
       );
     
