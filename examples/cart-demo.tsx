@@ -82,30 +82,7 @@ defineComponent("cart-manager", {
             <div class={classes!.productPrice}>$699</div>
             <button
               class={classes!.addButton}
-              onclick={`
-                const currentCart = window.funcwc?.getState('cart') || { items: [], total: 0, count: 0 };
-                const newItem = { id: 'phone', name: 'Smartphone', price: 699 };
-                const existingIndex = currentCart.items.findIndex(item => item.id === 'phone');
-                
-                if (existingIndex >= 0) {
-                  currentCart.items[existingIndex].quantity = (currentCart.items[existingIndex].quantity || 1) + 1;
-                } else {
-                  currentCart.items.push({ ...newItem, quantity: 1 });
-                }
-                
-                currentCart.count = currentCart.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
-                currentCart.total = currentCart.items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-                
-                window.funcwc?.publishState('cart', currentCart);
-                
-                // Visual feedback
-                this.textContent = 'Added!';
-                this.style.background = '#28a745';
-                setTimeout(() => {
-                  this.textContent = 'Add to Cart';
-                  this.style.background = '#007bff';
-                }, 1000);
-              `}
+              onclick="window.addToCart('phone', 'Smartphone', 699, this)"
             >
               Add to Cart
             </button>
@@ -116,30 +93,7 @@ defineComponent("cart-manager", {
             <div class={classes!.productPrice}>$1299</div>
             <button
               class={classes!.addButton}
-              onclick={`
-                const currentCart = window.funcwc?.getState('cart') || { items: [], total: 0, count: 0 };
-                const newItem = { id: 'laptop', name: 'Laptop', price: 1299 };
-                const existingIndex = currentCart.items.findIndex(item => item.id === 'laptop');
-                
-                if (existingIndex >= 0) {
-                  currentCart.items[existingIndex].quantity = (currentCart.items[existingIndex].quantity || 1) + 1;
-                } else {
-                  currentCart.items.push({ ...newItem, quantity: 1 });
-                }
-                
-                currentCart.count = currentCart.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
-                currentCart.total = currentCart.items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-                
-                window.funcwc?.publishState('cart', currentCart);
-                
-                // Visual feedback
-                this.textContent = 'Added!';
-                this.style.background = '#28a745';
-                setTimeout(() => {
-                  this.textContent = 'Add to Cart';
-                  this.style.background = '#007bff';
-                }, 1000);
-              `}
+              onclick="window.addToCart('laptop', 'Laptop', 1299, this)"
             >
               Add to Cart
             </button>
@@ -150,30 +104,7 @@ defineComponent("cart-manager", {
             <div class={classes!.productPrice}>$199</div>
             <button
               class={classes!.addButton}
-              onclick={`
-                const currentCart = window.funcwc?.getState('cart') || { items: [], total: 0, count: 0 };
-                const newItem = { id: 'headphones', name: 'Headphones', price: 199 };
-                const existingIndex = currentCart.items.findIndex(item => item.id === 'headphones');
-                
-                if (existingIndex >= 0) {
-                  currentCart.items[existingIndex].quantity = (currentCart.items[existingIndex].quantity || 1) + 1;
-                } else {
-                  currentCart.items.push({ ...newItem, quantity: 1 });
-                }
-                
-                currentCart.count = currentCart.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
-                currentCart.total = currentCart.items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-                
-                window.funcwc?.publishState('cart', currentCart);
-                
-                // Visual feedback
-                this.textContent = 'Added!';
-                this.style.background = '#28a745';
-                setTimeout(() => {
-                  this.textContent = 'Add to Cart';
-                  this.style.background = '#007bff';
-                }, 1000);
-              `}
+              onclick="window.addToCart('headphones', 'Headphones', 199, this)"
             >
               Add to Cart
             </button>

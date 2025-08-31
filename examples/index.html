@@ -70,11 +70,61 @@
       }
     };
     
-    // Auto-subscribe cart badges when DOM is ready
-    document.addEventListener('DOMContentLoaded', function() {
+    // Cart management functions
+    window.addToCart = function(itemId, itemName, itemPrice, buttonEl) {
+      console.log('Adding to cart:', itemId, itemName, itemPrice);
+      
+      let currentCart = window.funcwc?.getState('cart');
+      if (!currentCart || !currentCart.items) {
+        currentCart = { items: [], total: 0, count: 0 };
+      }
+      
+      const newItem = { id: itemId, name: itemName, price: itemPrice };
+      const existingIndex = currentCart.items.findIndex(item => item.id === itemId);
+      
+      if (existingIndex >= 0) {
+        currentCart.items[existingIndex].quantity = (currentCart.items[existingIndex].quantity || 1) + 1;
+      } else {
+        currentCart.items.push({ ...newItem, quantity: 1 });
+      }
+      
+      currentCart.count = currentCart.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+      currentCart.total = currentCart.items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+      
+      console.log('Publishing cart state:', currentCart);
+      window.funcwc?.publishState('cart', currentCart);
+      
+      // Visual feedback
+      if (buttonEl) {
+        const originalText = buttonEl.textContent;
+        const originalColor = buttonEl.style.background;
+        buttonEl.textContent = 'Added!';
+        buttonEl.style.background = '#28a745';
+        setTimeout(function() {
+          buttonEl.textContent = originalText;
+          buttonEl.style.background = originalColor;
+        }, 1000);
+      }
+    };
+
+    // Function to set up cart badge subscriptions
+    window.setupCartBadges = function() {
+      console.log('Setting up cart badges...');
+      
       const cartBadges = document.querySelectorAll('.cart-badge-reactive');
+      console.log('Found cart badges:', cartBadges.length);
+      
       cartBadges.forEach(badge => {
+        // Check if already set up to avoid duplicate subscriptions
+        if (badge.hasAttribute('data-cart-subscribed')) {
+          return;
+        }
+        badge.setAttribute('data-cart-subscribed', 'true');
+        
+        console.log('Setting up badge subscription');
         window.funcwc.subscribeToState('cart', function(cartData) {
+          console.log('Cart state updated:', cartData);
+          
           const countEl = badge.querySelector('.cart-count');
           const totalEl = badge.querySelector('.cart-total');
           
@@ -87,6 +137,24 @@
           }, 200);
         });
       });
+    };
+
+    // Set up cart badges when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded, funcwc available:', !!window.funcwc);
+      window.setupCartBadges();
+      
+      // Test the state manager
+      setTimeout(function() {
+        console.log('Testing state manager...');
+        window.funcwc.publishState('cart', { count: 1, total: 699 });
+      }, 2000);
+    });
+
+    // Set up cart badges when HTMX content loads
+    document.body.addEventListener('htmx:afterSwap', function() {
+      console.log('HTMX content loaded, setting up cart badges...');
+      window.setupCartBadges();
     });
   </script>
 </body>
