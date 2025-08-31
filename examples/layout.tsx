@@ -1,4 +1,5 @@
 /** @jsx h */
+// deno-lint-ignore verbatim-module-syntax
 import { boolean, defineComponent, get, h, object, string } from "../index.ts";
 
 // Import demo components to register them
@@ -32,7 +33,7 @@ import "./demo-counter.tsx";
 defineComponent("app-layout", {
   // 🔗 Unified API System - Server routes auto-generate HTMX attributes!
   api: {
-    welcome: get("/demo/welcome", (req) => {
+    welcome: get("/demo/welcome", (_req) => {
       // Return partial HTML for HTMX to swap into the main content area
       const classes = {}; // In a real app, classes would be provided by the system
       const content = renderCurrentDemo("welcome", classes);
@@ -40,7 +41,7 @@ defineComponent("app-layout", {
         headers: { "Content-Type": "text/html" },
       });
     }),
-    basic: get("/demo/basic", (req) => {
+    basic: get("/demo/basic", (_req) => {
       // Return partial HTML for HTMX to swap into the main content area
       const classes = {}; // In a real app, classes would be provided by the system
       const content = renderCurrentDemo("basic", classes);
@@ -48,7 +49,7 @@ defineComponent("app-layout", {
         headers: { "Content-Type": "text/html" },
       });
     }),
-    reactive: get("/demo/reactive", (req) => {
+    reactive: get("/demo/reactive", (_req) => {
       // Return partial HTML for HTMX to swap into the main content area
       const classes = {}; // In a real app, classes would be provided by the system
       const content = renderCurrentDemo("reactive", classes);
@@ -72,8 +73,7 @@ defineComponent("app-layout", {
       `{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }`,
     nav:
       `{ display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; }`,
-    navActions:
-      `{ display: flex; align-items: center; gap: 1rem; }`,
+    navActions: `{ display: flex; align-items: center; gap: 1rem; }`,
     logo:
       `{ font-size: 1.5rem; font-weight: bold; color: white; text-decoration: none; transition: opacity 0.2s ease; } .logo:hover { opacity: 0.9; }`,
     navMenu:
@@ -85,8 +85,7 @@ defineComponent("app-layout", {
       `{ background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; } .theme-toggle:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }`,
     navCartBadge:
       `{ background: rgba(255,255,255,0.15); color: white; padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.25rem; }`,
-    navCartCount:
-      `{ font-weight: bold; }`,
+    navCartCount: `{ font-weight: bold; }`,
 
     main:
       `{ flex: 1; padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; transition: opacity 0.3s ease-in-out; }`,
@@ -117,8 +116,8 @@ defineComponent("app-layout", {
         tagline: "SSR-First Component Library",
       }), // Object prop with structured default
     },
-    api: any,
-    classes: any,
+    api,
+    classes,
   ) => {
     const demo: string = typeof currentDemo === "string"
       ? currentDemo
@@ -179,7 +178,10 @@ defineComponent("app-layout", {
             </ul>
 
             <div class={classes!.navActions}>
-              <div class={`${classes!.navCartBadge} cart-badge-reactive`} data-cart-id="default">
+              <div
+                class={`${classes!.navCartBadge} cart-badge-reactive`}
+                data-cart-id="default"
+              >
                 🛒 <span class={`${classes!.navCartCount} cart-count`}>0</span>
               </div>
               <button

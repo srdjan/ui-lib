@@ -1,5 +1,6 @@
 /** @jsx h */
-import { defineComponent, h, number, string } from "../index.ts";
+// deno-lint-ignore verbatim-module-syntax
+import { defineComponent, h, string } from "../index.ts";
 
 /**
  * 📡 Cart Manager - Demonstrates Tier 2: Pub/Sub State Manager
@@ -70,10 +71,10 @@ defineComponent("cart-manager", {
     {
       storeId = string("demo-store"),
     },
-    api,
+    _api,
     classes,
   ) => {
-    const store = typeof storeId === "string" ? storeId : "demo-store";
+    const _store = typeof storeId === "string" ? storeId : "demo-store";
 
     return (
       <div class={classes!.cartPanel}>
@@ -88,6 +89,7 @@ defineComponent("cart-manager", {
             <div class={classes!.productName}>📱 Smartphone</div>
             <div class={classes!.productPrice}>$699</div>
             <button
+              type="button"
               class={classes!.addButton}
               onclick="window.addToCart('phone', 'Smartphone', 699, this)"
             >
@@ -99,6 +101,7 @@ defineComponent("cart-manager", {
             <div class={classes!.productName}>💻 Laptop</div>
             <div class={classes!.productPrice}>$1299</div>
             <button
+              type="button"
               class={classes!.addButton}
               onclick="window.addToCart('laptop', 'Laptop', 1299, this)"
             >
@@ -110,6 +113,7 @@ defineComponent("cart-manager", {
             <div class={classes!.productName}>🎧 Headphones</div>
             <div class={classes!.productPrice}>$199</div>
             <button
+              type="button"
               class={classes!.addButton}
               onclick="window.addToCart('headphones', 'Headphones', 199, this)"
             >
@@ -153,7 +157,7 @@ defineComponent("cart-badge", {
     {
       cartId = string("default"),
     },
-    api,
+    _api,
     classes,
   ) => {
     const id = typeof cartId === "string" ? cartId : "default";

@@ -1,6 +1,6 @@
 // JSX Runtime: Direct-to-String Renderer with Type-Safe Event Handling
 
-import { type ComponentAction } from "./actions.ts";
+import type { ComponentAction } from "./actions.ts";
 import { escape } from "./dom-helpers.ts";
 
 const SELF_CLOSING_TAGS = new Set([

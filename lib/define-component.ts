@@ -283,7 +283,10 @@ export function defineComponent<TProps = Record<string, string>>(
             `.trim();
           }
           if (lifecycleCode) {
-            const code = lifecycleCode.replace(/\n/g, ' ').replace(/"/g, "&quot;");
+            const code = lifecycleCode.replace(/\n/g, " ").replace(
+              /"/g,
+              "&quot;",
+            );
             reactiveAttrs.push(`hx-on="htmx:load: ${code}"`);
           }
         }

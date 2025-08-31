@@ -1,6 +1,6 @@
 // HTTP method helper functions for clean API definitions
-import { type RouteHandler } from "./router.ts";
-import { type ApiDefinition } from "./api-generator.ts";
+import type { RouteHandler } from "./router.ts";
+import type { ApiDefinition } from "./api-generator.ts";
 
 /**
  * Create a GET route definition

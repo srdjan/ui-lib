@@ -1,5 +1,12 @@
 /** @jsx h */
-import { defineComponent, h, string, dispatchEvent, createNotification } from "../index.ts";
+// deno-lint-ignore-file verbatim-module-syntax
+import {
+  createNotification,
+  defineComponent,
+  dispatchEvent,
+  h,
+  string,
+} from "../index.ts";
 
 /**
  * 🔔 Notification System - Demonstrates Tier 3: DOM Events
@@ -62,13 +69,11 @@ defineComponent("notification-trigger", {
   },
 
   render: (
-    {
-      channelId = string("notifications"),
-    },
-    api,
+    { _channelId = string("notifications") },
+    _api,
     classes,
   ) => {
-    const channel = typeof channelId === "string" ? channelId : "notifications";
+    // channelId reserved for future targeting; using global document listener now
 
     return (
       <div class={classes!.triggerPanel}>
@@ -80,6 +85,7 @@ defineComponent("notification-trigger", {
 
         <div class={classes!.buttonGrid}>
           <button
+            type="button"
             class={`${classes!.notifyButton} ${classes!.successButton}`}
             onclick={createNotification("Saved!", "success", 2500)}
           >
@@ -87,6 +93,7 @@ defineComponent("notification-trigger", {
           </button>
 
           <button
+            type="button"
             class={`${classes!.notifyButton} ${classes!.successButton}`}
             onclick={dispatchEvent("show-notification", {
               type: "success",
@@ -99,6 +106,7 @@ defineComponent("notification-trigger", {
           </button>
 
           <button
+            type="button"
             class={`${classes!.notifyButton} ${classes!.warningButton}`}
             onclick={dispatchEvent("show-notification", {
               type: "warning",
@@ -111,6 +119,7 @@ defineComponent("notification-trigger", {
           </button>
 
           <button
+            type="button"
             class={`${classes!.notifyButton} ${classes!.errorButton}`}
             onclick={dispatchEvent("show-notification", {
               type: "error",
@@ -123,6 +132,7 @@ defineComponent("notification-trigger", {
           </button>
 
           <button
+            type="button"
             class={`${classes!.notifyButton} ${classes!.infoButton}`}
             onclick={dispatchEvent("show-notification", {
               type: "info",
@@ -211,7 +221,7 @@ defineComponent("notification-display", {
     {
       maxNotifications = string("5"),
     },
-    api,
+    _api,
     classes,
   ) => {
     const max = typeof maxNotifications === "string"

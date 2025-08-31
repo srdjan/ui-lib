@@ -187,55 +187,71 @@
       });
 
       // Global notification handler for DOM Events demo
-      (function(){
+      (function () {
         if (document.__funcwcNotifyBound) return;
         document.__funcwcNotifyBound = true;
         console.log("funcwc notify: global listener bound");
 
-        function handle(detail){
+        function handle(detail) {
           console.log("funcwc notify: event", detail);
-          var containers = document.querySelectorAll('[data-component="notification-display"]');
+          var containers = document.querySelectorAll(
+            '[data-component="notification-display"]',
+          );
           if (!containers.length) return;
           console.log("funcwc notify: containers", containers.length);
 
-          containers.forEach(function(container){
-            var clsN = container.getAttribute('data-class-notification') || '';
-            var clsV = container.getAttribute('data-class-visible') || '';
-            var clsS = container.getAttribute('data-class-success') || '';
-            var clsW = container.getAttribute('data-class-warning') || '';
-            var clsE = container.getAttribute('data-class-error') || '';
-            var clsI = container.getAttribute('data-class-info') || '';
-            var clsT = container.getAttribute('data-class-title') || '';
-            var clsM = container.getAttribute('data-class-message') || '';
-            var max = parseInt(container.getAttribute('data-max-notifications')) || 5;
+          containers.forEach(function (container) {
+            var clsN =
+              container.getAttribute("data-class-notification") || "";
+            var clsV = container.getAttribute("data-class-visible") ||
+              "";
+            var clsS = container.getAttribute("data-class-success") ||
+              "";
+            var clsW = container.getAttribute("data-class-warning") ||
+              "";
+            var clsE = container.getAttribute("data-class-error") || "";
+            var clsI = container.getAttribute("data-class-info") || "";
+            var clsT = container.getAttribute("data-class-title") || "";
+            var clsM = container.getAttribute("data-class-message") ||
+              "";
+            var max = parseInt(
+              container.getAttribute("data-max-notifications"),
+            ) || 5;
 
-            var type = (detail && detail.type) || 'info';
-            var title = (detail && detail.title) || '';
-            var message = (detail && detail.message) || '';
-            var duration = Math.max(0, parseInt(detail && detail.duration) || 3000);
+            var type = (detail && detail.type) || "info";
+            var title = (detail && detail.title) || "";
+            var message = (detail && detail.message) || "";
+            var duration = Math.max(
+              0,
+              parseInt(detail && detail.duration) || 3000,
+            );
 
-            var n = document.createElement('div');
+            var n = document.createElement("div");
             n.className = clsN;
-            if (type === 'success') n.classList.add(clsS);
-            else if (type === 'warning') n.classList.add(clsW);
-            else if (type === 'error') n.classList.add(clsE);
-            else if (type === 'info') n.classList.add(clsI);
+            if (type === "success") n.classList.add(clsS);
+            else if (type === "warning") n.classList.add(clsW);
+            else if (type === "error") n.classList.add(clsE);
+            else if (type === "info") n.classList.add(clsI);
 
-            var t = document.createElement('div');
+            var t = document.createElement("div");
             t.className = clsT;
             t.textContent = title;
-            var m = document.createElement('p');
+            var m = document.createElement("p");
             m.className = clsM;
             m.textContent = message;
             n.appendChild(t);
             n.appendChild(m);
 
             container.appendChild(n);
-            setTimeout(function(){ n.classList.add(clsV); }, 10);
-            setTimeout(function(){
-              n.style.opacity = '0';
-              n.style.transform = 'translateX(100%)';
-              setTimeout(function(){ if (n.parentNode) n.parentNode.removeChild(n); }, 300);
+            setTimeout(function () {
+              n.classList.add(clsV);
+            }, 10);
+            setTimeout(function () {
+              n.style.opacity = "0";
+              n.style.transform = "translateX(100%)";
+              setTimeout(function () {
+                if (n.parentNode) n.parentNode.removeChild(n);
+              }, 300);
             }, duration);
 
             while (container.children.length > max) {
@@ -244,12 +260,15 @@
           });
         }
 
-        document.addEventListener('funcwc:show-notification', function (e) {
-          handle(e.detail || {});
-        });
+        document.addEventListener(
+          "funcwc:show-notification",
+          function (e) {
+            handle(e.detail || {});
+          },
+        );
 
         // Also handle newly swapped content (no-op if no display present)
-        document.body.addEventListener('htmx:afterSwap', function(){
+        document.body.addEventListener("htmx:afterSwap", function () {
           // No explicit binding needed; listener is global
         });
       })();

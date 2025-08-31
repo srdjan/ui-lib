@@ -1,4 +1,5 @@
 /** @jsx h */
+// deno-lint-ignore verbatim-module-syntax
 import { defineComponent, h, string } from "../index.ts";
 
 /**
@@ -68,7 +69,7 @@ defineComponent("theme-controller", {
     {
       currentTheme = string("blue"),
     },
-    api,
+    _api,
     classes,
   ) => {
     const theme = typeof currentTheme === "string" ? currentTheme : "blue";
@@ -80,6 +81,7 @@ defineComponent("theme-controller", {
 
         <div class={classes!.themeOptions}>
           <button
+            type="button"
             class={`${classes!.themeButton} ${
               theme === "blue" ? classes!.themeButtonActive : ""
             }`}
@@ -103,6 +105,7 @@ defineComponent("theme-controller", {
           </button>
 
           <button
+            type="button"
             class={`${classes!.themeButton} ${
               theme === "green" ? classes!.themeButtonActive : ""
             }`}
@@ -126,6 +129,7 @@ defineComponent("theme-controller", {
           </button>
 
           <button
+            type="button"
             class={`${classes!.themeButton} ${
               theme === "purple" ? classes!.themeButtonActive : ""
             }`}
@@ -149,6 +153,7 @@ defineComponent("theme-controller", {
           </button>
 
           <button
+            type="button"
             class={`${classes!.themeButton} ${
               theme === "orange" ? classes!.themeButtonActive : ""
             }`}

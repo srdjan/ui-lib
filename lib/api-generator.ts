@@ -1,6 +1,6 @@
 // Auto-generation of client attributes from API route definitions
 
-import { type RouteHandler } from "./router.ts";
+import type { RouteHandler } from "./router.ts";
 import { currentRequestHeaders } from "./request-headers.ts";
 
 // Type-safe tuple format: functionName -> [method, path, handler]

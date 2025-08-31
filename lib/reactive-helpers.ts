@@ -248,7 +248,7 @@ export const createThemeToggle = (
   const getCurrentTheme = getCSSProperty("theme-mode");
   const isDark = `(${getCurrentTheme}) === 'dark'`;
 
-  let toggleCode = conditionalAction(
+  const toggleCode = conditionalAction(
     isDark,
     // Switch to light
     Object.entries(lightTheme)

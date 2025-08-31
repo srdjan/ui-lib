@@ -1,4 +1,5 @@
 /** @jsx h */
+// deno-lint-ignore verbatim-module-syntax
 import { boolean, defineComponent, h, number, string } from "../index.ts";
 
 /**
@@ -85,7 +86,7 @@ defineComponent("demo-counter", {
       showControls = boolean(true), // Show increment/decrement controls
       label = string("Counter"), // Counter label
     },
-    api,
+    _api,
     classes,
   ) => {
     const currentCount = typeof initialCount === "number" ? initialCount : 0;
@@ -113,6 +114,7 @@ defineComponent("demo-counter", {
           {showButtons && (
             <div style="display: flex; gap: 0.5rem;">
               <button
+                type="button"
                 class={`${classes!.button} ${atMin ? classes!.disabled : ""}`}
                 onclick={`
                   const container = this.closest('[data-count]');
@@ -144,6 +146,7 @@ defineComponent("demo-counter", {
               </button>
 
               <button
+                type="button"
                 class={`${classes!.button} ${atMax ? classes!.disabled : ""}`}
                 onclick={`
                   const container = this.closest('[data-count]');

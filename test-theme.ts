@@ -6,7 +6,7 @@ import { h } from "./lib/jsx-runtime.ts";
 // Test the theme-controller render function
 const testRenderFunction = (
   { currentTheme = string("light") },
-  api,
+  _api,
   classes,
 ) => (
   h(

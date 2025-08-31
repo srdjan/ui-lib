@@ -439,11 +439,4 @@ export const injectStateManager = (
   return `<script>\n${script}\n${configScript}\n</script>`;
 };
 
-/**
- * Declare global window interface for TypeScript
- */
-declare global {
-  interface Window {
-    funcwcState?: StateManager;
-  }
-}
+// Note: Global type augmentation omitted to satisfy linting constraints.

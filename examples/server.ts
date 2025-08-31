@@ -77,7 +77,7 @@ async function handler(request: Request): Promise<Response> {
           // Extract just the inner content (without the main tag wrapper)
           const innerStart = mainElement.indexOf(">") + 1;
           const innerEnd = mainElement.lastIndexOf("</main>");
-          let extractedContent = mainElement.slice(innerStart, innerEnd);
+          const extractedContent = mainElement.slice(innerStart, innerEnd);
 
           // Extract CSS styles from the full layout to include with the content
           const styleMatches = fullLayoutContent.match(

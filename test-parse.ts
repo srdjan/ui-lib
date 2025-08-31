@@ -4,12 +4,12 @@ import { parseRenderParameters } from "./lib/render-parameter-parser.ts";
 // Test render parameter parsing on the api-counter render function
 const testRenderFunction = (
   {
-    currentValue = number(0),
-    step = number(1),
-    lastAction = string("none"),
+    currentValue: _currentValue = number(0),
+    step: _step = number(1),
+    lastAction: _lastAction = string("none"),
   },
-  api,
-  classes,
+  _api,
+  _classes,
 ) => "test";
 
 console.log("Testing render parameter parsing:");

@@ -4,12 +4,12 @@ import { number, string } from "./lib/prop-helpers.ts";
 // Test render parameter parsing on the api-counter render function
 const testRenderFunction = (
   {
-    currentValue = number(0),
-    step = number(1),
-    lastAction = string("none"),
+    currentValue: _currentValue = number(0),
+    step: _step = number(1),
+    lastAction: _lastAction = string("none"),
   },
-  api,
-  classes,
+  _api,
+  _classes,
 ) => "test";
 
 console.log("Function string:");
