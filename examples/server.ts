@@ -1,8 +1,9 @@
 // Development server for funcwc examples
 import { renderComponent } from "../index.ts";
 
-// Import layout component to register it
+// Import components to register them
 import "./layout.tsx";
+import "./demo-counter.tsx";
 
 const PORT = 8080;
 
@@ -49,14 +50,36 @@ async function handler(request: Request): Promise<Response> {
     if (pathname.startsWith("/demo/")) {
       const demoType = pathname.split("/")[2]; // Extract demo type (welcome, basic, reactive)
       if (["welcome", "basic", "reactive"].includes(demoType)) {
-        // Use renderComponent with demo props for partial content
-        const content = renderComponent("app-layout", { currentDemo: demoType });
-        // Extract just the main content area from the full component
-        const mainContentMatch = content.match(/<main[^>]*id="content-area"[^>]*>([\s\S]*?)<\/main>/);
-        const mainContent = mainContentMatch ? mainContentMatch[1] : content;
-        return new Response(mainContent, {
-          headers: { "Content-Type": "text/html; charset=utf-8" },
-        });
+        // Import and use the renderCurrentDemo function directly
+        const layoutModule = await import("./layout.tsx");
+        
+        // We need to get the CSS classes from the app-layout component
+        // For now, render the full layout to get the classes, then extract just the content
+        const fullLayoutContent = renderComponent("app-layout", { currentDemo: demoType });
+        
+        // Extract the content area from the full layout
+        const contentStart = fullLayoutContent.indexOf('<main');
+        const contentEnd = fullLayoutContent.indexOf('</main>') + 7;
+        
+        if (contentStart !== -1 && contentEnd !== -1) {
+          const mainElement = fullLayoutContent.slice(contentStart, contentEnd);
+          // Extract just the inner content (without the main tag wrapper)
+          const innerStart = mainElement.indexOf('>') + 1;
+          const innerEnd = mainElement.lastIndexOf('</main>');
+          const processedContent = mainElement.slice(innerStart, innerEnd);
+          
+          return new Response(processedContent, {
+            headers: { "Content-Type": "text/html; charset=utf-8" },
+          });
+        } else {
+          // Fallback to original approach
+          const rawContent = layoutModule.renderCurrentDemo(demoType, {});
+          const processedContent = processComponentTags(rawContent);
+          
+          return new Response(processedContent, {
+            headers: { "Content-Type": "text/html; charset=utf-8" },
+          });
+        }
       }
     }
 

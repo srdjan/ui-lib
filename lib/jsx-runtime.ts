@@ -111,7 +111,7 @@ export function h(
           (child.match(/^<[a-zA-Z][^>]*\/>$/) || // Self-closing tag like <input />
             (SELF_CLOSING_TAGS.has(tagName) &&
               child.match(/^<[a-zA-Z][^>]*>$/)) || // Our self-closing tags like <input>
-            child.match(/^<[a-zA-Z][^>]*>.*<\/[a-zA-Z][^>]*>$/)) && // Regular tag with closing
+            child.match(/^<[a-zA-Z][^>]*>[\s\S]*<\/[a-zA-Z][^>]*>$/)) && // Regular tag with closing (allow multiline)
           !child.includes("<script")
         ) { // Extra safety check
           return child; // Already rendered HTML from nested h calls
