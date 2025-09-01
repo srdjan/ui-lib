@@ -7,19 +7,30 @@
 
     <!-- Base CSS: Open Props (variables) + Normalize (efficient, from CDN) -->
     <link rel="preconnect" href="https://unpkg.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link
       rel="stylesheet"
-      href="https://unpkg.com/open-props@2.2.0/normalize.min.css"
+      href="/assets/open-props/1.7.16/normalize.min.css"
     >
     <link
       rel="stylesheet"
-      href="https://unpkg.com/open-props@2.2.0/open-props.min.css"
+      href="/assets/open-props/1.7.16/open-props.min.css"
+    >
+    <!-- Open Props UI modules (buttons, forms, typography) -->
+    <link
+      rel="stylesheet"
+      href="/assets/open-props/1.7.16/buttons.min.css"
+    >
+    <link
+      rel="stylesheet"
+      href="/assets/open-props/1.7.16/fonts.min.css"
     >
 
     <!-- HTMX for reactivity -->
     <script src="https://unpkg.com/htmx.org@2.0.6"></script>
+    <!-- HTMX v2 extension packages are separate: use htmx-ext-json-enc -->
     <script
-      src="https://unpkg.com/htmx.org@2.0.6/dist/ext/json-enc.js"
+      src="https://unpkg.com/htmx-ext-json-enc@2.0.1/json-enc.js"
     ></script>
 
     <!-- CSS theme variables for reactivity -->

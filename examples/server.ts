@@ -54,20 +54,24 @@ async function handler(request: Request): Promise<Response> {
       });
     }
 
-    // Serve static files (TypeScript modules, CSS, JS)
+    // Serve static files (assets, TypeScript modules, CSS, JS)
     if (
-      pathname.startsWith("/lib/") || pathname.endsWith(".ts") ||
-      pathname.endsWith(".tsx")
+      pathname.startsWith("/assets/") || pathname.startsWith("/lib/") ||
+      pathname.endsWith(".ts") || pathname.endsWith(".tsx")
     ) {
       try {
         // Handle TypeScript files by serving them with correct MIME type
         const filePath = pathname.startsWith("/") ? `.${pathname}` : pathname;
         const content = await Deno.readTextFile(filePath);
 
-        const contentType =
-          pathname.endsWith(".ts") || pathname.endsWith(".tsx")
-            ? "application/typescript"
-            : "text/plain";
+        let contentType = "text/plain";
+        if (pathname.endsWith(".ts") || pathname.endsWith(".tsx")) {
+          contentType = "application/typescript";
+        } else if (pathname.endsWith(".css")) {
+          contentType = "text/css; charset=utf-8";
+        } else if (pathname.endsWith(".js")) {
+          contentType = "application/javascript";
+        }
 
         return new Response(content, {
           headers: { "Content-Type": contentType },
