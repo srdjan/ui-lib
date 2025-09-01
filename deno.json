@@ -1,6 +1,6 @@
 {
   "name": "@funcwc/core",
-  "version": "1.1.1",
+  "version": "0.7.0",
   "description": "Ultra-lightweight, type-safe SSR components with DOM-native state management and hybrid reactivity",
   "license": "MIT",
   "repository": {
