@@ -1,6 +1,7 @@
 /** @jsx h */
 // deno-lint-ignore verbatim-module-syntax
 import { boolean, defineComponent, get, h, object, string } from "../index.ts";
+import type { GeneratedApiMap } from "../index.ts";
 
 // Import demo components to register them
 import "./demo-counter.tsx";
@@ -116,8 +117,8 @@ defineComponent("app-layout", {
         tagline: "SSR-First Component Library",
       }), // Object prop with structured default
     },
-    api,
-    classes,
+    api: GeneratedApiMap,
+    classes?: Record<string, string>,
   ) => {
     const demo: string = typeof currentDemo === "string"
       ? currentDemo

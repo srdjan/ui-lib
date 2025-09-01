@@ -12,6 +12,13 @@ export type GeneratedApiMap = Record<
   (...args: unknown[]) => Record<string, string>
 >;
 
+// Options accepted by generated client functions
+export type ApiClientOptions = {
+  headers?: Record<string, string>;
+  target?: string;
+  swap?: string;
+};
+
 /**
  * Auto-generates client attribute functions from type-safe API definitions
  *
@@ -87,11 +94,7 @@ export function generateClientApi(apiMap: ApiMap): GeneratedApiMap {
         }
 
         if (maybeOpts && typeof maybeOpts === "object") {
-          const opts = maybeOpts as {
-            headers?: Record<string, string>;
-            target?: string;
-            swap?: string;
-          };
+          const opts = maybeOpts as ApiClientOptions;
           if (opts.swap) attrs["hx-swap"] = opts.swap;
           if (opts.target) attrs["hx-target"] = opts.target;
           if (opts.headers) Object.assign(defaultHeaders, opts.headers);

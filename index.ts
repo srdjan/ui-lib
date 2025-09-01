@@ -39,6 +39,7 @@ export { escapeHtml } from "./lib/ssr.ts";
 // Type definitions
 export type { ComponentAction } from "./lib/actions.ts";
 export type { ApiMap, GeneratedApiMap } from "./lib/api-generator.ts";
+export type { ApiClientOptions } from "./lib/api-generator.ts";
 export type {
   ComponentConfig,
   InferProps,

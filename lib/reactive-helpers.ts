@@ -131,6 +131,16 @@ export const hxOn = (events: Record<string, string>): string => {
 };
 
 /**
+ * Generate a consolidated hx-on attribute from a map of events → code.
+ * Example: on({ 'htmx:load': 'init()', 'funcwc:open': '...' })
+ * Returns: hx-on="htmx:load: init()\nfuncwc:open: ..."
+ */
+export const on = (events: Record<string, string>): string => {
+  const body = hxOn(events).replace(/"/g, "&quot;");
+  return `hx-on="${body}"`;
+};
+
+/**
  * Generate HTMX attribute for listening to custom events
  * @param eventName - Event name (will be prefixed with 'funcwc:')
  * @param handler - JavaScript code to execute when event is received

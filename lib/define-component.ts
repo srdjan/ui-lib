@@ -9,7 +9,7 @@ import {
 // Re-export for use in reactive components
 export type { GeneratedApiMap };
 import { appRouter } from "./router.ts";
-import { listensFor, subscribeToState } from "./reactive-helpers.ts";
+import { on, subscribeToState } from "./reactive-helpers.ts";
 import {
   isUnifiedStyles,
   parseUnifiedStyles,
@@ -250,9 +250,8 @@ export function defineComponent<TProps = Record<string, string>>(
           }
         }
         if (reactive?.on) {
-          for (const [ev, handler] of Object.entries(reactive.on)) {
-            reactiveAttrs.push(listensFor(ev, handler));
-          }
+          // Consolidate all events into a single hx-on attribute
+          reactiveAttrs.push(on(reactive.on));
         }
         if (reactive?.mount || reactiveCode.length > 0 || reactive?.unmount) {
           let lifecycleCode = "";

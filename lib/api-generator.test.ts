@@ -6,6 +6,7 @@ import {
 } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import { generateClientApi } from "./api-generator.ts";
 import { del, get, patch, post, put } from "./api-helpers.ts";
+import type { ApiClientOptions } from "./api-generator.ts";
 
 Deno.test("generateClientApi creates client functions with helper syntax", () => {
   const apiMap = {
@@ -127,4 +128,24 @@ Deno.test("generateClientApi handles no parameters", () => {
 
   const logoutAction = clientApi.logout();
   assertEquals(logoutAction["hx-post"], "/api/logout");
+});
+
+Deno.test("client options override defaults and merge headers", () => {
+  const apiMap = {
+    create: post("/api/todos", () => new Response("ok")),
+  };
+  const client = generateClientApi(apiMap);
+  const opts: ApiClientOptions = {
+    target: "#inbox",
+    swap: "afterbegin",
+    headers: { "X-Test": "1" },
+  };
+  const attrs = client.create({ a: 1 }, opts);
+  const headers = JSON.parse(attrs["hx-headers"]);
+  // Overrides
+  assertEquals(attrs["hx-target"], "#inbox");
+  assertEquals(attrs["hx-swap"], "afterbegin");
+  // Merged headers
+  assertEquals(headers["X-Test"], "1");
+  assertEquals(headers["X-Requested-With"], "XMLHttpRequest");
 });

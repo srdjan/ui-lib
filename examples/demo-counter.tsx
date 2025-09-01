@@ -134,6 +134,9 @@ defineComponent("demo-counter", {
                   buttons[1].classList.toggle('${
                   classes!.disabled
                 }', newCount >= ${max});
+                  // Keep disabled attribute in sync for real clickability
+                  buttons[0].disabled = (newCount <= ${min});
+                  buttons[1].disabled = (newCount >= ${max});
                   
                   // Update container state
                   container.classList.toggle('${
@@ -166,6 +169,9 @@ defineComponent("demo-counter", {
                   buttons[1].classList.toggle('${
                   classes!.disabled
                 }', newCount >= ${max});
+                  // Keep disabled attribute in sync for real clickability
+                  buttons[0].disabled = (newCount <= ${min});
+                  buttons[1].disabled = (newCount >= ${max});
                   
                   // Update container state
                   container.classList.toggle('${

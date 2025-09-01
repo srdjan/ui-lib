@@ -11,6 +11,7 @@ import {
   getCSSProperty,
   hxOn,
   listensFor,
+  on,
   publishState,
   safeExecute,
   setCSSProperty,
@@ -42,6 +43,10 @@ Deno.test("Attribute and utility helpers generate expected strings", () => {
     ),
     true,
   );
+  // on() wraps hx-on="..."
+  const attr = on({ "htmx:load": "init()", "funcwc:open": "noop()" });
+  assertStringIncludes(attr, 'hx-on="');
+  assertStringIncludes(attr, "htmx:load:");
   assertStringIncludes(listensFor("open", "handle()"), "hx-on=");
   assertStringIncludes(findClosestComponent(), "[data-component]");
   assertStringIncludes(conditionalAction("x>0", "doA()", "doB()"), "if (");
