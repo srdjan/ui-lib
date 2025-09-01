@@ -105,7 +105,7 @@ funcwc analyzes your routes and creates client functions automatically:
 | Server Route Definition                   | Generated Function | What It Returns                                                                                            |
 | ----------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------- |
 | `patch("/api/todos/:id/toggle", handler)` | `api.toggle(id)`   | `{ "hx-patch": "/api/todos/123/toggle", "hx-target": "closest [data-component]", "hx-swap": "outerHTML" }` |
-| `del("/api/todos/:id", handler)`          | `api.remove(id)`   | `{ "hx-delete": "/api/todos/123", "hx-target": "closest [data-component]", "hx-swap": "outerHTML" }`       |
+| `remove("/api/todos/:id", handler)`       | `api.remove(id)`   | `{ "hx-delete": "/api/todos/123", "hx-target": "closest [data-component]", "hx-swap": "outerHTML" }`       |
 | `post("/api/todos", handler)`             | `api.create()`     | `{ "hx-post": "/api/todos", "hx-target": "closest [data-component]", "hx-swap": "outerHTML" }`             |
 | `get("/api/todos/:id", handler)`          | `api.get(id)`      | `{ "hx-get": "/api/todos/123" }`                                                                           |
 
@@ -416,7 +416,7 @@ defineComponent("task-list", {
       );
     }),
 
-    deleteBatch: del("/api/tasks/batch", async (req) => {
+    deleteBatch: remove("/api/tasks/batch", async (req) => {
       const form = await req.formData();
       const taskIds = form.getAll("taskId") as string[];
 
@@ -564,14 +564,14 @@ api: {
   create: post("/api/items", () => { /* create */ }),
   replace: put("/api/items/:id", () => { /* replace */ }),
   update: patch("/api/items/:id", () => { /* update */ }),
-  remove: del("/api/items/:id", () => { /* remove */ })
+  remove: remove("/api/items/:id", () => { /* remove */ })
 }
 ```
 
 ### 3. **Handle Errors Gracefully**
 
 ```tsx
-remove: del("/api/items/:id", async (req, params) => {
+remove: remove("/api/items/:id", async (req, params) => {
   try {
     await deleteItem(params.id);
     return new Response("", { status: 200 });

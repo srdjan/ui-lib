@@ -1,6 +1,6 @@
 {
   "name": "@funcwc/core",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "Ultra-lightweight, type-safe SSR components with DOM-native state management and hybrid reactivity",
   "license": "MIT",
   "repository": {
@@ -32,7 +32,8 @@
     "coverage": "deno test --coverage=coverage && deno coverage coverage --lcov > coverage.lcov",
     "serve": "cd examples && deno run --allow-net --allow-read --allow-env server.ts",
     "start": "deno task check && deno task serve",
-    "docs": "deno doc index.ts"
+    "docs": "deno doc index.ts",
+    "bench": "deno bench"
   },
 
   "compilerOptions": {

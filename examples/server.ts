@@ -1,5 +1,7 @@
 // Development server for funcwc examples
 import { renderComponent } from "../index.ts";
+import { runWithRequestHeaders } from "../lib/request-headers.ts";
+import { renderCurrentDemo } from "./layout.tsx";
 
 // Import components to register them
 import "./layout.tsx";
@@ -10,6 +12,25 @@ import "./notification-demo.tsx";
 
 const PORT = 8080;
 
+// Simple in-memory caches with mtime-based invalidation for dev
+let indexCache: { content: string; mtime?: number } | null = null;
+const demoCache = new Map<string, { content: string; layoutMtime?: number }>();
+
+async function readFileCached(path: string): Promise<string> {
+  try {
+    const stat = await Deno.stat(path);
+    const mtime = stat.mtime?.getTime();
+    if (!indexCache || indexCache.mtime !== mtime) {
+      const content = await Deno.readTextFile(path);
+      indexCache = { content, mtime };
+    }
+    return indexCache.content;
+  } catch (_e) {
+    // Fallback to direct read if stat fails
+    return await Deno.readTextFile(path);
+  }
+}
+
 async function handler(request: Request): Promise<Response> {
   const url = new URL(request.url);
   const { pathname } = url;
@@ -17,15 +38,16 @@ async function handler(request: Request): Promise<Response> {
   try {
     // Serve the main HTML file
     if (pathname === "/" || pathname === "/index.html") {
-      const htmlContent = await Deno.readTextFile("./index.html");
+      const htmlContent = await readFileCached("./index.html");
 
       // Get demo parameter from URL
       const demo = url.searchParams.get("demo") || "welcome";
 
-      // Replace component tags with rendered HTML, passing demo parameter
-      const processedHtml = processComponentTags(htmlContent, {
-        currentDemo: demo,
-      });
+      // Per-request style dedup + header context
+      const processedHtml = runWithRequestHeaders(
+        {},
+        () => processComponentTags(htmlContent, { currentDemo: demo }),
+      );
 
       return new Response(processedHtml, {
         headers: { "Content-Type": "text/html; charset=utf-8" },
@@ -59,53 +81,51 @@ async function handler(request: Request): Promise<Response> {
     if (pathname.startsWith("/demo/")) {
       const demoType = pathname.split("/")[2]; // Extract demo type (welcome, basic, reactive)
       if (["welcome", "basic", "reactive"].includes(demoType)) {
-        // Import and use the renderCurrentDemo function directly
-        const layoutModule = await import("./layout.tsx");
-
-        // We need to get the CSS classes from the app-layout component
-        // For now, render the full layout to get the classes, then extract just the content
-        const fullLayoutContent = renderComponent("app-layout", {
-          currentDemo: demoType,
-        });
-
-        // Extract the content area from the full layout
-        const contentStart = fullLayoutContent.indexOf("<main");
-        const contentEnd = fullLayoutContent.indexOf("</main>") + 7;
-
-        if (contentStart !== -1 && contentEnd !== -1) {
-          const mainElement = fullLayoutContent.slice(contentStart, contentEnd);
-          // Extract just the inner content (without the main tag wrapper)
-          const innerStart = mainElement.indexOf(">") + 1;
-          const innerEnd = mainElement.lastIndexOf("</main>");
-          const extractedContent = mainElement.slice(innerStart, innerEnd);
-
-          // Extract CSS styles from the full layout to include with the content
-          const styleMatches = fullLayoutContent.match(
-            /<style[^>]*>[\s\S]*?<\/style>/g,
-          );
-          let stylesContent = "";
-          if (styleMatches) {
-            stylesContent = styleMatches.join("");
-          }
-
-          // Process any remaining component tags in the extracted content
-          const processedContent = processComponentTags(extractedContent);
-
-          // Combine styles and content
-          const finalContent = stylesContent + processedContent;
-
-          return new Response(finalContent, {
-            headers: { "Content-Type": "text/html; charset=utf-8" },
-          });
-        } else {
-          // Fallback to original approach
-          const rawContent = layoutModule.renderCurrentDemo(demoType, {});
-          const processedContent = processComponentTags(rawContent);
-
-          return new Response(processedContent, {
-            headers: { "Content-Type": "text/html; charset=utf-8" },
-          });
+        // Cache partial content per demo based on layout mtime
+        let layoutMtime: number | undefined;
+        try {
+          const st = await Deno.stat("./layout.tsx");
+          layoutMtime = st.mtime?.getTime();
+        } catch (_) {
+          // ignore
         }
+
+        const cached = demoCache.get(demoType);
+        if (!cached || cached.layoutMtime !== layoutMtime) {
+          // Render full layout once and extract inner <main> content to preserve class names
+          const full = runWithRequestHeaders(
+            {},
+            () => renderComponent("app-layout", { currentDemo: demoType }),
+          );
+          const start = full.indexOf("<main");
+          const end = full.indexOf("</main>");
+          let content = "";
+          let stylesContent = "";
+          if (start !== -1 && end !== -1) {
+            const mainEl = full.slice(start, end + 7);
+            const innerStart = mainEl.indexOf(">") + 1;
+            const innerEnd = mainEl.lastIndexOf("</main>");
+            content = mainEl.slice(innerStart, innerEnd);
+
+            // Extract CSS styles from the full layout to include with the content
+            const styleMatches = full.match(/<style[^>]*>[\s\S]*?<\/style>/g);
+            if (styleMatches) {
+              stylesContent = styleMatches.join("");
+            }
+          } else {
+            // As a fallback, render using the helper (without styles)
+            content = renderCurrentDemo(demoType, {});
+          }
+          // Process any nested component tags in the content only (no additional <style> tags)
+          const processed = processComponentTags(content);
+          const finalOut = stylesContent + processed;
+          demoCache.set(demoType, { content: finalOut, layoutMtime });
+        }
+
+        const out = demoCache.get(demoType)!.content;
+        return new Response(out, {
+          headers: { "Content-Type": "text/html; charset=utf-8" },
+        });
       }
     }
 

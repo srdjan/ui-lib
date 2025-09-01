@@ -471,9 +471,9 @@ duplication between server route definitions and client-side HTMX attributes.
 import {
   boolean,
   defineComponent,
-  del,
   h,
   patch,
+  remove,
   string,
 } from "../src/index.ts";
 import { syncCheckboxToClass } from "../examples/dom-actions.ts";
@@ -492,7 +492,7 @@ defineComponent("todo-item", {
         }),
       );
     }),
-    remove: del("/api/todos/:id", () => new Response(null, { status: 200 })),
+    remove: remove("/api/todos/:id", () => new Response(null, { status: 200 })),
   },
   styles: {
     // ✨ CSS-only format for todo items!
@@ -545,7 +545,7 @@ defineComponent("todo-item", {
 2. **Auto-Generation**: funcwc analyzes your routes and creates client
    functions:
    - `patch("/api/todos/:id/toggle", handler)` → `api.toggle(id)`
-   - `del("/api/todos/:id", handler)` → `api.remove(id)`
+   - `remove("/api/todos/:id", handler)` → `api.remove(id)`
 3. **HTMX Attributes**: Client functions return proper `hx-*` attributes:
    - `api.toggle(id)` →
      `{ "hx-patch": "/api/todos/123/toggle", "hx-target": "closest .item" }`
@@ -559,7 +559,7 @@ defineComponent("todo-item", {
 - `get("/api/items/:id", handler)` → `api.get(id)`
 - `patch("/api/items/:id/toggle", handler)` → `api.toggle(id)`
 - `patch("/api/items/:id", handler)` → `api.update(id)`
-- `del("/api/items/:id", handler)` → `api.remove(id)`
+- `remove("/api/items/:id", handler)` → `api.remove(id)`
 
 This eliminates the need to manually define client-side HTMX attributes and
 ensures your client and server stay in sync automatically.

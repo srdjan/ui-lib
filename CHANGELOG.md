@@ -117,3 +117,55 @@ Visit http://localhost:8080 to explore:
 
 **Built with ❤️ for the modern web using Deno + TypeScript + DOM-native state
 management + Revolutionary ergonomics.**
+
+## [1.1.0] - 2025-09-01
+
+### Added
+
+- Global configuration via `configure()` (HTMX defaults: headers, swap, target)
+- Consolidated `reactive` block on `defineComponent` (`on`, `state`, `mount`,
+  `unmount`, `inject`)
+- Unified event helper `on({...})` for a single `hx-on` attribute
+- Action composition with `chain()`; JSX handlers simplified to
+  `string | Action`
+- Typed `ApiClientOptions` for generated client overrides
+
+### Changed
+
+- Prefer `remove()` (alias of `del`) in examples and docs for DELETE routes
+- Stable per-request CSS dedup key to avoid duplicate style injection
+- Auto-props now explicit via `autoProps: true` (docs/examples updated)
+- Tightened docs (README, AUTHORING, UNIFIED-API) and added RFC link
+
+### Fixed
+
+- Navbar active item styling updates immediately on click
+- Demo counter honors step sizes (1, 2, 10) via `autoProps`
+
+### Internal
+
+- Added tests for config, registry hygiene, styles dedup, reactive helpers, and
+  API client options; suite now at 83 tests
+
+## [1.1.1] - 2025-09-01
+
+### Added
+
+- Example server performance: mtime-based caching for `index.html` and cached
+  partial responses for `/demo/*` routes
+- Request-scoped style deduplication in example server via
+  `runWithRequestHeaders()` to prevent duplicate `<style>` tags
+- Tests for reactive system and helpers: `reactive.inject` lifecycle, `hx-on`
+  merging, CSS reactive rules, CSS helpers, events, and debug utilities
+
+### Changed
+
+- Docs standardized to prefer `remove()` over `del()` across UNIFIED-API and
+  AUTHORING guides
+- Coverage improved: `define-component.ts` branches/lines up; overall line
+  coverage from ~48.9% → ~55.2%, branch from ~69.4% → ~77.8%
+
+### Fixed
+
+- HTMX demo partials now include extracted `<style>` blocks to retain styles on
+  swaps

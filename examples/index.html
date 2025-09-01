@@ -5,15 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>funcwc - SSR-First Component Library Demo</title>
 
-    <!-- Base CSS library -->
+    <!-- Base CSS: Open Props (variables) + Normalize (efficient, from CDN) -->
+    <link rel="preconnect" href="https://unpkg.com">
     <link
-      href="https://cdn.jsdelivr.net/npm/ui@1.0.0/dist/ui.min.css"
       rel="stylesheet"
+      href="https://unpkg.com/open-props@2.2.0/normalize.min.css"
+    >
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/open-props@2.2.0/open-props.min.css"
     >
 
     <!-- HTMX for reactivity -->
     <script src="https://unpkg.com/htmx.org@2.0.6"></script>
-    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+    <script
+      src="https://unpkg.com/htmx.org@2.0.6/dist/ext/json-enc.js"
+    ></script>
 
     <!-- CSS theme variables for reactivity -->
     <style>
