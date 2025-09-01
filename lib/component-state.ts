@@ -37,9 +37,22 @@ export function renderComponent(
   const markup = entry.render(rawProps, apiCreators);
 
   let cssTag = "";
-  if (entry.css && shouldInjectStyle(componentName)) {
-    cssTag = `<style>${entry.css}</style>`;
+  if (entry.css) {
+    const key = `${componentName}:${hashCss(entry.css)}`;
+    if (shouldInjectStyle(key)) {
+      cssTag = `<style>${entry.css}</style>`;
+    }
   }
 
   return `${cssTag}${markup}`;
+}
+
+// Small, fast, deterministic string hash to key CSS dedup per request
+function hashCss(input: string): string {
+  let hash = 5381;
+  for (let i = 0; i < input.length; i++) {
+    hash = ((hash << 5) + hash) ^ input.charCodeAt(i);
+  }
+  // Convert to unsigned and to base36 for compactness
+  return (hash >>> 0).toString(36);
 }

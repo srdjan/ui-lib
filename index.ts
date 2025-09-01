@@ -107,3 +107,6 @@ export {
   type ReactiveScope,
   safeExecute,
 } from "./lib/reactive-helpers.ts";
+
+// Global configuration
+export { configure, type FuncwcConfig } from "./lib/config.ts";

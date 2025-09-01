@@ -37,17 +37,19 @@ export type ClassMap = Record<string, string>;
 export type StylesInput = string | UnifiedStyles;
 
 // New config types: infer props directly from render parameter or optional transformer
-// Reactive options (optional, additive)
-interface ReactiveOptions {
-  cssReactions?: Record<string, string>;
-  stateSubscriptions?: Record<string, string>;
-  eventListeners?: Record<string, string>;
-  onMount?: string;
-  onUnmount?: string;
-  autoInjectReactive?: boolean; // default true
+// Consolidated reactive configuration
+interface ReactiveConfig {
+  on?: Record<string, string>;
+  state?: Record<string, string>;
+  css?: Record<string, string>;
+  mount?: string;
+  unmount?: string;
+  inject?: boolean; // default false
 }
 
-export interface ComponentConfigWithApi<TProps> extends ReactiveOptions {
+export interface ComponentConfigWithApi<TProps> {
+  reactive?: ReactiveConfig;
+  autoProps?: boolean;
   props?: PropsTransformer<Record<string, string>, TProps>;
   styles?: StylesInput; // Can be string or unified styles object
   classes?: ClassMap; // Optional when using unified styles
@@ -55,7 +57,9 @@ export interface ComponentConfigWithApi<TProps> extends ReactiveOptions {
   render: (props: TProps, api: GeneratedApiMap, classes?: ClassMap) => string;
 }
 
-export interface ComponentConfigWithoutApi<TProps> extends ReactiveOptions {
+export interface ComponentConfigWithoutApi<TProps> {
+  reactive?: ReactiveConfig;
+  autoProps?: boolean;
   props?: PropsTransformer<Record<string, string>, TProps>;
   styles?: StylesInput; // Can be string or unified styles object
   classes?: ClassMap; // Optional when using unified styles
@@ -121,19 +125,14 @@ export function defineComponent<TProps = Record<string, string>>(
     styles: stylesInput,
     classes: providedClassMap,
     api: apiMap,
-    // Reactive options
-    cssReactions,
-    stateSubscriptions,
-    eventListeners,
-    onMount,
-    onUnmount,
-    autoInjectReactive = true,
+    reactive,
+    autoProps = false,
     render,
   } = config;
 
   // Auto-generate props transformer from render function parameters if none provided
   let finalPropsTransformer = propsTransformer;
-  if (!propsTransformer) {
+  if (!propsTransformer && autoProps) {
     const { propHelpers, hasProps } = parseRenderParameters(render);
     if (hasProps) {
       const { propsTransformer: autoTransformer } = extractPropDefinitions(
@@ -178,8 +177,8 @@ export function defineComponent<TProps = Record<string, string>>(
   }
 
   // Enhance CSS with reactive rules if requested
-  if (cssReactions) {
-    const reactiveCssRules = Object.entries(cssReactions)
+  if (reactive?.css) {
+    const reactiveCssRules = Object.entries(reactive.css)
       .map(([property, rule]) => {
         return `[data-component="${name}"] { ${
           rule.replace(/var\(--[\w-]+\)/g, `var(--${property})`)
@@ -240,31 +239,31 @@ export function defineComponent<TProps = Record<string, string>>(
 
       // helper to inject reactive attrs (optional)
       const applyReactiveAttrs = (markup: string): string => {
-        if (!autoInjectReactive) return markup;
+        if (!reactive?.inject) return markup;
 
         const reactiveAttrs: string[] = [];
         const reactiveCode: string[] = [];
 
-        if (stateSubscriptions) {
-          for (const [topic, handler] of Object.entries(stateSubscriptions)) {
+        if (reactive?.state) {
+          for (const [topic, handler] of Object.entries(reactive.state)) {
             reactiveCode.push(subscribeToState(topic, handler));
           }
         }
-        if (eventListeners) {
-          for (const [ev, handler] of Object.entries(eventListeners)) {
+        if (reactive?.on) {
+          for (const [ev, handler] of Object.entries(reactive.on)) {
             reactiveAttrs.push(listensFor(ev, handler));
           }
         }
-        if (onMount || reactiveCode.length > 0 || onUnmount) {
+        if (reactive?.mount || reactiveCode.length > 0 || reactive?.unmount) {
           let lifecycleCode = "";
-          if (onMount || reactiveCode.length > 0) {
+          if (reactive?.mount || reactiveCode.length > 0) {
             const mountCode = [
               ...(reactiveCode.length > 0 ? reactiveCode : []),
-              ...(onMount ? [onMount] : []),
+              ...(reactive?.mount ? [reactive.mount] : []),
             ].join(";\n");
             lifecycleCode += mountCode;
           }
-          if (onUnmount) {
+          if (reactive?.unmount) {
             lifecycleCode += `\n\n// Setup unmount observer\n`;
             lifecycleCode += `
               if (typeof MutationObserver !== 'undefined') {
@@ -272,7 +271,7 @@ export function defineComponent<TProps = Record<string, string>>(
                   mutations.forEach((mutation) => {
                     mutation.removedNodes.forEach((node) => {
                       if (node === this || (node.nodeType === 1 && node.contains(this))) {
-                        try { ${onUnmount} } catch(e) { console.warn('funcwc unmount error:', e); }
+                        try { ${reactive.unmount} } catch(e) { console.warn('funcwc unmount error:', e); }
                         observer.disconnect();
                       }
                     });

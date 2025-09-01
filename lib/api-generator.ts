@@ -2,6 +2,7 @@
 
 import type { RouteHandler } from "./router.ts";
 import { currentRequestHeaders } from "./request-headers.ts";
+import { getConfig } from "./config.ts";
 
 // Type-safe tuple format: functionName -> [method, path, handler]
 export type ApiDefinition = readonly [string, string, RouteHandler]; // [method, path, handler]
@@ -42,6 +43,7 @@ export function generateClientApi(apiMap: ApiMap): GeneratedApiMap {
     const paramNames = extractParameterNames(path);
 
     generatedApi[functionName] = (...args: unknown[]) => {
+      const cfg = getConfig();
       const htmxMethod = `hx-${method.toLowerCase()}` as const;
       let finalPath = path;
 
@@ -55,7 +57,7 @@ export function generateClientApi(apiMap: ApiMap): GeneratedApiMap {
       const attrs: Record<string, string> = { [htmxMethod]: finalPath };
 
       // Prefer HTML swaps for SSR responses
-      if (method !== "GET") attrs["hx-swap"] = "outerHTML";
+      if (method !== "GET") attrs["hx-swap"] = cfg.hx.swapDefault;
 
       // Standardize on JSON requests
       attrs["hx-ext"] = "json-enc";
@@ -66,6 +68,7 @@ export function generateClientApi(apiMap: ApiMap): GeneratedApiMap {
         Accept: "text/html; charset=utf-8",
         "X-Requested-With": "XMLHttpRequest",
       };
+      Object.assign(defaultHeaders, cfg.hx.headers);
 
       // Merge request-scoped headers (e.g., CSRF token)
       Object.assign(defaultHeaders, currentRequestHeaders());
@@ -97,7 +100,7 @@ export function generateClientApi(apiMap: ApiMap): GeneratedApiMap {
 
       // Set sensible defaults for non-GET interactions if not overridden
       if (method !== "GET" && !("hx-target" in attrs)) {
-        attrs["hx-target"] = "closest [data-component]";
+        attrs["hx-target"] = cfg.hx.targetDefault;
       }
 
       try {
