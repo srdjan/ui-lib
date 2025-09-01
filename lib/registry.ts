@@ -27,3 +27,9 @@ export function registerComponent(name: string, entry: SSRRegistryEntry): void {
   }
   registry[name] = entry;
 }
+
+// Test-only utility to clear the SSR registry between tests
+export function resetRegistry(): void {
+  const g = globalThis as Record<string, unknown>;
+  g.__FWC_SSR__ = {} as SSRRegistry;
+}

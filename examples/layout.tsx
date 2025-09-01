@@ -146,6 +146,14 @@ defineComponent("app-layout", {
                     target: "#content-area",
                     swap: "innerHTML",
                   })}
+                  hx-on={`click: (function(){
+                    const ul = this.closest('ul');
+                    if (!ul) return;
+                    ul.querySelectorAll('a').forEach(a => a.classList.remove('${
+                    classes!.navItemActive
+                  }'));
+                    this.classList.add('${classes!.navItemActive}');
+                  }).call(this)`}
                 >
                   Home
                 </a>
@@ -159,6 +167,14 @@ defineComponent("app-layout", {
                     target: "#content-area",
                     swap: "innerHTML",
                   })}
+                  hx-on={`click: (function(){
+                    const ul = this.closest('ul');
+                    if (!ul) return;
+                    ul.querySelectorAll('a').forEach(a => a.classList.remove('${
+                    classes!.navItemActive
+                  }'));
+                    this.classList.add('${classes!.navItemActive}');
+                  }).call(this)`}
                 >
                   Basic Components
                 </a>
@@ -172,6 +188,14 @@ defineComponent("app-layout", {
                     target: "#content-area",
                     swap: "innerHTML",
                   })}
+                  hx-on={`click: (function(){
+                    const ul = this.closest('ul');
+                    if (!ul) return;
+                    ul.querySelectorAll('a').forEach(a => a.classList.remove('${
+                    classes!.navItemActive
+                  }'));
+                    this.classList.add('${classes!.navItemActive}');
+                  }).call(this)`}
                 >
                   Reactivity
                 </a>

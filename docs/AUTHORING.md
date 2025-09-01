@@ -284,11 +284,11 @@ defineComponent("modern-card", {
 });
 ```
 
-### ⚛️ Reactive Options (Optional, Additive)
+### ⚛️ Reactive Block (Consolidated)
 
-Use reactive wiring directly on `defineComponent` via `stateSubscriptions`,
-`eventListeners`, `onMount`, and `onUnmount`. Nothing is injected unless you
-include these options.
+Configure events, state subscriptions, and lifecycle hooks in a single
+`reactive` block. Setting `inject: false` (default) avoids auto-injection when
+not needed.
 
 ```tsx
 import { defineComponent, h, string } from "../src/index.ts";
@@ -301,8 +301,9 @@ defineComponent("cart-badge", {
     count:
       `{ background: white; color: #0ea5e9; border-radius: 9999px; min-width: 1.25rem; text-align: center; padding: 0 .4rem; }`,
   },
-  stateSubscriptions: {
-    cart: `
+  reactive: {
+    state: {
+      cart: `
       const countEl = this.querySelector('.count');
       const totalEl = this.querySelector('.total');
       if (!countEl || !totalEl) return;
@@ -311,15 +312,17 @@ defineComponent("cart-badge", {
       countEl.textContent = String(n);
       totalEl.textContent = '$' + Number(t).toFixed(2);
     `,
-  },
-  onMount: `
+    },
+    mount: `
     // Initialize from current state when mounted
     const s = window.funcwcState?.getState('cart') || { count: 0, total: 0 };
     const countEl = this.querySelector('.count');
     const totalEl = this.querySelector('.total');
     if (countEl) countEl.textContent = String(s.count);
     if (totalEl) totalEl.textContent = '$' + Number(s.total).toFixed(2);
-  `,
+    `,
+    inject: false,
+  },
   render: ({ label = string("Cart") }) => (
     <div class="badge">
       <span>{label}</span>
@@ -332,12 +335,10 @@ defineComponent("cart-badge", {
 
 Notes:
 
-- `stateSubscriptions` adds an `htmx:load` handler via the aggregated `hx-on`
-  attribute only when present (wires subscriptions on load).
-- `onMount` runs once on load; `onUnmount` supports a simple MutationObserver
-  cleanup.
-- Use `eventListeners` to attach aggregated `hx-on` handlers for custom events
-  like `funcwc:<name>`.
+- `reactive.state` wires subscriptions on load via an aggregated `hx-on`.
+- `reactive.mount` runs once on `htmx:load`; `reactive.unmount` uses a minimal
+  MutationObserver for cleanup.
+- `reactive.on` accepts an events map and is consolidated into a single `hx-on`.
 
 ## Smart Type Helpers
 
@@ -379,12 +380,14 @@ styles: {
 Use helpers that return action objects or inline handler strings:
 
 ```tsx
-import { toggleClass, toggleClasses } from "../src/index.ts";
+import { chain, toggleClass, toggleClasses } from "../src/index.ts";
 
 <button onClick={toggleClass("active")}>Toggle Single</button>
 <button onClick={toggleClasses(["light", "dark"])}>Toggle Multiple</button>
 
-// Inline handler strings for complex logic:
+// Compose actions or use inline handler strings for complex logic:
+<button onClick={chain(toggleClass('a'), toggleClass('b'))}>Compose</button>
+// or inline:
 <button onClick={`
   const p = this.closest('.container');
   if (p) {

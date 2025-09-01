@@ -6,13 +6,12 @@ import {
   assertStringIncludes,
 } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import { generateComponentId, renderComponent } from "./component-state.ts";
-import { getRegistry } from "./registry.ts";
+import { getRegistry, resetRegistry } from "./registry.ts";
 import type { SSRRegistryEntry } from "./registry.ts";
 
 // Helper to clear the registry between tests
 function clearRegistry() {
-  const g = globalThis as Record<string, unknown>;
-  g.__FWC_SSR__ = {};
+  resetRegistry();
 }
 
 // Helper to register a test component

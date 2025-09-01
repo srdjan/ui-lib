@@ -2,7 +2,7 @@
 
 import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import { Fragment, h } from "./jsx-runtime.ts";
-import { toggleClass, toggleClasses } from "./dom-helpers.ts";
+import { chain, toggleClass, toggleClasses } from "./dom-helpers.ts";
 
 Deno.test("h function renders basic elements", () => {
   const result = h("div", { class: "container" }, "Hello World");
@@ -44,6 +44,15 @@ Deno.test("h function handles multiple ComponentAction objects", () => {
 Deno.test("h function handles string event handlers", () => {
   const result = h("button", { onClick: "alert('clicked')" }, "Click");
   assertEquals(result, "<button onclick=\"alert('clicked')\">Click</button>");
+});
+
+Deno.test("h function composes actions with chain", () => {
+  const action = chain(toggleClass("a"), toggleClass("b"));
+  const result = h("button", { onClick: action }, "Do");
+  assertEquals(
+    result,
+    "<button onclick=\"this.classList.toggle('a');this.classList.toggle('b')\">Do</button>",
+  );
 });
 
 Deno.test("h function handles nested children", () => {

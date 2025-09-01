@@ -1,4 +1,9 @@
-import type { ToggleClassAction, ToggleClassesAction } from "./actions.ts";
+import type {
+  ChainAction,
+  ComponentAction,
+  ToggleClassAction,
+  ToggleClassesAction,
+} from "./actions.ts";
 
 // Type-safe DOM helper functions that return structured action objects
 // These can be used directly in JSX event handlers: onClick={toggleClass('active')}
@@ -19,6 +24,16 @@ export const toggleClass = (className: string): ToggleClassAction => ({
 export const toggleClasses = (classNames: string[]): ToggleClassesAction => ({
   type: "toggleClasses",
   classNames,
+});
+
+/**
+ * Compose multiple actions into a single action for event handlers
+ */
+export const chain = (...actions: ComponentAction[]): ChainAction => ({
+  type: "chain",
+  actions: actions.flatMap((a) => a.type === "chain" ? a.actions : [a]) as (
+    ToggleClassAction | ToggleClassesAction
+  )[],
 });
 
 // --- Pure utility functions that are not event handlers remain the same ---

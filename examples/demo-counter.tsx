@@ -12,6 +12,7 @@ import { boolean, defineComponent, h, number, string } from "../index.ts";
  * ⚡ CSS property reactivity for theming
  */
 defineComponent("demo-counter", {
+  autoProps: true,
   // 🎨 CSS-Only Format - Auto-generated class names!
   styles: {
     counterContainer: `{ 

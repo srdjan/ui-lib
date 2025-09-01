@@ -16,9 +16,9 @@ you define everything together:
 import {
   boolean,
   defineComponent,
-  del,
   h,
   patch,
+  remove,
   renderComponent,
   string,
 } from "../src/index.ts";
@@ -66,7 +66,7 @@ defineComponent("todo-item", {
       );
     }),
 
-    remove: del("/api/todos/:id", async (req, params) => {
+    remove: remove("/api/todos/:id", async (req, params) => {
       // Delete from database here...
       await deleteTodoFromDB(params.id);
 
@@ -109,10 +109,29 @@ funcwc analyzes your routes and creates client functions automatically:
 | `post("/api/todos", handler)`             | `api.create()`     | `{ "hx-post": "/api/todos", "hx-target": "closest [data-component]", "hx-swap": "outerHTML" }`             |
 | `get("/api/todos/:id", handler)`          | `api.get(id)`      | `{ "hx-get": "/api/todos/123" }`                                                                           |
 
-Note: For non-GET requests, funcwc defaults to `hx-swap="outerHTML"` and
-`hx-target="closest [data-component]"`. Components automatically render with a
-`data-component="<name>"` attribute on the root element to enable these defaults
-and make scoping trivial.
+Defaults and overrides
+
+- For non-GET requests, funcwc defaults to `hx-swap="outerHTML"` and
+  `hx-target="closest [data-component]"`.
+- Components render with `data-component="<name>"` on the root element to make
+  scoping trivial.
+- You can override library-wide defaults via `configure()` and per-call via
+  client options:
+
+```ts
+import { configure } from "../index.ts";
+
+configure({
+  hx: {
+    swapDefault: "innerHTML",
+    targetDefault: "#content-area",
+    headers: { "X-Requested-With": "XMLHttpRequest" },
+  },
+});
+
+// Per-call overrides
+button {...api.create({ title: "Hello" }, { target: "#list", swap: "afterend" })}
+```
 
 Callout: When to use selector strings
 
@@ -134,7 +153,7 @@ api: {
   get: get("/api/items/:id", handler),        → api.get(id)
   update: patch("/api/items/:id", handler),   → api.update(id)
   toggle: patch("/api/todos/:id/toggle", handler), → api.toggle(id)
-  remove: del("/api/items/:id", handler),     → api.remove(id)
+  remove: remove("/api/items/:id", handler),     → api.remove(id)
   follow: post("/api/users/:id/follow", handler), → api.follow(id)
 }
 ```
@@ -144,11 +163,11 @@ api: {
 ```tsx
 import {
   defineComponent,
-  del,
   h,
   number,
   patch,
   post,
+  remove,
   renderComponent,
   string,
 } from "../src/index.ts";
@@ -177,7 +196,7 @@ defineComponent("cart-item", {
       },
     ),
 
-    remove: del("/api/cart/:productId", async (req, params) => {
+    remove: remove("/api/cart/:productId", async (req, params) => {
       await removeFromCart(params.productId);
       return new Response("", { status: 200 });
     }),
@@ -289,7 +308,7 @@ defineComponent("user-profile", {
       );
     }),
 
-    unfollow: del("/api/users/:userId/follow", async (req, params) => {
+    unfollow: remove("/api/users/:userId/follow", async (req, params) => {
       await unfollowUser(params.userId);
       return new Response(
         renderComponent("user-profile", {
@@ -580,6 +599,22 @@ api: {
 This system makes funcwc incredibly productive for building HTMX-powered
 applications while maintaining the benefits of server-side rendering and
 DOM-native state management!
+
+## Client Options and Types
+
+Generated client functions accept `(…params, payload?, opts?)`. The optional
+`opts` is typed as:
+
+```ts
+type ApiClientOptions = {
+  headers?: Record<string, string>;
+  target?: string;
+  swap?: string;
+};
+
+// Example
+api.update(id, { name: "A" }, { target: "#content", swap: "innerHTML" });
+```
 
 ## TypeScript Typing Tip
 

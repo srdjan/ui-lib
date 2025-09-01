@@ -68,11 +68,6 @@ export function h(
       } else if (typeof value === "object" && value && "type" in value) {
         // Direct ComponentAction object
         handlerString = renderActionToString(value as ComponentAction);
-      } else if (Array.isArray(value)) {
-        // Array support (deprecated)
-        handlerString = (value as ComponentAction[])
-          .map(renderActionToString)
-          .join(";");
       }
 
       // For event handlers, we need lighter escaping (only quotes)
@@ -140,6 +135,8 @@ function renderActionToString(action: ComponentAction): string {
       return action.classNames.map((c) => `this.classList.toggle('${c}')`).join(
         ";",
       );
+    case "chain":
+      return action.actions.map(renderActionToString).join(";");
     default:
       return "";
   }

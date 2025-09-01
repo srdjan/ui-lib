@@ -18,6 +18,15 @@ manipulation with the most ergonomic developer experience ever created.
 - Authoring Components: docs/AUTHORING.md
 - Unified API (HTMX integration): docs/UNIFIED-API.md
 
+## 🆕 What’s New
+
+- Ergonomics RFC and incremental updates: see docs/RFC-ergonomics.md
+  - Central `configure()` for HTMX defaults
+  - Consolidated `reactive` block (`on`, `state`, `mount`, `unmount`, `inject`)
+  - Unified `on({...})` event helper; `chain()` to compose actions
+  - Typed `ApiClientOptions` for client overrides
+  - Prefer `remove()` helper (alias of `del`) in docs and examples
+
 ## 🌟 What Makes funcwc Special?
 
 - **🎯 DOM-Native Philosophy**: Your component state lives where it belongs - in
@@ -45,6 +54,7 @@ between props definition and function parameters!
 ```tsx
 // ✅ Function-style props - zero duplication!
 defineComponent("smart-counter", {
+  autoProps: true,
   render: ({
     initialCount = number(0), // Auto-parsed from HTML attributes
     step = number(1), // Default values built-in
@@ -314,6 +324,7 @@ import {
   h,
   number,
   patch,
+  remove,
   renderComponent,
 } from "./src/index.ts";
 
@@ -365,11 +376,11 @@ defineComponent("counter", {
 ```tsx
 import {
   defineComponent,
-  del,
   h,
   number,
   patch,
   post,
+  remove,
   renderComponent,
   string,
 } from "./src/index.ts";
@@ -393,7 +404,7 @@ defineComponent("cart-item", {
         );
       },
     ),
-    remove: del(
+    remove: remove(
       "/api/cart/:productId",
       async () => new Response("", { status: 200 }),
     ),
@@ -534,7 +545,7 @@ defineComponent("todo-item", {
         { headers: { "content-type": "text/html; charset=utf-8" } },
       );
     }),
-    remove: del("/api/todos/:id", () => new Response(null, { status: 200 })),
+    remove: remove("/api/todos/:id", () => new Response(null, { status: 200 })),
   },
   styles: {
     // ✨ CSS-only format for todo items!
@@ -681,7 +692,7 @@ api: {
     // Handler implementation
     return new Response(updatedHTML);
   }),
-  remove: del("/api/todos/:id", () => new Response(null, { status: 200 }))
+  remove: remove("/api/todos/:id", () => new Response(null, { status: 200 }))
 }
 
 // Usage in render function:

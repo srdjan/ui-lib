@@ -7,7 +7,11 @@ export type ToggleClassesAction = {
   classNames: string[];
 };
 
+// Base actions supported by the runtime
+export type BaseAction = ToggleClassAction | ToggleClassesAction;
+
+// Chain multiple actions together
+export type ChainAction = { type: "chain"; actions: BaseAction[] };
+
 // Union of actions supported by the runtime
-export type ComponentAction =
-  | ToggleClassAction
-  | ToggleClassesAction;
+export type ComponentAction = BaseAction | ChainAction;
