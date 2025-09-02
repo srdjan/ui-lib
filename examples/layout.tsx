@@ -74,40 +74,40 @@ defineComponent("app-layout", {
     }`,
 
     header:
-      `{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }`,
+      `{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: var(--size-3) var(--size-2); box-shadow: var(--shadow-2); }`,
     nav:
-      `{ display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; }`,
-    navActions: `{ display: flex; align-items: center; gap: 1rem; }`,
+      `{ display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; } @media (max-width: 768px) { .nav { flex-wrap: wrap; gap: var(--size-2); } }`,
+    navActions: `{ display: flex; align-items: center; gap: var(--size-2); } @media (max-width: 768px) { .nav-actions { flex-wrap: wrap; } }`,
     logo:
-      `{ font-size: 1.5rem; font-weight: bold; color: white; text-decoration: none; transition: opacity 0.2s ease; } .logo:hover { opacity: 0.9; }`,
+      `{ font-size: var(--font-size-4); font-weight: var(--font-weight-7); color: white; text-decoration: none; transition: opacity 0.2s ease; } .logo:hover { opacity: 0.9; }`,
     navMenu:
-      `{ display: flex; gap: 2rem; list-style: none; margin: 0; padding: 0; }`,
+      `{ display: flex; gap: 2rem; list-style: none; margin: 0; padding: 0; } @media (max-width: 768px) { .nav-menu { flex-direction: column; width: 100%; gap: var(--size-1); } }`,
     navItem:
-      `{ color: rgba(255,255,255,0.9); text-decoration: none; padding: 0.5rem 1rem; border-radius: 6px; transition: all 0.2s ease; cursor: pointer; } .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }`,
+      `{ color: rgba(255,255,255,0.9); text-decoration: none; padding: var(--size-2) var(--size-3); border-radius: var(--radius-2); transition: all 0.2s ease; cursor: pointer; font-size: var(--font-size-1); } .nav-item:hover { background: rgba(255,255,255,0.1); color: white; } @media (max-width: 768px) { .nav-item { padding: var(--size-1) var(--size-2); font-size: var(--font-size-0); } }`,
     navItemActive: `{ background: rgba(255,255,255,0.2); color: white; }`,
     themeToggle:
-      `{ background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; } .theme-toggle:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }`,
+      `{ background: rgba(255,255,255,0.2); border: none; color: white; padding: var(--size-2) var(--size-3); border-radius: var(--radius-2); cursor: pointer; transition: all 0.2s ease; font-size: var(--font-size-0); } .theme-toggle:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); } @media (max-width: 768px) { .theme-toggle { padding: var(--size-1) var(--size-2); } }`,
     navCartBadge:
-      `{ background: rgba(255,255,255,0.15); color: white; padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.25rem; }`,
-    navCartCount: `{ font-weight: bold; }`,
+      `{ background: rgba(255,255,255,0.15); color: white; padding: var(--size-1) var(--size-2); border-radius: var(--radius-round); font-size: var(--font-size-0); display: inline-flex; align-items: center; gap: var(--size-1); }`,
+    navCartCount: `{ font-weight: var(--font-weight-6); }`,
 
     main:
-      `{ flex: 1; padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; transition: opacity 0.3s ease-in-out; }`,
+      `{ flex: 1; padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; transition: opacity 0.3s ease-in-out; } @media (max-width: 768px) { .main { padding: var(--size-2); } }`,
     welcome:
-      `{ width: 100%; padding: 3rem 0; margin: 0 auto; text-align: center; }`,
+      `{ width: 100%; padding: 3rem 0; margin: 0 auto; text-align: center; } @media (max-width: 768px) { .welcome { padding: var(--size-3) 0; } }`,
     title:
-      `{ font-size: 2.5rem; font-weight: bold; color: var(--theme-accent); margin-bottom: 1rem; text-align: center; }`,
+      `{ font-size: 2.5rem; font-weight: bold; color: var(--theme-accent); margin-bottom: 1rem; text-align: center; } @media (max-width: 768px) { .title { font-size: var(--font-size-5); } }`,
     subtitle:
-      `{ font-size: 1.2rem; color: #666; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto; text-align: center; }`,
+      `{ font-size: 1.2rem; color: #666; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto; text-align: center; } @media (max-width: 768px) { .subtitle { font-size: var(--font-size-2); } }`,
     features:
-      `{ display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 3rem; }`,
+      `{ display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 3rem; } @media (max-width: 768px) { .features { gap: var(--size-3); grid-template-columns: 1fr; } }`,
     feature:
-      `{ background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: left; border: 1px solid #eee; transition: transform 0.2s ease, box-shadow 0.2s ease; } .feature:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.15); }`,
+      `{ background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: left; border: 1px solid #eee; transition: transform 0.2s ease, box-shadow 0.2s ease; } .feature:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.15); } @media (max-width: 768px) { .feature { padding: var(--size-3); } }`,
     featureIcon:
-      `{ font-size: 2rem; margin-bottom: 1rem; color: var(--theme-accent); }`,
+      `{ font-size: 2rem; margin-bottom: 1rem; color: var(--theme-accent); } @media (max-width: 768px) { .feature-icon { font-size: var(--font-size-4); } }`,
     featureTitle:
-      `{ font-size: 1.2rem; font-weight: bold; margin-bottom: 0.5rem; color: #333; }`,
-    featureDesc: `{ color: #666; line-height: 1.6; }`,
+      `{ font-size: 1.2rem; font-weight: bold; margin-bottom: 0.5rem; color: #333; } @media (max-width: 768px) { .feature-title { font-size: var(--font-size-2); } }`,
+    featureDesc: `{ color: #666; line-height: 1.6; } @media (max-width: 768px) { .feature-desc { font-size: var(--font-size-0); } }`,
   },
 
   // ✨ Function-Style Props - Zero duplication!
@@ -118,7 +118,7 @@ defineComponent("app-layout", {
       _branding = object({
         title: "funcwc",
         tagline: "SSR-First Component Library",
-      }), // Object prop with structured default
+      }), // Object prop with structured default (prefixed with _ as unused)
     },
     api: GeneratedApiMap,
     classes?: Record<string, string>,
@@ -126,9 +126,8 @@ defineComponent("app-layout", {
     const demo: string = typeof currentDemo === "string"
       ? currentDemo
       : "welcome";
-    // For demo purposes, use default branding - the prop system works for simple cases  
-    const defaultBranding = { title: "funcwc", tagline: "SSR-First Component Library" };
-    const brand = defaultBranding; // Simplified for demo - complex prop handling can be added later
+    // Use the branding prop (simplified for demo - complex prop handling can be added later)
+    const brand = { title: "funcwc", tagline: "SSR-First Component Library" };
     const isBeta = typeof showBeta === "boolean" ? showBeta : false;
 
     return (

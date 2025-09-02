@@ -308,7 +308,7 @@ export const createCartAction = (
     
     const cartState = {
       items: newItems,
-      count: newItems.length,
+      count: newItems.reduce((sum, item) => sum + item.quantity, 0),
       total: newItems.reduce((sum, item) => sum + (item.price * item.quantity), 0),
       isEmpty: newItems.length === 0
     };

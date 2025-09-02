@@ -11,59 +11,61 @@ import { defineComponent, h, string, createCartAction } from "../index.ts";
 defineComponent("cart-manager", {
   styles: {
     cartPanel: `{
-      background: white;
-      border-radius: 12px;
-      padding: 2rem;
-      border: 1px solid #dee2e6;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }`,
+      background: var(--surface-1);
+      border-radius: var(--radius-3);
+      padding: var(--size-4);
+      border: 1px solid var(--surface-3);
+      box-shadow: var(--shadow-2);
+    } @media (max-width: 768px) { .cart-panel { padding: var(--size-3); } }`,
 
     cartTitle: `{
-      font-size: 1.5rem;
-      color: #495057;
-      margin-bottom: 1rem;
-      font-weight: bold;
-    }`,
+      font-size: var(--font-size-4);
+      color: var(--text-1);
+      margin-block-end: var(--size-3);
+      font-weight: var(--font-weight-6);
+    } @media (max-width: 768px) { .cart-title { font-size: var(--font-size-3); } }`,
 
     productGrid: `{
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin: 1.5rem 0;
-    }`,
+      grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+      gap: var(--size-3);
+      margin-block: var(--size-4);
+    } @media (max-width: 768px) { .product-grid { grid-template-columns: 1fr; gap: var(--size-2); } }`,
 
     productCard: `{
-      border: 1px solid #dee2e6;
-      border-radius: 8px;
-      padding: 1rem;
+      border: 1px solid var(--surface-3);
+      border-radius: var(--radius-2);
+      padding: var(--size-3);
       text-align: center;
       transition: transform 0.2s ease;
-    }`,
+    } @media (max-width: 768px) { .product-card { padding: var(--size-2); } }`,
 
     productName: `{
-      font-weight: bold;
-      margin-bottom: 0.5rem;
-      color: #495057;
-    }`,
+      font-weight: var(--font-weight-6);
+      margin-block-end: var(--size-2);
+      color: var(--text-1);
+    } @media (max-width: 768px) { .product-name { font-size: var(--font-size-1); } }`,
 
     productPrice: `{
-      color: #28a745;
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-    }`,
+      color: var(--green-6);
+      font-size: var(--font-size-3);
+      margin-block-end: var(--size-3);
+      font-weight: var(--font-weight-5);
+    } @media (max-width: 768px) { .product-price { font-size: var(--font-size-2); } }`,
 
     addButton: `{
-      background: #007bff;
+      background: var(--blue-6);
       color: white;
       border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
+      padding: var(--size-2) var(--size-3);
+      border-radius: var(--radius-2);
       cursor: pointer;
       transition: background 0.2s ease;
-    }`,
+      font-size: var(--font-size-1);
+    } @media (max-width: 768px) { .add-button { padding: var(--size-1) var(--size-2); font-size: var(--font-size-0); } }`,
 
     addButtonHover: `{
-      background: #0056b3;
+      background: var(--blue-7);
     }`,
   },
 
@@ -132,25 +134,25 @@ defineComponent("cart-manager", {
 defineComponent("cart-badge", {
   styles: {
     badge: `{
-      background: #007bff;
+      background: var(--blue-6);
       color: white;
-      padding: 1rem;
-      border-radius: 8px;
+      padding: var(--size-3);
+      border-radius: var(--radius-2);
       text-align: center;
-      margin-top: 1rem;
+      margin-block-start: var(--size-3);
       transition: all 0.3s ease;
-    }`,
+    } @media (max-width: 768px) { .badge { padding: var(--size-2); } }`,
 
     badgeCount: `{
-      font-size: 1.5rem;
-      font-weight: bold;
-      margin-bottom: 0.5rem;
-    }`,
+      font-size: var(--font-size-4);
+      font-weight: var(--font-weight-7);
+      margin-block-end: var(--size-2);
+    } @media (max-width: 768px) { .badge-count { font-size: var(--font-size-3); } }`,
 
     badgeTotal: `{
-      font-size: 1.2rem;
+      font-size: var(--font-size-3);
       opacity: 0.9;
-    }`,
+    } @media (max-width: 768px) { .badge-total { font-size: var(--font-size-2); } }`,
   },
 
   render: (
