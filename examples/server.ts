@@ -62,6 +62,23 @@ async function handler(request: Request): Promise<Response> {
       });
     }
 
+    // Handle favicon requests
+    if (pathname === "/favicon.ico" || pathname === "/favicon.svg") {
+      try {
+        // Serve the SVG favicon
+        const favicon = await Deno.readTextFile("./favicon.svg");
+        return new Response(favicon, {
+          headers: { "Content-Type": "image/svg+xml" }
+        });
+      } catch {
+        // Fallback to empty response if file not found
+        return new Response(null, { 
+          status: 204,
+          headers: { "Content-Type": "image/x-icon" } 
+        });
+      }
+    }
+
     // Serve static files (assets, TypeScript modules, CSS, JS)
     if (
       pathname.startsWith("/assets/") || pathname.startsWith("/lib/") ||
