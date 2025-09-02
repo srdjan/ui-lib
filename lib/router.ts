@@ -1,4 +1,5 @@
 // In src/lib/router.ts
+import { getConfig } from "./config.ts";
 
 export type RouteParams = Record<string, string>;
 
@@ -43,7 +44,9 @@ export class Router {
       paramNames,
       handler,
     });
-    console.log(`[Router] Registered: ${method} ${path}`);
+    if (getConfig().logging || getConfig().dev) {
+      console.log(`[Router] Registered: ${method} ${path}`);
+    }
   }
 
   public match(

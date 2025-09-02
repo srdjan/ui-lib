@@ -143,3 +143,31 @@ Release date: 2025-08-25
 
 - Changelog: CHANGELOG.md
 - Authoring: docs/AUTHORING.md
+
+# funcwc v0.5.0 — Function-Style Props and CSS-Only Styles
+
+Release date: 2025-08-26
+
+## funcwc v0.8.0 — Logging Guard, Coverage Hardening, Polish
+
+Release date: 2025-09-02
+
+### Highlights
+
+- Logging guard: dev/debug logs are now gated by `configure({ logging, dev })`
+  to reduce noise in production builds.
+- Coverage task hardened for Deno 2: reliable LCOV via `deno task coverage`.
+
+### Changes
+
+- Format, lint, and type-check cleanup across the repo.
+- Small reliability polish in tasks; docs generation confirmed working.
+
+### Fixes
+
+- Example lint false-positive addressed via a file-level ignore in
+  `examples/layout.tsx`.
+
+### Internal
+
+- No breaking API changes; all tests green (92/92).

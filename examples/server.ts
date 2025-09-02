@@ -1,5 +1,5 @@
 // Development server for funcwc examples
-import { renderComponent, injectStateManager } from "../index.ts";
+import { injectStateManager, renderComponent } from "../index.ts";
 import { runWithRequestHeaders } from "../lib/request-headers.ts";
 import { renderCurrentDemo } from "./layout.tsx";
 
@@ -68,13 +68,13 @@ async function handler(request: Request): Promise<Response> {
         // Serve the SVG favicon
         const favicon = await Deno.readTextFile("./favicon.svg");
         return new Response(favicon, {
-          headers: { "Content-Type": "image/svg+xml" }
+          headers: { "Content-Type": "image/svg+xml" },
         });
       } catch {
         // Fallback to empty response if file not found
-        return new Response(null, { 
+        return new Response(null, {
           status: 204,
-          headers: { "Content-Type": "image/x-icon" } 
+          headers: { "Content-Type": "image/x-icon" },
         });
       }
     }

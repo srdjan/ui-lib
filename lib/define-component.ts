@@ -9,6 +9,7 @@ import {
 // Re-export for use in reactive components
 export type { GeneratedApiMap };
 import { appRouter } from "./router.ts";
+import { getConfig } from "./config.ts";
 import { on, subscribeToState } from "./reactive-helpers.ts";
 import {
   isUnifiedStyles,
@@ -142,10 +143,12 @@ export function defineComponent<TProps = Record<string, string>>(
         Record<string, string>,
         TProps
       >;
-      console.log(
-        `Auto-generated props for component "${name}":`,
-        Object.keys(propHelpers),
-      );
+      if (getConfig().logging || getConfig().dev) {
+        console.log(
+          `Auto-generated props for component "${name}":`,
+          Object.keys(propHelpers),
+        );
+      }
     }
   }
 

@@ -1,6 +1,6 @@
 {
   "name": "@funcwc/core",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Ultra-lightweight, type-safe SSR components with DOM-native state management and hybrid reactivity",
   "license": "MIT",
   "repository": {
@@ -29,11 +29,15 @@
     "fmt": "deno fmt",
     "fmt:check": "deno fmt --check",
     "lint": "deno lint",
-    "coverage": "deno test --coverage=coverage && deno coverage coverage --lcov > coverage.lcov",
+    "coverage": "rm -rf coverage coverage.lcov && deno test --coverage=coverage && deno coverage coverage --lcov --exclude='(jsx-runtime|define-component)\\.ts$' --output=coverage.lcov",
     "serve": "cd examples && deno run --allow-net --allow-read --allow-env server.ts",
     "start": "deno task check && deno task serve",
     "docs": "deno doc index.ts",
-    "bench": "deno bench"
+    "bench": "deno bench",
+    "release:prep": "deno task check && deno task fmt:check && deno task lint && deno task test && deno task coverage && deno task docs",
+    "release:tag": "deno run --allow-run --allow-read --allow-env scripts/release.ts",
+    "release:push": "deno run --allow-run --allow-read --allow-env scripts/release.ts --push",
+    "release": "deno task release:prep && deno task release:tag"
   },
 
   "compilerOptions": {

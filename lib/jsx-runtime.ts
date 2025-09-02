@@ -105,11 +105,15 @@ export function h(
         const isSelfClosing = /^<[a-zA-Z][^>]*\/>$/.test(child);
         const isKnownSelfClosing = SELF_CLOSING_TAGS.has(tagName) &&
           /^<[a-zA-Z][^>]*>$/.test(child);
-        const isNormalElement =
-          /^<[a-zA-Z][^>]*>[\s\S]*<\/[a-zA-Z][^>]*>$/.test(child);
+        const isNormalElement = /^<[a-zA-Z][^>]*>[\s\S]*<\/[a-zA-Z][^>]*>$/
+          .test(child);
         const isScriptTag = /^<script\b[^>]*>[\s\S]*<\/script>$/.test(child);
 
-        if (looksLikeHtml && (isSelfClosing || isKnownSelfClosing || isNormalElement || isScriptTag)) {
+        if (
+          looksLikeHtml &&
+          (isSelfClosing || isKnownSelfClosing || isNormalElement ||
+            isScriptTag)
+        ) {
           return child; // Already-rendered HTML (including explicit <script> tags)
         }
         return escape(child); // Plain text content

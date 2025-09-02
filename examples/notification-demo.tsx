@@ -242,7 +242,9 @@ defineComponent("notification-display", {
         data-class-message={classes!.notificationMessage}
       >
         {/* Notifications will be dynamically added here */}
-        <script dangerouslySetInnerHTML={{ __html: `
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
           (function(){
             if (document.__funcwcNotifyBound) return;
             document.__funcwcNotifyBound = true;
@@ -281,7 +283,10 @@ defineComponent("notification-display", {
               } catch (err) { console.warn('notification handler failed', err); }
             });
           })();
-        ` }}></script>
+        `,
+          }}
+        >
+        </script>
       </div>
     );
   },

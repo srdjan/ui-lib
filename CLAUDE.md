@@ -330,13 +330,17 @@ deno test lib/result.test.ts      # Run specific test file
 
 **Test Structure:**
 
-- Unit tests for all core utilities (`result.ts`, `props.ts`, `dom-helpers.ts`, `immutability.ts`)
-- Integration tests for component rendering (`jsx-runtime.test.ts`, `define-component.test.ts`)
+- Unit tests for all core utilities (`result.ts`, `props.ts`, `dom-helpers.ts`,
+  `immutability.ts`)
+- Integration tests for component rendering (`jsx-runtime.test.ts`,
+  `define-component.test.ts`)
 - Server-side rendering tests (`component-state.test.ts`, `ssr.test.ts`)
 - API generation tests (`api-generator.test.ts`)
 - Router functionality tests (`router.test.ts`)
-- Style parsing and registry tests (`styles-parser.test.ts`, `style-registry.test.ts`)
-- Reactive system tests (`reactive-helpers.test.ts`, `define-component.reactive.test.ts`)
+- Style parsing and registry tests (`styles-parser.test.ts`,
+  `style-registry.test.ts`)
+- Reactive system tests (`reactive-helpers.test.ts`,
+  `define-component.reactive.test.ts`)
 
 ## Error Handling Philosophy
 
@@ -353,33 +357,46 @@ The library follows functional error handling patterns:
 
 The innovative props system works by:
 
-1. **Render Parameter Parsing**: `lib/render-parameter-parser.ts` extracts prop signatures from render function parameters
-2. **Smart Type Helpers**: `lib/prop-helpers.ts` provides `string()`, `number()`, `boolean()`, `array()`, `object()` helpers that handle attribute parsing with defaults
-3. **Automatic Type Inference**: TypeScript infers props from the render function signature, eliminating duplication
+1. **Render Parameter Parsing**: `lib/render-parameter-parser.ts` extracts prop
+   signatures from render function parameters
+2. **Smart Type Helpers**: `lib/prop-helpers.ts` provides `string()`,
+   `number()`, `boolean()`, `array()`, `object()` helpers that handle attribute
+   parsing with defaults
+3. **Automatic Type Inference**: TypeScript infers props from the render
+   function signature, eliminating duplication
 
 ### CSS-Only Format Implementation
 
 The CSS-only styling system:
 
-1. **Style Parsing**: `lib/styles-parser.ts` converts CSS property blocks to scoped class names
-2. **Style Registry**: `lib/style-registry.ts` manages component-scoped CSS with automatic class name generation
-3. **Class Name Mapping**: Generated classes are passed as the third parameter to render functions
+1. **Style Parsing**: `lib/styles-parser.ts` converts CSS property blocks to
+   scoped class names
+2. **Style Registry**: `lib/style-registry.ts` manages component-scoped CSS with
+   automatic class name generation
+3. **Class Name Mapping**: Generated classes are passed as the third parameter
+   to render functions
 
 ### State Manager Integration
 
 The hybrid reactivity system:
 
-1. **State Manager Script**: `lib/state-manager.ts` creates injectable pub/sub scripts for cross-component state
-2. **Reactive Helpers**: `lib/reactive-helpers.ts` provides CSS property, pub/sub, and DOM event helpers
-3. **Configuration**: `lib/config.ts` enables global HTMX configuration and defaults
+1. **State Manager Script**: `lib/state-manager.ts` creates injectable pub/sub
+   scripts for cross-component state
+2. **Reactive Helpers**: `lib/reactive-helpers.ts` provides CSS property,
+   pub/sub, and DOM event helpers
+3. **Configuration**: `lib/config.ts` enables global HTMX configuration and
+   defaults
 
 ### API Generation System
 
 The Unified API system:
 
-1. **API Helpers**: `lib/api-helpers.ts` provides HTTP method wrappers (`post()`, `get()`, `patch()`, `del()`, etc.)
-2. **API Generator**: `lib/api-generator.ts` converts API definitions to HTMX client functions
-3. **Route Registration**: API handlers automatically register with the internal router for development server
+1. **API Helpers**: `lib/api-helpers.ts` provides HTTP method wrappers
+   (`post()`, `get()`, `patch()`, `del()`, etc.)
+2. **API Generator**: `lib/api-generator.ts` converts API definitions to HTMX
+   client functions
+3. **Route Registration**: API handlers automatically register with the internal
+   router for development server
 
 ## Architecture Deep Dive
 

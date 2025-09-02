@@ -1,6 +1,14 @@
 /** @jsx h */
-// deno-lint-ignore verbatim-module-syntax
-import { boolean, defineComponent, get, h, object, renderComponent, string } from "../index.ts";
+// deno-lint-ignore-file verbatim-module-syntax
+import {
+  boolean,
+  defineComponent,
+  get,
+  h,
+  object,
+  renderComponent,
+  string,
+} from "../index.ts";
 import type { GeneratedApiMap } from "../index.ts";
 
 // Import demo components to register them
@@ -77,7 +85,8 @@ defineComponent("app-layout", {
       `{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: var(--size-3) var(--size-2); box-shadow: var(--shadow-2); }`,
     nav:
       `{ display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; } @media (max-width: 768px) { .nav { flex-wrap: wrap; gap: var(--size-2); } }`,
-    navActions: `{ display: flex; align-items: center; gap: var(--size-2); } @media (max-width: 768px) { .nav-actions { flex-wrap: wrap; } }`,
+    navActions:
+      `{ display: flex; align-items: center; gap: var(--size-2); } @media (max-width: 768px) { .nav-actions { flex-wrap: wrap; } }`,
     logo:
       `{ font-size: var(--font-size-4); font-weight: var(--font-weight-7); color: white; text-decoration: none; transition: opacity 0.2s ease; } .logo:hover { opacity: 0.9; }`,
     navMenu:
@@ -107,7 +116,8 @@ defineComponent("app-layout", {
       `{ font-size: 2rem; margin-bottom: 1rem; color: var(--theme-accent); } @media (max-width: 768px) { .feature-icon { font-size: var(--font-size-4); } }`,
     featureTitle:
       `{ font-size: 1.2rem; font-weight: bold; margin-bottom: 0.5rem; color: #333; } @media (max-width: 768px) { .feature-title { font-size: var(--font-size-2); } }`,
-    featureDesc: `{ color: #666; line-height: 1.6; } @media (max-width: 768px) { .feature-desc { font-size: var(--font-size-0); } }`,
+    featureDesc:
+      `{ color: #666; line-height: 1.6; } @media (max-width: 768px) { .feature-desc { font-size: var(--font-size-0); } }`,
   },
 
   // ✨ Function-Style Props - Zero duplication!
@@ -210,9 +220,14 @@ defineComponent("app-layout", {
                 class={`${classes!.navCartBadge} cart-badge-reactive`}
                 data-cart-id="default"
               >
-                🛒 <span class={`${classes!.navCartCount} cart-count`}>0 items</span>
+                🛒{" "}
+                <span class={`${classes!.navCartCount} cart-count`}>
+                  0 items
+                </span>
                 <span class="cart-total">$0.00</span>
-                <script dangerouslySetInnerHTML={{ __html: `
+                <script
+                  dangerouslySetInnerHTML={{
+                    __html: `
                   (function(){
                     var el = document.currentScript && document.currentScript.parentElement;
                     if (!el || el.getAttribute('data-cart-subscribed')) return;
@@ -233,7 +248,10 @@ defineComponent("app-layout", {
                       } catch (e) { console.warn('nav cart-badge subscribe failed', e); }
                     }, el);
                   })();
-                ` }}></script>
+                `,
+                  }}
+                >
+                </script>
               </div>
               <button
                 type="button"
@@ -289,7 +307,7 @@ export function renderCurrentDemo(
                 "initial-count": "5",
                 "step": "1",
                 "max-value": "10",
-                "label": "Basic Counter"
+                "label": "Basic Counter",
               })}
 
               {renderComponent("demo-counter", {
@@ -298,7 +316,7 @@ export function renderCurrentDemo(
                 "max-value": "20",
                 "min-value": "-5",
                 "theme": "green",
-                "label": "Step by 2"
+                "label": "Step by 2",
               })}
 
               {renderComponent("demo-counter", {
@@ -307,7 +325,7 @@ export function renderCurrentDemo(
                 "max-value": "100",
                 "show-controls": "true",
                 "theme": "purple",
-                "label": "Big Steps"
+                "label": "Big Steps",
               })}
             </div>
 
@@ -384,7 +402,9 @@ export function renderCurrentDemo(
 
             {/* Tier 3: DOM Events */}
             <div style="margin: 2rem 0;">
-              {renderComponent("notification-trigger", { "channel-id": "notifications" })}
+              {renderComponent("notification-trigger", {
+                "channel-id": "notifications",
+              })}
             </div>
 
             <div style="margin-top: 2rem; padding: 1rem; background: white; border-radius: 8px;">
@@ -446,7 +466,9 @@ export function renderCurrentDemo(
           </div>
 
           {/* Notification display component */}
-          {renderComponent("notification-display", { "max-notifications": "3" })}
+          {renderComponent("notification-display", {
+            "max-notifications": "3",
+          })}
         </div>
       );
 

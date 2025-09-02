@@ -1,6 +1,6 @@
 /** @jsx h */
 // deno-lint-ignore verbatim-module-syntax
-import { defineComponent, h, string, createCartAction } from "../index.ts";
+import { createCartAction, defineComponent, h, string } from "../index.ts";
 
 /**
  * 📡 Cart Manager - Demonstrates Tier 2: Pub/Sub State Manager
@@ -93,7 +93,15 @@ defineComponent("cart-manager", {
             <button
               type="button"
               class={classes!.addButton}
-              onclick={createCartAction("add", JSON.stringify({ id: "phone", name: "Smartphone", price: 699, quantity: 1 }))}
+              onclick={createCartAction(
+                "add",
+                JSON.stringify({
+                  id: "phone",
+                  name: "Smartphone",
+                  price: 699,
+                  quantity: 1,
+                }),
+              )}
             >
               Add to Cart
             </button>
@@ -105,7 +113,15 @@ defineComponent("cart-manager", {
             <button
               type="button"
               class={classes!.addButton}
-              onclick={createCartAction("add", JSON.stringify({ id: "laptop", name: "Laptop", price: 1299, quantity: 1 }))}
+              onclick={createCartAction(
+                "add",
+                JSON.stringify({
+                  id: "laptop",
+                  name: "Laptop",
+                  price: 1299,
+                  quantity: 1,
+                }),
+              )}
             >
               Add to Cart
             </button>
@@ -117,7 +133,15 @@ defineComponent("cart-manager", {
             <button
               type="button"
               class={classes!.addButton}
-              onclick={createCartAction("add", JSON.stringify({ id: "headphones", name: "Headphones", price: 199, quantity: 1 }))}
+              onclick={createCartAction(
+                "add",
+                JSON.stringify({
+                  id: "headphones",
+                  name: "Headphones",
+                  price: 199,
+                  quantity: 1,
+                }),
+              )}
             >
               Add to Cart
             </button>
@@ -164,7 +188,7 @@ defineComponent("cart-badge", {
   ) => {
     const id = typeof cartId === "string" ? cartId : "default";
 
-  return (
+    return (
       <div
         class={`${classes!.badge} cart-badge-reactive`}
         data-cart-id={id}
@@ -174,7 +198,9 @@ defineComponent("cart-badge", {
         <p style="margin: 0.5rem 0 0; font-size: 0.875rem; opacity: 0.8;">
           🔄 Updates automatically via pub/sub
         </p>
-        <script dangerouslySetInnerHTML={{ __html: `
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
           (function(){
             var el = document.currentScript && document.currentScript.parentElement;
             if (!el || el.getAttribute('data-cart-subscribed')) return;
@@ -200,7 +226,10 @@ defineComponent("cart-badge", {
               } catch (e) { console.warn('❌ cart-badge update failed', e); }
             }, el);
           })();
-        ` }}></script>
+        `,
+          }}
+        >
+        </script>
       </div>
     );
   },
