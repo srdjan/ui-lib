@@ -10,58 +10,18 @@ import { defineComponent, h, string } from "../index.ts";
  */
 defineComponent("theme-controller", {
   styles: {
-    themePanel: `{
-      background: white;
-      border-radius: 12px;
-      padding: 2rem;
-      border: 1px solid #dee2e6;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    activeRing: `{
+      outline: var(--border-size-2) solid var(--brand);
+      outline-offset: var(--size-1);
     }`,
-
-    themeTitle: `{
-      font-size: 1.5rem;
-      color: #495057;
-      margin-bottom: 1rem;
-      font-weight: bold;
-    }`,
-
-    themeOptions: `{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 1rem;
-      margin: 1.5rem 0;
-    }`,
-
-    themeButton: `{
-      padding: 1rem;
-      border: 2px solid #dee2e6;
-      border-radius: 8px;
-      background: white;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: center;
-      font-weight: 500;
-    }`,
-
-    themeButtonActive: `{
-      border-color: var(--demo-primary, #007bff);
-      background: var(--demo-primary-bg, #f8f9ff);
-      transform: scale(1.05);
-    }`,
-
-    demoCard: `{
-      margin-top: 2rem;
-      padding: 1.5rem;
-      border-radius: 8px;
-      background: var(--demo-card-bg, #f8f9fa);
-      border: 2px solid var(--demo-card-border, #dee2e6);
-      transition: all 0.3s ease;
-    }`,
-
     demoText: `{
-      color: var(--demo-text, #495057);
+      color: var(--demo-text, var(--text-1));
       margin: 0;
-      font-size: 1.1rem;
+      font-size: var(--font-size-1);
+    }`,
+    demoBox: `{
+      background: var(--demo-card-bg, var(--surface-1));
+      border: var(--border-size-2) solid var(--demo-card-border, var(--surface-3));
     }`,
   },
 
@@ -75,16 +35,15 @@ defineComponent("theme-controller", {
     const theme = typeof currentTheme === "string" ? currentTheme : "blue";
 
     return (
-      <div class={classes!.themePanel}>
-        <h3 class={classes!.themeTitle}>🎨 CSS Property Reactivity</h3>
+      <div class="u-card u-p-4">
+        <h3>🎨 CSS Property Reactivity</h3>
         <p>Click a theme to see instant updates via CSS custom properties:</p>
 
-        <div class={classes!.themeOptions}>
+        <div class="u-grid u-grid-auto-fit-120 u-gap-4 u-my-4">
           <button
             type="button"
-            class={`${classes!.themeButton} ${
-              theme === "blue" ? classes!.themeButtonActive : ""
-            }`}
+            class={`btn theme-option ${theme === "blue" ? classes!.activeRing : ""}`}
+            aria-pressed={theme === "blue"}
             onclick={`
               document.documentElement.style.setProperty('--demo-primary', '#007bff');
               document.documentElement.style.setProperty('--demo-primary-bg', '#f8f9ff');
@@ -92,13 +51,11 @@ defineComponent("theme-controller", {
               document.documentElement.style.setProperty('--demo-card-border', '#007bff');
               document.documentElement.style.setProperty('--demo-text', '#0056b3');
               
-              // Update active states
-              document.querySelectorAll('.${
-              classes!.themeButton
-            }').forEach(btn => btn.classList.remove('${
-              classes!.themeButtonActive
-            }'));
-              this.classList.add('${classes!.themeButtonActive}');
+              // Update active states and ARIA
+              document.querySelectorAll('.theme-option').forEach(btn => btn.setAttribute('aria-pressed','false'));
+              this.setAttribute('aria-pressed','true');
+              document.querySelectorAll('.theme-option').forEach(btn => btn.classList.remove('${classes!.activeRing}'));
+              this.classList.add('${classes!.activeRing}');
             `}
           >
             🔵 Blue
@@ -106,9 +63,8 @@ defineComponent("theme-controller", {
 
           <button
             type="button"
-            class={`${classes!.themeButton} ${
-              theme === "green" ? classes!.themeButtonActive : ""
-            }`}
+            class={`btn theme-option ${theme === "green" ? classes!.activeRing : ""}`}
+            aria-pressed={theme === "green"}
             onclick={`
               document.documentElement.style.setProperty('--demo-primary', '#28a745');
               document.documentElement.style.setProperty('--demo-primary-bg', '#f8fff8');
@@ -116,13 +72,11 @@ defineComponent("theme-controller", {
               document.documentElement.style.setProperty('--demo-card-border', '#28a745');
               document.documentElement.style.setProperty('--demo-text', '#1e7e34');
               
-              // Update active states
-              document.querySelectorAll('.${
-              classes!.themeButton
-            }').forEach(btn => btn.classList.remove('${
-              classes!.themeButtonActive
-            }'));
-              this.classList.add('${classes!.themeButtonActive}');
+              // Update active states and ARIA
+              document.querySelectorAll('.theme-option').forEach(btn => btn.setAttribute('aria-pressed','false'));
+              this.setAttribute('aria-pressed','true');
+              document.querySelectorAll('.theme-option').forEach(btn => btn.classList.remove('${classes!.activeRing}'));
+              this.classList.add('${classes!.activeRing}');
             `}
           >
             🟢 Green
@@ -130,9 +84,8 @@ defineComponent("theme-controller", {
 
           <button
             type="button"
-            class={`${classes!.themeButton} ${
-              theme === "purple" ? classes!.themeButtonActive : ""
-            }`}
+            class={`btn theme-option ${theme === "purple" ? classes!.activeRing : ""}`}
+            aria-pressed={theme === "purple"}
             onclick={`
               document.documentElement.style.setProperty('--demo-primary', '#6f42c1');
               document.documentElement.style.setProperty('--demo-primary-bg', '#faf8ff');
@@ -140,13 +93,11 @@ defineComponent("theme-controller", {
               document.documentElement.style.setProperty('--demo-card-border', '#6f42c1');
               document.documentElement.style.setProperty('--demo-text', '#5a2d91');
               
-              // Update active states
-              document.querySelectorAll('.${
-              classes!.themeButton
-            }').forEach(btn => btn.classList.remove('${
-              classes!.themeButtonActive
-            }'));
-              this.classList.add('${classes!.themeButtonActive}');
+              // Update active states and ARIA
+              document.querySelectorAll('.theme-option').forEach(btn => btn.setAttribute('aria-pressed','false'));
+              this.setAttribute('aria-pressed','true');
+              document.querySelectorAll('.theme-option').forEach(btn => btn.classList.remove('${classes!.activeRing}'));
+              this.classList.add('${classes!.activeRing}');
             `}
           >
             🟣 Purple
@@ -154,9 +105,8 @@ defineComponent("theme-controller", {
 
           <button
             type="button"
-            class={`${classes!.themeButton} ${
-              theme === "orange" ? classes!.themeButtonActive : ""
-            }`}
+            class={`btn theme-option ${theme === "orange" ? classes!.activeRing : ""}`}
+            aria-pressed={theme === "orange"}
             onclick={`
               document.documentElement.style.setProperty('--demo-primary', '#fd7e14');
               document.documentElement.style.setProperty('--demo-primary-bg', '#fff8f0');
@@ -164,20 +114,18 @@ defineComponent("theme-controller", {
               document.documentElement.style.setProperty('--demo-card-border', '#fd7e14');
               document.documentElement.style.setProperty('--demo-text', '#e55a00');
               
-              // Update active states
-              document.querySelectorAll('.${
-              classes!.themeButton
-            }').forEach(btn => btn.classList.remove('${
-              classes!.themeButtonActive
-            }'));
-              this.classList.add('${classes!.themeButtonActive}');
+              // Update active states and ARIA
+              document.querySelectorAll('.theme-option').forEach(btn => btn.setAttribute('aria-pressed','false'));
+              this.setAttribute('aria-pressed','true');
+              document.querySelectorAll('.theme-option').forEach(btn => btn.classList.remove('${classes!.activeRing}'));
+              this.classList.add('${classes!.activeRing}');
             `}
           >
             🟠 Orange
           </button>
         </div>
 
-        <div class={classes!.demoCard}>
+        <div class={`u-card u-p-3 u-mt-4 ${classes!.demoBox}`}>
           <p class={classes!.demoText}>
             ⚡ This card automatically updates when you change themes above!
             Notice how the colors change instantly without any JavaScript state

@@ -1,0 +1,77 @@
+/* Minimal utility layer built on Open Props tokens */
+
+/* Layout */
+.u-flex { display: flex; }
+.u-wrap { flex-wrap: wrap; }
+.u-justify-center { justify-content: center; }
+.u-items-center { align-items: center; }
+.u-grid { display: grid; }
+.u-grid-auto-fit-250 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.u-grid-auto-fit-120 { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+.u-grid-2-1 { grid-template-columns: 2fr 1fr; }
+.u-grid-1-1 { grid-template-columns: 1fr 1fr; }
+.u-w-full { width: 100%; }
+.u-min-h-300 { min-height: 300px; }
+.u-flex-col { flex-direction: column; }
+
+/* Spacing (maps to Open Props size scale) */
+.u-p-1 { padding: var(--size-1); }
+.u-p-2 { padding: var(--size-2); }
+.u-p-3 { padding: var(--size-3); }
+.u-p-4 { padding: var(--size-4); }
+.u-p-5 { padding: var(--size-5); }
+.u-gap-2 { gap: var(--size-2); }
+.u-gap-3 { gap: var(--size-3); }
+.u-gap-4 { gap: var(--size-4); }
+.u-gap-5 { gap: var(--size-5); }
+.u-gap-6 { gap: var(--size-6); }
+.u-mt-0 { margin-top: 0; }
+.u-mt-1 { margin-top: var(--size-1); }
+.u-mt-2 { margin-top: var(--size-2); }
+.u-mt-3 { margin-top: var(--size-3); }
+.u-mt-4 { margin-top: var(--size-4); }
+.u-mb-4 { margin-bottom: var(--size-4); }
+.u-my-4 { margin-block: var(--size-4); }
+
+/* Card/surface primitives */
+.u-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-2);
+  box-shadow: var(--card-shadow);
+}
+.u-border-l-brand { border-left: var(--border-size-2) solid var(--brand); }
+.u-border { border: 1px solid var(--card-border); }
+.u-border-2 { border-width: var(--border-size-2); }
+.u-border-dashed { border-style: dashed; }
+
+/* Typography */
+.u-text-center { text-align: center; }
+.u-text-brand { color: var(--brand); }
+.u-text-muted { color: var(--text-muted); }
+.u-text-0 { font-size: var(--font-size-0); }
+.u-italic { font-style: italic; }
+
+/* Code sample block */
+.u-code-block {
+  display: block;
+  padding: var(--size-3);
+  background: var(--green-0, #f0fdf4);
+  color: var(--green-7);
+  border-radius: var(--radius-2);
+  font-size: var(--font-size-0);
+}
+
+/* Borders */
+.u-border-brand { border: var(--border-size-2) solid var(--brand); }
+
+/* Buttons (extends Open Props buttons) */
+.btn-brand {
+  /* Open Props buttons read these */
+  --_accent: var(--brand);
+  --_text: var(--brand-contrast);
+}
+.btn-success { --_accent: var(--green-6); --_text: white; }
+.btn-warning { --_accent: var(--yellow-6); --_text: var(--gray-12); }
+.btn-error   { --_accent: var(--red-6); --_text: white; }
+.btn-info    { --_accent: var(--cyan-6); --_text: white; }

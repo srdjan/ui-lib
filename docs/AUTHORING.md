@@ -192,6 +192,45 @@ defineComponent("beautiful-button", {
   `classes` remains optional and merges last for overrides, but is generally not
   needed.
 
+### Tokens & Utilities
+
+- Tokens-first: Prefer Open Props tokens in `styles`:
+  - Surfaces: `var(--surface-1)`, borders: `var(--surface-3)`, shadows: `var(--shadow-2)`.
+  - Typography: `var(--text-1)` for main text, `var(--text-muted)` for secondary.
+  - Spacing/radius: `var(--size-*)`, `var(--radius-*)`, borders: `var(--border-size-*)`.
+  - Brand: use `var(--brand)` and `var(--brand-contrast)` (see `examples/assets/tokens.css`).
+- Utilities-over-custom: Compose layout/spacing with small, readable classes:
+
+```html
+<div class="u-grid u-grid-auto-fit-250 u-gap-4 u-my-4">
+  <div class="u-card u-p-3">
+    <strong class="u-text-brand">Title</strong>
+    <p class="u-mt-2 u-text-0 u-text-muted">Description text</p>
+  </div>
+</div>
+```
+
+- Buttons: Use Open Props UI buttons plus a small accent helper:
+
+```html
+<button class="btn btn-brand" type="button">Primary</button>
+<button class="btn btn-success" type="button">Success</button>
+```
+
+- Example `styles` using tokens instead of hex:
+
+```ts
+styles: {
+  card: `{ background: var(--surface-1); border: 1px solid var(--surface-3); border-radius: var(--radius-2); box-shadow: var(--shadow-2); }`,
+  title: `{ color: var(--text-1); font-weight: var(--font-weight-7); }`,
+  muted: `{ color: var(--text-muted); }`,
+}
+```
+
+Dark mode:
+- By default, Open Props `normalize` adapts surfaces/text to system preference.
+- If you need an explicit toggle, add/remove the `dark` class on `<html>`; see `examples/assets/tokens.css` for overrides.
+
 ### Event Handlers
 
 - JSX `onClick`, `onChange`, etc. are lower‑cased in output (e.g., `onclick`).

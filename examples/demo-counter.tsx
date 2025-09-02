@@ -18,21 +18,21 @@ defineComponent("demo-counter", {
     counterContainer: `{ 
       display: inline-flex; 
       align-items: center; 
-      gap: 1rem; 
-      padding: 1.5rem; 
-      border: 2px solid var(--counter-border, #007bff); 
-      border-radius: 12px; 
-      background: var(--counter-bg, white);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      gap: var(--size-4); 
+      padding: var(--size-4); 
+      border: var(--border-size-2) solid var(--counter-border, var(--brand)); 
+      border-radius: var(--radius-3); 
+      background: var(--counter-bg, var(--surface-1));
+      box-shadow: var(--shadow-2);
       transition: all 0.3s ease;
     }`,
 
     button: `{ 
-      padding: 0.75rem; 
-      background: var(--counter-button-bg, #007bff); 
-      color: white; 
+      padding: var(--size-2); 
+      background: var(--counter-button-bg, var(--brand)); 
+      color: var(--counter-button-text, white); 
       border: none; 
-      border-radius: 8px; 
+      border-radius: var(--radius-2); 
       cursor: pointer; 
       font-size: 1.2rem;
       font-weight: bold;
@@ -41,25 +41,25 @@ defineComponent("demo-counter", {
     }`,
 
     buttonHover:
-      `{ transform: scale(1.05); background: var(--counter-button-hover, #0056b3); }`,
+      `{ transform: scale(1.05); background: var(--counter-button-hover, var(--indigo-7)); }`,
 
     display: `{ 
       font-size: 2rem; 
       font-weight: bold; 
       min-width: 4rem; 
       text-align: center; 
-      color: var(--counter-text, #007bff);
-      background: var(--counter-display-bg, #f8f9fa);
+      color: var(--counter-text, var(--brand));
+      background: var(--counter-display-bg, var(--surface-1));
       padding: 0.5rem 1rem;
-      border-radius: 8px;
-      border: 2px solid var(--counter-display-border, #e9ecef);
+      border-radius: var(--radius-2);
+      border: var(--border-size-2) solid var(--counter-display-border, var(--surface-3));
     }`,
 
     controls: `{ display: flex; flex-direction: column; gap: 0.5rem; }`,
 
     label: `{ 
-      font-size: 0.875rem; 
-      color: var(--counter-label, #666); 
+      font-size: var(--font-size-0); 
+      color: var(--counter-label, var(--text-muted)); 
       font-weight: 500;
     }`,
 
@@ -70,8 +70,8 @@ defineComponent("demo-counter", {
     }`,
 
     maxReached: `{ 
-      border-color: var(--counter-warning, #dc3545); 
-      background: var(--counter-warning-bg, #f8d7da); 
+      border-color: var(--counter-warning, var(--red-6)); 
+      background: var(--counter-warning-bg, var(--red-0)); 
     }`,
   },
 
@@ -113,7 +113,7 @@ defineComponent("demo-counter", {
         <div class={classes!.controls}>
           <label class={classes!.label}>{counterLabel}</label>
           {showButtons && (
-            <div style="display: flex; gap: 0.5rem;">
+            <div class="u-flex u-gap-2">
               <button
                 type="button"
                 class={`${classes!.button} ${atMin ? classes!.disabled : ""}`}

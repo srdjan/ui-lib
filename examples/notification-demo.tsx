@@ -15,78 +15,24 @@ import {
  * with structured payloads.
  */
 defineComponent("notification-trigger", {
-  styles: {
-    triggerPanel: `{
-      background: white;
-      border-radius: 12px;
-      padding: 2rem;
-      border: 1px solid #dee2e6;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }`,
-
-    triggerTitle: `{
-      font-size: 1.5rem;
-      color: #495057;
-      margin-bottom: 1rem;
-      font-weight: bold;
-    }`,
-
-    buttonGrid: `{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 1rem;
-      margin: 1.5rem 0;
-    }`,
-
-    notifyButton: `{
-      padding: 1rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s ease;
-    }`,
-
-    successButton: `{
-      background: #28a745;
-      color: white;
-    }`,
-
-    warningButton: `{
-      background: #ffc107;
-      color: #212529;
-    }`,
-
-    errorButton: `{
-      background: #dc3545;
-      color: white;
-    }`,
-
-    infoButton: `{
-      background: #17a2b8;
-      color: white;
-    }`,
-  },
-
   render: (
     { _channelId = string("notifications") },
     _api,
-    classes,
   ) => {
     // channelId reserved for future targeting; using global document listener now
 
     return (
-      <div class={classes!.triggerPanel}>
-        <h3 class={classes!.triggerTitle}>🔔 DOM Event Communication</h3>
+      <div class="u-card u-p-4">
+        <h3>🔔 DOM Event Communication</h3>
         <p>
           Click buttons to send notifications via DOM events to other
           components:
         </p>
 
-        <div class={classes!.buttonGrid}>
+        <div class="u-grid u-grid-auto-fit-250 u-gap-3 u-my-4">
           <button
             type="button"
-            class={`${classes!.notifyButton} ${classes!.successButton}`}
+            class="btn btn-success"
             onclick={createNotification("Saved!", "success", 2500)}
           >
             ✅ Simple
@@ -94,7 +40,7 @@ defineComponent("notification-trigger", {
 
           <button
             type="button"
-            class={`${classes!.notifyButton} ${classes!.successButton}`}
+            class="btn btn-success"
             onclick={dispatchEvent("show-notification", {
               type: "success",
               title: "Success!",
@@ -107,7 +53,7 @@ defineComponent("notification-trigger", {
 
           <button
             type="button"
-            class={`${classes!.notifyButton} ${classes!.warningButton}`}
+            class="btn btn-warning"
             onclick={dispatchEvent("show-notification", {
               type: "warning",
               title: "Warning!",
@@ -120,7 +66,7 @@ defineComponent("notification-trigger", {
 
           <button
             type="button"
-            class={`${classes!.notifyButton} ${classes!.errorButton}`}
+            class="btn btn-error"
             onclick={dispatchEvent("show-notification", {
               type: "error",
               title: "Error!",
@@ -133,7 +79,7 @@ defineComponent("notification-trigger", {
 
           <button
             type="button"
-            class={`${classes!.notifyButton} ${classes!.infoButton}`}
+            class="btn btn-info"
             onclick={dispatchEvent("show-notification", {
               type: "info",
               title: "Info",
@@ -145,7 +91,7 @@ defineComponent("notification-trigger", {
           </button>
         </div>
 
-        <p style="color: #666; font-size: 0.875rem; margin-top: 1rem;">
+        <p class="u-mt-2 u-text-0 u-text-muted">
           📡 These buttons dispatch custom DOM events that notification
           components listen for. No direct coupling between components!
         </p>
@@ -161,19 +107,19 @@ defineComponent("notification-display", {
   styles: {
     notificationContainer: `{
       position: fixed;
-      top: 2rem;
-      right: 2rem;
+      top: var(--size-5);
+      right: var(--size-5);
       z-index: 1000;
       pointer-events: none;
     }`,
 
     notification: `{
-      background: white;
-      border-radius: 8px;
-      padding: 1rem;
-      margin-bottom: 0.5rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      border-left: 4px solid #007bff;
+      background: var(--surface-1);
+      border-radius: var(--radius-2);
+      padding: var(--size-3);
+      margin-bottom: var(--size-2);
+      box-shadow: var(--shadow-3);
+      border-left: var(--border-size-2) solid var(--brand);
       min-width: 300px;
       opacity: 0;
       transform: translateX(100%);
@@ -187,30 +133,30 @@ defineComponent("notification-display", {
     }`,
 
     notificationSuccess: `{
-      border-left-color: #28a745;
+      border-left-color: var(--green-6);
     }`,
 
     notificationWarning: `{
-      border-left-color: #ffc107;
+      border-left-color: var(--yellow-6);
     }`,
 
     notificationError: `{
-      border-left-color: #dc3545;
+      border-left-color: var(--red-6);
     }`,
 
     notificationInfo: `{
-      border-left-color: #17a2b8;
+      border-left-color: var(--cyan-6);
     }`,
 
     notificationTitle: `{
-      font-weight: bold;
-      margin-bottom: 0.25rem;
-      color: #495057;
+      font-weight: var(--font-weight-7);
+      margin-bottom: var(--size-1);
+      color: var(--text-1);
     }`,
 
     notificationMessage: `{
-      color: #666;
-      font-size: 0.875rem;
+      color: var(--text-2, var(--gray-7));
+      font-size: var(--font-size-0);
       margin: 0;
     }`,
   },
@@ -240,6 +186,10 @@ defineComponent("notification-display", {
         data-class-info={classes!.notificationInfo}
         data-class-title={classes!.notificationTitle}
         data-class-message={classes!.notificationMessage}
+        role="region"
+        aria-live="polite"
+        aria-atomic="true"
+        aria-label="Notifications"
       >
         {/* Notifications will be dynamically added here */}
         <script
@@ -266,6 +216,10 @@ defineComponent("notification-display", {
                   message.textContent = detail.message || '';
                   notification.appendChild(title);
                   notification.appendChild(message);
+                  // Accessibility roles
+                  var role = (detail.type === 'error') ? 'alert' : 'status';
+                  notification.setAttribute('role', role);
+                  notification.setAttribute('aria-live', 'polite');
                   container.appendChild(notification);
                   setTimeout(function(){
                     var visible = container.getAttribute('data-class-visible') || '';

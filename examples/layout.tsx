@@ -47,7 +47,7 @@ defineComponent("app-layout", {
     welcome: get("/demo/welcome", (_req) => {
       // Return partial HTML for HTMX to swap into the main content area
       const classes = {}; // In a real app, classes would be provided by the system
-      const content = renderCurrentDemo("welcome", classes);
+      const content = render("welcome", classes);
       return new Response(content, {
         headers: { "Content-Type": "text/html" },
       });
@@ -55,7 +55,7 @@ defineComponent("app-layout", {
     basic: get("/demo/basic", (_req) => {
       // Return partial HTML for HTMX to swap into the main content area
       const classes = {}; // In a real app, classes would be provided by the system
-      const content = renderCurrentDemo("basic", classes);
+      const content = render("basic", classes);
       return new Response(content, {
         headers: { "Content-Type": "text/html" },
       });
@@ -63,14 +63,7 @@ defineComponent("app-layout", {
     reactive: get("/demo/reactive", (_req) => {
       // Return partial HTML for HTMX to swap into the main content area
       const classes = {}; // In a real app, classes would be provided by the system
-      const content = renderCurrentDemo("reactive", classes);
-      return new Response(content, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }),
-    jsxDemo: get("/demo/jsx", (_req) => {
-      // Return the JSX demo component using JSX syntax
-      const content = <jsx-demo-layout />;
+      const content = render("reactive", classes);
       return new Response(content, {
         headers: { "Content-Type": "text/html" },
       });
@@ -88,7 +81,7 @@ defineComponent("app-layout", {
     }`,
 
     header:
-      `{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: var(--size-3) var(--size-2); box-shadow: var(--shadow-2); }`,
+      `{ background: linear-gradient(135deg, var(--indigo-5) 0%, var(--violet-6) 100%); color: white; padding: var(--size-3) var(--size-2); box-shadow: var(--shadow-2); }`,
     nav:
       `{ display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; } @media (max-width: 768px) { .nav { flex-wrap: wrap; gap: var(--size-2); } }`,
     navActions:
@@ -113,17 +106,17 @@ defineComponent("app-layout", {
     title:
       `{ font-size: 2.5rem; font-weight: bold; color: var(--theme-accent); margin-bottom: 1rem; text-align: center; } @media (max-width: 768px) { .title { font-size: var(--font-size-5); } }`,
     subtitle:
-      `{ font-size: 1.2rem; color: #666; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto; text-align: center; } @media (max-width: 768px) { .subtitle { font-size: var(--font-size-2); } }`,
+      `{ font-size: 1.2rem; color: var(--text-muted); margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto; text-align: center; } @media (max-width: 768px) { .subtitle { font-size: var(--font-size-2); } }`,
     features:
       `{ display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 3rem; } @media (max-width: 768px) { .features { gap: var(--size-3); grid-template-columns: 1fr; } }`,
     feature:
-      `{ background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: left; border: 1px solid #eee; transition: transform 0.2s ease, box-shadow 0.2s ease; } .feature:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.15); } @media (max-width: 768px) { .feature { padding: var(--size-3); } }`,
+      `{ background: var(--surface-1); padding: 2rem; border-radius: 12px; box-shadow: var(--shadow-2); text-align: left; border: 1px solid var(--surface-3); transition: transform 0.2s ease, box-shadow 0.2s ease; } .feature:hover { transform: translateY(-2px); box-shadow: var(--shadow-3); } @media (max-width: 768px) { .feature { padding: var(--size-3); } }`,
     featureIcon:
       `{ font-size: 2rem; margin-bottom: 1rem; color: var(--theme-accent); } @media (max-width: 768px) { .feature-icon { font-size: var(--font-size-4); } }`,
     featureTitle:
-      `{ font-size: 1.2rem; font-weight: bold; margin-bottom: 0.5rem; color: #333; } @media (max-width: 768px) { .feature-title { font-size: var(--font-size-2); } }`,
+      `{ font-size: 1.2rem; font-weight: bold; margin-bottom: 0.5rem; color: var(--text-1); } @media (max-width: 768px) { .feature-title { font-size: var(--font-size-2); } }`,
     featureDesc:
-      `{ color: #666; line-height: 1.6; } @media (max-width: 768px) { .feature-desc { font-size: var(--font-size-0); } }`,
+      `{ color: var(--text-muted); line-height: 1.6; } @media (max-width: 768px) { .feature-desc { font-size: var(--font-size-0); } }`,
   },
 
   // ✨ Function-Style Props - Zero duplication!
@@ -149,7 +142,7 @@ defineComponent("app-layout", {
     return (
       <div class={classes!.container}>
         <header class={classes!.header}>
-          <nav class={classes!.nav}>
+          <nav class={classes!.nav} aria-label="Primary">
             <a href="#" class={classes!.logo}>
               {brand.title}
               {isBeta ? " β" : ""}
@@ -161,6 +154,7 @@ defineComponent("app-layout", {
                   class={`${classes!.navItem} ${
                     demo === "welcome" ? classes!.navItemActive : ""
                   }`}
+                  aria-current={demo === "welcome" ? "page" : undefined}
                   {...api.welcome(undefined, {
                     target: "#content-area",
                     swap: "innerHTML",
@@ -171,7 +165,9 @@ defineComponent("app-layout", {
                     ul.querySelectorAll('a').forEach(a => a.classList.remove('${
                     classes!.navItemActive
                   }'));
+                    ul.querySelectorAll('a[aria-current=\"page\"]').forEach(a => a.removeAttribute('aria-current'));
                     this.classList.add('${classes!.navItemActive}');
+                    this.setAttribute('aria-current','page');
                   }).call(this)`}
                 >
                   Home
@@ -182,6 +178,7 @@ defineComponent("app-layout", {
                   class={`${classes!.navItem} ${
                     demo === "basic" ? classes!.navItemActive : ""
                   }`}
+                  aria-current={demo === "basic" ? "page" : undefined}
                   {...api.basic(undefined, {
                     target: "#content-area",
                     swap: "innerHTML",
@@ -192,7 +189,9 @@ defineComponent("app-layout", {
                     ul.querySelectorAll('a').forEach(a => a.classList.remove('${
                     classes!.navItemActive
                   }'));
+                    ul.querySelectorAll('a[aria-current=\"page\"]').forEach(a => a.removeAttribute('aria-current'));
                     this.classList.add('${classes!.navItemActive}');
+                    this.setAttribute('aria-current','page');
                   }).call(this)`}
                 >
                   Basic Components
@@ -203,6 +202,7 @@ defineComponent("app-layout", {
                   class={`${classes!.navItem} ${
                     demo === "reactive" ? classes!.navItemActive : ""
                   }`}
+                  aria-current={demo === "reactive" ? "page" : undefined}
                   {...api.reactive(undefined, {
                     target: "#content-area",
                     swap: "innerHTML",
@@ -213,33 +213,15 @@ defineComponent("app-layout", {
                     ul.querySelectorAll('a').forEach(a => a.classList.remove('${
                     classes!.navItemActive
                   }'));
+                    ul.querySelectorAll('a[aria-current=\"page\"]').forEach(a => a.removeAttribute('aria-current'));
                     this.classList.add('${classes!.navItemActive}');
+                    this.setAttribute('aria-current','page');
                   }).call(this)`}
                 >
                   Reactivity
                 </a>
               </li>
-              <li>
-                <a
-                  class={`${classes!.navItem} ${
-                    demo === "jsx" ? classes!.navItemActive : ""
-                  }`}
-                  {...api.jsxDemo(undefined, {
-                    target: "#content-area",
-                    swap: "innerHTML",
-                  })}
-                  hx-on={`click: (function(){
-                    const ul = this.closest('ul');
-                    if (!ul) return;
-                    ul.querySelectorAll('a').forEach(a => a.classList.remove('${
-                    classes!.navItemActive
-                  }'));
-                    this.classList.add('${classes!.navItemActive}');
-                  }).call(this)`}
-                >
-                  🚀 JSX Demo
-                </a>
-              </li>
+              
             </ul>
 
             <div class={classes!.navActions}>
@@ -283,7 +265,9 @@ defineComponent("app-layout", {
               <button
                 type="button"
                 class={classes!.themeToggle}
-                onclick="document.documentElement.style.setProperty('--theme-bg', document.documentElement.style.getPropertyValue('--theme-bg') === 'white' ? '#1a1a1a' : 'white'); document.documentElement.style.setProperty('--theme-text', document.documentElement.style.getPropertyValue('--theme-text') === '#333' ? '#fff' : '#333');"
+                onclick="document.documentElement.classList.toggle('dark')"
+                aria-pressed={false}
+                aria-label="Toggle theme"
               >
                 🌓 Theme
               </button>
@@ -292,7 +276,7 @@ defineComponent("app-layout", {
         </header>
 
         <main class={classes!.main} id="content-area">
-          {renderCurrentDemo(demo, classes, { branding: brand })}
+          {render(demo, classes, { branding: brand })}
         </main>
 
         {/* Scripts moved into components and server head injection */}
@@ -302,7 +286,7 @@ defineComponent("app-layout", {
 });
 
 // Render different demo content based on current demo
-export function renderCurrentDemo(
+export function render(
   demo: string,
   classes: Record<string, string> | undefined,
   _props: Record<string, unknown> = {},
@@ -319,17 +303,17 @@ export function renderCurrentDemo(
             class names
           </p>
 
-          <div style="margin: 2rem 0; padding: 2rem; background: #f8f9fa; border-radius: 12px; border-left: 4px solid #007bff;">
-            <h3 style="margin-top: 0; color: #007bff;">
+          <div class="u-card u-my-4 u-p-4 u-border-l-brand">
+            <h3 class="u-mt-0 u-text-brand">
               🎯 Interactive Demo: JSX with Function-Style Props
             </h3>
-            <p style="margin-bottom: 2rem; color: #666;">
+            <p class="u-mb-4 u-text-muted">
               These counters demonstrate <strong>pure JSX syntax</strong> with full TypeScript support!
               Notice how props are properly typed (numbers as numbers, booleans as booleans) with complete
               IDE autocompletion and validation. Zero duplication between prop definitions and usage!
             </p>
 
-            <div style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;">
+            <div class="u-flex u-gap-6 u-wrap u-justify-center">
               <demo-counter
                 initial-count={5}
                 step={1}
@@ -356,12 +340,12 @@ export function renderCurrentDemo(
               />
             </div>
 
-            <div style="margin-top: 2rem; padding: 1rem; background: white; border-radius: 8px;">
+            <div class="u-card u-mt-4 u-p-3">
               <p>
                 <strong>✨ JSX Component Syntax:</strong>
               </p>
-              <div style="margin-top: 1rem;">
-                <code style="color: #059669; font-size: 0.875rem; display: block; padding: 1rem; background: #f0fdf4; border-radius: 6px;">
+              <div class="u-mt-3">
+                <code class="u-code-block">
                   &lt;demo-counter<br/>
                   &nbsp;&nbsp;initial-count=&#123;5&#125;&nbsp;&nbsp;&nbsp;&nbsp;&#47;&#47; number type<br/>
                   &nbsp;&nbsp;step=&#123;2&#125;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#47;&#47; number type<br/>
@@ -369,47 +353,47 @@ export function renderCurrentDemo(
                   &nbsp;&nbsp;show-controls=&#123;true&#125;&nbsp;&#47;&#47; boolean type<br/>
                   /&gt;
                 </code>
-                <p style="color: #047857; font-size: 0.875rem; margin: 0.5rem 0 0; font-style: italic;">
+                <p class="u-mt-2 u-text-0 u-italic u-text-muted">
                   Full TypeScript integration with IDE autocompletion and compile-time validation!
                 </p>
               </div>
             </div>
           </div>
 
-          <div style="margin: 2rem 0; padding: 2rem; background: #f0fdf4; border-radius: 12px; border-left: 4px solid #059669;">
-            <h3 style="margin-top: 0; color: #059669;">
+          <div class="u-card u-my-4 u-p-4 u-border-l-brand">
+            <h3 class="u-mt-0 u-text-brand">
               ✨ JSX with Full TypeScript Integration
             </h3>
-            <p style="margin-bottom: 2rem; color: #047857;">
+            <p class="u-mb-4 u-text-muted">
               funcwc components use native JSX syntax with complete TypeScript support,
               providing the modern developer experience you expect from contemporary frameworks.
             </p>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1rem 0;">
-              <div style="padding: 1.5rem; background: white; border-radius: 8px; border: 1px solid #059669;">
-                <h4 style="color: #059669; margin-top: 0; font-size: 1rem;">🛡️ Type Safety</h4>
-                <p style="color: #047857; margin: 0; font-size: 0.875rem;">
+            <div class="u-grid u-grid-auto-fit-250 u-gap-4 u-mt-3">
+              <div class="u-card u-p-3 u-border-brand">
+                <h4 class="u-mt-0 u-text-brand u-text-0">🛡️ Type Safety</h4>
+                <p class="u-text-muted u-text-0">
                   Props are validated at compile time with full TypeScript inference
                 </p>
               </div>
               
-              <div style="padding: 1.5rem; background: white; border-radius: 8px; border: 1px solid #059669;">
-                <h4 style="color: #059669; margin-top: 0; font-size: 1rem;">💡 IDE Support</h4>
-                <p style="color: #047857; margin: 0; font-size: 0.875rem;">
+              <div class="u-card u-p-3 u-border-brand">
+                <h4 class="u-mt-0 u-text-brand u-text-0">💡 IDE Support</h4>
+                <p class="u-text-muted u-text-0">
                   Complete autocompletion, error highlighting, and go-to-definition
                 </p>
               </div>
               
-              <div style="padding: 1.5rem; background: white; border-radius: 8px; border: 1px solid #059669;">
-                <h4 style="color: #059669; margin-top: 0; font-size: 1rem;">🎯 Familiar Syntax</h4>
-                <p style="color: #047857; margin: 0; font-size: 0.875rem;">
+              <div class="u-card u-p-3 u-border-brand">
+                <h4 class="u-mt-0 u-text-brand u-text-0">🎯 Familiar Syntax</h4>
+                <p class="u-text-muted u-text-0">
                   React-like JSX that developers already know and love
                 </p>
               </div>
               
-              <div style="padding: 1.5rem; background: white; border-radius: 8px; border: 1px solid #059669;">
-                <h4 style="color: #059669; margin-top: 0; font-size: 1rem;">⚡ Performance</h4>
-                <p style="color: #047857; margin: 0; font-size: 0.875rem;">
+              <div class="u-card u-p-3 u-border-brand">
+                <h4 class="u-mt-0 u-text-brand u-text-0">⚡ Performance</h4>
+                <p class="u-text-muted u-text-0">
                   Zero runtime overhead - components render directly to HTML
                 </p>
               </div>
@@ -454,54 +438,54 @@ export function renderCurrentDemo(
             Interactive demos of funcwc's three-tier reactivity architecture
           </p>
 
-          <div style="margin: 2rem 0; padding: 2rem; background: #f8f9fa; border-radius: 12px; border-left: 4px solid #6f42c1;">
-            <h3 style="margin-top: 0; color: #6f42c1;">
+          <div class="u-card u-my-4 u-p-4 u-border-l-brand">
+            <h3 class="u-mt-0 u-text-brand">
               🚀 Interactive Reactivity Demos
             </h3>
-            <p style="margin-bottom: 2rem; color: #666;">
+            <p class="u-mb-4 u-text-muted">
               Explore funcwc's revolutionary three-tier hybrid reactivity
               system. Each tier is optimized for different use cases and
               performance characteristics.
             </p>
 
             {/* Tier 1: CSS Property Reactivity */}
-            <div style="margin: 2rem 0;">
+            <div class="u-my-4">
               <theme-controller current-theme="blue" />
             </div>
 
             {/* Tier 2: Pub/Sub State Manager */}
-            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin: 2rem 0;">
+            <div class="u-grid u-grid-2-1 u-gap-6 u-my-4">
               <cart-manager store-id="demo-store" />
               <cart-badge cart-id="default" />
             </div>
 
             {/* Tier 3: DOM Events */}
-            <div style="margin: 2rem 0;">
+            <div class="u-my-4">
               <notification-trigger channel-id="notifications" />
             </div>
 
-            <div style="margin-top: 2rem; padding: 1rem; background: white; border-radius: 8px;">
-              <h4 style="margin-top: 0; color: #6f42c1;">
+            <div class="u-card u-mt-4 u-p-3">
+              <h4 class="u-mt-0 u-text-brand">
                 🎯 Architecture Overview
               </h4>
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem;">
-                <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
-                  <strong style="color: #6f42c1;">⚡ CSS Properties</strong>
-                  <p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: #666;">
+              <div class="u-grid u-grid-auto-fit-250 u-gap-4 u-mt-3">
+                <div class="u-card u-p-3">
+                  <strong class="u-text-brand">⚡ CSS Properties</strong>
+                  <p class="u-mt-2 u-text-muted u-text-0">
                     Zero JS overhead. Instant visual updates. Perfect for themes
                     and styling coordination.
                   </p>
                 </div>
-                <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
-                  <strong style="color: #6f42c1;">📡 Pub/Sub State</strong>
-                  <p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: #666;">
+                <div class="u-card u-p-3">
+                  <strong class="u-text-brand">📡 Pub/Sub State</strong>
+                  <p class="u-mt-2 u-text-muted u-text-0">
                     Business logic state. Topic-based subscriptions. Automatic
                     cleanup and persistence.
                   </p>
                 </div>
-                <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
-                  <strong style="color: #6f42c1;">🔄 DOM Events</strong>
-                  <p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: #666;">
+                <div class="u-card u-p-3">
+                  <strong class="u-text-brand">🔄 DOM Events</strong>
+                  <p class="u-mt-2 u-text-muted u-text-0">
                     Component communication. Structured payloads. Native browser
                     event optimization.
                   </p>

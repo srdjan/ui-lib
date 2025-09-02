@@ -33,8 +33,9 @@
     "serve": "cd examples && deno run --allow-net --allow-read --allow-env server.ts",
     "start": "deno task check && deno task serve",
     "docs": "deno doc index.ts",
+    "audit:css": "deno run --allow-read scripts/audit_css.ts",
     "bench": "deno bench",
-    "release:prep": "deno task check && deno task fmt:check && deno task lint && deno task test && deno task coverage && deno task docs",
+    "release:prep": "deno task check && deno task fmt:check && deno task lint && deno task audit:css && deno task test && deno task coverage && deno task docs",
     "release:tag": "deno run --allow-run --allow-read --allow-env scripts/release.ts",
     "release:push": "deno run --allow-run --allow-read --allow-env scripts/release.ts --push",
     "release": "deno task release:prep && deno task release:tag"
