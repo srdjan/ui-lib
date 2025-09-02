@@ -1,10 +1,13 @@
 /** @jsx h */
 // deno-lint-ignore verbatim-module-syntax
-import { boolean, defineComponent, get, h, object, string } from "../index.ts";
+import { boolean, defineComponent, get, h, object, renderComponent, string } from "../index.ts";
 import type { GeneratedApiMap } from "../index.ts";
 
 // Import demo components to register them
 import "./demo-counter.tsx";
+import "./theme-controller.tsx";
+import "./cart-demo.tsx";
+import "./notification-demo.tsx";
 
 /**
  * 🎯 funcwc Layout Component - Showcasing Library Patterns
@@ -123,8 +126,9 @@ defineComponent("app-layout", {
     const demo: string = typeof currentDemo === "string"
       ? currentDemo
       : "welcome";
-    // For demo purposes, use default branding - the prop system works for simple cases
-    const brand = { title: "funcwc", tagline: "SSR-First Component Library" };
+    // For demo purposes, use default branding - the prop system works for simple cases  
+    const defaultBranding = { title: "funcwc", tagline: "SSR-First Component Library" };
+    const brand = defaultBranding; // Simplified for demo - complex prop handling can be added later
     const isBeta = typeof showBeta === "boolean" ? showBeta : false;
 
     return (
@@ -207,7 +211,7 @@ defineComponent("app-layout", {
                 class={`${classes!.navCartBadge} cart-badge-reactive`}
                 data-cart-id="default"
               >
-                🛒 <span class={`${classes!.navCartCount} cart-count`}>0</span>
+                🛒 <span class={`${classes!.navCartCount} cart-count`}>0 items</span>
               </div>
               <button
                 type="button"
@@ -223,6 +227,8 @@ defineComponent("app-layout", {
         <main class={classes!.main} id="content-area">
           {renderCurrentDemo(demo, classes, { branding: brand })}
         </main>
+
+        {/* Scripts moved into components and server head injection */}
       </div>
     );
   },
@@ -257,33 +263,30 @@ export function renderCurrentDemo(
             </p>
 
             <div style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;">
-              <demo-counter
-                initial-count="5"
-                step="1"
-                max-value="10"
-                label="Basic Counter"
-              >
-              </demo-counter>
+              {renderComponent("demo-counter", {
+                "initial-count": "5",
+                "step": "1",
+                "max-value": "10",
+                "label": "Basic Counter"
+              })}
 
-              <demo-counter
-                initial-count="0"
-                step="2"
-                max-value="20"
-                min-value="-5"
-                theme="green"
-                label="Step by 2"
-              >
-              </demo-counter>
+              {renderComponent("demo-counter", {
+                "initial-count": "0",
+                "step": "2",
+                "max-value": "20",
+                "min-value": "-5",
+                "theme": "green",
+                "label": "Step by 2"
+              })}
 
-              <demo-counter
-                initial-count="50"
-                step="10"
-                max-value="100"
-                show-controls="true"
-                theme="purple"
-                label="Big Steps"
-              >
-              </demo-counter>
+              {renderComponent("demo-counter", {
+                "initial-count": "50",
+                "step": "10",
+                "max-value": "100",
+                "show-controls": "true",
+                "theme": "purple",
+                "label": "Big Steps"
+              })}
             </div>
 
             <div style="margin-top: 2rem; padding: 1rem; background: white; border-radius: 8px;">
@@ -348,19 +351,18 @@ export function renderCurrentDemo(
 
             {/* Tier 1: CSS Property Reactivity */}
             <div style="margin: 2rem 0;">
-              <theme-controller current-theme="blue"></theme-controller>
+              {renderComponent("theme-controller", { "current-theme": "blue" })}
             </div>
 
             {/* Tier 2: Pub/Sub State Manager */}
             <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin: 2rem 0;">
-              <cart-manager store-id="demo-store"></cart-manager>
-              <cart-badge cart-id="default"></cart-badge>
+              {renderComponent("cart-manager", { "store-id": "demo-store" })}
+              {renderComponent("cart-badge", { "cart-id": "default" })}
             </div>
 
             {/* Tier 3: DOM Events */}
             <div style="margin: 2rem 0;">
-              <notification-trigger channel-id="notifications">
-              </notification-trigger>
+              {renderComponent("notification-trigger", { "channel-id": "notifications" })}
             </div>
 
             <div style="margin-top: 2rem; padding: 1rem; background: white; border-radius: 8px;">
@@ -422,7 +424,7 @@ export function renderCurrentDemo(
           </div>
 
           {/* Notification display component */}
-          <notification-display max-notifications="3"></notification-display>
+          {renderComponent("notification-display", { "max-notifications": "3" })}
         </div>
       );
 

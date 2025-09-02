@@ -242,6 +242,46 @@ defineComponent("notification-display", {
         data-class-message={classes!.notificationMessage}
       >
         {/* Notifications will be dynamically added here */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function(){
+            if (document.__funcwcNotifyBound) return;
+            document.__funcwcNotifyBound = true;
+            document.addEventListener('funcwc:show-notification', function(e) {
+              try {
+                var detail = e.detail || {};
+                var containers = document.querySelectorAll('[data-component="notification-display"]');
+                containers.forEach(function(container) {
+                  var notification = document.createElement('div');
+                  notification.className = container.getAttribute('data-class-notification') || '';
+                  var type = detail.type || 'info';
+                  var typeClass = container.getAttribute('data-class-' + type) || '';
+                  if (typeClass) notification.classList.add(typeClass);
+                  var title = document.createElement('div');
+                  title.className = container.getAttribute('data-class-title') || '';
+                  title.textContent = detail.title || '';
+                  var message = document.createElement('p');
+                  message.className = container.getAttribute('data-class-message') || '';
+                  message.textContent = detail.message || '';
+                  notification.appendChild(title);
+                  notification.appendChild(message);
+                  container.appendChild(notification);
+                  setTimeout(function(){
+                    var visible = container.getAttribute('data-class-visible') || '';
+                    if (visible) notification.classList.add(visible);
+                  }, 10);
+                  var duration = parseInt(detail.duration) || 3000;
+                  setTimeout(function(){
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(function(){ notification.remove(); }, 300);
+                  }, duration);
+                  var maxN = parseInt(container.getAttribute('data-max-notifications')) || 5;
+                  while (container.children.length > maxN) container.removeChild(container.children[0]);
+                });
+              } catch (err) { console.warn('notification handler failed', err); }
+            });
+          })();
+        ` }}></script>
       </div>
     );
   },

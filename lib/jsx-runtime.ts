@@ -101,18 +101,18 @@ export function h(
         const tagMatch = child.match(/^<([a-zA-Z][a-zA-Z0-9-]*)/);
         const tagName = tagMatch ? tagMatch[1] : "";
 
-        if (
-          child.startsWith("<") && child.endsWith(">") &&
-          (child.match(/^<[a-zA-Z][^>]*\/>$/) || // Self-closing tag like <input />
-            (SELF_CLOSING_TAGS.has(tagName) &&
-              child.match(/^<[a-zA-Z][^>]*>$/)) || // Our self-closing tags like <input>
-            child.match(/^<[a-zA-Z][^>]*>[\s\S]*<\/[a-zA-Z][^>]*>$/)) && // Regular tag with closing (allow multiline)
-          !child.includes("<script")
-        ) { // Extra safety check
-          return child; // Already rendered HTML from nested h calls
-        } else {
-          return escape(child); // Plain text content
+        const looksLikeHtml = child.startsWith("<") && child.endsWith(">");
+        const isSelfClosing = /^<[a-zA-Z][^>]*\/>$/.test(child);
+        const isKnownSelfClosing = SELF_CLOSING_TAGS.has(tagName) &&
+          /^<[a-zA-Z][^>]*>$/.test(child);
+        const isNormalElement =
+          /^<[a-zA-Z][^>]*>[\s\S]*<\/[a-zA-Z][^>]*>$/.test(child);
+        const isScriptTag = /^<script\b[^>]*>[\s\S]*<\/script>$/.test(child);
+
+        if (looksLikeHtml && (isSelfClosing || isKnownSelfClosing || isNormalElement || isScriptTag)) {
+          return child; // Already-rendered HTML (including explicit <script> tags)
         }
+        return escape(child); // Plain text content
       }
       return child; // Assumes it's already a rendered string (from a nested h call)
     })

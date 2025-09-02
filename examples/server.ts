@@ -1,5 +1,5 @@
 // Development server for funcwc examples
-import { renderComponent } from "../index.ts";
+import { renderComponent, injectStateManager } from "../index.ts";
 import { runWithRequestHeaders } from "../lib/request-headers.ts";
 import { renderCurrentDemo } from "./layout.tsx";
 
@@ -38,7 +38,14 @@ async function handler(request: Request): Promise<Response> {
   try {
     // Serve the main HTML file
     if (pathname === "/" || pathname === "/index.html") {
-      const htmlContent = await readFileCached("./index.html");
+      let htmlContent = await readFileCached("./index.html");
+
+      // Ensure the state manager is injected globally so inline actions can publish/subscribe
+      // Inject before </head> to guarantee execution on initial load
+      const sm = injectStateManager(false, { debugMode: true });
+      if (!htmlContent.includes(sm)) {
+        htmlContent = htmlContent.replace("</head>", `${sm}\n</head>`);
+      }
 
       // Get demo parameter from URL
       const demo = url.searchParams.get("demo") || "welcome";

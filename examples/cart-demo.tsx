@@ -1,6 +1,6 @@
 /** @jsx h */
 // deno-lint-ignore verbatim-module-syntax
-import { defineComponent, h, string } from "../index.ts";
+import { defineComponent, h, string, createCartAction } from "../index.ts";
 
 /**
  * 📡 Cart Manager - Demonstrates Tier 2: Pub/Sub State Manager
@@ -91,7 +91,7 @@ defineComponent("cart-manager", {
             <button
               type="button"
               class={classes!.addButton}
-              onclick="window.addToCart('phone', 'Smartphone', 699, this)"
+              onclick={createCartAction("add", JSON.stringify({ id: "phone", name: "Smartphone", price: 699, quantity: 1 }))}
             >
               Add to Cart
             </button>
@@ -103,7 +103,7 @@ defineComponent("cart-manager", {
             <button
               type="button"
               class={classes!.addButton}
-              onclick="window.addToCart('laptop', 'Laptop', 1299, this)"
+              onclick={createCartAction("add", JSON.stringify({ id: "laptop", name: "Laptop", price: 1299, quantity: 1 }))}
             >
               Add to Cart
             </button>
@@ -115,7 +115,7 @@ defineComponent("cart-manager", {
             <button
               type="button"
               class={classes!.addButton}
-              onclick="window.addToCart('headphones', 'Headphones', 199, this)"
+              onclick={createCartAction("add", JSON.stringify({ id: "headphones", name: "Headphones", price: 199, quantity: 1 }))}
             >
               Add to Cart
             </button>
@@ -162,7 +162,7 @@ defineComponent("cart-badge", {
   ) => {
     const id = typeof cartId === "string" ? cartId : "default";
 
-    return (
+  return (
       <div
         class={`${classes!.badge} cart-badge-reactive`}
         data-cart-id={id}
@@ -172,6 +172,23 @@ defineComponent("cart-badge", {
         <p style="margin: 0.5rem 0 0; font-size: 0.875rem; opacity: 0.8;">
           🔄 Updates automatically via pub/sub
         </p>
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function(){
+            var el = document.currentScript && document.currentScript.parentElement;
+            if (!el || el.getAttribute('data-cart-subscribed')) return;
+            el.setAttribute('data-cart-subscribed', 'true');
+            if (!window.funcwcState) return;
+            window.funcwcState.subscribe('cart', function(cartData){
+              try {
+                var countEl = el.querySelector('.cart-count');
+                var totalEl = el.querySelector('.cart-total');
+                if (countEl) { countEl.textContent = (cartData && cartData.count || 0) + ' items'; }
+                if (totalEl) { var t = Number(cartData && cartData.total || 0); totalEl.textContent = '$' + t.toFixed(2); }
+                el.style.transform = 'scale(1.05)'; setTimeout(function(){ el.style.transform = 'scale(1)'; }, 200);
+              } catch (e) { console.warn('cart-badge subscribe failed', e); }
+            }, el);
+          })();
+        ` }}></script>
       </div>
     );
   },

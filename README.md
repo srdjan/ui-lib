@@ -8,9 +8,9 @@
 and hybrid reactivity.**
 
 Built for Deno + TypeScript with an SSR-first approach using HTMX, funcwc takes
-a revolutionary approach to state management: **the DOM _is_ the state**. No
+a fresh approach to state management: **the DOM _is_ the state**. No
 JavaScript state objects, no synchronization overhead, just pure DOM
-manipulation with the most ergonomic developer experience ever created.
+manipulation with the great ergonomic developer experience.
 
 ## 📚 Documentation
 
@@ -96,7 +96,7 @@ defineComponent("beautiful-card", {
 
 - **🎯 DOM-Native State**: Component state lives in CSS classes, data
   attributes, and element content
-- **⚡ Hybrid Reactivity**: Revolutionary three-tier system (CSS Properties,
+- **⚡ Hybrid Reactivity**: A three-tier system (CSS Properties,
   Pub/Sub State, DOM Events)
 - **🚀 Function-Style Props**: Zero duplication between props and render
   parameters
@@ -110,7 +110,7 @@ defineComponent("beautiful-card", {
 
 ## ⚡ Hybrid Reactivity System
 
-funcwc features a revolutionary **three-tier hybrid reactivity system** that
+funcwc features a **three-tier hybrid reactivity system** that
 enables powerful component communication while maintaining the DOM-native
 philosophy. Each tier is optimized for different use cases and performance
 characteristics:
@@ -798,4 +798,4 @@ HTMX JSON requests and HTML responses.
 ---
 
 **Built with ❤️ for the modern web. Deno + TypeScript + DOM-native state
-management + Revolutionary ergonomics.**
+management + Great ergonomics.**

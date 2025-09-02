@@ -43,30 +43,33 @@ deno task fmt:check
 # Lint code  
 deno task lint
 
-# Generate test coverage
+# Generate test coverage (includes LCOV output)
 deno task coverage
 
 # Generate documentation
 deno task docs
+
+# Run benchmarks
+deno task bench
 ```
 
 ### Manual Commands
 
 ```bash
 # Type check specific files
-deno check examples/*.tsx src/**/*.ts
+deno check examples/*.tsx lib/**/*.ts
 
 # Run development server with TypeScript MIME type handling (from examples/ directory)
 cd examples && deno run --allow-net --allow-read --allow-env server.ts
 
 # Single test file
-deno test src/lib/specific-file.test.ts
+deno test lib/result.test.ts
 
 # Test with watch mode
 deno test --watch
 
 # Generate docs for API reference
-deno doc src/index.ts --html --name="funcwc" --output=./docs/
+deno doc index.ts --html --name="funcwc" --output=./docs/
 ```
 
 ## Core Architecture
@@ -103,7 +106,7 @@ SSR-compatible web components:
    props** and **CSS-only format**:
 
 ```tsx
-import { defineComponent, h, number, string } from "../src/index.ts";
+import { defineComponent, h, number, string } from "../index.ts";
 
 defineComponent("my-counter", {
   styles: {
@@ -135,9 +138,8 @@ defineComponent("my-counter", {
 ### File Organization
 
 ```
-src/
 ├── index.ts                    # Main exports - all public API
-├── lib/
+├── lib/                        # Core library implementation
 │   ├── define-component.ts     # Primary defineComponent API with function-style props + reactive options
 │   ├── component-state.ts      # SSR rendering engine with renderComponent()
 │   ├── jsx-runtime.ts          # Custom JSX runtime with direct string rendering (no React)
@@ -149,19 +151,21 @@ src/
 │   ├── state-manager.ts        # Pub/Sub state manager infrastructure
 │   ├── dom-helpers.ts          # DOM manipulation utilities (toggleClass, conditionalClass, etc.)
 │   ├── router.ts               # HTTP router for API endpoints
-│   ├── registry.ts             # Global component registry for SSR
+│   ├── registry.ts             # Component registry for SSR
 │   ├── ssr.ts                  # Server-side rendering utilities
 │   ├── result.ts               # Functional error handling (Result<T,E>)
+│   ├── config.ts               # Global configuration utilities
+│   ├── actions.ts              # Component action types
+│   ├── props.ts                # Props handling utilities
+│   ├── immutability.ts         # Immutability helpers
+│   ├── style-registry.ts       # Style management system
+│   ├── request-headers.ts      # HTTP request header utilities
 │   └── types.ts                # Core TypeScript types and utilities
 examples/
-├── main.ts                     # Entry point that imports all example components
 ├── server.ts                   # Development server with SSR, API routing, and state manager injection
 ├── index.html                  # Demo page displaying all components
-├── example.tsx                 # Primary showcase (function-style props, CSS-only format, Unified API)
-├── fundamentals/               # Basic component patterns
-├── interactive/                # DOM manipulation and API integration examples
-├── advanced/                   # Reactive system and state management examples
-└── apps/                       # Complete application examples (todo app, dashboard)
+├── *.tsx                       # Component examples and demonstrations
+└── assets/                     # Static assets (CSS frameworks, etc.)
 ```
 
 ## TypeScript Configuration
@@ -173,7 +177,7 @@ examples/
   (`"lib": ["ES2021", "DOM", "deno.ns"]`)
 - **JSX**: Uses custom JSX runtime with `h` function (`"jsx": "react"`,
   `"jsxFactory": "h"`)
-- **Import Maps**: JSX runtime mapped to `"jsx": "./src/lib/jsx-runtime.ts"`
+- **Import Maps**: JSX runtime mapped to `"jsx": "./lib/jsx-runtime.ts"`
 - **No Build Required**: Deno handles TypeScript transpilation automatically
 
 ### JSX Setup
@@ -182,7 +186,7 @@ All JSX files must include:
 
 ```tsx
 /** @jsx h */
-import { h } from "../src/index.ts";
+import { h } from "../index.ts";
 ```
 
 ## Key Development Patterns
@@ -200,7 +204,7 @@ import {
   number,
   object,
   string,
-} from "../src/index.ts";
+} from "../index.ts";
 
 defineComponent("modern-card", {
   render: (
@@ -248,7 +252,7 @@ import {
   post,
   renderComponent,
   string,
-} from "../src/index.ts";
+} from "../index.ts";
 
 defineComponent("todo-item", {
   api: {
@@ -307,26 +311,61 @@ deno test                         # Run all tests
 deno test --watch                 # Run tests in watch mode
 deno test --coverage=coverage     # Generate coverage report
 deno coverage coverage --lcov     # Generate LCOV coverage report
-deno test src/lib/result.test.ts  # Run specific test file
+deno test lib/result.test.ts      # Run specific test file
 ```
 
 **Test Structure:**
 
-- Unit tests for all core utilities (`result.ts`, `props.ts`, `dom-helpers.ts`)
-- Integration tests for component rendering (`jsx-runtime.test.ts`,
-  `define-component.test.ts`)
+- Unit tests for all core utilities (`result.ts`, `props.ts`, `dom-helpers.ts`, `immutability.ts`)
+- Integration tests for component rendering (`jsx-runtime.test.ts`, `define-component.test.ts`)
 - Server-side rendering tests (`component-state.test.ts`, `ssr.test.ts`)
 - API generation tests (`api-generator.test.ts`)
 - Router functionality tests (`router.test.ts`)
+- Style parsing and registry tests (`styles-parser.test.ts`, `style-registry.test.ts`)
+- Reactive system tests (`reactive-helpers.test.ts`, `define-component.reactive.test.ts`)
 
 ## Error Handling Philosophy
 
 The library follows functional error handling patterns:
 
-- Use `Result<T,E>` types from `src/lib/result.ts`
+- Use `Result<T,E>` types from `lib/result.ts`
 - Core utilities: `ok()`, `err()`, `map()`, `flatMap()`, `mapError()`
 - Avoid throwing exceptions in business logic
 - Handle errors as values throughout the flow
+
+## Key Implementation Details
+
+### Function-Style Props System
+
+The innovative props system works by:
+
+1. **Render Parameter Parsing**: `lib/render-parameter-parser.ts` extracts prop signatures from render function parameters
+2. **Smart Type Helpers**: `lib/prop-helpers.ts` provides `string()`, `number()`, `boolean()`, `array()`, `object()` helpers that handle attribute parsing with defaults
+3. **Automatic Type Inference**: TypeScript infers props from the render function signature, eliminating duplication
+
+### CSS-Only Format Implementation
+
+The CSS-only styling system:
+
+1. **Style Parsing**: `lib/styles-parser.ts` converts CSS property blocks to scoped class names
+2. **Style Registry**: `lib/style-registry.ts` manages component-scoped CSS with automatic class name generation
+3. **Class Name Mapping**: Generated classes are passed as the third parameter to render functions
+
+### State Manager Integration
+
+The hybrid reactivity system:
+
+1. **State Manager Script**: `lib/state-manager.ts` creates injectable pub/sub scripts for cross-component state
+2. **Reactive Helpers**: `lib/reactive-helpers.ts` provides CSS property, pub/sub, and DOM event helpers
+3. **Configuration**: `lib/config.ts` enables global HTMX configuration and defaults
+
+### API Generation System
+
+The Unified API system:
+
+1. **API Helpers**: `lib/api-helpers.ts` provides HTTP method wrappers (`post()`, `get()`, `patch()`, `del()`, etc.)
+2. **API Generator**: `lib/api-generator.ts` converts API definitions to HTMX client functions
+3. **Route Registration**: API handlers automatically register with the internal router for development server
 
 ## Architecture Deep Dive
 
@@ -429,7 +468,7 @@ object(defaultValue?)   // '{"x":1}' → {x:1}, undefined → defaultValue
 **Function-Style Props + CSS-Only Format:**
 
 ```tsx
-import { boolean, defineComponent, h, number, string } from "../src/index.ts";
+import { boolean, defineComponent, h, number, string } from "../index.ts";
 import { resetCounter, updateParentCounter } from "../examples/dom-actions.ts";
 
 defineComponent("smart-counter", {

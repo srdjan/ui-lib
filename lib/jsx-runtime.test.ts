@@ -91,6 +91,12 @@ Deno.test("h function handles arrays of children", () => {
   assertEquals(result, "<ul><li>apple</li><li>banana</li><li>cherry</li></ul>");
 });
 
+Deno.test("h function preserves explicit <script> children strings", () => {
+  const script = "<script>window.__x=1;</script>";
+  const result = h("div", null, script);
+  assertEquals(result, "<div><script>window.__x=1;</script></div>");
+});
+
 Deno.test("h function handles function components", () => {
   const MyComponent = (props: { name: string; children?: unknown[] }) => {
     return h(
