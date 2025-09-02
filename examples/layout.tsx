@@ -69,6 +69,13 @@ defineComponent("app-layout", {
         headers: { "Content-Type": "text/html" },
       });
     }),
+    jsxDemo: get("/demo/jsx", (_req) => {
+      // Return the JSX demo component
+      const content = renderComponent("jsx-demo-layout");
+      return new Response(content, {
+        headers: { "Content-Type": "text/html" },
+      });
+    }),
   },
 
   // ✨ CSS-Only Format - Auto-generated class names!
@@ -213,6 +220,27 @@ defineComponent("app-layout", {
                   Reactivity
                 </a>
               </li>
+              <li>
+                <a
+                  class={`${classes!.navItem} ${
+                    demo === "jsx" ? classes!.navItemActive : ""
+                  }`}
+                  {...api.jsxDemo(undefined, {
+                    target: "#content-area",
+                    swap: "innerHTML",
+                  })}
+                  hx-on={`click: (function(){
+                    const ul = this.closest('ul');
+                    if (!ul) return;
+                    ul.querySelectorAll('a').forEach(a => a.classList.remove('${
+                    classes!.navItemActive
+                  }'));
+                    this.classList.add('${classes!.navItemActive}');
+                  }).call(this)`}
+                >
+                  🚀 JSX Demo
+                </a>
+              </li>
             </ul>
 
             <div class={classes!.navActions}>
@@ -294,50 +322,115 @@ export function renderCurrentDemo(
 
           <div style="margin: 2rem 0; padding: 2rem; background: #f8f9fa; border-radius: 12px; border-left: 4px solid #007bff;">
             <h3 style="margin-top: 0; color: #007bff;">
-              🎯 Interactive Demo: Function-Style Props
+              🎯 Interactive Demo: Pure JSX with Function-Style Props
             </h3>
             <p style="margin-bottom: 2rem; color: #666;">
-              These counters demonstrate function-style props with smart type
-              helpers. Each counter shows different prop configurations - notice
-              zero duplication between prop definitions and usage!
+              These counters now use <strong>pure JSX syntax</strong> with full TypeScript support!
+              Notice how props are typed (numbers as numbers, booleans as booleans) with complete
+              IDE autocompletion and validation. Zero duplication between definitions and usage!
             </p>
 
             <div style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;">
-              {renderComponent("demo-counter", {
-                "initial-count": "5",
-                "step": "1",
-                "max-value": "10",
-                "label": "Basic Counter",
-              })}
+              <demo-counter
+                initial-count={5}
+                step={1}
+                max-value={10}
+                label="JSX Counter"
+              />
 
-              {renderComponent("demo-counter", {
-                "initial-count": "0",
-                "step": "2",
-                "max-value": "20",
-                "min-value": "-5",
-                "theme": "green",
-                "label": "Step by 2",
-              })}
+              <demo-counter
+                initial-count={0}
+                step={2}
+                max-value={20}
+                min-value={-5}
+                theme="green"
+                label="JSX Step by 2"
+              />
 
-              {renderComponent("demo-counter", {
-                "initial-count": "50",
-                "step": "10",
-                "max-value": "100",
-                "show-controls": "true",
-                "theme": "purple",
-                "label": "Big Steps",
-              })}
+              <demo-counter
+                initial-count={50}
+                step={10}
+                max-value={100}
+                show-controls={true}
+                theme="purple"
+                label="JSX Big Steps"
+              />
             </div>
 
             <div style="margin-top: 2rem; padding: 1rem; background: white; border-radius: 8px;">
               <p>
-                <strong>Component Definition:</strong>
+                <strong>🚀 JSX Syntax vs Traditional:</strong>
               </p>
-              <code style="color: #007bff; font-size: 0.875rem;">
-                render: (&#123; initialCount = number(0), step = number(1),
-                maxValue = number(10), label = string("Counter") &#125;, api,
-                classes) =&gt; &#123; /* JSX */ &#125;
-              </code>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                <div>
+                  <p style="color: #059669; font-weight: bold; margin: 0 0 0.5rem;">✨ JSX (Above)</p>
+                  <code style="color: #059669; font-size: 0.75rem; display: block;">
+                    &lt;demo-counter<br/>
+                    &nbsp;&nbsp;initial-count=&#123;5&#125;<br/>
+                    &nbsp;&nbsp;step=&#123;1&#125;<br/>
+                    &nbsp;&nbsp;theme="green"<br/>
+                    /&gt;
+                  </code>
+                </div>
+                <div>
+                  <p style="color: #7c3aed; font-weight: bold; margin: 0 0 0.5rem;">🔧 Traditional</p>
+                  <code style="color: #7c3aed; font-size: 0.75rem; display: block;">
+                    renderComponent("demo-counter", &#123;<br/>
+                    &nbsp;&nbsp;"initial-count": "5",<br/>
+                    &nbsp;&nbsp;"step": "1",<br/>
+                    &nbsp;&nbsp;"theme": "green"<br/>
+                    &#125;)
+                  </code>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin: 2rem 0; padding: 2rem; background: #f0fdf4; border-radius: 12px; border-left: 4px solid #059669;">
+            <h3 style="margin-top: 0; color: #059669;">
+              🚀 NEW: Pure JSX Support with Full TypeScript Integration!
+            </h3>
+            <p style="margin-bottom: 2rem; color: #047857;">
+              funcwc now supports native JSX syntax alongside the traditional renderComponent() approach.
+              Both methods produce identical performance and output - choose your preferred developer experience!
+            </p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 1rem 0;">
+              <div style="padding: 1.5rem; background: white; border-radius: 8px; border: 2px solid #059669;">
+                <h4 style="color: #059669; margin-top: 0;">✨ JSX Approach (New)</h4>
+                <ul style="color: #047857; padding-left: 1.5rem;">
+                  <li>🛡️ Full TypeScript integration</li>
+                  <li>💡 IDE autocompletion & validation</li>
+                  <li>🎯 Familiar React-like syntax</li>
+                  <li>⚡ Same performance as traditional</li>
+                </ul>
+                <div style="background: #f0fdf4; padding: 1rem; border-radius: 4px; margin-top: 1rem;">
+                  <code style="font-size: 0.75rem; color: #059669;">
+                    &lt;demo-counter<br/>
+                    &nbsp;&nbsp;initial-count=&#123;10&#125;<br/>
+                    &nbsp;&nbsp;theme="blue"<br/>
+                    /&gt;
+                  </code>
+                </div>
+              </div>
+              
+              <div style="padding: 1.5rem; background: white; border-radius: 8px; border: 2px solid #7c3aed;">
+                <h4 style="color: #7c3aed; margin-top: 0;">🔧 Traditional Approach</h4>
+                <ul style="color: #6b46c1; padding-left: 1.5rem;">
+                  <li>🔧 Explicit prop handling</li>
+                  <li>🔄 Runtime flexibility</li>
+                  <li>⚙️ Dynamic component names</li>
+                  <li>📦 Backward compatible</li>
+                </ul>
+                <div style="background: #faf5ff; padding: 1rem; border-radius: 4px; margin-top: 1rem;">
+                  <code style="font-size: 0.75rem; color: #7c3aed;">
+                    renderComponent("demo-counter", &#123;<br/>
+                    &nbsp;&nbsp;"initial-count": "10",<br/>
+                    &nbsp;&nbsp;"theme": "blue"<br/>
+                    &#125;)
+                  </code>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -391,20 +484,18 @@ export function renderCurrentDemo(
 
             {/* Tier 1: CSS Property Reactivity */}
             <div style="margin: 2rem 0;">
-              {renderComponent("theme-controller", { "current-theme": "blue" })}
+              <theme-controller current-theme="blue" />
             </div>
 
             {/* Tier 2: Pub/Sub State Manager */}
             <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin: 2rem 0;">
-              {renderComponent("cart-manager", { "store-id": "demo-store" })}
-              {renderComponent("cart-badge", { "cart-id": "default" })}
+              <cart-manager store-id="demo-store" />
+              <cart-badge cart-id="default" />
             </div>
 
             {/* Tier 3: DOM Events */}
             <div style="margin: 2rem 0;">
-              {renderComponent("notification-trigger", {
-                "channel-id": "notifications",
-              })}
+              <notification-trigger channel-id="notifications" />
             </div>
 
             <div style="margin-top: 2rem; padding: 1rem; background: white; border-radius: 8px;">
@@ -466,9 +557,7 @@ export function renderCurrentDemo(
           </div>
 
           {/* Notification display component */}
-          {renderComponent("notification-display", {
-            "max-notifications": "3",
-          })}
+          <notification-display max-notifications={3} />
         </div>
       );
 

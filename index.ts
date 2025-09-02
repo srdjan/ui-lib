@@ -50,6 +50,22 @@ export type {
 // Import JSX types to make them globally available
 import "./lib/jsx.d.ts";
 
+// JSX Integration utilities
+export {
+  generateJSXTypes,
+  JSXIntegration, 
+  registerComponentWithJSX,
+  validateJSXProps,
+} from "./lib/jsx-integration.ts";
+
+// JSX Component Types
+export type {
+  ComponentPropsMap,
+  FuncwcComponentProps,
+  JSXProps,
+  RegisteredComponents,
+} from "./lib/jsx-component-types.ts";
+
 // Styles utilities
 export type { UnifiedStyles } from "./lib/styles-parser.ts";
 

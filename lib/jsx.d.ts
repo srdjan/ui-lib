@@ -1,4 +1,5 @@
 import type { ComponentAction } from "./actions.ts";
+import type { ComponentPropsMap, JSXProps } from "./jsx-component-types.ts";
 
 // Define global event handler types to accept our ComponentAction objects
 type EventHandlers = {
@@ -14,7 +15,21 @@ declare global {
     // It includes all standard HTML attributes, plus our custom event handlers.
     interface IntrinsicElements {
       [elemName: string]: Record<string, unknown> & EventHandlers;
+      
+      // funcwc component types - add specific component prop types here
     }
+    
+    // Extend IntrinsicElements with registered funcwc components
+    namespace JSX {
+      interface IntrinsicElements extends ComponentJSXElements {}
+    }
+    
+    // Generate JSX element types for all registered funcwc components
+    type ComponentJSXElements = {
+      [K in keyof ComponentPropsMap]: JSXProps<ComponentPropsMap[K]> & EventHandlers & {
+        children?: string | number | boolean | null | undefined;
+      };
+    };
 
     // Enhanced element children attribute
     interface ElementChildrenAttribute {

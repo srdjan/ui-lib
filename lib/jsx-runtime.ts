@@ -1,7 +1,9 @@
-// JSX Runtime: Direct-to-String Renderer with Type-Safe Event Handling
+// JSX Runtime: Direct-to-String Renderer with Type-Safe Event Handling and funcwc Component Support
 
 import type { ComponentAction } from "./actions.ts";
 import { escape } from "./dom-helpers.ts";
+import { getRegistry } from "./registry.ts";
+import { renderComponent } from "./component-state.ts";
 
 const SELF_CLOSING_TAGS = new Set([
   "area",
@@ -22,6 +24,35 @@ const SELF_CLOSING_TAGS = new Set([
 
 // Type-safe event handler that can accept ComponentAction directly
 type EventHandler = ComponentAction | string;
+
+// Helper function to detect if a tag is a funcwc component (kebab-case)
+function isKebabCase(tag: string): boolean {
+  return tag.includes("-") && tag === tag.toLowerCase();
+}
+
+// Helper function to convert JSX props to funcwc props format
+function convertJSXPropsToFuncwcProps(props: Record<string, unknown>): Record<string, unknown> {
+  const converted: Record<string, unknown> = {};
+  
+  for (const [key, value] of Object.entries(props)) {
+    if (key === "children") continue;
+    
+    // Convert camelCase to kebab-case for attribute names
+    const kebabKey = key.replace(/([A-Z])/g, "-$1").toLowerCase();
+    
+    // Convert values to strings as funcwc expects from HTML attributes
+    if (value === true) {
+      converted[kebabKey] = "";
+    } else if (value === false || value == null) {
+      // Skip false/null values
+      continue;
+    } else {
+      converted[kebabKey] = String(value);
+    }
+  }
+  
+  return converted;
+}
 
 // Fragment component for JSX
 export function Fragment(props: { children?: unknown[] }): string {
@@ -48,6 +79,31 @@ export function h(
   if (typeof tag === "function") {
     const fn = tag as (p: Record<string, unknown>) => string;
     return fn({ ...props, children });
+  }
+
+  // Check if this is a funcwc component (kebab-case tag name)
+  if (typeof tag === "string" && isKebabCase(tag)) {
+    const registry = getRegistry();
+    
+    if (registry[tag]) {
+      // This is a registered funcwc component - use renderComponent
+      const funcwcProps = convertJSXPropsToFuncwcProps(props);
+      
+      // Handle children by converting them to a "children" prop if needed
+      if (children.length > 0) {
+        const childrenHtml = children
+          .flat(Infinity)
+          .filter(child => child != null && typeof child !== "boolean")
+          .map(child => String(child))
+          .join("");
+        
+        if (childrenHtml) {
+          funcwcProps["children"] = childrenHtml;
+        }
+      }
+      
+      return renderComponent(tag, funcwcProps);
+    }
   }
 
   let attributes = "";

@@ -9,6 +9,7 @@ import "./demo-counter.tsx";
 import "./theme-controller.tsx";
 import "./cart-demo.tsx";
 import "./notification-demo.tsx";
+import "./jsx-demo.tsx";
 
 const PORT = 8080;
 
