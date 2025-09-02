@@ -1,7 +1,7 @@
 // Development server for funcwc examples
 import { injectStateManager, renderComponent } from "../index.ts";
-import { runWithRequestHeaders } from "../lib/request-headers.ts";
-import { renderCurrentDemo } from "./layout.tsx";
+import { runWithRequestHeadersAsync } from "../lib/request-headers.ts";
+import { render } from "./layout.tsx";
 
 // Import components to register them
 import "./layout.tsx";
@@ -53,9 +53,9 @@ async function handler(request: Request): Promise<Response> {
       const demo = url.searchParams.get("demo") || "welcome";
 
       // Per-request style dedup + header context
-      const processedHtml = runWithRequestHeaders(
+      const processedHtml = await runWithRequestHeadersAsync(
         {},
-        () => processComponentTags(htmlContent, { currentDemo: demo }),
+        async () => await processComponentTags(htmlContent, { currentDemo: demo }),
       );
 
       return new Response(processedHtml, {
@@ -123,9 +123,9 @@ async function handler(request: Request): Promise<Response> {
         const cached = demoCache.get(demoType);
         if (!cached || cached.layoutMtime !== layoutMtime) {
           // Render full layout once and extract inner <main> content to preserve class names
-          const full = runWithRequestHeaders(
+          const full = await runWithRequestHeadersAsync(
             {},
-            () => renderComponent("app-layout", { currentDemo: demoType }),
+            async () => renderComponent("app-layout", { currentDemo: demoType }),
           );
           const start = full.indexOf("<main");
           const end = full.indexOf("</main>");
@@ -144,10 +144,10 @@ async function handler(request: Request): Promise<Response> {
             }
           } else {
             // As a fallback, render using the helper (without styles)
-            content = renderCurrentDemo(demoType, {});
+            content = render(demoType, {});
           }
           // Process any nested component tags in the content only (no additional <style> tags)
-          const processed = processComponentTags(content);
+          const processed = await processComponentTags(content);
           const finalOut = stylesContent + processed;
           demoCache.set(demoType, { content: finalOut, layoutMtime });
         }
@@ -179,10 +179,10 @@ async function handler(request: Request): Promise<Response> {
 }
 
 // Process HTML content and replace component tags with rendered HTML
-function processComponentTags(
+async function processComponentTags(
   html: string,
   extraProps: Record<string, string> = {},
-): string {
+): Promise<string> {
   let processedHtml = html;
 
   // Find all custom component tags (e.g., <app-layout></app-layout> or <app-layout/>)

@@ -17,6 +17,51 @@ declare global {
       [elemName: string]: Record<string, unknown> & EventHandlers;
       
       // funcwc component types - add specific component prop types here
+      
+      // Layout components
+      "app-layout": {
+        theme?: "light" | "dark" | "system" | "auto";
+        responsive?: boolean;
+        padding?: string;
+        "max-width"?: string;
+        children?: string | string[];
+      };
+      
+      navbar: {
+        position?: "top" | "bottom" | "left" | "right";
+        style?: "primary" | "secondary" | "transparent" | "accent";
+        orientation?: "horizontal" | "vertical";
+        sticky?: boolean;
+        collapsible?: boolean;
+        children?: string | string[];
+      };
+      
+      navitem: {
+        href?: string;
+        active?: boolean;
+        disabled?: boolean;
+        badge?: string;
+        icon?: string;
+        target?: string;
+        children?: string | string[];
+      };
+      
+      "main-content": {
+        padding?: string;
+        "max-width"?: string;
+        scrollable?: boolean;
+        centered?: boolean;
+        children?: string | string[];
+      };
+      
+      sidebar: {
+        position?: "left" | "right";
+        mode?: "permanent" | "overlay" | "push";
+        width?: string;
+        collapsible?: boolean;
+        collapsed?: boolean;
+        children?: string | string[];
+      };
     }
     
     // Extend IntrinsicElements with registered funcwc components

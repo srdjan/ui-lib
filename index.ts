@@ -127,3 +127,21 @@ export {
 
 // Global configuration
 export { configure, type FuncwcConfig } from "./lib/config.ts";
+
+// Layout Components Library
+export type {
+  AppLayoutProps,
+  NavbarProps,
+  NavItemProps,
+  MainContentProps,
+  SidebarProps,
+  LayoutTheme,
+  LayoutOrientation,
+  NavbarPosition,
+  NavbarStyle,
+  SidebarPosition,
+  SidebarMode,
+} from "./lib/layout/layout-types.ts";
+
+// Layout components are auto-registered when imported
+export * from "./lib/layout/index.ts";

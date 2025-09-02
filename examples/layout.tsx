@@ -15,6 +15,7 @@ import "./demo-counter.tsx";
 import "./theme-controller.tsx";
 import "./cart-demo.tsx";
 import "./notification-demo.tsx";
+import "./composable-layout.tsx";
 
 /**
  * 🎯 funcwc Layout Component - Showcasing Library Patterns
@@ -537,6 +538,9 @@ export function render(
             dependencies, function-style props, and a three-tier hybrid
             reactivity system.
           </p>
+
+          {/* New Composable Layout Demo */}
+          <composable-layout-demo theme="system" />
           <div class={c.features}>
             <div class={c.feature}>
               <div class={c.featureIcon}>🚀</div>

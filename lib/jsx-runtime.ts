@@ -86,23 +86,38 @@ export function h(
     const registry = getRegistry();
     
     if (registry[tag]) {
-      // This is a registered funcwc component - use renderComponent
+      // During component rendering, don't auto-render nested components
+      // Let them be processed by the server's component tag processing instead
+      // This prevents infinite recursion during JSX processing
       const funcwcProps = convertJSXPropsToFuncwcProps(props);
       
-      // Handle children by converting them to a "children" prop if needed
+      // Handle children by converting them to a string for the HTML tag
+      let childrenHtml = "";
       if (children.length > 0) {
-        const childrenHtml = children
+        childrenHtml = children
           .flat(Infinity)
           .filter(child => child != null && typeof child !== "boolean")
           .map(child => String(child))
           .join("");
-        
-        if (childrenHtml) {
-          funcwcProps["children"] = childrenHtml;
+      }
+      
+      // Convert props to HTML attributes
+      let attributes = "";
+      for (const [key, value] of Object.entries(funcwcProps)) {
+        if (key === "children") continue;
+        if (value === "") {
+          attributes += ` ${key}`;
+        } else {
+          attributes += ` ${key}="${escape(String(value))}"`;
         }
       }
       
-      return renderComponent(tag, funcwcProps);
+      // Return the raw HTML tag - let the server process it later
+      if (childrenHtml) {
+        return `<${tag}${attributes}>${childrenHtml}</${tag}>`;
+      } else {
+        return `<${tag}${attributes}/>`;
+      }
     }
   }
 
