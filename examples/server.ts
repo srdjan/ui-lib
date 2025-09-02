@@ -49,7 +49,7 @@ async function handler(request: Request): Promise<Response> {
         htmlContent = htmlContent.replace("</head>", `${sm}\n</head>`);
       }
 
-      // Get demo parameter from URL
+      // Get demo parameter from URL - now composable layout handles everything
       const demo = url.searchParams.get("demo") || "welcome";
 
       // Per-request style dedup + header context
@@ -185,27 +185,41 @@ async function processComponentTags(
 ): Promise<string> {
   let processedHtml = html;
 
-  // Find all custom component tags (e.g., <app-layout></app-layout> or <app-layout/>)
-  const componentTagRegex = /<([a-z][a-z0-9-]*)([^>\/]*)(?:\/>|><\/\1>)/g;
+  // Find all custom component tags with content (kebab-case tags only)
+  // This regex matches opening tags and captures everything until the matching closing tag
+  // Only matches tags that contain at least one dash (kebab-case)
+  const componentTagRegex = /<([a-z][a-z0-9]*-[a-z0-9-]*)([^>\/]*?)>([\s\S]*?)<\/\1>|<([a-z][a-z0-9]*-[a-z0-9-]*)([^>\/]*?)\/>/g;
 
   let match;
   while ((match = componentTagRegex.exec(html)) !== null) {
-    const [fullMatch, tagName, attributes] = match;
+    const [fullMatch, tagName, attributes, children, selfClosingTagName, selfClosingAttributes] = match;
+    
+    // Handle both regular tags with content and self-closing tags
+    const actualTagName = tagName || selfClosingTagName;
+    const actualAttributes = attributes || selfClosingAttributes;
+    const actualChildren = children || "";
 
     try {
       // Parse attributes into props object
-      const props = parseAttributes(attributes);
+      const props = parseAttributes(actualAttributes);
 
       // Merge with extra props (extra props take precedence)
       const finalProps = { ...props, ...extraProps };
+      
+      // Add children content if present
+      if (actualChildren) {
+        // Recursively process nested components in children
+        const processedChildren = await processComponentTags(actualChildren, extraProps);
+        finalProps.children = processedChildren;
+      }
 
       // Render the component
-      const renderedHTML = renderComponent(tagName, finalProps);
+      const renderedHTML = renderComponent(actualTagName, finalProps);
 
       // Replace the tag with rendered HTML
       processedHtml = processedHtml.replace(fullMatch, renderedHTML);
     } catch (error) {
-      console.error(`Error rendering component ${tagName}:`, error);
+      console.error(`Error rendering component ${actualTagName}:`, error);
       // Leave the original tag if rendering fails
     }
   }
