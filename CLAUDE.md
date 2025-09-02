@@ -139,13 +139,16 @@ defineComponent("my-counter", {
 
 ```
 ├── index.ts                    # Main exports - all public API
+├── deno.json                   # Deno configuration with tasks, compiler options, imports
 ├── lib/                        # Core library implementation
 │   ├── define-component.ts     # Primary defineComponent API with function-style props + reactive options
 │   ├── component-state.ts      # SSR rendering engine with renderComponent()
 │   ├── jsx-runtime.ts          # Custom JSX runtime with direct string rendering (no React)
+│   ├── jsx.d.ts                # JSX type definitions for TypeScript
 │   ├── api-generator.ts        # Unified API system (auto-generates HTMX from routes)
 │   ├── api-helpers.ts          # HTTP method helpers (post, get, patch, del, create, remove)
 │   ├── prop-helpers.ts         # Smart type helpers (string, number, boolean, array, object)
+│   ├── render-parameter-parser.ts # Function signature parsing for function-style props
 │   ├── styles-parser.ts        # CSS-only format parser and class name generation
 │   ├── reactive-helpers.ts     # Hybrid Reactivity System (3-tier: CSS, Pub/Sub, DOM Events)
 │   ├── state-manager.ts        # Pub/Sub state manager infrastructure
@@ -164,8 +167,19 @@ defineComponent("my-counter", {
 examples/
 ├── server.ts                   # Development server with SSR, API routing, and state manager injection
 ├── index.html                  # Demo page displaying all components
-├── *.tsx                       # Component examples and demonstrations
-└── assets/                     # Static assets (CSS frameworks, etc.)
+├── layout.tsx                  # Layout components and demo rendering
+├── demo-counter.tsx            # Counter component demonstrations
+├── theme-controller.tsx        # Theme switching examples
+├── cart-demo.tsx               # Shopping cart with pub/sub state
+├── notification-demo.tsx       # Notification system with DOM events
+└── [other].tsx                 # Additional component examples
+bench/
+├── ssr.bench.ts               # SSR performance benchmarks
+docs/
+├── dev-guide.md               # Developer usage guide
+├── AUTHORING.md               # Component authoring guide
+├── UNIFIED-API.md             # API system documentation
+└── RFC-ergonomics.md          # Ergonomics improvements RFC
 ```
 
 ## TypeScript Configuration

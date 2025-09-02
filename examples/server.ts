@@ -42,7 +42,8 @@ async function handler(request: Request): Promise<Response> {
 
       // Ensure the state manager is injected globally so inline actions can publish/subscribe
       // Inject before </head> to guarantee execution on initial load
-      const sm = injectStateManager(false, { debugMode: true });
+      // Use minimal state manager to avoid any debug-script parsing quirks
+      const sm = injectStateManager(true);
       if (!htmlContent.includes(sm)) {
         htmlContent = htmlContent.replace("</head>", `${sm}\n</head>`);
       }

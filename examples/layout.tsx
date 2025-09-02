@@ -212,6 +212,29 @@ defineComponent("app-layout", {
                 data-cart-id="default"
               >
                 🛒 <span class={`${classes!.navCartCount} cart-count`}>0 items</span>
+                <span class="cart-total">$0.00</span>
+                <script dangerouslySetInnerHTML={{ __html: `
+                  (function(){
+                    var el = document.currentScript && document.currentScript.parentElement;
+                    if (!el || el.getAttribute('data-cart-subscribed')) return;
+                    el.setAttribute('data-cart-subscribed', 'true');
+                    if (!window.funcwcState) return;
+                    window.funcwcState.subscribe('cart', function(cartData){
+                      try {
+                        var countEl = el.querySelector('.cart-count');
+                        var totalEl = el.querySelector('.cart-total');
+                        if (countEl) {
+                          var c = (cartData && cartData.count) || 0;
+                          countEl.textContent = c + ' items';
+                        }
+                        if (totalEl) {
+                          var t = Number((cartData && cartData.total) || 0);
+                          totalEl.textContent = \"$\" + t.toFixed(2);
+                        }
+                      } catch (e) { console.warn('nav cart-badge subscribe failed', e); }
+                    }, el);
+                  })();
+                ` }}></script>
               </div>
               <button
                 type="button"

@@ -283,6 +283,7 @@ export const createCartAction = (
   itemData: string,
 ): string => {
   return `
+    console.log('🛒 Cart ${action}:', ${itemData});
     const currentCart = ${
     getState("cart")
   } || { items: [], count: 0, total: 0 };
@@ -312,7 +313,7 @@ export const createCartAction = (
       isEmpty: newItems.length === 0
     };
     
-    ${publishState("cart", "cartState")}
+    window.funcwcState?.publish('cart', cartState);
   `.trim();
 };
 

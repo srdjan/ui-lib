@@ -177,15 +177,25 @@ defineComponent("cart-badge", {
             var el = document.currentScript && document.currentScript.parentElement;
             if (!el || el.getAttribute('data-cart-subscribed')) return;
             el.setAttribute('data-cart-subscribed', 'true');
-            if (!window.funcwcState) return;
+            
+            if (!window.funcwcState) {
+              console.warn('❌ Cart badge: window.funcwcState not available');
+              return;
+            }
+            
+            console.log('📡 Cart badge subscribed to cart updates');
             window.funcwcState.subscribe('cart', function(cartData){
+              console.log('🛒 Cart updated:', cartData);
               try {
                 var countEl = el.querySelector('.cart-count');
                 var totalEl = el.querySelector('.cart-total');
                 if (countEl) { countEl.textContent = (cartData && cartData.count || 0) + ' items'; }
-                if (totalEl) { var t = Number(cartData && cartData.total || 0); totalEl.textContent = '$' + t.toFixed(2); }
+                if (totalEl) { 
+                  var t = Number(cartData && cartData.total || 0); 
+                  totalEl.textContent = '$' + t.toFixed(2);
+                }
                 el.style.transform = 'scale(1.05)'; setTimeout(function(){ el.style.transform = 'scale(1)'; }, 200);
-              } catch (e) { console.warn('cart-badge subscribe failed', e); }
+              } catch (e) { console.warn('❌ cart-badge update failed', e); }
             }, el);
           })();
         ` }}></script>

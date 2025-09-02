@@ -54,6 +54,46 @@
     </style>
   </head>
   <body hx-ext="json-enc" hx-encoding="json">
+    <script>
+      // Minimal fallback: ensure window.funcwcState exists so badges can subscribe
+      (function(){
+        try {
+          if (window.funcwcState) return;
+          window.funcwcState = {
+            _state: new Map(),
+            _subscribers: new Map(),
+            publish: function(topic, data){
+              this._state.set(topic, { data: data, timestamp: Date.now() });
+              var subs = this._subscribers.get(topic) || [];
+              var alive = [];
+              for (var i = 0; i < subs.length; i++) {
+                var s = subs[i];
+                if (document.contains(s.element)) {
+                  try { s.callback.call(s.element, data); } catch (_) {}
+                  alive.push(s);
+                }
+              }
+              this._subscribers.set(topic, alive);
+            },
+            subscribe: function(topic, callback, element){
+              if (typeof topic !== 'string' || typeof callback !== 'function' || !(element instanceof Element)) return;
+              var subs = this._subscribers.get(topic) || [];
+              subs.push({ callback: callback, element: element });
+              this._subscribers.set(topic, subs);
+              if (this._state.has(topic)) {
+                try { callback.call(element, this._state.get(topic).data); } catch (_) {}
+              }
+            },
+            getState: function(topic){
+              var entry = this._state.get(topic); return entry ? entry.data : undefined;
+            },
+            clearTopic: function(topic){ this._state.delete(topic); this._subscribers.delete(topic); },
+            getTopics: function(){ return Array.from(this._state.keys()); },
+            getSubscriberCount: function(topic){ var s = this._subscribers.get(topic); return s ? s.length : 0; }
+          };
+        } catch (_) {}
+      })();
+    </script>
     <!-- Single component - the entire app -->
     <!-- State manager is now injected by the app-layout component -->
     <app-layout></app-layout>
