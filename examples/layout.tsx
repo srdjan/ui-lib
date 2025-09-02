@@ -6,7 +6,6 @@ import {
   get,
   h,
   object,
-  renderComponent,
   string,
 } from "../index.ts";
 import type { GeneratedApiMap } from "../index.ts";
@@ -70,8 +69,8 @@ defineComponent("app-layout", {
       });
     }),
     jsxDemo: get("/demo/jsx", (_req) => {
-      // Return the JSX demo component
-      const content = renderComponent("jsx-demo-layout");
+      // Return the JSX demo component using JSX syntax
+      const content = <jsx-demo-layout />;
       return new Response(content, {
         headers: { "Content-Type": "text/html" },
       });
@@ -322,12 +321,12 @@ export function renderCurrentDemo(
 
           <div style="margin: 2rem 0; padding: 2rem; background: #f8f9fa; border-radius: 12px; border-left: 4px solid #007bff;">
             <h3 style="margin-top: 0; color: #007bff;">
-              🎯 Interactive Demo: Pure JSX with Function-Style Props
+              🎯 Interactive Demo: JSX with Function-Style Props
             </h3>
             <p style="margin-bottom: 2rem; color: #666;">
-              These counters now use <strong>pure JSX syntax</strong> with full TypeScript support!
-              Notice how props are typed (numbers as numbers, booleans as booleans) with complete
-              IDE autocompletion and validation. Zero duplication between definitions and usage!
+              These counters demonstrate <strong>pure JSX syntax</strong> with full TypeScript support!
+              Notice how props are properly typed (numbers as numbers, booleans as booleans) with complete
+              IDE autocompletion and validation. Zero duplication between prop definitions and usage!
             </p>
 
             <div style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;">
@@ -359,77 +358,60 @@ export function renderCurrentDemo(
 
             <div style="margin-top: 2rem; padding: 1rem; background: white; border-radius: 8px;">
               <p>
-                <strong>🚀 JSX Syntax vs Traditional:</strong>
+                <strong>✨ JSX Component Syntax:</strong>
               </p>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
-                <div>
-                  <p style="color: #059669; font-weight: bold; margin: 0 0 0.5rem;">✨ JSX (Above)</p>
-                  <code style="color: #059669; font-size: 0.75rem; display: block;">
-                    &lt;demo-counter<br/>
-                    &nbsp;&nbsp;initial-count=&#123;5&#125;<br/>
-                    &nbsp;&nbsp;step=&#123;1&#125;<br/>
-                    &nbsp;&nbsp;theme="green"<br/>
-                    /&gt;
-                  </code>
-                </div>
-                <div>
-                  <p style="color: #7c3aed; font-weight: bold; margin: 0 0 0.5rem;">🔧 Traditional</p>
-                  <code style="color: #7c3aed; font-size: 0.75rem; display: block;">
-                    renderComponent("demo-counter", &#123;<br/>
-                    &nbsp;&nbsp;"initial-count": "5",<br/>
-                    &nbsp;&nbsp;"step": "1",<br/>
-                    &nbsp;&nbsp;"theme": "green"<br/>
-                    &#125;)
-                  </code>
-                </div>
+              <div style="margin-top: 1rem;">
+                <code style="color: #059669; font-size: 0.875rem; display: block; padding: 1rem; background: #f0fdf4; border-radius: 6px;">
+                  &lt;demo-counter<br/>
+                  &nbsp;&nbsp;initial-count=&#123;5&#125;&nbsp;&nbsp;&nbsp;&nbsp;&#47;&#47; number type<br/>
+                  &nbsp;&nbsp;step=&#123;2&#125;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#47;&#47; number type<br/>
+                  &nbsp;&nbsp;theme="green"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#47;&#47; string type<br/>
+                  &nbsp;&nbsp;show-controls=&#123;true&#125;&nbsp;&#47;&#47; boolean type<br/>
+                  /&gt;
+                </code>
+                <p style="color: #047857; font-size: 0.875rem; margin: 0.5rem 0 0; font-style: italic;">
+                  Full TypeScript integration with IDE autocompletion and compile-time validation!
+                </p>
               </div>
             </div>
           </div>
 
           <div style="margin: 2rem 0; padding: 2rem; background: #f0fdf4; border-radius: 12px; border-left: 4px solid #059669;">
             <h3 style="margin-top: 0; color: #059669;">
-              🚀 NEW: Pure JSX Support with Full TypeScript Integration!
+              ✨ JSX with Full TypeScript Integration
             </h3>
             <p style="margin-bottom: 2rem; color: #047857;">
-              funcwc now supports native JSX syntax alongside the traditional renderComponent() approach.
-              Both methods produce identical performance and output - choose your preferred developer experience!
+              funcwc components use native JSX syntax with complete TypeScript support,
+              providing the modern developer experience you expect from contemporary frameworks.
             </p>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 1rem 0;">
-              <div style="padding: 1.5rem; background: white; border-radius: 8px; border: 2px solid #059669;">
-                <h4 style="color: #059669; margin-top: 0;">✨ JSX Approach (New)</h4>
-                <ul style="color: #047857; padding-left: 1.5rem;">
-                  <li>🛡️ Full TypeScript integration</li>
-                  <li>💡 IDE autocompletion & validation</li>
-                  <li>🎯 Familiar React-like syntax</li>
-                  <li>⚡ Same performance as traditional</li>
-                </ul>
-                <div style="background: #f0fdf4; padding: 1rem; border-radius: 4px; margin-top: 1rem;">
-                  <code style="font-size: 0.75rem; color: #059669;">
-                    &lt;demo-counter<br/>
-                    &nbsp;&nbsp;initial-count=&#123;10&#125;<br/>
-                    &nbsp;&nbsp;theme="blue"<br/>
-                    /&gt;
-                  </code>
-                </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1rem 0;">
+              <div style="padding: 1.5rem; background: white; border-radius: 8px; border: 1px solid #059669;">
+                <h4 style="color: #059669; margin-top: 0; font-size: 1rem;">🛡️ Type Safety</h4>
+                <p style="color: #047857; margin: 0; font-size: 0.875rem;">
+                  Props are validated at compile time with full TypeScript inference
+                </p>
               </div>
               
-              <div style="padding: 1.5rem; background: white; border-radius: 8px; border: 2px solid #7c3aed;">
-                <h4 style="color: #7c3aed; margin-top: 0;">🔧 Traditional Approach</h4>
-                <ul style="color: #6b46c1; padding-left: 1.5rem;">
-                  <li>🔧 Explicit prop handling</li>
-                  <li>🔄 Runtime flexibility</li>
-                  <li>⚙️ Dynamic component names</li>
-                  <li>📦 Backward compatible</li>
-                </ul>
-                <div style="background: #faf5ff; padding: 1rem; border-radius: 4px; margin-top: 1rem;">
-                  <code style="font-size: 0.75rem; color: #7c3aed;">
-                    renderComponent("demo-counter", &#123;<br/>
-                    &nbsp;&nbsp;"initial-count": "10",<br/>
-                    &nbsp;&nbsp;"theme": "blue"<br/>
-                    &#125;)
-                  </code>
-                </div>
+              <div style="padding: 1.5rem; background: white; border-radius: 8px; border: 1px solid #059669;">
+                <h4 style="color: #059669; margin-top: 0; font-size: 1rem;">💡 IDE Support</h4>
+                <p style="color: #047857; margin: 0; font-size: 0.875rem;">
+                  Complete autocompletion, error highlighting, and go-to-definition
+                </p>
+              </div>
+              
+              <div style="padding: 1.5rem; background: white; border-radius: 8px; border: 1px solid #059669;">
+                <h4 style="color: #059669; margin-top: 0; font-size: 1rem;">🎯 Familiar Syntax</h4>
+                <p style="color: #047857; margin: 0; font-size: 0.875rem;">
+                  React-like JSX that developers already know and love
+                </p>
+              </div>
+              
+              <div style="padding: 1.5rem; background: white; border-radius: 8px; border: 1px solid #059669;">
+                <h4 style="color: #059669; margin-top: 0; font-size: 1rem;">⚡ Performance</h4>
+                <p style="color: #047857; margin: 0; font-size: 0.875rem;">
+                  Zero runtime overhead - components render directly to HTML
+                </p>
               </div>
             </div>
           </div>

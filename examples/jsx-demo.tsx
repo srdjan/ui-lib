@@ -4,29 +4,34 @@ import {
   defineComponent,
   get,
   h,
-  renderComponent,
 } from "../index.ts";
 
 /**
- * 🎯 JSX vs renderComponent Demonstration
+ * 🎯 JSX Component Showcase
  * 
- * This file demonstrates both approaches working seamlessly:
- * 1. Traditional renderComponent() function calls
- * 2. Pure JSX syntax with full type safety
- * 
- * Both approaches produce identical output and performance.
+ * This component demonstrates funcwc's native JSX support with:
+ * 1. Full TypeScript integration and type safety
+ * 2. Modern developer experience with IDE support
+ * 3. React-like syntax that developers already know
+ * 4. Zero runtime overhead with direct HTML rendering
  */
 
 defineComponent("jsx-demo-layout", {
   api: {
-    showTraditional: get("/demo/traditional", (_req) => {
-      const content = renderTraditionalApproach();
+    showBasicDemo: get("/demo/jsx/basic", (_req) => {
+      const content = renderBasicJSXDemo();
       return new Response(content, {
         headers: { "Content-Type": "text/html" },
       });
     }),
-    showJSX: get("/demo/jsx", (_req) => {
-      const content = renderJSXApproach();
+    showAdvancedDemo: get("/demo/jsx/advanced", (_req) => {
+      const content = renderAdvancedJSXDemo();
+      return new Response(content, {
+        headers: { "Content-Type": "text/html" },
+      });
+    }),
+    showTypeSafetyDemo: get("/demo/jsx/types", (_req) => {
+      const content = renderTypeSafetyDemo();
       return new Response(content, {
         headers: { "Content-Type": "text/html" },
       });
@@ -147,77 +152,48 @@ defineComponent("jsx-demo-layout", {
 
   render: (props: any, api: any, classes: any) => (
     <div class={classes!.container}>
-      <h1 class={classes!.title}>🚀 funcwc JSX Revolution</h1>
+      <h1 class={classes!.title}>✨ JSX Component Showcase</h1>
       <p class={classes!.subtitle}>
-        The same powerful components, now with native JSX support and full TypeScript integration.
-        Choose your preferred syntax - both approaches deliver identical performance and functionality.
+        Discover funcwc's native JSX support with full TypeScript integration,
+        modern IDE features, and zero runtime overhead.
       </p>
 
       <div class={classes!.section}>
         <h2 class={classes!.sectionTitle}>
-          📊 Side-by-Side Comparison
+          🎯 Interactive JSX Demonstrations
         </h2>
         <p class={classes!.description}>
-          Both approaches render the exact same components with identical performance.
-          The choice is purely about developer experience and syntax preference.
+          Explore different aspects of funcwc's JSX implementation through these interactive demos.
+          Each demo showcases different features and capabilities.
         </p>
-
-        <div class={classes!.comparison}>
-          <div class={classes!.comparisonSide}>
-            <h3 style="color: #7c3aed; margin-bottom: 1rem;">
-              🔧 Traditional renderComponent()
-            </h3>
-            <div class={classes!.codeBlock}>
-{`{renderComponent("demo-counter", {
-  "initial-count": "5",
-  "step": "2", 
-  "max-value": "20",
-  "theme": "blue",
-  "label": "Traditional"
-})}`}
-            </div>
-            <div class={classes!.benefit}>✅ Explicit string props</div>
-            <div class={classes!.benefit}>✅ Runtime flexibility</div>
-            <div class={classes!.benefit}>✅ Dynamic component names</div>
-          </div>
-
-          <div class={classes!.comparisonSide}>
-            <h3 style="color: #059669; margin-bottom: 1rem;">
-              ✨ Pure JSX Syntax
-            </h3>
-            <div class={classes!.codeBlock}>
-{`<demo-counter
-  initial-count={5}
-  step={2}
-  max-value={20} 
-  theme="blue"
-  label="JSX"
-/>`}
-            </div>
-            <div class={classes!.benefit}>✅ Native TypeScript support</div>
-            <div class={classes!.benefit}>✅ IDE autocompletion</div>
-            <div class={classes!.benefit}>✅ Familiar React-like syntax</div>
-          </div>
-        </div>
 
         <div class={classes!.buttonGroup}>
           <button 
             class={classes!.button}
-            {...api.showTraditional(undefined, {
+            {...api.showBasicDemo(undefined, {
               target: "#demo-output",
               swap: "innerHTML"
             })}
           >
-            🔧 Show Traditional Approach
+            🎨 Basic JSX Demo
           </button>
           <button 
             class={classes!.button}
-            {...api.showJSX(undefined, {
+            {...api.showAdvancedDemo(undefined, {
               target: "#demo-output", 
               swap: "innerHTML"
             })}
           >
-            ✨ Show JSX Approach  
+            ⚡ Advanced Features
+          </button>
+          <button 
+            class={classes!.button}
+            {...api.showTypeSafetyDemo(undefined, {
+              target: "#demo-output", 
+              swap: "innerHTML"
+            })}
+          >
+            🛡️ Type Safety Demo
           </button>
         </div>
       </div>
@@ -226,39 +202,48 @@ defineComponent("jsx-demo-layout", {
         <h2 class={classes!.sectionTitle}>
           🎯 Live Demo Output
         </h2>
-        <div id="demo-output" style="min-height: 200px; padding: 1rem; background: #f8fafc; border-radius: 8px; border: 2px dashed #d1d5db;">
-          <p style="color: #6b7280; text-align: center; margin: 2rem 0;">
-            Click the buttons above to see both approaches in action! ⬆️
-          </p>
+        <div id="demo-output" style="min-height: 300px; padding: 1rem; background: #f8fafc; border-radius: 8px; border: 2px dashed #d1d5db;">
+          <div style="text-align: center; padding: 2rem;">
+            <h3 style="color: #6b7280; margin-bottom: 1rem;">🚀 Choose a demo above to get started!</h3>
+            <p style="color: #9ca3af; margin: 0;">
+              Click any of the demo buttons to see funcwc's JSX capabilities in action.
+            </p>
+          </div>
         </div>
       </div>
 
       <div class={classes!.section}>
         <h2 class={classes!.sectionTitle}>
-          🔬 Technical Implementation
+          🔬 JSX Features & Benefits
         </h2>
         <p class={classes!.description}>
-          The JSX runtime has been enhanced to automatically detect funcwc components (kebab-case tags)
-          and seamlessly route them through the same renderComponent pipeline. This means:
+          funcwc's JSX implementation provides modern developer experience while maintaining
+          the library's core philosophy of DOM-native components and zero runtime overhead.
         </p>
         
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1rem 0;">
           <div style="padding: 1rem; background: #ecfdf5; border-radius: 8px; border: 1px solid #a7f3d0;">
-            <strong style="color: #065f46;">🔄 Zero Performance Impact</strong>
+            <strong style="color: #065f46;">🛡️ TypeScript Integration</strong>
             <p style="color: #047857; margin: 0.5rem 0 0;">
-              JSX components use the exact same rendering pipeline as renderComponent()
+              Full compile-time type checking with automatic prop inference
             </p>
           </div>
           <div style="padding: 1rem; background: #eff6ff; border-radius: 8px; border: 1px solid #93c5fd;">
-            <strong style="color: #1e40af;">🛡️ Full Type Safety</strong>
+            <strong style="color: #1e40af;">💡 IDE Support</strong>
             <p style="color: #1d4ed8; margin: 0.5rem 0 0;">
-              Auto-generated TypeScript definitions provide complete prop validation
+              Complete autocompletion, error highlighting, and go-to-definition
             </p>
           </div>
           <div style="padding: 1rem; background: #fdf4ff; border-radius: 8px; border: 1px solid #c084fc;">
-            <strong style="color: #7c3aed;">🔧 Backward Compatible</strong>
+            <strong style="color: #7c3aed;">⚡ Performance</strong>
             <p style="color: #8b5cf6; margin: 0.5rem 0 0;">
-              Existing renderComponent() code continues to work without changes
+              Zero runtime overhead - JSX compiles directly to HTML strings
+            </p>
+          </div>
+          <div style="padding: 1rem; background: #fffbeb; border-radius: 8px; border: 1px solid #fcd34d;">
+            <strong style="color: #92400e;">🎯 Familiar Syntax</strong>
+            <p style="color: #b45309; margin: 0.5rem 0 0;">
+              React-like JSX that developers already know and understand
             </p>
           </div>
         </div>
@@ -267,60 +252,16 @@ defineComponent("jsx-demo-layout", {
   ),
 });
 
-// Traditional approach using renderComponent()
-function renderTraditionalApproach(): string {
-  const classes = {}; // In real usage, classes would be provided by the system
-  
-  return `
-    <div style="padding: 2rem; background: #f8fafc; border-radius: 8px;">
-      <h3 style="color: #7c3aed; margin-bottom: 1.5rem; text-align: center;">
-        🔧 Traditional renderComponent() Approach
-      </h3>
-      
-      <div style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;">
-        ${renderComponent("demo-counter", {
-          "initial-count": "5",
-          "step": "1", 
-          "max-value": "15",
-          "theme": "blue",
-          "label": "Traditional Basic"
-        })}
-        
-        ${renderComponent("demo-counter", {
-          "initial-count": "10",
-          "step": "5",
-          "max-value": "50", 
-          "theme": "purple",
-          "label": "Traditional Advanced",
-          "show-controls": "true"
-        })}
-        
-        ${renderComponent("demo-counter", {
-          "initial-count": "0",
-          "step": "2",
-          "max-value": "20",
-          "min-value": "-10", 
-          "theme": "green",
-          "label": "Traditional Range"
-        })}
-      </div>
-      
-      <div style="margin-top: 2rem; padding: 1rem; background: white; border-radius: 6px; border-left: 4px solid #7c3aed;">
-        <p style="color: #6b7280; margin: 0; font-size: 0.875rem;">
-          <strong>✅ Advantages:</strong> Explicit prop handling, runtime flexibility, works with dynamic component names
-        </p>
-      </div>
-    </div>
-  `;
-}
-
-// JSX approach using native JSX syntax
-function renderJSXApproach(): string {
+// Basic JSX demonstration
+function renderBasicJSXDemo(): string {
   return (
     <div style="padding: 2rem; background: #f0fdf4; border-radius: 8px;">
       <h3 style="color: #059669; margin-bottom: 1.5rem; text-align: center;">
-        ✨ Pure JSX Syntax Approach
+        🎨 Basic JSX Components
       </h3>
+      <p style="color: #047857; text-align: center; margin-bottom: 2rem;">
+        Simple JSX syntax with typed props - notice how clean and familiar it looks!
+      </p>
       
       <div style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;">
         <demo-counter
@@ -328,32 +269,123 @@ function renderJSXApproach(): string {
           step={1}
           max-value={15}
           theme="blue" 
-          label="JSX Basic"
+          label="Basic JSX"
         />
         
         <demo-counter
           initial-count={10}
-          step={5}
-          max-value={50}
-          theme="purple"
-          label="JSX Advanced"
-          show-controls={true}
-        />
-        
-        <demo-counter
-          initial-count={0}
           step={2}
-          max-value={20}
-          min-value={-10}
+          max-value={30}
           theme="green"
-          label="JSX Range"
+          label="Typed Props"
         />
       </div>
       
-      <div style="margin-top: 2rem; padding: 1rem; background: white; border-radius: 6px; border-left: 4px solid #059669;">
-        <p style="color: #6b7280; margin: 0; font-size: 0.875rem;">
-          <strong>✅ Advantages:</strong> TypeScript integration, IDE autocompletion, familiar React-like syntax, prop type validation
-        </p>
+      <div style="margin-top: 2rem; padding: 1rem; background: white; border-radius: 6px;">
+        <h4 style="color: #059669; margin-top: 0;">JSX Source Code:</h4>
+        <pre style="background: #f8f9fa; padding: 1rem; border-radius: 4px; overflow-x: auto; margin: 0; font-size: 0.875rem;"><code style="color: #059669;">{`<demo-counter
+  initial-count={5}    // number type
+  step={1}             // number type  
+  theme="blue"         // string type
+  label="Basic JSX"    // string type
+/>`}</code></pre>
+      </div>
+    </div>
+  );
+}
+
+// Advanced JSX features demonstration  
+function renderAdvancedJSXDemo(): string {
+  return (
+    <div style="padding: 2rem; background: #eff6ff; border-radius: 8px;">
+      <h3 style="color: #1d4ed8; margin-bottom: 1.5rem; text-align: center;">
+        ⚡ Advanced JSX Features
+      </h3>
+      <p style="color: #1e40af; text-align: center; margin-bottom: 2rem;">
+        Complex prop types, boolean attributes, and reactive components working together!
+      </p>
+      
+      <div style="display: grid; gap: 2rem; grid-template-columns: 2fr 1fr; margin-bottom: 2rem;">
+        <div>
+          <demo-counter
+            initial-count={25}
+            step={5}
+            max-value={100}
+            theme="purple"
+            label="Advanced Counter"
+            show-controls={true}
+          />
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <theme-controller current-theme="purple" />
+          <cart-badge cart-id="demo" />
+        </div>
+      </div>
+      
+      <div style="margin-top: 2rem; padding: 1rem; background: white; border-radius: 6px;">
+        <h4 style="color: #1d4ed8; margin-top: 0;">Advanced JSX Features:</h4>
+        <ul style="color: #1e40af; margin: 0;">
+          <li><strong>Boolean Props:</strong> <code>show-controls={true}</code></li>
+          <li><strong>Complex Types:</strong> Numbers, strings, booleans all properly typed</li>
+          <li><strong>Reactive Components:</strong> Theme and cart components with state</li>
+          <li><strong>Component Composition:</strong> Multiple components working together</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+// Type safety demonstration
+function renderTypeSafetyDemo(): string {
+  return (
+    <div style="padding: 2rem; background: #fdf4ff; border-radius: 8px;">
+      <h3 style="color: #7c3aed; margin-bottom: 1.5rem; text-align: center;">
+        🛡️ TypeScript Integration & Type Safety
+      </h3>
+      <p style="color: #8b5cf6; text-align: center; margin-bottom: 2rem;">
+        See how TypeScript validates props at compile time and provides IDE support!
+      </p>
+      
+      <div style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; margin-bottom: 2rem;">
+        <demo-counter
+          initial-count={0}
+          step={3}
+          max-value={21}
+          min-value={-6}
+          theme="purple"
+          label="Type Safe Counter"
+          disabled={false}
+        />
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <div style="padding: 1rem; background: white; border-radius: 6px; border: 1px solid #a855f7;">
+          <h4 style="color: #7c3aed; margin-top: 0;">✅ Valid JSX (TypeScript Happy)</h4>
+          <pre style="background: #f3e8ff; padding: 1rem; border-radius: 4px; margin: 0; font-size: 0.75rem;"><code style="color: #7c3aed;">{`<demo-counter
+  initial-count={10}  ✅ number
+  theme="blue"        ✅ string  
+  disabled={true}     ✅ boolean
+/>`}</code></pre>
+        </div>
+        
+        <div style="padding: 1rem; background: white; border-radius: 6px; border: 1px solid #ef4444;">
+          <h4 style="color: #dc2626; margin-top: 0;">❌ Invalid JSX (TypeScript Errors)</h4>
+          <pre style="background: #fef2f2; padding: 1rem; border-radius: 4px; margin: 0; font-size: 0.75rem;"><code style="color: #dc2626;">{`<demo-counter
+  initial-count="ten" ❌ string not number
+  theme={123}         ❌ number not string  
+  invalid-prop="x"    ❌ unknown prop
+/>`}</code></pre>
+        </div>
+      </div>
+      
+      <div style="margin-top: 2rem; padding: 1rem; background: white; border-radius: 6px;">
+        <h4 style="color: #7c3aed; margin-top: 0;">🎯 IDE Integration Benefits:</h4>
+        <ul style="color: #8b5cf6; margin: 0;">
+          <li><strong>Autocompletion:</strong> All available props show up as you type</li>
+          <li><strong>Type Validation:</strong> Invalid prop types highlighted in red</li>
+          <li><strong>Go to Definition:</strong> Jump to component definition with Cmd+Click</li>
+          <li><strong>Hover Documentation:</strong> See prop types and descriptions on hover</li>
+        </ul>
       </div>
     </div>
   );

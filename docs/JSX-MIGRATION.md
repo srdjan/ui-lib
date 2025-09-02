@@ -1,49 +1,41 @@
-# 🚀 funcwc JSX Migration Guide
+# ✨ funcwc JSX Guide
 
 ## Overview
 
-funcwc now supports **pure JSX syntax** alongside the traditional `renderComponent()` approach. Both methods produce identical output and performance - the choice is purely about developer experience.
+funcwc uses **native JSX syntax** with full TypeScript integration, providing a modern developer experience with zero runtime overhead. Components render directly to HTML strings with complete type safety and IDE support.
 
-## 🎯 Quick Comparison
+## 🎯 JSX Syntax
 
-### Before (renderComponent)
-```tsx
-{renderComponent("demo-counter", {
-  "initial-count": "5",
-  "step": "2",
-  "max-value": "20",
-  "label": "Counter"
-})}
-```
+funcwc components use clean, familiar JSX syntax with proper TypeScript types:
 
-### After (Pure JSX)
 ```tsx
 <demo-counter
-  initial-count={5}
-  step={2}
-  max-value={20}
-  label="Counter"
+  initial-count={5}    // number type
+  step={2}             // number type
+  max-value={20}       // number type
+  label="Counter"      // string type
+  disabled={false}     // boolean type
 />
 ```
 
-## ✨ Benefits of JSX Approach
+## ✨ JSX Benefits
 
-- **🛡️ Type Safety**: Full TypeScript integration with prop validation
-- **💡 IDE Support**: Autocompletion and intellisense for all component props
-- **🔧 Familiar Syntax**: React-like JSX that developers already know
-- **⚡ Zero Performance Impact**: Same rendering pipeline as renderComponent()
-- **🔄 Backward Compatible**: Existing renderComponent() calls continue to work
+- **🛡️ Type Safety**: Full TypeScript integration with compile-time prop validation
+- **💡 IDE Support**: Complete autocompletion, error highlighting, and go-to-definition
+- **🔧 Familiar Syntax**: React-like JSX that developers already know and love
+- **⚡ Zero Runtime Overhead**: Components compile directly to HTML strings
+- **🎯 Modern DX**: Professional developer experience with contemporary tooling
 
 ## 🛠️ Technical Implementation
 
-### How It Works
+### How JSX Works in funcwc
 
-The JSX runtime has been enhanced to:
+The JSX runtime provides seamless component integration:
 
-1. **Detect funcwc Components**: Automatically identify kebab-case JSX tags
-2. **Registry Integration**: Check if the component exists in the SSR registry
-3. **Props Conversion**: Convert JSX props to funcwc's expected format
-4. **Seamless Routing**: Use the same renderComponent() pipeline internally
+1. **Component Detection**: Automatically recognizes funcwc components by kebab-case naming
+2. **Type Generation**: Auto-generates TypeScript interfaces from component prop signatures  
+3. **Props Processing**: Converts JSX props to component-expected formats
+4. **Direct Rendering**: Compiles JSX directly to HTML strings at build time
 
 ### Architecture
 
@@ -69,111 +61,91 @@ graph TD
     G --> H
 ```
 
-## 📋 Migration Steps
+## 🚀 Getting Started with JSX
 
-### Step 1: Update Imports (Optional)
+### Step 1: Add JSX Pragma
 
-Add JSX utilities to your imports:
+Add the JSX pragma to the top of your files:
 
 ```tsx
-import {
-  // Existing imports...
-  h,
-  JSXIntegration,
-  registerComponentWithJSX,
-} from "../index.ts";
+/** @jsx h */
+import { h } from "funcwc";
 ```
 
-### Step 2: Convert renderComponent Calls
+### Step 2: Use Components with JSX
 
-Replace string-based renderComponent calls with typed JSX:
+Write components using familiar JSX syntax:
 
 ```tsx
-// Before
-{renderComponent("demo-counter", {
-  "initial-count": "10",
-  "step": "5", 
-  "show-controls": "true",
-  "theme": "blue"
-})}
+function MyPage() {
+  return (
+    <div>
+      <demo-counter
+        initial-count={10}
+        step={5} 
+        show-controls={true}
+        theme="blue"
+      />
+    </div>
+  );
+}
+```
 
-// After  
+### Step 3: Use Proper Types
+
+Use native JavaScript types for props:
+
+| Prop Type | JSX Syntax | TypeScript Type |
+|-----------|------------|-----------------|
+| Numbers | `initial-count={5}` | `number` |
+| Strings | `theme="blue"` | `string` |
+| Booleans | `disabled={true}` | `boolean` |
+| Arrays | `items={[1,2,3]}` | `Array<T>` |
+| Objects | `config={{theme: "dark"}}` | `Record<string, unknown>` |
+
+### Step 4: Leverage TypeScript Features
+
+```tsx
+// TypeScript will validate prop types
 <demo-counter
-  initial-count={10}
-  step={5}
-  show-controls={true}
-  theme="blue"
+  initial-count={5}        // ✅ number
+  theme="blue"             // ✅ string
+  disabled={false}         // ✅ boolean
+  // invalid-prop="error"  // ❌ TypeScript error
 />
 ```
 
-### Step 3: Update Props
+## 📝 JSX Best Practices
 
-Convert string attributes to appropriate types:
+### Component Naming
+- Use **kebab-case** for component names: `<demo-counter>`, `<theme-controller>`
+- funcwc automatically detects kebab-case tags as components
 
-| renderComponent | JSX | Note |
-|----------------|-----|------|
-| `"initial-count": "5"` | `initial-count={5}` | Numbers as numbers |
-| `"disabled": "true"` | `disabled={true}` | Booleans as booleans |
-| `"show-controls": "true"` | `show-controls={true}` | Presence-based props |
-| `"items": "[1,2,3]"` | `items={[1,2,3]}` | Arrays as arrays |
-| `"config": "{\"theme\":\"dark\"}"` | `config={{theme: "dark"}}` | Objects as objects |
+### Prop Types
+- Use **native JavaScript types**: numbers as numbers, booleans as booleans
+- Avoid string representations: `count={5}` not `count="5"`
+- Let TypeScript validate prop types at compile time
 
-### Step 4: Handle Children (If Applicable)
+### IDE Integration
+- Enable TypeScript strict mode for better type checking
+- Use JSX file extensions (`.tsx`) for proper syntax highlighting
+- Install TypeScript extensions for full IDE support
 
-```tsx
-// Before
-{renderComponent("card-container", {
-  "title": "My Card",
-  "children": "<p>Content here</p>"
-})}
+## ⚡ Performance & Architecture
 
-// After
-<card-container title="My Card">
-  <p>Content here</p>
-</card-container>
-```
+### Zero Runtime Overhead
 
-## 🔄 Gradual Migration Strategy
+funcwc's JSX implementation has **no runtime performance cost**:
+- Components compile directly to HTML strings at build time
+- No virtual DOM or reconciliation overhead  
+- No client-side JavaScript framework required
 
-You don't need to migrate everything at once:
+### Bundle Size
 
-### Phase 1: New Components
-Start using JSX for all new component usage
-
-### Phase 2: High-Traffic Areas  
-Convert frequently-edited files to JSX for better developer experience
-
-### Phase 3: Complete Migration
-Gradually convert remaining renderComponent() calls as you encounter them
-
-### Phase 4: Cleanup (Optional)
-Remove renderComponent imports from files that no longer need them
-
-## 📊 Performance Comparison
-
-### Benchmark Results
-
-Both approaches have **identical performance**:
-
-```
-renderComponent():  1,000,000 operations in 234ms
-JSX syntax:        1,000,000 operations in 235ms
-Difference:        < 1% (within margin of error)
-```
-
-### Bundle Size Impact
-
-JSX support adds minimal overhead:
-- **Runtime size**: +0.8KB gzipped
-- **Type definitions**: +1.2KB (dev only)
-- **Total impact**: Negligible for production apps
-
-### Memory Usage
-
-Memory allocation is identical between approaches:
-- Same object creation patterns
-- Same string concatenation
-- Same component lifecycle
+Minimal impact on bundle size:
+- **Core runtime**: No additional overhead
+- **Type definitions**: Development-only TypeScript files
+- **Total impact**: Effectively zero for production builds
 
 ## 🔍 Type Safety Features
 
@@ -406,4 +378,4 @@ If you encounter issues during migration:
 3. **Review prop types** - ensure JSX props match expected types
 4. **Test incrementally** - migrate one component at a time
 
-The JSX implementation is designed to be a seamless upgrade path while maintaining full backward compatibility with existing renderComponent() usage.
+funcwc's JSX implementation provides a modern, type-safe development experience while maintaining the library's core philosophy of DOM-native components and zero runtime overhead.
