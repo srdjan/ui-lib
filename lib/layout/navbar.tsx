@@ -8,7 +8,7 @@ import type { NavbarProps } from "./layout-types.ts";
  *
  * Modern navigation component that accepts navitem children:
  *
- * <navbar position="top" style="primary" sticky>
+ * <navbar position="top" variant="primary" sticky>
  *   <navitem href="/" active>Home</navitem>
  *   <navitem href="/docs">Documentation</navitem>
  *   <navitem href="/about" badge="new">About</navitem>
@@ -143,8 +143,9 @@ defineComponent("navbar", {
     }`,
 
     // Mobile toggle - responsive display
-    mobileToggleResponsive: `@media (max-width: 768px) { .mobile-toggle { display: block; } }`,
-    
+    mobileToggleResponsive:
+      `@media (max-width: 768px) { .mobile-toggle { display: block; } }`,
+
     // Mobile nav items - hidden by default on mobile
     navItemsMobile: `@media (max-width: 768px) { 
       .nav-items {
@@ -162,7 +163,7 @@ defineComponent("navbar", {
         transition: all 0.3s ease;
       }
     }`,
-    
+
     // Mobile nav items - open state
     navItemsOpen: `.nav-items-open {
       transform: translateY(0) !important;

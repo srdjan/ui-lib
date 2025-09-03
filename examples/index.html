@@ -10,8 +10,6 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
     <!-- Base CSS: Open Props (variables) + Normalize (efficient, from CDN) -->
-    <link rel="preconnect" href="https://unpkg.com">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link
       rel="stylesheet"
       href="/assets/open-props/1.7.16/normalize.min.css"
@@ -50,9 +48,9 @@
     <style>
       :root {
         --theme-mode: light;
-        --theme-bg: white;
-        --theme-text: #333;
-        --theme-accent: #007bff;
+        --theme-bg: var(--gray-0);
+        --theme-text: var(--gray-9);
+        --theme-accent: var(--indigo-6);
       }
 
       body {
@@ -126,77 +124,102 @@
           };
         } catch (_) {}
       })();
-      
+
       // Global cart action function to avoid long inline JavaScript
-      window.uiLibCartAction = function(action, itemData) {
-        console.log('🛒 Cart ' + action + ':', itemData);
-        const currentCart = window.funcwcState?.getState('cart') || { items: [], count: 0, total: 0 };
+      window.uiLibCartAction = function (action, itemData) {
+        console.log("🛒 Cart " + action + ":", itemData);
+        const currentCart = window.funcwcState?.getState("cart") ||
+          { items: [], count: 0, total: 0 };
         let newItems = [...currentCart.items];
-        
-        if (action === 'add') {
-          const existing = newItems.findIndex(item => item.id === itemData.id);
+
+        if (action === "add") {
+          const existing = newItems.findIndex((item) =>
+            item.id === itemData.id
+          );
           if (existing >= 0) {
             newItems[existing].quantity += itemData.quantity || 1;
           } else {
             newItems.push(itemData);
           }
-        } else if (action === 'remove') {
-          newItems = newItems.filter(item => item.id !== itemData.id);
-        } else if (action === 'update') {
-          const existing = newItems.findIndex(item => item.id === itemData.id);
+        } else if (action === "remove") {
+          newItems = newItems.filter((item) => item.id !== itemData.id);
+        } else if (action === "update") {
+          const existing = newItems.findIndex((item) =>
+            item.id === itemData.id
+          );
           if (existing >= 0) {
             newItems[existing] = { ...newItems[existing], ...itemData };
           }
         }
-        
+
         const cartState = {
           items: newItems,
           count: newItems.reduce((sum, item) => sum + item.quantity, 0),
-          total: newItems.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-          isEmpty: newItems.length === 0
+          total: newItems.reduce(
+            (sum, item) => sum + (item.price * item.quantity),
+            0,
+          ),
+          isEmpty: newItems.length === 0,
         };
-        
-        window.funcwcState?.publish('cart', cartState);
+
+        window.funcwcState?.publish("cart", cartState);
       };
     </script>
     <!-- Composable layout system - the entire app -->
     <app-layout theme="system" responsive>
-      <navbar position="top" style="primary" sticky>
+      <navbar position="top" variant="primary" sticky>
         <navitem href="/?demo=welcome" active>Home</navitem>
         <navitem href="/?demo=basic">Basic Components</navitem>
         <navitem href="/?demo=reactive" badge="new">Reactivity</navitem>
       </navbar>
-      
+
       <main-content padding="2rem" max-width="1200px" centered>
         <h1>Welcome to ui-lib</h1>
-        <p>The revolutionary SSR-first component library with zero client dependencies, function-style props, and a three-tier hybrid reactivity system.</p>
-        
+        <p>
+          The revolutionary SSR-first component library with zero client
+          dependencies, function-style props, and a three-tier hybrid reactivity
+          system.
+        </p>
+
         <!-- Demo content will be dynamically loaded here -->
         <div id="demo-content">
           <div class="u-card u-p-4">
             <h2>🎉 Composable Layout System Active!</h2>
             <p>This page now uses the new composable layout components:</p>
             <ul>
-              <li><code>&lt;app-layout&gt;</code> - Root container with theme support</li>
-              <li><code>&lt;navbar&gt;</code> - Navigation with responsive design</li>
-              <li><code>&lt;navitem&gt;</code> - Individual navigation items</li>
+              <li>
+                <code>&lt;app-layout&gt;</code> - Root container with theme
+                support
+              </li>
+              <li>
+                <code>&lt;navbar&gt;</code> - Navigation with responsive design
+              </li>
+              <li>
+                <code>&lt;navitem&gt;</code> - Individual navigation items
+              </li>
               <li><code>&lt;main-content&gt;</code> - Content area wrapper</li>
             </ul>
             <p>Try the navigation links above to see HTMX in action!</p>
           </div>
         </div>
-        
+
         <script>
           // Load demo content based on URL parameters
-          (function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const demo = urlParams.get('demo') || 'welcome';
-            
-            if (demo !== 'welcome') {
+          (function () {
+            const urlParams = new URLSearchParams(
+              window.location.search,
+            );
+            const demo = urlParams.get("demo") || "welcome";
+
+            if (demo !== "welcome") {
               // Trigger HTMX to load the appropriate demo content
-              const demoContent = document.getElementById('demo-content');
-              if (demoContent && typeof htmx !== 'undefined') {
-                htmx.ajax('GET', '/demo/' + demo, {target: '#demo-content'});
+              const demoContent = document.getElementById(
+                "demo-content",
+              );
+              if (demoContent && typeof htmx !== "undefined") {
+                htmx.ajax("GET", "/demo/" + demo, {
+                  target: "#demo-content",
+                });
               }
             }
           })();

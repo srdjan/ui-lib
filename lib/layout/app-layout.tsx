@@ -37,8 +37,8 @@ defineComponent("app-layout", {
         "sidebar-left header sidebar-right"
         "sidebar-left main sidebar-right"
         "sidebar-left footer sidebar-right";
-      background: var(--layout-bg, var(--theme-bg, white));
-      color: var(--layout-text, var(--theme-text, #333));
+      background: var(--layout-bg, var(--theme-bg, var(--gray-0)));
+      color: var(--layout-text, var(--theme-text, var(--gray-9)));
       font-family: var(--layout-font, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif);
       transition: background-color 0.3s ease, color 0.3s ease;
     }`,
@@ -59,15 +59,15 @@ defineComponent("app-layout", {
     }`,
 
     themeLight: `{
-      --layout-bg: white;
-      --layout-text: #333;
-      --layout-accent: #007bff;
+      --layout-bg: var(--gray-0);
+      --layout-text: var(--gray-9);
+      --layout-accent: var(--indigo-6);
     }`,
 
     themeDark: `{
-      --layout-bg: #1a1a1a;
-      --layout-text: #e0e0e0;
-      --layout-accent: #4dabf7;
+      --layout-bg: var(--gray-12);
+      --layout-text: var(--gray-1);
+      --layout-accent: var(--indigo-4);
     }`,
 
     // Responsive utilities
@@ -102,10 +102,7 @@ defineComponent("app-layout", {
     const containerMaxWidth = typeof maxWidth === "string" ? maxWidth : "none";
     const demo = typeof currentDemo === "string" ? currentDemo : "welcome";
 
-    // Generate dynamic CSS variables for theme
-    const themeVars = layoutTheme === "system"
-      ? ""
-      : `style="--layout-theme: ${layoutTheme};"`;
+    // Theme is expressed via data attribute directly on the container
 
     const containerClasses = [
       classes!.container,
@@ -136,7 +133,7 @@ defineComponent("app-layout", {
               <h3>🎯 Interactive Demo: Counter Components</h3>
               <p>These counters demonstrate <strong>pure JSX syntax</strong> with full TypeScript support!</p>
               
-              <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin: 2rem 0;">
+              <div class="u-flex u-wrap u-justify-center u-gap-3 u-my-4">
                 <demo-counter initial-count="5" step="1" max-value="10" label="Basic Counter"></demo-counter>
                 <demo-counter initial-count="0" step="2" max-value="20" min-value="-5" theme="green" label="Step by 2"></demo-counter>
                 <demo-counter initial-count="50" step="10" max-value="100" show-controls="true" theme="purple" label="Big Steps"></demo-counter>
@@ -153,7 +150,7 @@ defineComponent("app-layout", {
               <p>Write CSS properties, get auto-generated class names. No CSS-in-JS overhead. Classes are scoped and collision-free.</p>
             </div>
           `;
-          
+
         case "reactive":
           return `
             <h1>⚡ Hybrid Reactivity System</h1>
@@ -163,42 +160,42 @@ defineComponent("app-layout", {
               <h3>🚀 Interactive Reactivity Demos</h3>
               <p>Explore funcwc's revolutionary three-tier hybrid reactivity system.</p>
               
-              <div style="margin: 2rem 0;">
+              <section class="u-my-4" aria-label="Theme Controller">
                 <theme-controller current-theme="blue"></theme-controller>
-              </div>
+              </section>
               
-              <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin: 2rem 0;">
+              <section class="u-grid u-grid-2-1 u-gap-4 u-my-4" aria-label="Cart demos">
                 <cart-manager store-id="demo-store"></cart-manager>
                 <cart-badge cart-id="default"></cart-badge>
-              </div>
+              </section>
               
-              <div style="margin: 2rem 0;">
-                <div class="u-card u-p-3">
+              <section class="u-my-4" aria-label="DOM Event Communication">
+                <article class="u-card u-p-3">
                   <h4>🔔 DOM Event Communication</h4>
                   <p>This section demonstrates DOM events for component communication. (Components temporarily disabled for debugging)</p>
-                </div>
-              </div>
+                </article>
+              </section>
             </div>
 
             <div class="u-card u-my-4 u-p-4">
               <h3>🎯 Three-Tier Architecture</h3>
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
-                <div class="u-card u-p-3">
+              <section class="u-grid u-grid-auto-fit-250 u-gap-3" aria-label="Architecture tiers">
+                <article class="u-card u-p-3">
                   <strong>⚡ CSS Properties</strong>
                   <p>Zero JS overhead. Instant visual updates. Perfect for themes and styling coordination.</p>
-                </div>
-                <div class="u-card u-p-3">
+                </article>
+                <article class="u-card u-p-3">
                   <strong>📡 Pub/Sub State</strong>
                   <p>Business logic state. Topic-based subscriptions. Automatic cleanup and persistence.</p>
-                </div>
-                <div class="u-card u-p-3">
+                </article>
+                <article class="u-card u-p-3">
                   <strong>🔄 DOM Events</strong>
                   <p>Component communication. Structured payloads. Native browser optimization.</p>
-                </div>
-              </div>
+                </article>
+              </section>
             </div>
           `;
-          
+
         default: // "welcome"
           return `
             <h1>Welcome to ui-lib</h1>
@@ -223,9 +220,6 @@ defineComponent("app-layout", {
       <div
         class={containerClasses}
         style={containerStyles}
-        {...(themeVars
-          ? { dangerouslySetInnerHTML: { __html: themeVars } }
-          : {})}
         data-layout-theme={layoutTheme}
         data-responsive={isResponsive}
         role="application"

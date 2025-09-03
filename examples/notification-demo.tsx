@@ -24,14 +24,18 @@ defineComponent("notification-trigger", {
     // channelId reserved for future targeting; using global document listener now
 
     return (
-      <div class="u-card u-p-4">
+      <section class="u-card u-p-4" aria-label="DOM Event Communication">
         <h3>🔔 DOM Event Communication</h3>
         <p>
           Click buttons to send notifications via DOM events to other
           components:
         </p>
 
-        <div class="u-grid u-grid-auto-fit-250 u-gap-3 u-my-4">
+        <div
+          class="u-grid u-grid-auto-fit-250 u-gap-3 u-my-4"
+          role="group"
+          aria-label="Notification examples"
+        >
           <button
             type="button"
             class="btn btn-success"
@@ -97,7 +101,7 @@ defineComponent("notification-trigger", {
           📡 These buttons dispatch custom DOM events that notification
           components listen for. No direct coupling between components!
         </p>
-      </div>
+      </section>
     );
   },
 });
@@ -178,7 +182,7 @@ defineComponent("notification-display", {
       : 5;
 
     return (
-      <div
+      <section
         class={classes!.notificationContainer}
         data-max-notifications={max}
         data-class-notification={classes!.notification}
@@ -244,7 +248,7 @@ defineComponent("notification-display", {
           }}
         >
         </script>
-      </div>
+      </section>
     );
   },
 });

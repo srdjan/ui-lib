@@ -22,18 +22,22 @@ defineComponent("cart-manager", {
     const _store = typeof storeId === "string" ? storeId : "demo-store";
 
     return (
-      <div class="u-card u-p-4">
+      <section class="u-card u-p-4" aria-label="Pub/Sub State Manager">
         <h3>📡 Pub/Sub State Manager</h3>
         <p>
           Add items to your cart - other components will automatically update
           via state subscriptions:
         </p>
 
-        <div class="u-grid u-grid-auto-fit-250 u-gap-3 u-my-4">
-          <div class="u-card u-p-3 u-text-center">
-            <div>📱 Smartphone</div>
+        <ul class="u-grid u-grid-auto-fit-250 u-gap-3 u-my-4" role="list">
+          <li
+            class="u-card u-p-3 u-text-center"
+            aria-label="Smartphone product"
+          >
+            <h4>📱 Smartphone</h4>
             <div class="u-text-brand u-mb-3">$699</div>
             <button
+              aria-label="Add Smartphone to cart"
               type="button"
               class="btn btn-brand"
               onclick={createCartAction(
@@ -48,9 +52,9 @@ defineComponent("cart-manager", {
             >
               Add to Cart
             </button>
-          </div>
+          </li>
 
-          <div class="u-card u-p-3 u-text-center">
+          <li class="u-card u-p-3 u-text-center">
             <div>💻 Laptop</div>
             <div class="u-text-brand u-mb-3">$1299</div>
             <button
@@ -68,9 +72,9 @@ defineComponent("cart-manager", {
             >
               Add to Cart
             </button>
-          </div>
+          </li>
 
-          <div class="u-card u-p-3 u-text-center">
+          <li class="u-card u-p-3 u-text-center">
             <div>🎧 Headphones</div>
             <div class="u-text-brand u-mb-3">$199</div>
             <button
@@ -88,9 +92,9 @@ defineComponent("cart-manager", {
             >
               Add to Cart
             </button>
-          </div>
-        </div>
-      </div>
+          </li>
+        </ul>
+      </section>
     );
   },
 });

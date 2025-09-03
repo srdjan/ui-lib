@@ -27,7 +27,7 @@ import "./sidebar.tsx";
 // import "ui-lib/layout"; // Auto-registers all layout components
 //
 // <app-layout theme="system" responsive>
-//   <navbar position="top" style="primary">
+//   <navbar position="top" variant="primary">
 //     <navitem href="/" active>Home</navitem>
 //     <navitem href="/docs">Documentation</navitem>
 //   </navbar>
