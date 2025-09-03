@@ -240,6 +240,11 @@ export function defineComponent<TProps = Record<string, string>>(
         ? finalPropsTransformer(rawAttrs as Record<string, string>)
         : (rawAttrs as unknown as TProps);
 
+      // Preserve children passed from SSR tag processor
+      const children = (rawAttrs as Record<string, unknown>)["children"] as
+        | string
+        | undefined;
+
       // helper to inject reactive attrs (optional)
       const applyReactiveAttrs = (markup: string): string => {
         if (!reactive?.inject) return markup;
@@ -268,7 +273,7 @@ export function defineComponent<TProps = Record<string, string>>(
           if (reactive?.unmount) {
             lifecycleCode += `\n\n// Setup unmount observer\n`;
             lifecycleCode += `
-              if (typeof MutationObserver !== 'undefined') {
+              if (typeof MutationObserver !== 'undefined') {ui-lib
                 const observer = new MutationObserver((mutations) => {
                   mutations.forEach((mutation) => {
                     mutation.removedNodes.forEach((node) => {
@@ -316,16 +321,18 @@ export function defineComponent<TProps = Record<string, string>>(
         return markup.replace(firstTagMatch[0], enhancedTag);
       };
       const html = generatedApi
-        ? (render as (p: TProps, a: GeneratedApiMap, c?: ClassMap) => string)(
-          finalProps as TProps,
-          generatedApi,
-          classMap,
-        )
-        : (render as (p: TProps, a?: undefined, c?: ClassMap) => string)(
-          finalProps as TProps,
-          undefined,
-          classMap,
-        );
+        ? (render as (
+          p: TProps,
+          a: GeneratedApiMap,
+          c?: ClassMap,
+          ch?: string,
+        ) => string)(finalProps as TProps, generatedApi, classMap, children)
+        : (render as (
+          p: TProps,
+          a?: undefined,
+          c?: ClassMap,
+          ch?: string,
+        ) => string)(finalProps as TProps, undefined, classMap, children);
       // Inject reactive attrs only if present, then add data-component
       return injectDataComponent(applyReactiveAttrs(html), name);
     },

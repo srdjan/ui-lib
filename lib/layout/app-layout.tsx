@@ -1,20 +1,20 @@
 /** @jsx h */
-// funcwc App Layout Component - Root layout container with child content support
-import { defineComponent, h, boolean, string } from "../../index.ts";
+// ui-lib App Layout Component - Root layout container with child content support
+import { boolean, defineComponent, h, string } from "../../index.ts";
 import type { AppLayoutProps } from "./layout-types.ts";
 
 /**
  * 🎯 App Layout Component - Composable Root Layout Container
- * 
+ *
  * Modern, composable alternative to the monolithic layout component.
  * Supports child content for flexible composition:
- * 
+ *
  * <app-layout theme="system" responsive>
  *   <navbar>...</navbar>
  *   <main-content>...</main-content>
  *   <sidebar>...</sidebar>
  * </app-layout>
- * 
+ *
  * Features:
  * ✨ Function-style props with smart defaults
  * 🎨 CSS-only theming with custom properties
@@ -57,13 +57,13 @@ defineComponent("app-layout", {
     themeSystem: `{
       /* CSS custom properties will be set by theme controller */
     }`,
-    
+
     themeLight: `{
       --layout-bg: white;
       --layout-text: #333;
       --layout-accent: #007bff;
     }`,
-    
+
     themeDark: `{
       --layout-bg: #1a1a1a;
       --layout-text: #e0e0e0;
@@ -90,6 +90,7 @@ defineComponent("app-layout", {
       responsive = boolean(true), // Enable responsive behavior
       padding = string("0"), // Container padding
       maxWidth = string("none"), // Max width constraint
+      currentDemo = string("welcome"), // Current demo content to show
     },
     _api,
     classes,
@@ -99,46 +100,150 @@ defineComponent("app-layout", {
     const isResponsive = typeof responsive === "boolean" ? responsive : true;
     const containerPadding = typeof padding === "string" ? padding : "0";
     const containerMaxWidth = typeof maxWidth === "string" ? maxWidth : "none";
+    const demo = typeof currentDemo === "string" ? currentDemo : "welcome";
 
     // Generate dynamic CSS variables for theme
-    const themeVars = layoutTheme === "system" ? "" : `style="--layout-theme: ${layoutTheme};"`;
+    const themeVars = layoutTheme === "system"
+      ? ""
+      : `style="--layout-theme: ${layoutTheme};"`;
 
     const containerClasses = [
       classes!.container,
       isResponsive ? classes!.responsive : "",
-      layoutTheme !== "system" ? classes![`theme${layoutTheme.charAt(0).toUpperCase() + layoutTheme.slice(1)}`] : "",
+      layoutTheme !== "system"
+        ? classes![
+          `theme${layoutTheme.charAt(0).toUpperCase() + layoutTheme.slice(1)}`
+        ]
+        : "",
     ].filter(Boolean).join(" ");
 
     const containerStyles = [
       containerPadding !== "0" ? `padding: ${containerPadding};` : "",
-      containerMaxWidth !== "none" ? `max-width: ${containerMaxWidth}; margin: 0 auto;` : "",
+      containerMaxWidth !== "none"
+        ? `max-width: ${containerMaxWidth}; margin: 0 auto;`
+        : "",
     ].filter(Boolean).join(" ");
 
+    // Generate demo-specific content
+    const getDemoContent = (demoType: string): string => {
+      switch (demoType) {
+        case "basic":
+          return `
+            <h1>🧩 Basic Components Demo</h1>
+            <p>Explore function-style props, CSS-only format, and auto-generated class names</p>
+            
+            <div class="u-card u-my-4 u-p-4">
+              <h3>🎯 Interactive Demo: Counter Components</h3>
+              <p>These counters demonstrate <strong>pure JSX syntax</strong> with full TypeScript support!</p>
+              
+              <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin: 2rem 0;">
+                <demo-counter initial-count="5" step="1" max-value="10" label="Basic Counter"></demo-counter>
+                <demo-counter initial-count="0" step="2" max-value="20" min-value="-5" theme="green" label="Step by 2"></demo-counter>
+                <demo-counter initial-count="50" step="10" max-value="100" show-controls="true" theme="purple" label="Big Steps"></demo-counter>
+              </div>
+            </div>
+
+            <div class="u-card u-my-4 u-p-4">
+              <h3>✨ Function-Style Props</h3>
+              <p>Define props directly in render parameters with zero duplication. Types are automatically inferred from smart helpers like number(), string(), boolean().</p>
+            </div>
+
+            <div class="u-card u-my-4 u-p-4">
+              <h3>🎨 CSS-Only Format</h3>
+              <p>Write CSS properties, get auto-generated class names. No CSS-in-JS overhead. Classes are scoped and collision-free.</p>
+            </div>
+          `;
+          
+        case "reactive":
+          return `
+            <h1>⚡ Hybrid Reactivity System</h1>
+            <p>Interactive demos of funcwc's three-tier reactivity architecture</p>
+            
+            <div class="u-card u-my-4 u-p-4">
+              <h3>🚀 Interactive Reactivity Demos</h3>
+              <p>Explore funcwc's revolutionary three-tier hybrid reactivity system.</p>
+              
+              <div style="margin: 2rem 0;">
+                <theme-controller current-theme="blue"></theme-controller>
+              </div>
+              
+              <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin: 2rem 0;">
+                <cart-demo store-id="demo-store"></cart-demo>
+              </div>
+              
+              <div style="margin: 2rem 0;">
+                <notification-demo channel-id="notifications"></notification-demo>
+              </div>
+            </div>
+
+            <div class="u-card u-my-4 u-p-4">
+              <h3>🎯 Three-Tier Architecture</h3>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div class="u-card u-p-3">
+                  <strong>⚡ CSS Properties</strong>
+                  <p>Zero JS overhead. Instant visual updates. Perfect for themes and styling coordination.</p>
+                </div>
+                <div class="u-card u-p-3">
+                  <strong>📡 Pub/Sub State</strong>
+                  <p>Business logic state. Topic-based subscriptions. Automatic cleanup and persistence.</p>
+                </div>
+                <div class="u-card u-p-3">
+                  <strong>🔄 DOM Events</strong>
+                  <p>Component communication. Structured payloads. Native browser optimization.</p>
+                </div>
+              </div>
+            </div>
+          `;
+          
+        default: // "welcome"
+          return `
+            <h1>Welcome to ui-lib</h1>
+            <p>The revolutionary SSR-first component library with zero client dependencies, function-style props, and a three-tier hybrid reactivity system.</p>
+            
+            <div class="u-card u-p-4">
+              <h2>🎉 Composable Layout System Active!</h2>
+              <p>This page now uses the new composable layout components:</p>
+              <ul>
+                <li><code>&lt;app-layout&gt;</code> - Root container with theme support</li>
+                <li><code>&lt;navbar&gt;</code> - Navigation with responsive design</li>
+                <li><code>&lt;navitem&gt;</code> - Individual navigation items</li>
+                <li><code>&lt;main-content&gt;</code> - Content area wrapper</li>
+              </ul>
+              <p>Try the navigation links above to see HTMX in action!</p>
+            </div>
+          `;
+      }
+    };
+
     return (
-      <div 
+      <div
         class={containerClasses}
         style={containerStyles}
-        {...(themeVars ? { dangerouslySetInnerHTML: { __html: themeVars } } : {})}
+        {...(themeVars
+          ? { dangerouslySetInnerHTML: { __html: themeVars } }
+          : {})}
         data-layout-theme={layoutTheme}
         data-responsive={isResponsive}
         role="application"
         aria-label="Application layout"
+        dangerouslySetInnerHTML={{
+          __html: children || `
+            <!-- Default content if no children provided -->
+            <header class="${classes!.headerArea}">
+              <nav role="navigation">
+                <!-- Navigation will be injected here -->
+              </nav>
+            </header>
+            <main class="${classes!.mainArea}" role="main">
+              ${getDemoContent(demo)}
+            </main>
+          `,
+        }}
       >
-        {children || `
-          <!-- Default content if no children provided -->
-          <header class="${classes!.headerArea}">
-            <nav role="navigation">
-              <!-- Navigation will be injected here -->
-            </nav>
-          </header>
-          <main class="${classes!.mainArea}" role="main">
-            <!-- Main content will be injected here -->
-          </main>
-        `}
-
         {/* Inject state manager for theme switching */}
-        <script dangerouslySetInnerHTML={{
-          __html: `
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
             (function() {
               // Theme switching support
               const layout = document.currentScript.parentElement;
@@ -187,8 +292,9 @@ defineComponent("app-layout", {
                 resizeObserver.observe(layout);
               }
             })();
-          `
-        }}>
+          `,
+          }}
+        >
         </script>
       </div>
     );

@@ -1,11 +1,11 @@
 {
-  "name": "@funcwc/core",
+  "name": "@ui-lib/core",
   "version": "0.8.0",
   "description": "Ultra-lightweight, type-safe SSR components with DOM-native state management and hybrid reactivity",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/username/funcwc.git"
+    "url": "https://github.com/username/ui-lib.git"
   },
   "keywords": [
     "ssr",

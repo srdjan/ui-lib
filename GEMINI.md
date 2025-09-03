@@ -1,11 +1,11 @@
 # GEMINI Code Assistant Context
 
 This document provides context for the Gemini code assistant to understand the
-`funcwc` project.
+`ui-lib` project.
 
 ## Project Overview
 
-`funcwc` is a lightweight, functional programming library for building
+`ui-lib` is a lightweight, functional programming library for building
 server-side rendered (SSR) web components using Deno and TypeScript. It
 emphasizes an SSR-only approach, meaning no JavaScript is sent to the browser
 for component rendering. The library provides a simple and elegant API for
@@ -46,8 +46,7 @@ are defined in `deno.json`:
 - **TypeScript**: The entire codebase is written in TypeScript, with a focus on
   strong typing and type inference.
 - **File Structure**:
-  - `src/`: Contains the core library code.
-  - `src/lib/`: Contains the individual modules of the library.
+  - `lib/`: Contains the core library code.
   - `examples/`: Contains example usage of the library.
   - `deno.json`: Defines the project's tasks and dependencies.
   - `tsconfig.json`: Configures the TypeScript compiler.

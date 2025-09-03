@@ -1,8 +1,8 @@
-// funcwc State Manager - Pub/Sub system for complex application state
+// ui-lib State Manager - Pub/Sub system for complex application state
 // This file provides both the TypeScript interface and the JavaScript implementation
 
 /**
- * TypeScript interface for the funcwc State Manager
+ * TypeScript interface for the ui-lib State Manager
  * Use this for type checking in TypeScript components
  */
 export interface StateManager {
@@ -79,7 +79,7 @@ interface StateEntry {
  */
 export const createStateManagerScript = (): string => {
   return `
-// funcwc State Manager - Client-side pub/sub for component communication
+// ui-lib State Manager - Client-side pub/sub for component communication
 window.funcwcState = {
   // Internal state storage: Map<topic, StateEntry>
   _state: new Map(),

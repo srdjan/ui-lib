@@ -1,22 +1,22 @@
 /** @jsx h */
-// funcwc Navbar Component - Composable navigation container
-import { defineComponent, h, boolean, string } from "../../index.ts";
+// ui-lib Navbar Component - Composable navigation container
+import { boolean, defineComponent, h, string } from "../../index.ts";
 import type { NavbarProps } from "./layout-types.ts";
 
 /**
  * 🧭 Navbar Component - Composable Navigation Container
- * 
+ *
  * Modern navigation component that accepts navitem children:
- * 
+ *
  * <navbar position="top" style="primary" sticky>
  *   <navitem href="/" active>Home</navitem>
  *   <navitem href="/docs">Documentation</navitem>
  *   <navitem href="/about" badge="new">About</navitem>
  * </navbar>
- * 
+ *
  * Features:
  * ✨ Composable navitem children support
- * 🎨 Multiple visual styles and positions 
+ * 🎨 Multiple visual styles and positions
  * 📱 Mobile responsive with hamburger menu
  * ♿ Full accessibility with ARIA roles
  * 🔄 Auto-managed active states
@@ -28,6 +28,7 @@ defineComponent("navbar", {
   // CSS-Only Format - Auto-generated class names!
   styles: {
     navbar: `{
+      grid-area: header;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -47,14 +48,14 @@ defineComponent("navbar", {
       border-left: none;
       border-right: none;
     }`,
-    
+
     positionBottom: `{
       border-top: var(--navbar-border, 1px solid var(--surface-3));
       border-bottom: none;
       border-left: none;
       border-right: none;
     }`,
-    
+
     positionLeft: `{
       flex-direction: column;
       height: 100vh;
@@ -64,7 +65,7 @@ defineComponent("navbar", {
       border-bottom: none;
       border-left: none;
     }`,
-    
+
     positionRight: `{
       flex-direction: column;
       height: 100vh;
@@ -81,20 +82,20 @@ defineComponent("navbar", {
       --navbar-text: white;
       color: var(--navbar-text);
     }`,
-    
+
     styleSecondary: `{
       --navbar-bg: var(--gray-1);
       --navbar-text: var(--gray-9);
       color: var(--navbar-text);
     }`,
-    
+
     styleTransparent: `{
       --navbar-bg: transparent;
       --navbar-border: transparent;
       --navbar-shadow: none;
       backdrop-filter: blur(8px);
     }`,
-    
+
     styleAccent: `{
       --navbar-bg: var(--accent-5, var(--blue-5));
       --navbar-text: white;
@@ -141,10 +142,12 @@ defineComponent("navbar", {
       background: var(--navbar-toggle-bg, rgba(255, 255, 255, 0.1));
     }`,
 
-    // Mobile styles
-    '@media (max-width: 768px)': {
-      mobileToggle: `{ display: block; }`,
-      navItems: `{
+    // Mobile toggle - responsive display
+    mobileToggleResponsive: `@media (max-width: 768px) { .mobile-toggle { display: block; } }`,
+    
+    // Mobile nav items - hidden by default on mobile
+    navItemsMobile: `@media (max-width: 768px) { 
+      .nav-items {
         position: absolute;
         top: 100%;
         left: 0;
@@ -157,13 +160,15 @@ defineComponent("navbar", {
         opacity: 0;
         visibility: hidden;
         transition: all 0.3s ease;
-      }`,
-      navItemsOpen: `{
-        transform: translateY(0);
-        opacity: 1;
-        visibility: visible;
-      }`,
-    },
+      }
+    }`,
+    
+    // Mobile nav items - open state
+    navItemsOpen: `.nav-items-open {
+      transform: translateY(0) !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+    }`,
 
     // Orientation variants
     vertical: `{
@@ -195,11 +200,15 @@ defineComponent("navbar", {
     const navStyle = typeof style === "string" ? style : "primary";
     const isSticky = typeof sticky === "boolean" ? sticky : false;
     const isCollapsible = typeof collapsible === "boolean" ? collapsible : true;
-    const navOrientation = typeof orientation === "string" ? orientation : "horizontal";
+    const navOrientation = typeof orientation === "string"
+      ? orientation
+      : "horizontal";
 
     const navbarClasses = [
       classes!.navbar,
-      classes![`position${navPosition.charAt(0).toUpperCase() + navPosition.slice(1)}`],
+      classes![
+        `position${navPosition.charAt(0).toUpperCase() + navPosition.slice(1)}`
+      ],
       classes![`style${navStyle.charAt(0).toUpperCase() + navStyle.slice(1)}`],
       isSticky ? classes!.sticky : "",
       navOrientation === "vertical" ? classes!.vertical : "",
@@ -211,7 +220,7 @@ defineComponent("navbar", {
     ].filter(Boolean).join(" ");
 
     return (
-      <nav 
+      <nav
         class={navbarClasses}
         role="navigation"
         aria-label="Main navigation"
@@ -235,7 +244,9 @@ defineComponent("navbar", {
                 const isOpen = button.getAttribute('aria-expanded') === 'true';
                 
                 button.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
-                button.classList.toggle('${classes!.mobileToggleActive}', !isOpen);
+                button.classList.toggle('${
+                classes!.mobileToggleActive
+              }', !isOpen);
                 navItems.classList.toggle('${classes!.navItemsOpen}', !isOpen);
                 
                 // Announce state change for screen readers
@@ -254,22 +265,25 @@ defineComponent("navbar", {
           )}
 
           {/* Navigation items container */}
-          <ul 
+          <ul
             class={navItemsClasses}
             id="navbar-items"
             data-navbar-items="true"
+            dangerouslySetInnerHTML={{
+              __html: children || `
+                <!-- Default navigation items if no children provided -->
+                <li><a href="/" class="nav-link">Home</a></li>
+                <li><a href="/about" class="nav-link">About</a></li>
+              `,
+            }}
           >
-            {children || `
-              <!-- Default navigation items if no children provided -->
-              <li><a href="/" class="nav-link">Home</a></li>
-              <li><a href="/about" class="nav-link">About</a></li>
-            `}
           </ul>
         </div>
 
         {/* Auto-generated navigation behavior script */}
-        <script dangerouslySetInnerHTML={{
-          __html: `
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
             (function() {
               const navbar = document.currentScript.parentElement;
               if (!navbar) return;
@@ -325,8 +339,9 @@ defineComponent("navbar", {
                 }
               });
             })();
-          `
-        }}>
+          `,
+          }}
+        >
         </script>
       </nav>
     );

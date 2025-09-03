@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to funcwc will be documented in this file.
+All notable changes to ui-lib will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
@@ -120,7 +120,7 @@ deno task lint       # Lint code
 
 ```bash
 # Clone and run examples
-git clone <repository-url> && cd funcwc
+git clone <repository-url> && cd ui-lib
 deno task serve  # → http://localhost:8080
 ```
 

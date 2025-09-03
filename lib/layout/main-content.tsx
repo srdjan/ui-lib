@@ -1,18 +1,18 @@
 /** @jsx h */
-// funcwc MainContent Component - Main content area wrapper
-import { defineComponent, h, boolean, string } from "../../index.ts";
+// ui-lib MainContent Component - Main content area wrapper
+import { boolean, defineComponent, h, string } from "../../index.ts";
 import type { MainContentProps } from "./layout-types.ts";
 
 /**
  * 📄 MainContent Component - Content Area Wrapper
- * 
+ *
  * Semantic main content wrapper with responsive design:
- * 
+ *
  * <main-content padding="2rem" max-width="1200px" centered>
  *   <h1>Welcome to our app</h1>
  *   <p>This is the main content area...</p>
  * </main-content>
- * 
+ *
  * Features:
  * ✨ Semantic HTML with proper ARIA roles
  * 📱 Responsive padding and spacing
@@ -37,21 +37,19 @@ defineComponent("main-content", {
       position: relative;
       overflow: auto;
       transition: all 0.3s ease;
-      container-type: inline-size;
-    }`,
+    }
 
-    // Responsive padding adjustments
-    '@container (max-width: 768px)': {
-      mainContent: `{
+    @media (max-width: 768px) {
+      .main-content {
         --main-padding: var(--size-3);
-      }`,
-    },
+      }
+    }
 
-    '@container (max-width: 480px)': {
-      mainContent: `{
+    @media (max-width: 480px) {
+      .main-content {
         --main-padding: var(--size-2);
-      }`,
-    },
+      }
+    }`,
 
     // Centered variant
     centered: `{
@@ -98,7 +96,7 @@ defineComponent("main-content", {
       animation: spin 1s linear infinite;
     }`,
 
-    '@keyframes spin': `{
+    "@keyframes spin": `{
       to { transform: rotate(360deg); }
     }`,
 
@@ -114,7 +112,7 @@ defineComponent("main-content", {
       position: relative;
     }`,
 
-    'skipTarget::before': `{
+    "skipTarget::before": `{
       content: '';
       position: absolute;
       top: -1px;
@@ -136,7 +134,9 @@ defineComponent("main-content", {
     classes,
     children?: string,
   ) => {
-    const contentPadding = typeof padding === "string" ? padding : "var(--size-4)";
+    const contentPadding = typeof padding === "string"
+      ? padding
+      : "var(--size-4)";
     const contentMaxWidth = typeof maxWidth === "string" ? maxWidth : "none";
     const isCentered = typeof centered === "boolean" ? centered : false;
     const isScrollable = typeof scrollable === "boolean" ? scrollable : false;
@@ -148,12 +148,14 @@ defineComponent("main-content", {
     ].filter(Boolean).join(" ");
 
     const mainStyles = [
-      contentPadding !== "var(--size-4)" ? `--main-padding: ${contentPadding};` : "",
+      contentPadding !== "var(--size-4)"
+        ? `--main-padding: ${contentPadding};`
+        : "",
       contentMaxWidth !== "none" ? `--main-max-width: ${contentMaxWidth};` : "",
     ].filter(Boolean).join(" ");
 
     return (
-      <main 
+      <main
         class={mainClasses}
         style={mainStyles}
         role="main"
@@ -166,19 +168,24 @@ defineComponent("main-content", {
         {/* Skip link target for accessibility */}
         <div class={classes!.skipTarget}></div>
 
-        <div class={classes!.contentWrapper}>
-          {children || `
+        <div
+          class={classes!.contentWrapper}
+          dangerouslySetInnerHTML={{
+            __html: children || `
             <!-- Default content structure -->
             <section>
               <h1>Welcome</h1>
               <p>This is the main content area. Add your application content here.</p>
             </section>
-          `}
+          `,
+          }}
+        >
         </div>
 
         {/* Enhanced accessibility and interaction scripts */}
-        <script dangerouslySetInnerHTML={{
-          __html: `
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
             (function() {
               const main = document.currentScript.parentElement;
               if (!main) return;
@@ -209,7 +216,9 @@ defineComponent("main-content", {
                 loadingOverlay = document.createElement('div');
                 loadingOverlay.className = '${classes!.loadingOverlay}';
                 loadingOverlay.innerHTML = 
-                  '<div class="${classes!.loadingSpinner}" role="status" aria-label="Loading content"></div>';
+                  '<div class="${
+              classes!.loadingSpinner
+            }" role="status" aria-label="Loading content"></div>';
                 
                 main.appendChild(loadingOverlay);
                 
@@ -318,8 +327,9 @@ defineComponent("main-content", {
               // Also handle regular navigation
               window.addEventListener('popstate', handleSPANavigation);
             })();
-          `
-        }}>
+          `,
+          }}
+        >
         </script>
       </main>
     );

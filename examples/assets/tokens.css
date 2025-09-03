@@ -5,8 +5,14 @@
   --theme-mode: light;
 
   /* Map legacy demo vars to Open Props tokens */
-  --theme-bg: var(--surface-1);
-  --theme-text: var(--text-1);
+  --theme-bg: var(--gray-0);
+  --theme-text: var(--gray-9);
+
+  /* Create surface aliases for Open Props gray scale */
+  --surface-1: var(--gray-0);
+  --surface-2: var(--gray-1);
+  --surface-3: var(--gray-3);
+  --text-1: var(--gray-9);
 
   /* Brand accent (used for borders, titles, buttons) */
   --brand: var(--indigo-6);
@@ -32,6 +38,12 @@
 :root.dark {
   --theme-mode: dark;
   /* Force darker surfaces/text irrespective of system pref */
-  --theme-bg: var(--surface-9);
+  --theme-bg: var(--gray-9);
   --theme-text: var(--gray-1);
+  
+  /* Update surface aliases for dark mode */
+  --surface-1: var(--gray-9);
+  --surface-2: var(--gray-8);
+  --surface-3: var(--gray-7);
+  --text-1: var(--gray-1);
 }

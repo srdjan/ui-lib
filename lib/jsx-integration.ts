@@ -1,30 +1,32 @@
-// JSX Integration Helpers for funcwc Components
+// JSX Integration Helpers for ui-lib Components
 
 import { registerComponent } from "./registry.ts";
-import { 
-  extractPropTypes, 
-  registerComponentTypes, 
+import {
+  extractPropTypes,
   generateAllComponentTypes,
-  validateComponentProps 
+  registerComponentTypes,
+  validateComponentProps,
 } from "./jsx-component-types.ts";
 import type { SSRRegistryEntry } from "./registry.ts";
 
 // Enhanced component registration that includes JSX type generation
 export function registerComponentWithJSX(
-  name: string, 
-  entry: SSRRegistryEntry
+  name: string,
+  entry: SSRRegistryEntry,
 ): void {
   // Register component normally
   registerComponent(name, entry);
-  
+
   // Extract and register prop types for JSX
   if (entry.render) {
     const propTypes = extractPropTypes(entry.render);
     registerComponentTypes(name, propTypes);
   }
-  
+
   // Optionally update TypeScript declarations (for development)
-  if (typeof Deno !== "undefined" && Deno.env.get("NODE_ENV") === "development") {
+  if (
+    typeof Deno !== "undefined" && Deno.env.get("NODE_ENV") === "development"
+  ) {
     updateTypeDeclarations();
   }
 }
@@ -33,11 +35,11 @@ export function registerComponentWithJSX(
 async function updateTypeDeclarations(): Promise<void> {
   try {
     const typeDefinitions = generateAllComponentTypes();
-    
+
     // Write to a generated types file
     const typesPath = "./lib/jsx-component-types.generated.ts";
     await Deno.writeTextFile(typesPath, typeDefinitions);
-    
+
     console.log(`📝 Updated JSX component types: ${typesPath}`);
   } catch (error) {
     console.warn("Failed to update JSX type declarations:", error);
@@ -47,7 +49,7 @@ async function updateTypeDeclarations(): Promise<void> {
 // Development helper to generate type definitions file
 export async function generateJSXTypes(outputPath?: string): Promise<string> {
   const typeDefinitions = generateAllComponentTypes();
-  
+
   if (outputPath) {
     try {
       await Deno.writeTextFile(outputPath, typeDefinitions);
@@ -56,35 +58,37 @@ export async function generateJSXTypes(outputPath?: string): Promise<string> {
       console.error(`❌ Failed to write JSX types to ${outputPath}:`, error);
     }
   }
-  
+
   return typeDefinitions;
 }
 
 // Runtime prop validation helper
 export function validateJSXProps(
   componentName: string,
-  props: Record<string, unknown>
+  props: Record<string, unknown>,
 ): void {
   const validation = validateComponentProps(componentName, props);
-  
+
   if (!validation.valid) {
     console.warn(
       `⚠️  JSX prop validation failed for <${componentName}>:`,
-      validation.errors
+      validation.errors,
     );
   }
 }
 
 // JSX prop conversion utilities
-export function jsxPropsToAttributes(props: Record<string, unknown>): Record<string, string> {
+export function jsxPropsToAttributes(
+  props: Record<string, unknown>,
+): Record<string, string> {
   const attributes: Record<string, string> = {};
-  
+
   for (const [key, value] of Object.entries(props)) {
     if (key === "children") continue;
-    
+
     // Convert camelCase to kebab-case
     const attrName = key.replace(/([A-Z])/g, "-$1").toLowerCase();
-    
+
     // Convert values to HTML attribute format
     if (value === true) {
       attributes[attrName] = "";
@@ -98,18 +102,23 @@ export function jsxPropsToAttributes(props: Record<string, unknown>): Record<str
       attributes[attrName] = String(value);
     }
   }
-  
+
   return attributes;
 }
 
 // Helper to convert HTML attributes back to JSX props (for testing/debugging)
-export function attributesToJSXProps(attributes: Record<string, string>): Record<string, unknown> {
+export function attributesToJSXProps(
+  attributes: Record<string, string>,
+): Record<string, unknown> {
   const props: Record<string, unknown> = {};
-  
+
   for (const [key, value] of Object.entries(attributes)) {
     // Convert kebab-case to camelCase
-    const propName = key.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
-    
+    const propName = key.replace(
+      /-([a-z])/g,
+      (_, letter) => letter.toUpperCase(),
+    );
+
     // Try to parse the value appropriately
     if (value === "") {
       props[propName] = true;
@@ -128,7 +137,7 @@ export function attributesToJSXProps(attributes: Record<string, string>): Record
       }
     }
   }
-  
+
   return props;
 }
 
@@ -140,23 +149,25 @@ export function inspectComponentProps(componentName: string): void {
 
 // Helper to create JSX-friendly component wrappers
 export function createJSXWrapper<T extends Record<string, unknown>>(
-  componentName: string
+  componentName: string,
 ): (props: T & { children?: string }) => string {
   return (props: T & { children?: string }) => {
     const { children, ...componentProps } = props;
-    
+
     // Validate props in development
-    if (typeof Deno !== "undefined" && Deno.env.get("NODE_ENV") === "development") {
+    if (
+      typeof Deno !== "undefined" && Deno.env.get("NODE_ENV") === "development"
+    ) {
       validateJSXProps(componentName, componentProps);
     }
-    
-    // Convert JSX props to funcwc format
+
+    // Convert JSX props to ui-lib format
     const funcwcProps = jsxPropsToAttributes(componentProps);
-    
+
     if (children) {
       funcwcProps.children = children;
     }
-    
+
     // Use the JSX runtime which will detect the component and use renderComponent
     return `<${componentName} ${
       Object.entries(funcwcProps)
@@ -168,13 +179,17 @@ export function createJSXWrapper<T extends Record<string, unknown>>(
 
 // Batch register multiple components with JSX support
 export function registerComponentBatch(
-  components: Record<string, SSRRegistryEntry>
+  components: Record<string, SSRRegistryEntry>,
 ): void {
   for (const [name, entry] of Object.entries(components)) {
     registerComponentWithJSX(name, entry);
   }
-  
-  console.log(`✅ Registered ${Object.keys(components).length} components with JSX support`);
+
+  console.log(
+    `✅ Registered ${
+      Object.keys(components).length
+    } components with JSX support`,
+  );
 }
 
 // Export utility for development setup

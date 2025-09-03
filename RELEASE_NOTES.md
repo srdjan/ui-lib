@@ -1,4 +1,4 @@
-# funcwc v0.5.0 — Function-Style Props and CSS-Only Styles
+# ui-lib v0.5.0 — Function-Style Props and CSS-Only Styles
 
 Release date: 2025-08-26
 
@@ -40,7 +40,7 @@ Release date: 2025-08-26
 
 ---
 
-# funcwc v0.4.0 — Production-Ready: Enhanced Developer Experience & Performance
+# ui-lib v0.4.0 — Production-Ready: Enhanced Developer Experience & Performance
 
 Release date: 2025-08-25
 
@@ -109,7 +109,7 @@ Release date: 2025-08-25
 
 ---
 
-# funcwc v0.1.0 — TSX authoring, lean core, example helpers extracted
+# ui-lib v0.1.0 — TSX authoring, lean core, example helpers extracted
 
 Release date: 2025-08-25
 
@@ -144,11 +144,11 @@ Release date: 2025-08-25
 - Changelog: CHANGELOG.md
 - Authoring: docs/AUTHORING.md
 
-# funcwc v0.5.0 — Function-Style Props and CSS-Only Styles
+# ui-lib v0.5.0 — Function-Style Props and CSS-Only Styles
 
 Release date: 2025-08-26
 
-## funcwc v0.8.0 — Logging Guard, Coverage Hardening, Polish
+## ui-lib v0.8.0 — Logging Guard, Coverage Hardening, Polish
 
 Release date: 2025-09-02
 

@@ -198,7 +198,7 @@ defineComponent("notification-display", {
           (function(){
             if (document.__funcwcNotifyBound) return;
             document.__funcwcNotifyBound = true;
-            document.addEventListener('funcwc:show-notification', function(e) {
+            document.addEventListener('ui-lib:show-notification', function(e) {
               try {
                 var detail = e.detail || {};
                 var containers = document.querySelectorAll('[data-component="notification-display"]');

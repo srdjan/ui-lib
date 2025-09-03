@@ -71,7 +71,7 @@ Deno.test("debugReactiveState includes optional sections", () => {
 });
 
 Deno.test("hxOn and on format multiple events on new lines", () => {
-  const body = hxOn({ "htmx:load": "init()", "funcwc:open": "noop()" });
+  const body = hxOn({ "htmx:load": "init()", "ui-lib:open": "noop()" });
   assertStringIncludes(body, "htmx:load: init()\nfuncwc:open: noop()");
   const attr = on({ click: "x()", change: "y()" });
   assertMatch(attr, /hx-on=\"click: x\(\)\nchange: y\(\)\"/);

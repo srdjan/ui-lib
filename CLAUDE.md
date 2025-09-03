@@ -5,7 +5,7 @@ code in this repository.
 
 ## Project Overview
 
-**funcwc** is a revolutionary, ultra-lightweight library for building
+**ui-lib** is a revolutionary, ultra-lightweight library for building
 **SSR-first components** with TypeScript/Deno. It features **function-style
 props** (zero duplication), **CSS-only format** (auto-generated class names),
 the **Unified API System** (HTMX attributes auto-generated from server routes),
@@ -69,7 +69,7 @@ deno test lib/result.test.ts
 deno test --watch
 
 # Generate docs for API reference
-deno doc index.ts --html --name="funcwc" --output=./docs/
+deno doc index.ts --html --name="ui-lib" --output=./docs/
 ```
 
 ## Core Architecture
@@ -303,7 +303,7 @@ defineComponent("todo-item", {
 
 ### DOM-Native State Management
 
-Instead of JavaScript state objects, funcwc uses the DOM:
+Instead of JavaScript state objects, ui-lib uses the DOM:
 
 - **CSS Classes** → UI states (`active`, `open`, `loading`)
 - **Data Attributes** → Component data (`data-count="5"`)
@@ -573,7 +573,7 @@ defineComponent("smart-counter", {
 .counter.disabled { opacity: 0.5; pointer-events: none; }
 ```
 
-**Evolution Summary:** funcwc has evolved through three major ergonomic
+**Evolution Summary:** ui-lib has evolved through three major ergonomic
 improvements:
 
 1. **🔧 defineComponent API**: Clean object-based configuration
@@ -586,7 +586,7 @@ syntax, maximum power, zero runtime overhead.
 
 ## Hybrid Reactivity System
 
-funcwc features a revolutionary **three-tier hybrid reactivity system** that
+ui-lib features a revolutionary **three-tier hybrid reactivity system** that
 enables component communication while maintaining the DOM-native philosophy.
 Each tier is optimized for different use cases:
 

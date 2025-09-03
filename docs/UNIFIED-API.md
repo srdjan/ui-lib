@@ -1,8 +1,8 @@
-# funcwc's Unified API System
+# ui-lib's Unified API System
 
-The `.api()` method is funcwc's revolutionary unified API system that eliminates
+The `.api()` method is ui-lib's revolutionary unified API system that eliminates
 duplication between server route definitions and client-side HTMX attributes.
-Define your API endpoints once, and funcwc automatically generates type-safe
+Define your API endpoints once, and ui-lib automatically generates type-safe
 client functions.
 
 ## How It Works
@@ -100,7 +100,7 @@ defineComponent("todo-item", {
 
 ### 2. **Auto-Generated Client Functions**
 
-funcwc analyzes your routes and creates client functions automatically:
+ui-lib analyzes your routes and creates client functions automatically:
 
 | Server Route Definition                   | Generated Function | What It Returns                                                                                            |
 | ----------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------- |
@@ -111,7 +111,7 @@ funcwc analyzes your routes and creates client functions automatically:
 
 Defaults and overrides
 
-- For non-GET requests, funcwc defaults to `hx-swap="outerHTML"` and
+- For non-GET requests, ui-lib defaults to `hx-swap="outerHTML"` and
   `hx-target="closest [data-component]"`.
 - Components render with `data-component="<name>"` on the root element to make
   scoping trivial.
@@ -479,7 +479,7 @@ defineComponent("task-list", {
 
 ### Route Registration
 
-When you define an `api` object, funcwc automatically:
+When you define an `api` object, ui-lib automatically:
 
 1. **Registers server routes** with the internal router
 2. **Generates client functions** based on HTTP method and path
@@ -514,7 +514,7 @@ Generated functions return objects with HTMX attributes:
 
 ### Smart Targeting
 
-funcwc uses intelligent defaults for HTMX targeting:
+ui-lib uses intelligent defaults for HTMX targeting:
 
 - **`closest .component-class`** - Updates the entire component
 - **`this`** - Updates just the triggering element (for inputs)
@@ -596,7 +596,7 @@ api: {
 }
 ```
 
-This system makes funcwc incredibly productive for building HTMX-powered
+This system makes ui-lib incredibly productive for building HTMX-powered
 applications while maintaining the benefits of server-side rendering and
 DOM-native state management!
 
@@ -651,7 +651,7 @@ See also: AUTHORING.md → “Typing function‑style props in TypeScript”.
 
 ## JSON-in, HTML-out (standard)
 
-funcwc standardizes on JSON requests for all htmx interactions, while responses
+ui-lib standardizes on JSON requests for all htmx interactions, while responses
 are server-rendered HTML for swapping. The Unified API helpers:
 
 - include `hx-ext="json-enc"` and `hx-encoding="json"`

@@ -1,17 +1,17 @@
 /** @jsx h */
-// funcwc NavItem Component - Individual navigation item
-import { defineComponent, h, boolean, string, get } from "../../index.ts";
+// ui-lib NavItem Component - Individual navigation item
+import { boolean, defineComponent, get, h, string } from "../../index.ts";
 import type { NavItemProps } from "./layout-types.ts";
 
 /**
  * 🔗 NavItem Component - Individual Navigation Item
- * 
+ *
  * Navigation item component designed to work within navbar:
- * 
+ *
  * <navitem href="/docs" active>Documentation</navitem>
  * <navitem href="/about" badge="new" icon="🏢">About</navitem>
  * <navitem href="/contact" disabled>Contact</navitem>
- * 
+ *
  * Features:
  * ✨ Smart active state management
  * 🎨 Visual states (active, disabled, loading)
@@ -24,17 +24,7 @@ import type { NavItemProps } from "./layout-types.ts";
 defineComponent("navitem", {
   autoProps: true,
 
-  // Unified API System - Auto-generate HTMX for navigation
-  api: {
-    navigate: get("/:path*", async (req, params) => {
-      const path = params.path || "/";
-      // In a real app, this would return the appropriate page content
-      // For now, just return a simple response
-      return new Response(`Navigating to: ${path}`, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }),
-  },
+  // No API needed - using direct HTMX navigation
 
   // CSS-Only Format - Auto-generated class names!
   styles: {
@@ -135,7 +125,7 @@ defineComponent("navitem", {
       animation: loading-slide 1.5s infinite;
     }`,
 
-    '@keyframes loading-slide': `{
+    "@keyframes loading-slide": `{
       0% { transform: translateX(-100%); }
       100% { transform: translateX(100%); }
     }`,
@@ -162,7 +152,7 @@ defineComponent("navitem", {
       icon = string(""), // Icon (emoji or text)
       target = string(""), // Link target (_blank, _self, etc.)
     },
-    api: any,
+    _api,
     classes: any,
     children?: string,
   ) => {
@@ -179,17 +169,30 @@ defineComponent("navitem", {
       isDisabled ? classes!.linkDisabled : "",
     ].filter(Boolean).join(" ");
 
-    // Generate HTMX attributes for SPA navigation (if no external target)
-    const htmxAttrs = (!linkTarget || linkTarget === "_self") && !isDisabled
-      ? api.navigate(itemHref.replace(/^\//, ""), {
-          target: "main[role='main'], #content-area, .main-content",
-          swap: "innerHTML",
-          pushUrl: itemHref,
-        })
-      : {};
+    // Generate HTMX attributes for SPA navigation to demo endpoints
+    const getHtmxAttrs = () => {
+      if (isDisabled || (linkTarget && linkTarget !== "_self")) return {};
+      
+      // Extract demo parameter from href (e.g., "/?demo=basic" -> "basic")
+      const url = new URL(itemHref, "http://localhost");
+      const demo = url.searchParams.get("demo");
+      
+      if (demo && ["welcome", "basic", "reactive"].includes(demo)) {
+        return {
+          "hx-get": `/demo/${demo}`,
+          "hx-target": "#demo-content",
+          "hx-swap": "innerHTML",
+          "hx-push-url": itemHref,
+        };
+      }
+      
+      return {};
+    };
+    
+    const htmxAttrs = getHtmxAttrs();
 
     return (
-      <li 
+      <li
         class={classes!.navItem}
         data-nav-item="true"
         data-nav-active={isActive}
@@ -212,7 +215,7 @@ defineComponent("navitem", {
         >
           <span class={classes!.content}>
             {iconText && (
-              <span 
+              <span
                 class={classes!.icon}
                 aria-hidden="true"
                 role="img"
@@ -228,7 +231,7 @@ defineComponent("navitem", {
 
           {/* Badge */}
           {badgeText && (
-            <span 
+            <span
               class={classes!.badge}
               role="status"
               aria-label={`${badgeText} notification`}
@@ -239,8 +242,9 @@ defineComponent("navitem", {
         </a>
 
         {/* Loading indicator for async navigation */}
-        <script dangerouslySetInnerHTML={{
-          __html: `
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
             (function() {
               const navItem = document.currentScript.parentElement;
               const link = navItem.querySelector('a');
@@ -264,7 +268,9 @@ defineComponent("navitem", {
                   this.classList.remove('${classes!.loading}');
                   
                   // Remove loading indicator
-                  const indicator = this.querySelector('.${classes!.loadingIndicator}');
+                  const indicator = this.querySelector('.${
+              classes!.loadingIndicator
+            }');
                   if (indicator) indicator.remove();
                   
                   // Clear loading state
@@ -304,8 +310,9 @@ defineComponent("navitem", {
                 document.body.addEventListener('htmx:pushedIntoHistory', updateActiveState);
               }
             })();
-          `
-        }}>
+          `,
+          }}
+        >
         </script>
       </li>
     );

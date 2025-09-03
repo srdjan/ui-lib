@@ -1,4 +1,4 @@
-# funcwc - DOM-Native SSR Components
+# ui-lib - DOM-Native SSR Components
 
 [![Deno](https://img.shields.io/badge/deno-2.0+-black?logo=deno&logoColor=white)](https://deno.land/)
 [![TypeScript](https://img.shields.io/badge/typescript-5.0+-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -7,7 +7,7 @@
 **Ultra-lightweight, type-safe SSR components with DOM-native state management
 and hybrid reactivity.**
 
-Built for Deno + TypeScript with an SSR-first approach using HTMX, funcwc takes
+Built for Deno + TypeScript with an SSR-first approach using HTMX, ui-lib takes
 a fresh approach to state management: **the DOM _is_ the state**. No JavaScript
 state objects, no synchronization overhead, just pure DOM manipulation with the
 great ergonomic developer experience.
@@ -27,7 +27,7 @@ great ergonomic developer experience.
   - Typed `ApiClientOptions` for client overrides
   - Prefer `remove()` helper (alias of `del`) in docs and examples
 
-## 🌟 What Makes funcwc Special?
+## 🌟 What Makes ui-lib Special?
 
 - **🎯 DOM-Native Philosophy**: Your component state lives where it belongs - in
   the DOM
@@ -110,7 +110,7 @@ defineComponent("beautiful-card", {
 
 ## ⚡ Hybrid Reactivity System
 
-funcwc features a **three-tier hybrid reactivity system** that enables powerful
+ui-lib features a **three-tier hybrid reactivity system** that enables powerful
 component communication while maintaining the DOM-native philosophy. Each tier
 is optimized for different use cases and performance characteristics:
 
@@ -146,13 +146,13 @@ defineComponent("themed-card", {
 
 ```tsx
 // Publisher - shopping cart updates
-window.funcwc.publishState("cart", {
+window.ui - lib.publishState("cart", {
   count: items.length,
   total: calculateTotal(items),
 });
 
 // Subscriber - cart badge automatically updates
-window.funcwc.subscribeToState("cart", function (cartData) {
+window.ui - lib.subscribeToState("cart", function (cartData) {
   badge.querySelector(".count").textContent = cartData.count;
   badge.querySelector(".total").textContent = "$" + cartData.total.toFixed(2);
 });
@@ -167,7 +167,7 @@ window.funcwc.subscribeToState("cart", function (cartData) {
 ```tsx
 // Event dispatcher - notification trigger
 <button onclick="
-  document.dispatchEvent(new CustomEvent('funcwc:show-notification', {
+  document.dispatchEvent(new CustomEvent('ui-lib:show-notification', {
     bubbles: true,
     detail: { type: 'success', message: 'Operation completed!' }
   }))
@@ -176,7 +176,7 @@ window.funcwc.subscribeToState("cart", function (cartData) {
 </button>;
 
 // Event listener - notification display
-document.addEventListener("funcwc:show-notification", (event) => {
+document.addEventListener("ui-lib:show-notification", (event) => {
   showNotification(event.detail.type, event.detail.message);
 });
 ```
@@ -192,13 +192,13 @@ document.addEventListener("funcwc:show-notification", (event) => {
 
 ```bash
 # Clone and run examples
-git clone <repository-url> && cd funcwc
+git clone <repository-url> && cd ui-lib
 deno task serve  # → http://localhost:8080
 ```
 
 ## 🎯 Philosophy: DOM as State
 
-Instead of managing JavaScript state objects, funcwc uses the DOM itself:
+Instead of managing JavaScript state objects, ui-lib uses the DOM itself:
 
 - **CSS Classes** → UI states (`active`, `open`, `loading`)
 - **Data Attributes** → Component data (`data-count="5"`)

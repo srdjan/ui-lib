@@ -29,7 +29,7 @@
     `stateSubscriptions`.
 - DOM Events: component messaging (namespaced).
   - Dispatch: `onclick={dispatchEvent("open-modal", { id })}` → emits
-    `funcwc:open-modal`.
+    `ui-lib:open-modal`.
   - Listen: `eventListeners: { "open-modal": "/* use event.detail */ ..." }`.
 
 ### Unified API + HTMX
@@ -48,7 +48,7 @@
 ### Common Patterns
 
 - Notifications: `onclick={createNotification("Saved!","success",2500)}`;
-  display listens for `funcwc:show-notification`.
+  display listens for `ui-lib:show-notification`.
 - Badges: subscribe to `"cart"` and update `.cart-count`/`.cart-total`.
 - Class toggles: `onclick={toggleClass("active")}`.
 

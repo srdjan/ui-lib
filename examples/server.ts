@@ -1,10 +1,8 @@
-// Development server for funcwc examples
+// Development server for ui-lib examples
 import { injectStateManager, renderComponent } from "../index.ts";
 import { runWithRequestHeadersAsync } from "../lib/request-headers.ts";
-import { render } from "./layout.tsx";
 
-// Import components to register them
-import "./layout.tsx";
+// Import demo components to register them (layout components load via index.ts)
 import "./demo-counter.tsx";
 import "./theme-controller.tsx";
 import "./cart-demo.tsx";
@@ -113,8 +111,9 @@ async function handler(request: Request): Promise<Response> {
       if (["welcome", "basic", "reactive"].includes(demoType)) {
         // Cache partial content per demo based on layout mtime
         let layoutMtime: number | undefined;
+        // Track layout changes using the library's app-layout file mtime
         try {
-          const st = await Deno.stat("./layout.tsx");
+          const st = await Deno.stat("../lib/layout/app-layout.tsx");
           layoutMtime = st.mtime?.getTime();
         } catch (_) {
           // ignore
@@ -142,9 +141,6 @@ async function handler(request: Request): Promise<Response> {
             if (styleMatches) {
               stylesContent = styleMatches.join("");
             }
-          } else {
-            // As a fallback, render using the helper (without styles)
-            content = render(demoType, {});
           }
           // Process any nested component tags in the content only (no additional <style> tags)
           const processed = await processComponentTags(content);
@@ -185,10 +181,11 @@ async function processComponentTags(
 ): Promise<string> {
   let processedHtml = html;
 
-  // Find all custom component tags with content (kebab-case tags only)
-  // This regex matches opening tags and captures everything until the matching closing tag
-  // Only matches tags that contain at least one dash (kebab-case)
-  const componentTagRegex = /<([a-z][a-z0-9]*-[a-z0-9-]*)([^>\/]*?)>([\s\S]*?)<\/\1>|<([a-z][a-z0-9]*-[a-z0-9-]*)([^>\/]*?)\/>/g;
+  // Find all custom component tags with content
+  // This regex matches both kebab-case components and known single-word component names
+  const knownComponents = ['navbar', 'navitem', 'sidebar', 'app-layout', 'main-content'];
+  const componentPattern = knownComponents.join('|');
+  const componentTagRegex = new RegExp(`<(${componentPattern})([^>]*?)>([\\s\\S]*?)<\\/\\1>|<(${componentPattern})([^>]*?)\\/>`,'g');
 
   let match;
   while ((match = componentTagRegex.exec(html)) !== null) {
@@ -200,6 +197,12 @@ async function processComponentTags(
     const actualChildren = children || "";
 
     try {
+      // Check if this is actually a registered component
+      const registry = (globalThis as any).__FWC_SSR__;
+      if (!registry || !registry[actualTagName]) {
+        continue; // Skip this tag, it's not a registered component
+      }
+
       // Parse attributes into props object
       const props = parseAttributes(actualAttributes);
 

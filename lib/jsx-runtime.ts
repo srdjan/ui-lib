@@ -1,4 +1,4 @@
-// JSX Runtime: Direct-to-String Renderer with Type-Safe Event Handling and funcwc Component Support
+// JSX Runtime: Direct-to-String Renderer with Type-Safe Event Handling and ui-lib Component Support
 
 import type { ComponentAction } from "./actions.ts";
 import { escape } from "./dom-helpers.ts";
@@ -25,22 +25,24 @@ const SELF_CLOSING_TAGS = new Set([
 // Type-safe event handler that can accept ComponentAction directly
 type EventHandler = ComponentAction | string;
 
-// Helper function to detect if a tag is a funcwc component (kebab-case)
+// Helper function to detect if a tag is a ui-lib component (kebab-case)
 function isKebabCase(tag: string): boolean {
   return tag.includes("-") && tag === tag.toLowerCase();
 }
 
-// Helper function to convert JSX props to funcwc props format
-function convertJSXPropsToFuncwcProps(props: Record<string, unknown>): Record<string, unknown> {
+// Helper function to convert JSX props to ui-lib props format
+function convertJSXPropsToFuncwcProps(
+  props: Record<string, unknown>,
+): Record<string, unknown> {
   const converted: Record<string, unknown> = {};
-  
+
   for (const [key, value] of Object.entries(props)) {
     if (key === "children") continue;
-    
+
     // Convert camelCase to kebab-case for attribute names
     const kebabKey = key.replace(/([A-Z])/g, "-$1").toLowerCase();
-    
-    // Convert values to strings as funcwc expects from HTML attributes
+
+    // Convert values to strings as ui-lib expects from HTML attributes
     if (value === true) {
       converted[kebabKey] = "";
     } else if (value === false || value == null) {
@@ -50,7 +52,7 @@ function convertJSXPropsToFuncwcProps(props: Record<string, unknown>): Record<st
       converted[kebabKey] = String(value);
     }
   }
-  
+
   return converted;
 }
 
@@ -81,26 +83,26 @@ export function h(
     return fn({ ...props, children });
   }
 
-  // Check if this is a funcwc component (kebab-case tag name)
+  // Check if this is a ui-lib component (kebab-case tag name)
   if (typeof tag === "string" && isKebabCase(tag)) {
     const registry = getRegistry();
-    
+
     if (registry[tag]) {
       // During component rendering, don't auto-render nested components
       // Let them be processed by the server's component tag processing instead
       // This prevents infinite recursion during JSX processing
       const funcwcProps = convertJSXPropsToFuncwcProps(props);
-      
+
       // Handle children by converting them to a string for the HTML tag
       let childrenHtml = "";
       if (children.length > 0) {
         childrenHtml = children
           .flat(Infinity)
-          .filter(child => child != null && typeof child !== "boolean")
-          .map(child => String(child))
+          .filter((child) => child != null && typeof child !== "boolean")
+          .map((child) => String(child))
           .join("");
       }
-      
+
       // Convert props to HTML attributes
       let attributes = "";
       for (const [key, value] of Object.entries(funcwcProps)) {
@@ -111,7 +113,7 @@ export function h(
           attributes += ` ${key}="${escape(String(value))}"`;
         }
       }
-      
+
       // Return the raw HTML tag - let the server process it later
       if (childrenHtml) {
         return `<${tag}${attributes}>${childrenHtml}</${tag}>`;

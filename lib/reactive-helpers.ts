@@ -1,4 +1,4 @@
-// Reactive helper functions for funcwc components
+// Reactive helper functions for ui-lib components
 // Supports three types of reactivity: CSS properties, Pub/Sub state, and DOM events
 
 /**
@@ -100,7 +100,7 @@ export const getState = (topic: string): string => {
 
 /**
  * Generate inline JavaScript to dispatch a custom event
- * @param eventName - Event name (will be prefixed with 'funcwc:')
+ * @param eventName - Event name (will be prefixed with 'ui-lib:')
  * @param data - Event data payload (optional)
  * @param target - Where to dispatch the event ('self', 'parent', 'document')
  */
@@ -117,12 +117,12 @@ export const dispatchEvent = (
 
   const eventData = data ? `, { detail: ${JSON.stringify(data)} }` : "";
 
-  return `${targetElement}.dispatchEvent(new CustomEvent('funcwc:${eventName}'${eventData}))`;
+  return `${targetElement}.dispatchEvent(new CustomEvent('ui-lib:${eventName}'${eventData}))`;
 };
 
 /**
  * Build an hx-on aggregator string from a map of events → code
- * Example: hxOn({ 'htmx:load': 'init()', 'funcwc:open': '...' })
+ * Example: hxOn({ 'htmx:load': 'init()', 'ui-lib:open': '...' })
  */
 export const hxOn = (events: Record<string, string>): string => {
   return Object.entries(events)
@@ -132,7 +132,7 @@ export const hxOn = (events: Record<string, string>): string => {
 
 /**
  * Generate a consolidated hx-on attribute from a map of events → code.
- * Example: on({ 'htmx:load': 'init()', 'funcwc:open': '...' })
+ * Example: on({ 'htmx:load': 'init()', 'ui-lib:open': '...' })
  * Returns: hx-on="htmx:load: init()\nfuncwc:open: ..."
  */
 export const on = (events: Record<string, string>): string => {
@@ -142,13 +142,13 @@ export const on = (events: Record<string, string>): string => {
 
 /**
  * Generate HTMX attribute for listening to custom events
- * @param eventName - Event name (will be prefixed with 'funcwc:')
+ * @param eventName - Event name (will be prefixed with 'ui-lib:')
  * @param handler - JavaScript code to execute when event is received
  */
 export const listensFor = (eventName: string, handler: string): string => {
   // Prefer consolidated hx-on attribute to avoid JSX parser issues with colons in names
   const safe = handler.replace(/"/g, "&quot;");
-  return `hx-on="funcwc:${eventName}: ${safe}"`;
+  return `hx-on="ui-lib:${eventName}: ${safe}"`;
 };
 
 /**
@@ -188,7 +188,7 @@ export const conditionalAction = (
 export const safeExecute = (code: string, errorHandler?: string): string => {
   const errorClause = errorHandler
     ? ` catch (error) { ${errorHandler} }`
-    : " catch (error) { console.warn('funcwc reactive action failed:', error); }";
+    : " catch (error) { console.warn('ui-lib reactive action failed:', error); }";
   return `try { ${code} }${errorClause}`;
 };
 
@@ -207,7 +207,7 @@ export const debugReactiveState = (
   includeCSS = true,
   includeState = true,
 ): string => {
-  let code = `console.group('🔄 funcwc Reactive Debug: ${label}');`;
+  let code = `console.group('🔄 ui-lib Reactive Debug: ${label}');`;
 
   if (includeCSS) {
     code += `

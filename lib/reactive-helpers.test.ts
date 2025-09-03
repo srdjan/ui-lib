@@ -32,19 +32,19 @@ Deno.test("State and event helpers generate expected JS strings", () => {
   assertStringIncludes(subscribeToState("cart", "doSomething()"), "subscribe");
   assertStringIncludes(
     dispatchEvent("open", { id: 1 }),
-    "CustomEvent('funcwc:open'",
+    "CustomEvent('ui-lib:open'",
   );
 });
 
 Deno.test("Attribute and utility helpers generate expected strings", () => {
   assertEquals(
-    hxOn({ "htmx:load": "init()", "funcwc:open": "noop()" }).includes(
+    hxOn({ "htmx:load": "init()", "ui-lib:open": "noop()" }).includes(
       "htmx:load",
     ),
     true,
   );
   // on() wraps hx-on="..."
-  const attr = on({ "htmx:load": "init()", "funcwc:open": "noop()" });
+  const attr = on({ "htmx:load": "init()", "ui-lib:open": "noop()" });
   assertStringIncludes(attr, 'hx-on="');
   assertStringIncludes(attr, "htmx:load:");
   assertStringIncludes(listensFor("open", "handle()"), "hx-on=");

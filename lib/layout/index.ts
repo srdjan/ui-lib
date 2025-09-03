@@ -1,17 +1,17 @@
-// funcwc Layout Components Library
+// ui-lib Layout Components Library
 // Composable layout components for building responsive, accessible layouts
 
 // Export layout component types
-export type { 
-  LayoutTheme, 
-  LayoutOrientation, 
+export type {
+  LayoutOrientation,
+  LayoutTheme,
   NavItemState,
-  SidebarPosition 
+  SidebarPosition,
 } from "./layout-types.ts";
 
 // Export layout components
 export { AppLayout } from "./app-layout.tsx";
-export { Navbar } from "./navbar.tsx";  
+export { Navbar } from "./navbar.tsx";
 export { NavItem } from "./navitem.tsx";
 export { MainContent } from "./main-content.tsx";
 export { Sidebar } from "./sidebar.tsx";
@@ -24,8 +24,8 @@ import "./main-content.tsx";
 import "./sidebar.tsx";
 
 // Usage:
-// import "funcwc/layout"; // Auto-registers all layout components
-// 
+// import "ui-lib/layout"; // Auto-registers all layout components
+//
 // <app-layout theme="system" responsive>
 //   <navbar position="top" style="primary">
 //     <navitem href="/" active>Home</navitem>

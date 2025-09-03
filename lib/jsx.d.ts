@@ -15,9 +15,9 @@ declare global {
     // It includes all standard HTML attributes, plus our custom event handlers.
     interface IntrinsicElements {
       [elemName: string]: Record<string, unknown> & EventHandlers;
-      
-      // funcwc component types - add specific component prop types here
-      
+
+      // ui-lib component types - add specific component prop types here
+
       // Layout components
       "app-layout": {
         theme?: "light" | "dark" | "system" | "auto";
@@ -26,7 +26,7 @@ declare global {
         "max-width"?: string;
         children?: string | string[];
       };
-      
+
       navbar: {
         position?: "top" | "bottom" | "left" | "right";
         style?: "primary" | "secondary" | "transparent" | "accent";
@@ -35,7 +35,7 @@ declare global {
         collapsible?: boolean;
         children?: string | string[];
       };
-      
+
       navitem: {
         href?: string;
         active?: boolean;
@@ -45,7 +45,7 @@ declare global {
         target?: string;
         children?: string | string[];
       };
-      
+
       "main-content": {
         padding?: string;
         "max-width"?: string;
@@ -53,7 +53,7 @@ declare global {
         centered?: boolean;
         children?: string | string[];
       };
-      
+
       sidebar: {
         position?: "left" | "right";
         mode?: "permanent" | "overlay" | "push";
@@ -63,17 +63,20 @@ declare global {
         children?: string | string[];
       };
     }
-    
-    // Extend IntrinsicElements with registered funcwc components
+
+    // Extend IntrinsicElements with registered ui-lib components
     namespace JSX {
       interface IntrinsicElements extends ComponentJSXElements {}
     }
-    
-    // Generate JSX element types for all registered funcwc components
+
+    // Generate JSX element types for all registered ui-lib components
     type ComponentJSXElements = {
-      [K in keyof ComponentPropsMap]: JSXProps<ComponentPropsMap[K]> & EventHandlers & {
-        children?: string | number | boolean | null | undefined;
-      };
+      [K in keyof ComponentPropsMap]:
+        & JSXProps<ComponentPropsMap[K]>
+        & EventHandlers
+        & {
+          children?: string | number | boolean | null | undefined;
+        };
     };
 
     // Enhanced element children attribute

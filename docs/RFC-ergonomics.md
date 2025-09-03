@@ -4,7 +4,7 @@ Status: Draft
 
 ## Summary
 
-This RFC streamlines funcwc’s developer experience by consolidating overlapping
+This RFC streamlines ui-lib’s developer experience by consolidating overlapping
 APIs, making “magic” behaviors opt‑in, and tightening naming and typing. It
 focuses on four pillars:
 
@@ -57,7 +57,7 @@ focuses on four pillars:
 - Prefer declarative `ComponentAction`s (e.g., `dispatch`, `publish`) compiled
   by `h`; keep string helpers as escape hatches.
 - Unify `hxOn` + `listensFor` into
-  `on({ 'htmx:load': '...', 'funcwc:open': '...' })` with safe merges.
+  `on({ 'htmx:load': '...', 'ui-lib:open': '...' })` with safe merges.
 - Default `reactive.inject` (auto inline code) to `false`.
 
 5. JSX Runtime & DOM Helpers
@@ -86,7 +86,7 @@ Before:
 
 ```ts
 defineComponent("x-demo", {
-  eventListeners: { "funcwc:open": "open()" },
+  eventListeners: { "ui-lib:open": "open()" },
   stateSubscriptions: { cart: "render(data)" },
   onMount: "init()",
   autoInjectReactive: true,
@@ -99,7 +99,7 @@ After:
 ```ts
 defineComponent("x-demo", {
   reactive: {
-    on: { "funcwc:open": "open()" },
+    on: { "ui-lib:open": "open()" },
     state: { cart: "render(data)" },
     mount: "init()",
     unmount: "cleanup()",

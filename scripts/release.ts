@@ -41,7 +41,7 @@ try {
 } catch {
   console.log("No changes to commit; continuing to tag");
 }
-await run(["git", "tag", "-a", `v${version}`, "-m", `funcwc v${version}`]);
+await run(["git", "tag", "-a", `v${version}`, "-m", `ui-lib v${version}`]);
 
 if (shouldPush) {
   await run(["git", "push"]);

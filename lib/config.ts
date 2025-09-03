@@ -1,4 +1,4 @@
-// Central configuration for funcwc
+// Central configuration for ui-lib
 
 export type FuncwcConfig = {
   dev?: boolean; // enables verbose logging in development

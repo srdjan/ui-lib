@@ -1,4 +1,4 @@
-// Tiny SSR benchmarks for funcwc
+// Tiny SSR benchmarks for ui-lib
 // Run: deno task bench
 
 import { renderComponent } from "../index.ts";

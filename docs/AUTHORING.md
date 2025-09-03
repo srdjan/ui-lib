@@ -5,7 +5,7 @@ TSX while keeping zero client-side dependencies and SSR-first output.
 
 ## Authoring Overview
 
-funcwc focuses on a clean authoring model that eliminates duplication:
+ui-lib focuses on a clean authoring model that eliminates duplication:
 
 1. **🔧 defineComponent API**: Clean object-based configuration
 2. **🎨 CSS-Only Format**: Auto-generated class names from CSS properties
@@ -195,10 +195,14 @@ defineComponent("beautiful-button", {
 ### Tokens & Utilities
 
 - Tokens-first: Prefer Open Props tokens in `styles`:
-  - Surfaces: `var(--surface-1)`, borders: `var(--surface-3)`, shadows: `var(--shadow-2)`.
-  - Typography: `var(--text-1)` for main text, `var(--text-muted)` for secondary.
-  - Spacing/radius: `var(--size-*)`, `var(--radius-*)`, borders: `var(--border-size-*)`.
-  - Brand: use `var(--brand)` and `var(--brand-contrast)` (see `examples/assets/tokens.css`).
+  - Surfaces: `var(--surface-1)`, borders: `var(--surface-3)`, shadows:
+    `var(--shadow-2)`.
+  - Typography: `var(--text-1)` for main text, `var(--text-muted)` for
+    secondary.
+  - Spacing/radius: `var(--size-*)`, `var(--radius-*)`, borders:
+    `var(--border-size-*)`.
+  - Brand: use `var(--brand)` and `var(--brand-contrast)` (see
+    `examples/assets/tokens.css`).
 - Utilities-over-custom: Compose layout/spacing with small, readable classes:
 
 ```html
@@ -228,8 +232,10 @@ styles: {
 ```
 
 Dark mode:
+
 - By default, Open Props `normalize` adapts surfaces/text to system preference.
-- If you need an explicit toggle, add/remove the `dark` class on `<html>`; see `examples/assets/tokens.css` for overrides.
+- If you need an explicit toggle, add/remove the `dark` class on `<html>`; see
+  `examples/assets/tokens.css` for overrides.
 
 ### Event Handlers
 
@@ -451,14 +457,14 @@ defineComponent("loader-box", {
   styles: {
     box: `{ padding: 1rem; border: 1px solid #ddd; border-radius: 8px; }`,
   },
-  // Listen for a custom event (funcwc:refresh) and initialize on htmx:load
+  // Listen for a custom event (ui-lib:refresh) and initialize on htmx:load
   render: () => (
     <div
       class="box"
       hx-on={hxOn({
         "htmx:load":
           `this.textContent = 'Ready @ ' + new Date().toLocaleTimeString();`,
-        "funcwc:refresh":
+        "ui-lib:refresh":
           `this.textContent = 'Refreshed @ ' + new Date().toLocaleTimeString();`,
       })}
     >
@@ -501,7 +507,7 @@ it clean and framework-agnostic.
 
 ## Unified API System (HTMX Integration)
 
-The `api` property is funcwc's revolutionary unified API system that eliminates
+The `api` property is ui-lib's revolutionary unified API system that eliminates
 duplication between server route definitions and client-side HTMX attributes.
 
 ### Function-Style Props + HTMX Example
@@ -581,7 +587,7 @@ defineComponent("todo-item", {
 
 1. **Define Routes**: Write actual HTTP handlers in `api` using standard Web API
    patterns
-2. **Auto-Generation**: funcwc analyzes your routes and creates client
+2. **Auto-Generation**: ui-lib analyzes your routes and creates client
    functions:
    - `patch("/api/todos/:id/toggle", handler)` → `api.toggle(id)`
    - `remove("/api/todos/:id", handler)` → `api.remove(id)`
@@ -795,7 +801,7 @@ Adapter (optional): For code expecting `window.StateManager`, alias it to
 
 1. **Use Function-Style Props**: Eliminate duplication between props and
    parameters
-2. **Use CSS-Only Format**: Let funcwc auto-generate class names
+2. **Use CSS-Only Format**: Let ui-lib auto-generate class names
 3. **Smart Type Helpers**: Use `string()`, `number()`, `boolean()` for type
    safety
 4. **DOM as State**: Keep handlers minimal; let CSS represent state
@@ -812,7 +818,7 @@ Adapter (optional): For code expecting `window.StateManager`, alias it to
 
 ## Summary
 
-funcwc emphasizes a minimal, ergonomic authoring model:
+ui-lib emphasizes a minimal, ergonomic authoring model:
 
 1. **🔧 defineComponent API**: Clean object-based configuration
 2. **🎨 CSS-Only Format**: Auto-generated class names from CSS properties
@@ -912,5 +918,5 @@ Notes:
 - Use `SameSite=Lax` or `Strict` and `Secure` in production (HTTPS).
 - If you already have a session mechanism, store the CSRF token server-side
   instead of a cookie comparison.
-- Because funcwc standardizes JSON requests, you can avoid form-based CSRF
+- Because ui-lib standardizes JSON requests, you can avoid form-based CSRF
   complexities.

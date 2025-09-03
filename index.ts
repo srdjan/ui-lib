@@ -1,4 +1,4 @@
-// Main exports for funcwc - DOM-native SSR components library
+// Main exports for ui-lib - DOM-native SSR components library
 
 // Core component system
 export { defineComponent } from "./lib/define-component.ts";
@@ -53,7 +53,7 @@ import "./lib/jsx.d.ts";
 // JSX Integration utilities
 export {
   generateJSXTypes,
-  JSXIntegration, 
+  JSXIntegration,
   registerComponentWithJSX,
   validateJSXProps,
 } from "./lib/jsx-integration.ts";
@@ -131,16 +131,16 @@ export { configure, type FuncwcConfig } from "./lib/config.ts";
 // Layout Components Library
 export type {
   AppLayoutProps,
-  NavbarProps,
-  NavItemProps,
-  MainContentProps,
-  SidebarProps,
-  LayoutTheme,
   LayoutOrientation,
+  LayoutTheme,
+  MainContentProps,
   NavbarPosition,
+  NavbarProps,
   NavbarStyle,
-  SidebarPosition,
+  NavItemProps,
   SidebarMode,
+  SidebarPosition,
+  SidebarProps,
 } from "./lib/layout/layout-types.ts";
 
 // Layout components are auto-registered when imported

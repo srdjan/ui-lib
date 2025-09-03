@@ -1,13 +1,13 @@
 /** @jsx h */
-// funcwc Sidebar Component - Optional sidebar for layouts
-import { defineComponent, h, boolean, string } from "../../index.ts";
+// ui-lib Sidebar Component - Optional sidebar for layouts
+import { boolean, defineComponent, h, string } from "../../index.ts";
 import type { SidebarProps } from "./layout-types.ts";
 
 /**
  * 📂 Sidebar Component - Flexible Sidebar Container
- * 
+ *
  * Responsive sidebar component with multiple display modes:
- * 
+ *
  * <sidebar position="left" mode="permanent" width="250px">
  *   <nav>
  *     <h3>Categories</h3>
@@ -17,7 +17,7 @@ import type { SidebarProps } from "./layout-types.ts";
  *     </ul>
  *   </nav>
  * </sidebar>
- * 
+ *
  * Features:
  * ✨ Multiple display modes (permanent, overlay, push)
  * 📱 Mobile responsive with collapsible behavior
@@ -168,7 +168,7 @@ defineComponent("sidebar", {
     }`,
 
     // Mobile responsiveness
-    '@media (max-width: 768px)': {
+    "@media (max-width: 768px)": {
       sidebar: `{
         position: fixed;
         z-index: 1000;
@@ -207,10 +207,20 @@ defineComponent("sidebar", {
 
     const sidebarClasses = [
       classes!.sidebar,
-      classes![`position${sidebarPosition.charAt(0).toUpperCase() + sidebarPosition.slice(1)}`],
-      classes![`mode${sidebarMode.charAt(0).toUpperCase() + sidebarMode.slice(1)}`],
-      sidebarMode === "overlay" && sidebarPosition === "left" ? classes!.modeOverlayLeft : "",
-      sidebarMode === "overlay" && sidebarPosition === "right" ? classes!.modeOverlayRight : "",
+      classes![
+        `position${
+          sidebarPosition.charAt(0).toUpperCase() + sidebarPosition.slice(1)
+        }`
+      ],
+      classes![
+        `mode${sidebarMode.charAt(0).toUpperCase() + sidebarMode.slice(1)}`
+      ],
+      sidebarMode === "overlay" && sidebarPosition === "left"
+        ? classes!.modeOverlayLeft
+        : "",
+      sidebarMode === "overlay" && sidebarPosition === "right"
+        ? classes!.modeOverlayRight
+        : "",
       isCollapsed ? classes!.collapsed : "",
     ].filter(Boolean).join(" ");
 
@@ -220,14 +230,16 @@ defineComponent("sidebar", {
       <div>
         {/* Backdrop for overlay mode */}
         {sidebarMode === "overlay" && (
-          <div 
+          <div
             class={classes!.backdrop}
             id={`sidebar-backdrop-${sidebarPosition}`}
             onclick={`
               const sidebar = document.querySelector('[data-sidebar-position="${sidebarPosition}"]');
               const backdrop = this;
               if (sidebar && backdrop) {
-                sidebar.classList.add('${isCollapsed ? classes!.collapsed : classes!.collapsedHidden}');
+                sidebar.classList.add('${
+              isCollapsed ? classes!.collapsed : classes!.collapsedHidden
+            }');
                 backdrop.classList.remove('${classes!.backdropVisible}');
                 sidebar.setAttribute('aria-hidden', 'true');
               }
@@ -235,7 +247,7 @@ defineComponent("sidebar", {
           />
         )}
 
-        <aside 
+        <aside
           class={sidebarClasses}
           style={sidebarStyles}
           role="complementary"
@@ -265,14 +277,28 @@ defineComponent("sidebar", {
                 
                 if ('${sidebarMode}' === 'overlay') {
                   if (newCollapsedState) {
-                    sidebar.classList.add('${classes![`collapsedHidden${sidebarPosition === "right" ? "Right" : ""}`]}');
-                    if (backdrop) backdrop.classList.remove('${classes!.backdropVisible}');
+                    sidebar.classList.add('${
+                classes![
+                  `collapsedHidden${sidebarPosition === "right" ? "Right" : ""}`
+                ]
+              }');
+                    if (backdrop) backdrop.classList.remove('${
+                classes!.backdropVisible
+              }');
                   } else {
-                    sidebar.classList.remove('${classes![`collapsedHidden${sidebarPosition === "right" ? "Right" : ""}`]}');
-                    if (backdrop) backdrop.classList.add('${classes!.backdropVisible}');
+                    sidebar.classList.remove('${
+                classes![
+                  `collapsedHidden${sidebarPosition === "right" ? "Right" : ""}`
+                ]
+              }');
+                    if (backdrop) backdrop.classList.add('${
+                classes!.backdropVisible
+              }');
                   }
                 } else {
-                  sidebar.classList.toggle('${classes!.collapsed}', newCollapsedState);
+                  sidebar.classList.toggle('${
+                classes!.collapsed
+              }', newCollapsedState);
                 }
                 
                 // Announce state change
@@ -285,8 +311,12 @@ defineComponent("sidebar", {
                 document.body.appendChild(announcement);
                 setTimeout(() => document.body.removeChild(announcement), 1000);
               `}
-              onmouseover={`this.classList.add('${classes!.toggleButtonHover}')`}
-              onmouseout={`this.classList.remove('${classes!.toggleButtonHover}')`}
+              onmouseover={`this.classList.add('${
+                classes!.toggleButtonHover
+              }')`}
+              onmouseout={`this.classList.remove('${
+                classes!.toggleButtonHover
+              }')`}
             >
               <span aria-hidden="true">
                 {isCollapsed ? "→" : "←"}
@@ -310,8 +340,9 @@ defineComponent("sidebar", {
           </div>
 
           {/* Sidebar interaction and accessibility script */}
-          <script dangerouslySetInnerHTML={{
-            __html: `
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
               (function() {
                 const sidebar = document.currentScript.parentElement;
                 if (!sidebar) return;
@@ -380,8 +411,9 @@ defineComponent("sidebar", {
                   }, 250);
                 });
               })();
-            `
-          }}>
+            `,
+            }}
+          >
           </script>
         </aside>
       </div>

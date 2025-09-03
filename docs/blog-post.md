@@ -1,4 +1,4 @@
-# The Revolution Will Be SSR'd: How funcwc is Rewriting the Rules of Web Components
+# The Revolution Will Be SSR'd: How ui-lib is Rewriting the Rules of Web Components
 
 _A story of ergonomics, innovation, and why the DOM was the state container all
 along_
@@ -22,16 +22,16 @@ This is the story of how one developer got so fed up with state synchronization
 hell that they decided to throw out the entire playbook and ask a radical
 question: **What if the DOM was always meant to be our state container?**
 
-## Enter funcwc: The Library That Dares to Be Different
+## Enter ui-lib: The Library That Dares to Be Different
 
-Meet funcwc—a library so unconventional it makes Svelte look mainstream. Built
+Meet ui-lib—a library so unconventional it makes Svelte look mainstream. Built
 for Deno and TypeScript, it takes three revolutionary approaches that will make
 you question everything you thought you knew about web components:
 
 ### Revolution #1: Function-Style Props (Zero Duplication!)
 
 Remember the bad old days of defining props twice—once in your
-PropTypes/interfaces, then again in your render function parameters? funcwc said
+PropTypes/interfaces, then again in your render function parameters? ui-lib said
 "absolutely not" and invented function-style props:
 
 ```tsx
@@ -46,7 +46,7 @@ function MyComponent({ title, count, enabled }: Props) {
   // ...
 }
 
-// ✅ The funcwc way: Define once, use everywhere
+// ✅ The ui-lib way: Define once, use everywhere
 defineComponent("my-component", {
   render: ({
     title = string("Hello World"), // Auto-parsed, with defaults!
@@ -56,14 +56,14 @@ defineComponent("my-component", {
 });
 ```
 
-The genius here isn't just DRY code—it's that funcwc analyzes your render
+The genius here isn't just DRY code—it's that ui-lib analyzes your render
 function at runtime and auto-generates the props parser. No TypeScript
 gymnastics. No manual prop definitions. Just pure, beautiful ergonomics.
 
 ### Revolution #2: CSS-Only Format (Auto-Generated Classes!)
 
 But wait, there's more. Remember writing CSS classes and then importing them and
-mapping them and... _ugh_? funcwc looked at that workflow and said "what if we
+mapping them and... _ugh_? ui-lib looked at that workflow and said "what if we
 just write CSS and let the computer figure out the class names?"
 
 ```tsx
@@ -91,9 +91,9 @@ productivity machine.
 
 ### Revolution #3: The DOM IS Your State
 
-But here's where funcwc gets _really_ wild. While the rest of the JavaScript
+But here's where ui-lib gets _really_ wild. While the rest of the JavaScript
 world has been building increasingly complex state management solutions—Redux,
-Zustand, Jotai, Valtio—funcwc asked the most subversive question of all:
+Zustand, Jotai, Valtio—ui-lib asked the most subversive question of all:
 
 **What if we just used the DOM?**
 
@@ -120,9 +120,9 @@ browsers for decades.
 
 ## The Real Magic: HTMX + SSR + Zero Runtime
 
-Here's where funcwc's true genius reveals itself. While everyone else is
+Here's where ui-lib's true genius reveals itself. While everyone else is
 shipping megabytes of JavaScript to recreate server functionality on the client,
-funcwc goes full circle back to the web's roots—but with modern ergonomics.
+ui-lib goes full circle back to the web's roots—but with modern ergonomics.
 
 Components render to HTML strings on the server. HTMX handles the interactivity.
 The result? **Zero client-side framework dependencies.**
@@ -159,7 +159,7 @@ won and JavaScript frameworks never took over.
 
 ## The Developer Experience That Changes Everything
 
-But technical innovation means nothing without great DX. funcwc delivers
+But technical innovation means nothing without great DX. ui-lib delivers
 experiences that feel almost magical:
 
 **Hot Reload That Actually Works**: Because components are pure functions that
@@ -207,12 +207,12 @@ it's 2024 but deploying like it's 2004—in the best possible way."
 
 ## What This Means for the Future
 
-funcwc isn't just another JavaScript framework—it's a fundamental rethinking of
+ui-lib isn't just another JavaScript framework—it's a fundamental rethinking of
 how we build for the web. It suggests that maybe, just maybe, the web platform
 was always good enough. We just needed better tools to use it properly.
 
 As the JavaScript ecosystem grapples with complexity fatigue and the return of
-"vanilla" approaches, funcwc points toward a future where:
+"vanilla" approaches, ui-lib points toward a future where:
 
 - The DOM is our state container
 - The server renders HTML (revolutionary!)
@@ -222,10 +222,10 @@ As the JavaScript ecosystem grapples with complexity fatigue and the return of
 
 ## Try It Yourself
 
-Ready to experience the future of web components? funcwc is available today:
+Ready to experience the future of web components? ui-lib is available today:
 
 ```bash
-git clone [repository-url] && cd funcwc
+git clone [repository-url] && cd ui-lib
 deno task serve  # → http://localhost:8080
 ```
 
@@ -240,6 +240,6 @@ basics—with style._
 
 ---
 
-**funcwc**: DOM-native SSR components with function-style props, CSS-only
+**ui-lib**: DOM-native SSR components with function-style props, CSS-only
 format, and zero client-side dependencies. The revolution will be server-side
 rendered. ✨
