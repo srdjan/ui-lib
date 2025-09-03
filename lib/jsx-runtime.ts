@@ -88,12 +88,10 @@ export function h(
     const registry = getRegistry();
 
     if (registry[tag]) {
-      // During component rendering, don't auto-render nested components
-      // Let them be processed by the server's component tag processing instead
-      // This prevents infinite recursion during JSX processing
+      // Registered ui-lib component: render immediately to HTML
       const funcwcProps = convertJSXPropsToFuncwcProps(props);
 
-      // Handle children by converting them to a string for the HTML tag
+      // Flatten and stringify children
       let childrenHtml = "";
       if (children.length > 0) {
         childrenHtml = children
@@ -103,23 +101,12 @@ export function h(
           .join("");
       }
 
-      // Convert props to HTML attributes
-      let attributes = "";
-      for (const [key, value] of Object.entries(funcwcProps)) {
-        if (key === "children") continue;
-        if (value === "") {
-          attributes += ` ${key}`;
-        } else {
-          attributes += ` ${key}="${escape(String(value))}"`;
-        }
+      // Pass children through to component render
+      if (childrenHtml) {
+        (funcwcProps as any).children = childrenHtml;
       }
 
-      // Return the raw HTML tag - let the server process it later
-      if (childrenHtml) {
-        return `<${tag}${attributes}>${childrenHtml}</${tag}>`;
-      } else {
-        return `<${tag}${attributes}/>`;
-      }
+      return renderComponent(tag, funcwcProps);
     }
   }
 

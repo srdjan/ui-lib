@@ -58,25 +58,23 @@ export const patch = (path: string, handler: RouteHandler): ApiDefinition =>
 /**
  * Create a DELETE route definition
  *
- * Note: Uses 'del' instead of 'delete' to avoid JavaScript keyword conflict
- *
  * @example
  * ```tsx
  * api: {
- *   remove: del("/api/todos/:id", async (req, params) => { ... })
+ *   remove: remove("/api/todos/:id", async (req, params) => { ... })
  * }
  * ```
  */
-export const del = (path: string, handler: RouteHandler): ApiDefinition =>
+export const remove = (path: string, handler: RouteHandler): ApiDefinition =>
   ["DELETE", path, handler] as const;
 
-// Convenience aliases for common patterns
+// Aliases for convenience
 /**
- * Alias for 'del' - create a DELETE route definition
- */
-export const remove = del;
-
-/**
- * Alias for 'post' - create a POST route definition
+ * Alias for post() - Create a POST route definition
  */
 export const create = post;
+
+/**
+ * Alias for remove() - Create a DELETE route definition
+ */
+export const del = remove;

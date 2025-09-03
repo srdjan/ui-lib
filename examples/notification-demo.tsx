@@ -1,5 +1,6 @@
 /** @jsx h */
 // deno-lint-ignore-file verbatim-module-syntax
+import { router } from "./router.ts";
 import {
   createNotification,
   defineComponent,
@@ -15,6 +16,7 @@ import {
  * with structured payloads.
  */
 defineComponent("notification-trigger", {
+  router,
   render: (
     { _channelId = string("notifications") },
     _api,
@@ -104,6 +106,7 @@ defineComponent("notification-trigger", {
  * 📢 Notification Display - Listens for DOM events and shows notifications
  */
 defineComponent("notification-display", {
+  router,
   styles: {
     notificationContainer: `{
       position: fixed;

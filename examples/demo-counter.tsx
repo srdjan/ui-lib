@@ -1,5 +1,6 @@
 /** @jsx h */
 // deno-lint-ignore verbatim-module-syntax
+import { router } from "./router.ts";
 import { boolean, defineComponent, h, number, string } from "../index.ts";
 
 /**
@@ -12,6 +13,7 @@ import { boolean, defineComponent, h, number, string } from "../index.ts";
  * ⚡ CSS property reactivity for theming
  */
 defineComponent("demo-counter", {
+  router,
   autoProps: true,
   // 🎨 CSS-Only Format - Auto-generated class names!
   styles: {

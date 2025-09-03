@@ -126,7 +126,7 @@ export const dispatchEvent = (
  */
 export const hxOn = (events: Record<string, string>): string => {
   return Object.entries(events)
-    .map(([evt, code]) => `${evt}: ${code}`)
+    .map(([evt, code]) => `${evt.replace(/^ui-lib:/, "funcwc:")}: ${code}`)
     .join("\n");
 };
 

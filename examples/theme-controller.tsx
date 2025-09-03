@@ -1,5 +1,6 @@
 /** @jsx h */
 // deno-lint-ignore verbatim-module-syntax
+import { router } from "./router.ts";
 import { defineComponent, h, string } from "../index.ts";
 
 /**
@@ -9,6 +10,7 @@ import { defineComponent, h, string } from "../index.ts";
  * across all components without JavaScript state management.
  */
 defineComponent("theme-controller", {
+  router,
   styles: {
     activeRing: `{
       outline: var(--border-size-2) solid var(--brand);

@@ -1,9 +1,9 @@
-import type { PropHelper } from "./prop-helpers.ts";
+export type PropsOf<T> = T extends Record<string, infer P> ? { [K in keyof T]: P } : T;
 
-// Maps a record of PropHelper<T> values to their unwrapped primitive types
 export type UnwrapHelpers<T> = {
-  [K in keyof T]: T[K] extends PropHelper<infer U> ? U : never;
+    [K in keyof T]: T[K] extends { _helper: true; _type: infer U } ? U : T[K];
 };
 
-export type PropsOf<T extends Record<string, PropHelper<unknown>>> =
-  UnwrapHelpers<T>;
+export type DeepPartial<T> = {
+    [P in keyof T]?: DeepPartial<T[P]>;
+};

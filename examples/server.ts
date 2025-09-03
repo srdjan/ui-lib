@@ -1,4 +1,6 @@
 // Development server for ui-lib examples
+import { router } from "./router.ts";
+import { Router } from "../lib/router.ts";
 import { injectStateManager, renderComponent } from "../index.ts";
 import { runWithRequestHeadersAsync } from "../lib/request-headers.ts";
 
@@ -53,7 +55,8 @@ async function handler(request: Request): Promise<Response> {
       // Per-request style dedup + header context
       const processedHtml = await runWithRequestHeadersAsync(
         {},
-        async () => await processComponentTags(htmlContent, { currentDemo: demo }),
+        async () =>
+          await processComponentTags(htmlContent, { currentDemo: demo }),
       );
 
       return new Response(processedHtml, {
@@ -124,7 +127,8 @@ async function handler(request: Request): Promise<Response> {
           // Render full layout once and extract inner <main> content to preserve class names
           const full = await runWithRequestHeadersAsync(
             {},
-            async () => renderComponent("app-layout", { currentDemo: demoType }),
+            async () =>
+              renderComponent("app-layout", { currentDemo: demoType }),
           );
           const start = full.indexOf("<main");
           const end = full.indexOf("</main>");
@@ -155,15 +159,9 @@ async function handler(request: Request): Promise<Response> {
       }
     }
 
-    // API endpoints (placeholder for future steps)
-    if (pathname.startsWith("/api/")) {
-      return new Response(
-        JSON.stringify({ message: "API endpoints coming in future steps" }),
-        {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
+    const match = router.match(request);
+    if (match) {
+      return match.handler(request, match.params);
     }
 
     // 404 for other routes
@@ -184,18 +182,35 @@ async function processComponentTags(
   // Find all custom component tags with content
   // This regex matches both kebab-case components and known single-word component names
   const knownComponents = [
-    'navbar', 'navitem', 'sidebar', 'app-layout', 'main-content', // Layout components
-    'demo-counter', 'theme-controller', // Demo components
-    'cart-manager', 'cart-badge', // Cart demo components  
-    'notification-trigger', 'notification-display' // Notification demo components
+    "navbar",
+    "navitem",
+    "sidebar",
+    "app-layout",
+    "main-content", // Layout components
+    "demo-counter",
+    "theme-controller", // Demo components
+    "cart-manager",
+    "cart-badge", // Cart demo components
+    "notification-trigger",
+    "notification-display", // Notification demo components
   ];
-  const componentPattern = knownComponents.join('|');
-  const componentTagRegex = new RegExp(`<(${componentPattern})([^>]*?)>([\\s\\S]*?)<\\/\\1>|<(${componentPattern})([^>]*?)\\/>`,'g');
+  const componentPattern = knownComponents.join("|");
+  const componentTagRegex = new RegExp(
+    `<(${componentPattern})([^>]*?)>([\\s\\S]*?)<\\/\\1>|<(${componentPattern})([^>]*?)\\/>`,
+    "g",
+  );
 
   let match;
   while ((match = componentTagRegex.exec(html)) !== null) {
-    const [fullMatch, tagName, attributes, children, selfClosingTagName, selfClosingAttributes] = match;
-    
+    const [
+      fullMatch,
+      tagName,
+      attributes,
+      children,
+      selfClosingTagName,
+      selfClosingAttributes,
+    ] = match;
+
     // Handle both regular tags with content and self-closing tags
     const actualTagName = tagName || selfClosingTagName;
     const actualAttributes = attributes || selfClosingAttributes;
@@ -213,19 +228,22 @@ async function processComponentTags(
 
       // Merge with extra props (extra props take precedence)
       const finalProps = { ...props, ...extraProps };
-      
+
       // Add children content if present
       if (actualChildren) {
         // Recursively process nested components in children
-        const processedChildren = await processComponentTags(actualChildren, extraProps);
+        const processedChildren = await processComponentTags(
+          actualChildren,
+          extraProps,
+        );
         finalProps.children = processedChildren;
       }
 
       // Render the component
       const renderedHTML = renderComponent(actualTagName, finalProps);
 
-      // Replace the tag with rendered HTML
-      processedHtml = processedHtml.replace(fullMatch, renderedHTML);
+      // Replace the tag with rendered HTML (use function form to avoid $-expansion)
+      processedHtml = processedHtml.replace(fullMatch, () => renderedHTML);
     } catch (error) {
       console.error(`Error rendering component ${actualTagName}:`, error);
       // Leave the original tag if rendering fails

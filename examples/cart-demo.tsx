@@ -1,5 +1,6 @@
 /** @jsx h */
 // deno-lint-ignore verbatim-module-syntax
+import { router } from "./router.ts";
 import { createCartAction, defineComponent, h, string } from "../index.ts";
 
 /**
@@ -9,6 +10,7 @@ import { createCartAction, defineComponent, h, string } from "../index.ts";
  * using topic-based subscriptions.
  */
 defineComponent("cart-manager", {
+  router,
 
   render: (
     {
@@ -97,6 +99,7 @@ defineComponent("cart-manager", {
  * 🛒 Cart Badge - Shows how components subscribe to state updates
  */
 defineComponent("cart-badge", {
+  router,
   styles: {
     badge: `{
       position: fixed;
@@ -148,9 +151,6 @@ defineComponent("cart-badge", {
       >
         <div class={`${classes!.badgeCount} cart-count`}>0 items</div>
         <div class={`${classes!.badgeTotal} cart-total`}>$0.00</div>
-        <p class="u-mt-2 u-text-0 u-text-muted">
-          🔄 Updates automatically via pub/sub
-        </p>
         <script
           dangerouslySetInnerHTML={{
             __html: `
