@@ -131,7 +131,7 @@ defineComponent("navbar", {
       background: none;
       border: none;
       color: inherit;
-      font-size: 1.5rem;
+      font-size: var(--font-size-4);
       cursor: pointer;
       padding: var(--size-2);
       border-radius: var(--radius-2);

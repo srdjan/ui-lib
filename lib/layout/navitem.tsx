@@ -44,7 +44,7 @@ defineComponent("navitem", {
       color: var(--navitem-text, inherit);
       text-decoration: none;
       border-radius: var(--navitem-radius, var(--radius-2));
-      font-weight: var(--navitem-weight, 500);
+      font-weight: var(--navitem-weight, var(--font-weight-5));
       font-size: var(--navitem-size, var(--font-size-1));
       transition: all 0.2s ease;
       cursor: pointer;
@@ -64,7 +64,7 @@ defineComponent("navitem", {
     linkActive: `{
       background: var(--navitem-active-bg, rgba(255, 255, 255, 0.2));
       color: var(--navitem-active-text, inherit);
-      font-weight: var(--navitem-active-weight, 600);
+      font-weight: var(--navitem-active-weight, var(--font-weight-6));
       box-shadow: var(--navitem-active-shadow, inset 0 -2px 0 currentColor);
     }`,
 
@@ -81,7 +81,7 @@ defineComponent("navitem", {
 
     // Icon support
     icon: `{
-      font-size: var(--navitem-icon-size, 1.2em);
+      font-size: var(--navitem-icon-size, var(--font-size-2));
       line-height: 1;
     }`,
 
@@ -92,8 +92,8 @@ defineComponent("navitem", {
       right: -0.5rem;
       background: var(--navitem-badge-bg, var(--red-5));
       color: var(--navitem-badge-text, white);
-      font-size: var(--navitem-badge-size, 0.75rem);
-      font-weight: 600;
+      font-size: var(--navitem-badge-size, var(--font-size-0));
+      font-weight: var(--font-weight-6);
       padding: 0.25rem 0.5rem;
       border-radius: var(--radius-round);
       min-width: 1.5rem;
@@ -138,7 +138,7 @@ defineComponent("navitem", {
     }`,
 
     text: `{
-      line-height: 1.2;
+      line-height: var(--line-height-2);
     }`,
   },
 
@@ -172,11 +172,11 @@ defineComponent("navitem", {
     // Generate HTMX attributes for SPA navigation to demo endpoints
     const getHtmxAttrs = () => {
       if (isDisabled || (linkTarget && linkTarget !== "_self")) return {};
-      
+
       // Extract demo parameter from href (e.g., "/?demo=basic" -> "basic")
       const url = new URL(itemHref, "http://localhost");
       const demo = url.searchParams.get("demo");
-      
+
       if (demo && ["welcome", "basic", "reactive"].includes(demo)) {
         return {
           "hx-get": `/demo/${demo}`,
@@ -185,10 +185,10 @@ defineComponent("navitem", {
           "hx-push-url": itemHref,
         };
       }
-      
+
       return {};
     };
-    
+
     const htmxAttrs = getHtmxAttrs();
 
     return (
