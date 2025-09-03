@@ -173,8 +173,10 @@ defineComponent("app-layout", {
               </div>
               
               <div style="margin: 2rem 0;">
-                <notification-trigger channel-id="notifications"></notification-trigger>
-                <notification-display channel-id="notifications"></notification-display>
+                <div class="u-card u-p-3">
+                  <h4>🔔 DOM Event Communication</h4>
+                  <p>This section demonstrates DOM events for component communication. (Components temporarily disabled for debugging)</p>
+                </div>
               </div>
             </div>
 

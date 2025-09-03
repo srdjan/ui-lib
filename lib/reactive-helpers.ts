@@ -282,39 +282,8 @@ export const createCartAction = (
   action: "add" | "remove" | "update",
   itemData: string,
 ): string => {
-  return `
-    console.log('🛒 Cart ${action}:', ${itemData});
-    const currentCart = ${
-    getState("cart")
-  } || { items: [], count: 0, total: 0 };
-    const itemData = ${itemData};
-    let newItems = [...currentCart.items];
-    
-    if ('${action}' === 'add') {
-      const existing = newItems.findIndex(item => item.id === itemData.id);
-      if (existing >= 0) {
-        newItems[existing].quantity += itemData.quantity || 1;
-      } else {
-        newItems.push(itemData);
-      }
-    } else if ('${action}' === 'remove') {
-      newItems = newItems.filter(item => item.id !== itemData.id);
-    } else if ('${action}' === 'update') {
-      const existing = newItems.findIndex(item => item.id === itemData.id);
-      if (existing >= 0) {
-        newItems[existing] = { ...newItems[existing], ...itemData };
-      }
-    }
-    
-    const cartState = {
-      items: newItems,
-      count: newItems.reduce((sum, item) => sum + item.quantity, 0),
-      total: newItems.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-      isEmpty: newItems.length === 0
-    };
-    
-    window.funcwcState?.publish('cart', cartState);
-  `.trim();
+  // Use a global function to avoid long inline JavaScript
+  return `window.uiLibCartAction('${action}', ${itemData})`;
 };
 
 /**

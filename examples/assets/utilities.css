@@ -65,9 +65,33 @@
 /* Borders */
 .u-border-brand { border: var(--border-size-2) solid var(--brand); }
 
-/* Buttons (extends Open Props buttons) */
+/* Buttons (base styles + Open Props integration) */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--size-2) var(--size-4);
+  border: 1px solid var(--_accent, var(--gray-6));
+  border-radius: var(--radius-2);
+  background: var(--_accent, var(--gray-6));
+  color: var(--_text, white);
+  font-size: var(--font-size-1);
+  font-weight: var(--font-weight-6);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-2);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
 .btn-brand {
-  /* Open Props buttons read these */
   --_accent: var(--brand);
   --_text: var(--brand-contrast);
 }

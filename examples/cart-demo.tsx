@@ -99,14 +99,26 @@ defineComponent("cart-manager", {
 defineComponent("cart-badge", {
   styles: {
     badge: `{
+      position: fixed;
+      top: var(--size-5);
+      right: calc(var(--size-5) + 180px);
       background: var(--blue-6);
       color: white;
       padding: var(--size-3);
-      border-radius: var(--radius-2);
+      border-radius: var(--radius-3);
       text-align: center;
-      margin-block-start: var(--size-3);
+      min-width: 120px;
+      z-index: 1001;
+      box-shadow: var(--shadow-3);
       transition: all 0.3s ease;
-    } @media (max-width: 768px) { .badge { padding: var(--size-2); } }`,
+    } @media (max-width: 768px) { 
+      .badge { 
+        padding: var(--size-2); 
+        top: var(--size-3);
+        right: var(--size-3);
+        min-width: 100px;
+      } 
+    }`,
 
     badgeCount: `{
       font-size: var(--font-size-4);
