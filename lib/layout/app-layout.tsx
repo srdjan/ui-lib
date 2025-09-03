@@ -168,11 +168,13 @@ defineComponent("app-layout", {
               </div>
               
               <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin: 2rem 0;">
-                <cart-demo store-id="demo-store"></cart-demo>
+                <cart-manager store-id="demo-store"></cart-manager>
+                <cart-badge cart-id="default"></cart-badge>
               </div>
               
               <div style="margin: 2rem 0;">
-                <notification-demo channel-id="notifications"></notification-demo>
+                <notification-trigger channel-id="notifications"></notification-trigger>
+                <notification-display channel-id="notifications"></notification-display>
               </div>
             </div>
 

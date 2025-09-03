@@ -183,7 +183,12 @@ async function processComponentTags(
 
   // Find all custom component tags with content
   // This regex matches both kebab-case components and known single-word component names
-  const knownComponents = ['navbar', 'navitem', 'sidebar', 'app-layout', 'main-content'];
+  const knownComponents = [
+    'navbar', 'navitem', 'sidebar', 'app-layout', 'main-content', // Layout components
+    'demo-counter', 'theme-controller', // Demo components
+    'cart-manager', 'cart-badge', // Cart demo components  
+    'notification-trigger', 'notification-display' // Notification demo components
+  ];
   const componentPattern = knownComponents.join('|');
   const componentTagRegex = new RegExp(`<(${componentPattern})([^>]*?)>([\\s\\S]*?)<\\/\\1>|<(${componentPattern})([^>]*?)\\/>`,'g');
 
