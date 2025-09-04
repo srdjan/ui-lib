@@ -9,6 +9,7 @@ import "./demo-counter.tsx";
 import "./theme-controller.tsx";
 import "./cart-demo.tsx";
 import "./notification-demo.tsx";
+import "./form-demo.tsx";
 // jsx-demo removed
 
 const PORT = 8080;
@@ -111,7 +112,7 @@ async function handler(request: Request): Promise<Response> {
     // Demo content endpoints for HTMX partial updates
     if (pathname.startsWith("/demo/")) {
       const demoType = pathname.split("/")[2]; // Extract demo type (welcome, basic, reactive)
-      if (["welcome", "basic", "reactive"].includes(demoType)) {
+      if (["welcome", "basic", "reactive", "forms"].includes(demoType)) {
         // Cache partial content per demo based on layout mtime
         let layoutMtime: number | undefined;
         // Track layout changes using the library's app-layout file mtime

@@ -171,6 +171,44 @@ li {
   margin-block: var(--size-4);
 }
 
+/* Button group utility (OPUI-inspired) */
+.u-btn-group {
+  display: inline-flex;
+  gap: var(--size-2);
+}
+.u-btn-group > .btn {
+  border-radius: 0;
+}
+.u-btn-group > .btn:first-child {
+  border-top-left-radius: var(--radius-2);
+  border-bottom-left-radius: var(--radius-2);
+}
+.u-btn-group > .btn:last-child {
+  border-top-right-radius: var(--radius-2);
+  border-bottom-right-radius: var(--radius-2);
+}
+
+/* Disabled visuals */
+.u-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Transitions & micro-interactions */
+.u-transition {
+  transition: all 0.2s ease;
+}
+.u-transition-fast {
+  transition: all 0.15s ease;
+}
+
+/* Focus ring helper */
+.u-focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 var(--border-size-2)
+    color-mix(in oklab, var(--brand) 30%, transparent);
+}
+
 /* Card/surface primitives */
 .u-card {
   background: var(--card-bg);

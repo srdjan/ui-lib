@@ -44,7 +44,7 @@ defineComponent("theme-controller", {
         <div class="u-grid u-grid-auto-fit-120 u-gap-4 u-my-4">
           <button
             type="button"
-            class={`btn theme-option ${
+            class={`btn theme-option u-transition u-focus-ring ${
               theme === "blue" ? classes!.activeRing : ""
             }`}
             aria-pressed={theme === "blue"}
@@ -69,7 +69,7 @@ defineComponent("theme-controller", {
 
           <button
             type="button"
-            class={`btn theme-option ${
+            class={`btn theme-option u-transition u-focus-ring ${
               theme === "green" ? classes!.activeRing : ""
             }`}
             aria-pressed={theme === "green"}
@@ -94,7 +94,7 @@ defineComponent("theme-controller", {
 
           <button
             type="button"
-            class={`btn theme-option ${
+            class={`btn theme-option u-transition u-focus-ring ${
               theme === "purple" ? classes!.activeRing : ""
             }`}
             aria-pressed={theme === "purple"}
@@ -119,7 +119,7 @@ defineComponent("theme-controller", {
 
           <button
             type="button"
-            class={`btn theme-option ${
+            class={`btn theme-option u-transition u-focus-ring ${
               theme === "orange" ? classes!.activeRing : ""
             }`}
             aria-pressed={theme === "orange"}

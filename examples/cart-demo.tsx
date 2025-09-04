@@ -39,7 +39,7 @@ defineComponent("cart-manager", {
             <button
               aria-label="Add Smartphone to cart"
               type="button"
-              class="btn btn-brand"
+              class="btn btn-brand u-transition u-focus-ring"
               onclick={createCartAction(
                 "add",
                 JSON.stringify({
@@ -59,7 +59,7 @@ defineComponent("cart-manager", {
             <div class="u-text-brand u-mb-3">$1299</div>
             <button
               type="button"
-              class="btn btn-brand"
+              class="btn btn-brand u-transition u-focus-ring"
               onclick={createCartAction(
                 "add",
                 JSON.stringify({
@@ -79,7 +79,7 @@ defineComponent("cart-manager", {
             <div class="u-text-brand u-mb-3">$199</div>
             <button
               type="button"
-              class="btn btn-brand"
+              class="btn btn-brand u-transition u-focus-ring"
               onclick={createCartAction(
                 "add",
                 JSON.stringify({

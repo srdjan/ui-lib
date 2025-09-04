@@ -155,25 +155,23 @@ defineComponent("app-layout", {
           return `
             <h1>⚡ Hybrid Reactivity System</h1>
             <p>Interactive demos of funcwc's three-tier reactivity architecture</p>
-            
+
             <div class="u-card u-my-4 u-p-4">
               <h3>🚀 Interactive Reactivity Demos</h3>
               <p>Explore funcwc's revolutionary three-tier hybrid reactivity system.</p>
-              
+
               <section class="u-my-4" aria-label="Theme Controller">
                 <theme-controller current-theme="blue"></theme-controller>
               </section>
-              
+
               <section class="u-grid u-grid-2-1 u-gap-4 u-my-4" aria-label="Cart demos">
                 <cart-manager store-id="demo-store"></cart-manager>
                 <cart-badge cart-id="default"></cart-badge>
               </section>
-              
+
               <section class="u-my-4" aria-label="DOM Event Communication">
-                <article class="u-card u-p-3">
-                  <h4>🔔 DOM Event Communication</h4>
-                  <p>This section demonstrates DOM events for component communication. (Components temporarily disabled for debugging)</p>
-                </article>
+                <notification-trigger></notification-trigger>
+                <notification-display></notification-display>
               </section>
             </div>
 
@@ -193,6 +191,16 @@ defineComponent("app-layout", {
                   <p>Component communication. Structured payloads. Native browser optimization.</p>
                 </article>
               </section>
+            </div>
+          `;
+
+        case "forms":
+          return `
+            <h1>🧾 Open Props UI Forms</h1>
+            <p>Demonstration of OPUI-styled fields and buttons.</p>
+
+            <div class="u-card u-my-4 u-p-4">
+              <form-demo title="Account details"></form-demo>
             </div>
           `;
 

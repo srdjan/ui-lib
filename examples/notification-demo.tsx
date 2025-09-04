@@ -38,7 +38,7 @@ defineComponent("notification-trigger", {
         >
           <button
             type="button"
-            class="btn btn-success"
+            class="btn btn-success u-transition u-focus-ring"
             onclick={createNotification("Saved!", "success", 2500)}
           >
             ✅ Simple
@@ -46,7 +46,7 @@ defineComponent("notification-trigger", {
 
           <button
             type="button"
-            class="btn btn-success"
+            class="btn btn-success u-transition u-focus-ring"
             onclick={dispatchEvent("show-notification", {
               type: "success",
               title: "Success!",
@@ -59,7 +59,7 @@ defineComponent("notification-trigger", {
 
           <button
             type="button"
-            class="btn btn-warning"
+            class="btn btn-warning u-transition u-focus-ring"
             onclick={dispatchEvent("show-notification", {
               type: "warning",
               title: "Warning!",
@@ -72,7 +72,7 @@ defineComponent("notification-trigger", {
 
           <button
             type="button"
-            class="btn btn-error"
+            class="btn btn-error u-transition u-focus-ring"
             onclick={dispatchEvent("show-notification", {
               type: "error",
               title: "Error!",
@@ -85,7 +85,7 @@ defineComponent("notification-trigger", {
 
           <button
             type="button"
-            class="btn btn-info"
+            class="btn btn-info u-transition u-focus-ring"
             onclick={dispatchEvent("show-notification", {
               type: "info",
               title: "Info",

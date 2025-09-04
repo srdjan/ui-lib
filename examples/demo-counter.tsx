@@ -1,5 +1,4 @@
 /** @jsx h */
-// deno-lint-ignore verbatim-module-syntax
 import { router } from "./router.ts";
 import { boolean, defineComponent, h, number, string } from "../index.ts";
 
@@ -16,66 +15,7 @@ defineComponent("demo-counter", {
   router,
   autoProps: true,
   // 🎨 CSS-Only Format - Auto-generated class names!
-  styles: {
-    counterContainer: `{ 
-      display: inline-flex; 
-      align-items: center; 
-      gap: var(--size-4); 
-      padding: var(--size-4); 
-      border: var(--border-size-2) solid var(--counter-border, var(--brand)); 
-      border-radius: var(--radius-3); 
-      background: var(--counter-bg, var(--surface-1));
-      box-shadow: var(--shadow-2);
-      transition: all 0.3s ease;
-    }`,
-
-    button: `{ 
-      padding: var(--size-2); 
-      background: var(--counter-button-bg, var(--brand)); 
-      color: var(--counter-button-text, white); 
-      border: none; 
-      border-radius: var(--radius-2); 
-      cursor: pointer; 
-      font-size: 1.2rem;
-      font-weight: bold;
-      min-width: 3rem;
-      transition: all 0.2s ease;
-    }`,
-
-    buttonHover:
-      `{ transform: scale(1.05); background: var(--counter-button-hover, var(--indigo-7)); }`,
-
-    display: `{ 
-      font-size: 2rem; 
-      font-weight: bold; 
-      min-width: 4rem; 
-      text-align: center; 
-      color: var(--counter-text, var(--brand));
-      background: var(--counter-display-bg, var(--surface-1));
-      padding: 0.5rem 1rem;
-      border-radius: var(--radius-2);
-      border: var(--border-size-2) solid var(--counter-display-border, var(--surface-3));
-    }`,
-
-    controls: `{ display: flex; flex-direction: column; gap: 0.5rem; }`,
-
-    label: `{ 
-      font-size: var(--font-size-0); 
-      color: var(--counter-label, var(--text-muted)); 
-      font-weight: 500;
-    }`,
-
-    disabled: `{ 
-      opacity: 0.5; 
-      cursor: not-allowed; 
-      pointer-events: none; 
-    }`,
-
-    maxReached: `{ 
-      border-color: var(--counter-warning, var(--red-6)); 
-      background: var(--counter-warning-bg, var(--red-0)); 
-    }`,
-  },
+  styles: {},
 
   // ✨ Function-Style Props - Zero duplication!
   render: (
@@ -90,7 +30,7 @@ defineComponent("demo-counter", {
       label = string("Counter"), // Counter label
     },
     _api,
-    classes,
+    _classes,
   ) => {
     const currentCount = typeof initialCount === "number" ? initialCount : 0;
     const stepSize = typeof step === "number" ? step : 1;
@@ -106,45 +46,41 @@ defineComponent("demo-counter", {
 
     return (
       <div
-        class={`${classes!.counterContainer} ${
-          atMax ? classes!.maxReached : ""
-        } ${isDisabled ? classes!.disabled : ""}`}
+        class={`u-card u-p-4 u-flex u-items-center u-gap-4 ${
+          atMax ? "u-border u-border-dashed" : ""
+        }`}
         data-count={currentCount}
         data-theme={counterTheme}
       >
-        <div class={classes!.controls}>
-          <label class={classes!.label}>{counterLabel}</label>
+        <div class="u-flex u-flex-col u-gap-1">
+          <label class="u-text-0 u-text-muted u-weight-5">{counterLabel}</label>
           {showButtons && (
-            <div class="u-flex u-gap-2">
+            <div
+              class="u-btn-group"
+              role="group"
+              aria-label="Counter controls"
+            >
               <button
                 type="button"
-                class={`${classes!.button} ${atMin ? classes!.disabled : ""}`}
+                class={`btn btn-brand u-transition u-focus-ring ${
+                  atMin || isDisabled ? "u-disabled" : ""
+                }`}
                 onclick={`
                   const container = this.closest('[data-count]');
-                  const display = container.querySelector('.${
-                  classes!.display
-                }');
+                  const display = container.querySelector('[data-role="count-display"]');
                   const current = parseInt(container.dataset.count);
                   const newCount = Math.max(${min}, current - ${stepSize});
                   container.dataset.count = newCount;
                   display.textContent = newCount;
                   
-                  // Update button states
+                  // Update button disabled state
                   const buttons = container.querySelectorAll('button');
-                  buttons[0].classList.toggle('${
-                  classes!.disabled
-                }', newCount <= ${min});
-                  buttons[1].classList.toggle('${
-                  classes!.disabled
-                }', newCount >= ${max});
-                  // Keep disabled attribute in sync for real clickability
                   buttons[0].disabled = (newCount <= ${min});
                   buttons[1].disabled = (newCount >= ${max});
-                  
-                  // Update container state
-                  container.classList.toggle('${
-                  classes!.maxReached
-                }', newCount >= ${max});
+
+                  // Update container border state
+                  container.classList.toggle('u-border', newCount >= ${max});
+                  container.classList.toggle('u-border-dashed', newCount >= ${max});
                 `}
                 disabled={atMin || isDisabled}
               >
@@ -153,12 +89,12 @@ defineComponent("demo-counter", {
 
               <button
                 type="button"
-                class={`${classes!.button} ${atMax ? classes!.disabled : ""}`}
+                class={`btn btn-brand u-transition u-focus-ring ${
+                  atMax || isDisabled ? "u-disabled" : ""
+                }`}
                 onclick={`
                   const container = this.closest('[data-count]');
-                  const display = container.querySelector('.${
-                  classes!.display
-                }');
+                  const display = container.querySelector('[data-role="count-display"]');
                   const current = parseInt(container.dataset.count);
                   const newCount = Math.min(${max}, current + ${stepSize});
                   container.dataset.count = newCount;
@@ -166,20 +102,13 @@ defineComponent("demo-counter", {
                   
                   // Update button states  
                   const buttons = container.querySelectorAll('button');
-                  buttons[0].classList.toggle('${
-                  classes!.disabled
-                }', newCount <= ${min});
-                  buttons[1].classList.toggle('${
-                  classes!.disabled
-                }', newCount >= ${max});
                   // Keep disabled attribute in sync for real clickability
                   buttons[0].disabled = (newCount <= ${min});
                   buttons[1].disabled = (newCount >= ${max});
                   
-                  // Update container state
-                  container.classList.toggle('${
-                  classes!.maxReached
-                }', newCount >= ${max});
+                  // Update container border state
+                  container.classList.toggle('u-border', newCount >= ${max});
+                  container.classList.toggle('u-border-dashed', newCount >= ${max});
                 `}
                 disabled={atMax || isDisabled}
               >
@@ -189,13 +118,18 @@ defineComponent("demo-counter", {
           )}
         </div>
 
-        <div class={classes!.display}>{currentCount}</div>
+        <div
+          data-role="count-display"
+          class="u-text-3 u-weight-7 u-text-brand u-border u-px-3 u-py-1 u-rounded-2"
+        >
+          {currentCount}
+        </div>
 
-        <div class={classes!.controls}>
-          <div class={classes!.label}>
+        <div class="u-flex u-flex-col u-gap-1">
+          <div class="u-text-0 u-text-muted">
             Range: {min}-{max}
           </div>
-          <div class={classes!.label}>
+          <div class="u-text-0 u-text-muted">
             Step: {stepSize}
           </div>
         </div>
