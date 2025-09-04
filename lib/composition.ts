@@ -316,11 +316,11 @@ export function Navigation(props: NavigationProps): string {
         borderBottom: "2px solid transparent",
         "&:hover": {
           color: "#374151",
-          borderBottomColor: "#d1d5db",
+          borderBottom: "2px solid #d1d5db",
         },
         "&[data-active]": {
           color: "#2563eb",
-          borderBottomColor: "#2563eb",
+          borderBottom: "2px solid #2563eb",
         },
       }),
       
@@ -569,7 +569,7 @@ export function Form(props: FormProps): string {
         });
     }
 
-    if (field.type === "checkbox") {
+    if ((field.type as string) === "checkbox") {
       return inputElement;
     }
 

@@ -10,6 +10,7 @@ export type CSSProperties = {
   bottom?: string | number;
   left?: string | number;
   zIndex?: number | string;
+  content?: string;
   
   // Flexbox
   flexDirection?: "row" | "row-reverse" | "column" | "column-reverse";

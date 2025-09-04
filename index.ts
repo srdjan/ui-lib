@@ -192,3 +192,20 @@ export type {
 
 // Layout components are auto-registered when imported
 export * from "./lib/layout/index.ts";
+
+// Development Tools and Debugging (Phase 4)
+export {
+  componentInspector,
+  performanceMonitor,
+  propValidator,
+  a11yChecker,
+  devHelpers,
+  configureDevTools,
+  getDevConfig,
+  trackComponentRender,
+  getComponentStats,
+  clearDevStats,
+  getPerformanceReport,
+  type DevConfig,
+  type ComponentRenderInfo,
+} from "./lib/dev-tools.ts";

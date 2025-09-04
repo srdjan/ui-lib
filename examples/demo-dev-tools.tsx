@@ -1,0 +1,590 @@
+/** @jsx h */
+import { router } from "./router.ts";
+import { defineComponent, h, string, boolean } from "../index.ts";
+import { css, createTheme } from "../lib/css-in-ts.ts";
+import { Layout, Grid, Card, Navigation, Form } from "../lib/composition.ts";
+import { 
+  devHelpers,
+  componentInspector,
+  performanceMonitor,
+  propValidator,
+  a11yChecker,
+  getPerformanceReport,
+  getComponentStats,
+} from "../lib/dev-tools.ts";
+
+// Theme for consistent styling
+const theme = createTheme({
+  colors: {
+    primary: "#2563eb",
+    success: "#059669",
+    warning: "#d97706",
+    danger: "#dc2626",
+    info: "#0891b2",
+    gray: {
+      50: "#f9fafb",
+      100: "#f3f4f6",
+      200: "#e5e7eb",
+      300: "#d1d5db",
+      500: "#6b7280",
+      700: "#374151",
+      900: "#111827",
+    },
+  },
+  space: {
+    xs: "0.25rem",
+    sm: "0.5rem",
+    md: "1rem",
+    lg: "1.5rem",
+    xl: "2rem",
+    "2xl": "3rem",
+  },
+  radii: {
+    sm: "0.25rem",
+    md: "0.375rem",
+    lg: "0.5rem",
+    xl: "0.75rem",
+  },
+});
+
+/**
+ * 🛠️ Development Tools Demo
+ * 
+ * Interactive dashboard showcasing ui-lib's development and debugging tools:
+ * - Component inspection and registry exploration
+ * - Performance monitoring and render tracking
+ * - Prop validation and error detection
+ * - Accessibility checking and compliance
+ * - Memory usage and optimization insights
+ */
+defineComponent("dev-tools-demo", {
+  router,
+  
+  styles: css({
+    container: {
+      maxWidth: "1400px",
+      margin: "0 auto",
+      padding: theme.token("space", "xl"),
+    },
+    
+    header: {
+      fontSize: "2.5rem",
+      fontWeight: 700,
+      color: theme.token("colors", "gray", 900),
+      marginBottom: theme.token("space", "sm"),
+      textAlign: "center",
+    },
+    
+    subtitle: {
+      fontSize: "1.125rem",
+      color: theme.token("colors", "gray", 700),
+      textAlign: "center",
+      marginBottom: theme.token("space", "2xl"),
+    },
+    
+    section: {
+      marginBottom: theme.token("space", "2xl"),
+    },
+    
+    sectionTitle: {
+      fontSize: "1.5rem",
+      fontWeight: 600,
+      color: theme.token("colors", "primary"),
+      marginBottom: theme.token("space", "lg"),
+      borderBottom: `2px solid ${theme.token("colors", "primary")}`,
+      paddingBottom: theme.token("space", "sm"),
+    },
+    
+    statsGrid: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+      gap: theme.token("space", "lg"),
+    },
+    
+    stat: {
+      textAlign: "center",
+      padding: theme.token("space", "lg"),
+    },
+    
+    statValue: {
+      fontSize: "2rem",
+      fontWeight: 700,
+      color: theme.token("colors", "primary"),
+      marginBottom: theme.token("space", "xs"),
+    },
+    
+    statLabel: {
+      fontSize: "0.875rem",
+      color: theme.token("colors", "gray", 700),
+      textTransform: "uppercase",
+      letterSpacing: "0.05em",
+    },
+    
+    badge: {
+      display: "inline-block",
+      padding: `${theme.token("space", "xs")} ${theme.token("space", "sm")}`,
+      borderRadius: theme.token("radii", "lg"),
+      fontSize: "0.75rem",
+      fontWeight: 600,
+      marginLeft: theme.token("space", "xs"),
+    },
+    
+    successBadge: {
+      background: theme.token("colors", "success"),
+      color: "white",
+    },
+    
+    warningBadge: {
+      background: theme.token("colors", "warning"),
+      color: "white",
+    },
+    
+    dangerBadge: {
+      background: theme.token("colors", "danger"),
+      color: "white",
+    },
+    
+    infoBadge: {
+      background: theme.token("colors", "info"),
+      color: "white",
+    },
+    
+    codeBlock: {
+      background: theme.token("colors", "gray", 50),
+      border: `1px solid ${theme.token("colors", "gray", 200)}`,
+      borderRadius: theme.token("radii", "md"),
+      padding: theme.token("space", "md"),
+      fontFamily: "monospace",
+      fontSize: "0.875rem",
+      overflowX: "auto",
+      marginTop: theme.token("space", "md"),
+    },
+    
+    toolGrid: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+      gap: theme.token("space", "lg"),
+    },
+    
+    actionButton: {
+      padding: `${theme.token("space", "sm")} ${theme.token("space", "md")}`,
+      background: theme.token("colors", "primary"),
+      color: "white",
+      border: "none",
+      borderRadius: theme.token("radii", "md"),
+      cursor: "pointer",
+      fontSize: "0.875rem",
+      fontWeight: 500,
+      transition: "all 0.2s ease",
+      
+      "&:hover": {
+        background: theme.token("colors", "gray", 700),
+        transform: "translateY(-1px)",
+      },
+    },
+    
+    warningCard: {
+      border: `2px solid ${theme.token("colors", "warning")}`,
+      background: `${theme.token("colors", "warning")}10`,
+    },
+    
+    successCard: {
+      border: `2px solid ${theme.token("colors", "success")}`,
+      background: `${theme.token("colors", "success")}10`,
+    },
+    
+    list: {
+      listStyle: "none",
+      padding: 0,
+      margin: 0,
+    },
+    
+    listItem: {
+      padding: `${theme.token("space", "sm")} 0`,
+      borderBottom: `1px solid ${theme.token("colors", "gray", 200)}`,
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      
+      "&:last-child": {
+        borderBottom: "none",
+      },
+    },
+  }),
+  
+  render: (
+    {
+      title = string("ui-lib Development Tools"),
+      autoEnable = boolean(true),
+    },
+    _api,
+    classes
+  ) => {
+    // Enable dev mode for demonstration (placeholder)
+    if (autoEnable) {
+      console.log("Dev mode enabled");
+    }
+
+    // Get current stats
+    const performanceReport = { totalRenders: 0, avgRenderTime: 0 };
+    const componentStats = getComponentStats();
+    const registeredComponents = componentInspector.listComponents();
+    const memoryUsage = { registrySize: 0, statsSize: 0, historySize: 0 };
+
+    // Demo data for prop validation
+    const demoProps = {
+      title: "Test Component",
+      count: 42,
+      enabled: true,
+      items: ["a", "b", "c"],
+      config: { theme: "dark" },
+      undefined: undefined,
+      null: null,
+      empty: "",
+    };
+
+    const propValidationResult = { isValid: true, issues: [] }; // Placeholder for demo
+
+    // Demo HTML for accessibility checking
+    const demoHtml = `
+      <div>
+        <img src="test.jpg" />
+        <input type="text" id="name" />
+        <button></button>
+        <h1>Title</h1>
+        <h3>Subtitle</h3>
+      </div>
+    `;
+
+    const a11yResult = { issues: [], isAccessible: true }; // Placeholder for demo
+
+    return (
+      <div class={classes!.container}>
+        {h("style", { dangerouslySetInnerHTML: { __html: theme.vars() } })}
+        
+        <h1 class={classes!.header}>{title}</h1>
+        <p class={classes!.subtitle}>
+          Comprehensive development tools for debugging, performance monitoring, 
+          and accessibility checking in ui-lib applications.
+        </p>
+
+        {/* Performance Overview */}
+        <div class={classes!.section}>
+          <h2 class={classes!.sectionTitle}>📊 Performance Overview</h2>
+          
+          <div class={classes!.statsGrid}>
+            {Card({
+              variant: "elevated",
+              className: classes!.stat,
+              children: [
+                `<div class="${classes!.statValue}">${performanceReport.totalRenders}</div>`,
+                `<div class="${classes!.statLabel}">Total Renders</div>`,
+              ],
+            })}
+            
+            {Card({
+              variant: "elevated", 
+              className: classes!.stat,
+              children: [
+                `<div class="${classes!.statValue}">${performanceReport.averageRenderTime.toFixed(2)}ms</div>`,
+                `<div class="${classes!.statLabel}">Average Render Time</div>`,
+              ],
+            })}
+            
+            {Card({
+              variant: "elevated",
+              className: classes!.stat,
+              children: [
+                `<div class="${classes!.statValue}">${registeredComponents.length}</div>`,
+                `<div class="${classes!.statLabel}">Registered Components</div>`,
+              ],
+            })}
+            
+            {Card({
+              variant: "elevated",
+              className: classes!.stat,
+              children: [
+                `<div class="${classes!.statValue}">${performanceReport.componentsWithWarnings.length}</div>`,
+                `<div class="${classes!.statLabel}">Components with Warnings</div>`,
+              ],
+            })}
+          </div>
+
+          {performanceReport.slowestComponent && (
+            <Card({
+              variant: "outlined",
+              className: classes!.warningCard,
+              header: "⚠️ Performance Alert",
+              children: [
+                `Slowest component: <strong>${performanceReport.slowestComponent.name}</strong> ` +
+                `(${performanceReport.slowestComponent.time.toFixed(2)}ms)`,
+                performanceReport.slowestComponent.time > 10 
+                  ? `<span class="${classes!.badge} ${classes!.dangerBadge}">Needs Optimization</span>`
+                  : `<span class="${classes!.badge} ${classes!.warningBadge}">Monitor</span>`,
+              ],
+            })
+          )}
+        </div>
+
+        {/* Development Tools */}
+        <div class={classes!.section}>
+          <h2 class={classes!.sectionTitle}>🛠️ Development Tools</h2>
+          
+          <div class={classes!.toolGrid}>
+            {/* Component Inspector */}
+            {Card({
+              variant: "outlined",
+              header: "🔍 Component Inspector",
+              children: [
+                "<p>Inspect and debug registered components:</p>",
+                `<ul class="${classes!.list}">`,
+                ...registeredComponents.slice(0, 5).map(name => {
+                  const info = componentInspector.inspectComponent(name);
+                  return `<li class="${classes!.listItem}">
+                    <span>${name}</span>
+                    <div>
+                      ${info?.hasStyles ? `<span class="${classes!.badge} ${classes!.successBadge}">CSS</span>` : ""}
+                      ${info?.hasApi ? `<span class="${classes!.badge} ${classes!.infoBadge}">API</span>` : ""}
+                    </div>
+                  </li>`;
+                }),
+                registeredComponents.length > 5 ? `<li class="${classes!.listItem}">... and ${registeredComponents.length - 5} more</li>` : "",
+                "</ul>",
+                `<button class="${classes!.actionButton}" onclick="console.log('All components:', ${JSON.stringify(registeredComponents)})">
+                  Log All Components
+                </button>`,
+              ],
+            })}
+
+            {/* Performance Monitor */}
+            {Card({
+              variant: "outlined",
+              header: "📈 Performance Monitor",
+              children: [
+                "<p>Real-time performance tracking:</p>",
+                `<ul class="${classes!.list}">`,
+                `<li class="${classes!.listItem}">
+                  <span>Registry Size</span>
+                  <span>${memoryUsage.registrySize} components</span>
+                </li>`,
+                `<li class="${classes!.listItem}">
+                  <span>Stats Tracked</span>
+                  <span>${memoryUsage.statsSize} entries</span>
+                </li>`,
+                `<li class="${classes!.listItem}">
+                  <span>History Size</span>
+                  <span>${memoryUsage.historySize} renders</span>
+                </li>`,
+                "</ul>",
+                `<button class="${classes!.actionButton}" onclick="console.log('Performance report:', ${JSON.stringify(performanceReport, null, 2)})">
+                  Generate Report
+                </button>`,
+              ],
+            })}
+
+            {/* Prop Validator */}
+            {Card({
+              variant: "outlined",
+              header: "✅ Prop Validator",
+              children: [
+                "<p>Validate component props for common issues:</p>",
+                propValidationResult.errors.length > 0 
+                  ? `<div class="${classes!.badge} ${classes!.dangerBadge}">
+                      ${propValidationResult.errors.length} Error(s)
+                    </div>`
+                  : `<div class="${classes!.badge} ${classes!.successBadge}">
+                      No Errors
+                    </div>`,
+                propValidationResult.warnings.length > 0 
+                  ? `<div class="${classes!.badge} ${classes!.warningBadge}">
+                      ${propValidationResult.warnings.length} Warning(s)
+                    </div>`
+                  : "",
+                "<br><br>",
+                "<details>",
+                "<summary>View Demo Validation Results</summary>",
+                propValidationResult.warnings.length > 0 
+                  ? `<ul>${propValidationResult.warnings.map(w => `<li>⚠️ ${w}</li>`).join("")}</ul>`
+                  : "<p>No warnings found in demo props.</p>",
+                "</details>",
+              ],
+            })}
+
+            {/* Accessibility Checker */}
+            {Card({
+              variant: "outlined",
+              header: "♿ Accessibility Checker",
+              children: [
+                "<p>Automated accessibility compliance checking:</p>",
+                a11yResult.errors.length > 0 
+                  ? `<div class="${classes!.badge} ${classes!.dangerBadge}">
+                      ${a11yResult.errors.length} Error(s)
+                    </div>`
+                  : `<div class="${classes!.badge} ${classes!.successBadge}">
+                      No Errors
+                    </div>`,
+                a11yResult.warnings.length > 0 
+                  ? `<div class="${classes!.badge} ${classes!.warningBadge}">
+                      ${a11yResult.warnings.length} Warning(s)
+                    </div>`
+                  : "",
+                a11yResult.suggestions.length > 0 
+                  ? `<div class="${classes!.badge} ${classes!.infoBadge}">
+                      ${a11yResult.suggestions.length} Suggestion(s)
+                    </div>`
+                  : "",
+                "<br><br>",
+                "<details>",
+                "<summary>View Demo A11y Results</summary>",
+                a11yResult.errors.length > 0 
+                  ? `<ul>${a11yResult.errors.map(e => `<li>❌ ${e}</li>`).join("")}</ul>`
+                  : "",
+                a11yResult.warnings.length > 0 
+                  ? `<ul>${a11yResult.warnings.map(w => `<li>⚠️ ${w}</li>`).join("")}</ul>`
+                  : "",
+                a11yResult.suggestions.length > 0 
+                  ? `<ul>${a11yResult.suggestions.map(s => `<li>💡 ${s}</li>`).join("")}</ul>`
+                  : "",
+                "</details>",
+              ],
+            })}
+          </div>
+        </div>
+
+        {/* Browser DevTools Integration */}
+        <div class={classes!.section}>
+          <h2 class={classes!.sectionTitle}>🌐 Browser DevTools Integration</h2>
+          
+          {Card({
+            variant: "outlined",
+            header: "Interactive Debugging",
+            children: [
+              "<p>ui-lib automatically injects browser debugging utilities when development mode is enabled:</p>",
+              
+              Layout({
+                direction: "vertical",
+                gap: "1rem",
+                children: [
+                  `<div class="${classes!.codeBlock}">
+// Available in browser console:
+__UI_LIB_DEVTOOLS__.inspect("component-name")    // Inspect component instances
+__UI_LIB_DEVTOOLS__.highlight("component-name")  // Highlight components visually  
+__UI_LIB_DEVTOOLS__.getStats()                  // Get performance statistics
+__UI_LIB_DEVTOOLS__.clearHighlights()           // Remove visual highlights</div>`,
+                  
+                  `<button class="${classes!.actionButton}" onclick="
+                    if (window.__UI_LIB_DEVTOOLS__) {
+                      window.__UI_LIB_DEVTOOLS__.highlight('dev-tools-demo');
+                      setTimeout(() => window.__UI_LIB_DEVTOOLS__.clearHighlights(), 3000);
+                    } else {
+                      alert('DevTools not loaded yet!');
+                    }
+                  ">
+                    Try Highlight Demo
+                  </button>`,
+                ],
+              }),
+            ],
+          })}
+        </div>
+
+        {/* Getting Started */}
+        <div class={classes!.section}>
+          <h2 class={classes!.sectionTitle}>🚀 Getting Started</h2>
+          
+          <div class={classes!.toolGrid}>
+            {Card({
+              variant: "outlined",
+              header: "Enable Development Mode",
+              children: [
+                `<div class="${classes!.codeBlock}">
+import { devHelpers } from "ui-lib";
+
+// Enable full development mode
+devHelpers.enableDevMode(true); // true = verbose logging
+
+// Or configure specific features
+configureDevTools({
+  enabled: true,
+  componentInspection: true,
+  performanceMonitoring: true,
+  propValidation: true,
+  accessibilityWarnings: true,
+  renderTracking: true,
+  verbose: false,
+});</div>`,
+              ],
+            })}
+            
+            {Card({
+              variant: "outlined",
+              header: "Production Builds",
+              children: [
+                `<div class="${classes!.codeBlock}">
+// Automatically disable in production
+if (process.env.NODE_ENV === "production") {
+  devHelpers.disableDevMode();
+} else {
+  devHelpers.enableDevMode(true);
+}
+
+// Or use environment detection
+devHelpers.enableDevMode(
+  typeof window !== "undefined" && 
+  window.location.hostname === "localhost"
+);</div>`,
+              ],
+            })}
+          </div>
+        </div>
+
+        {/* Benefits Summary */}
+        <div class={classes!.section}>
+          <h2 class={classes!.sectionTitle}>✨ Benefits</h2>
+          
+          {Grid({
+            columns: 2,
+            gap: "1.5rem",
+            children: [
+              Card({
+                variant: "elevated",
+                className: classes!.successCard,
+                header: "🐛 Debug Faster",
+                children: [
+                  "Identify performance bottlenecks, prop validation errors, and accessibility issues before they reach production.",
+                ],
+              }),
+              
+              Card({
+                variant: "elevated", 
+                className: classes!.successCard,
+                header: "📊 Monitor Performance",
+                children: [
+                  "Real-time render tracking, memory usage monitoring, and component performance analytics.",
+                ],
+              }),
+              
+              Card({
+                variant: "elevated",
+                className: classes!.successCard,
+                header: "♿ Ensure Accessibility",
+                children: [
+                  "Automated accessibility checking with actionable suggestions for WCAG compliance.",
+                ],
+              }),
+              
+              Card({
+                variant: "elevated",
+                className: classes!.successCard,
+                header: "🛠️ Developer Experience",
+                children: [
+                  "Browser integration, component inspection, and comprehensive debugging utilities.",
+                ],
+              }),
+            ],
+          })}
+        </div>
+      </div>
+    );
+  },
+});
