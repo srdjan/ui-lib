@@ -209,3 +209,41 @@ export {
   type DevConfig,
   type ComponentRenderInfo,
 } from "./lib/dev-tools.ts";
+
+// Performance Optimizations (Phase 5)
+export {
+  PerformanceCache,
+  initializeRenderCache,
+  getRenderCache,
+  cachedRender,
+  cacheWarming,
+  cacheMonitoring,
+  cachePresets,
+  type CacheEntry,
+  type CacheOptions,
+  type CacheStats,
+  type CacheKey,
+} from "./lib/performance-cache.ts";
+
+export {
+  MinimalRuntime,
+  BundleAnalyzer,
+  treeShaking,
+  codeSplitting,
+  optimizationPresets,
+  type BundleAnalysis,
+  type ModuleInfo,
+  type OptimizationConfig,
+} from "./lib/bundle-optimizer.ts";
+
+export {
+  TemplateCompiler,
+  PropParserOptimizer,
+  RenderBatchOptimizer,
+  RenderProfiler,
+  RenderOptimizer,
+  renderOptimizationPresets,
+  type RenderMetrics,
+  type OptimizationReport,
+  type CompiledTemplate,
+} from "./lib/render-optimizer.ts";
