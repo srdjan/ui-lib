@@ -9,7 +9,13 @@ import { css } from "./css-in-ts.ts";
  */
 export type LayoutDirection = "horizontal" | "vertical";
 export type LayoutAlignment = "start" | "center" | "end" | "stretch";
-export type LayoutJustification = "start" | "center" | "end" | "between" | "around" | "evenly";
+export type LayoutJustification =
+  | "start"
+  | "center"
+  | "end"
+  | "between"
+  | "around"
+  | "evenly";
 
 export interface LayoutProps {
   direction?: LayoutDirection;
@@ -81,7 +87,15 @@ export interface NavigationProps {
  * Form composition types
  */
 export interface FormField {
-  type: "text" | "email" | "password" | "number" | "textarea" | "select" | "checkbox" | "radio";
+  type:
+    | "text"
+    | "email"
+    | "password"
+    | "number"
+    | "textarea"
+    | "select"
+    | "checkbox"
+    | "radio";
   name: string;
   label: string;
   placeholder?: string;
@@ -129,7 +143,7 @@ export function Layout(props: LayoutProps): string {
   return h(
     "div",
     { class: `${styles.classMap.layout} ${className}`.trim() },
-    ...children
+    ...children,
   );
 }
 
@@ -146,15 +160,17 @@ export function Grid(props: GridProps): string {
     children = [],
   } = props;
 
-  const gridColumns = typeof columns === "number" 
-    ? `repeat(${columns}, 1fr)` 
+  const gridColumns = typeof columns === "number"
+    ? `repeat(${columns}, 1fr)`
     : columns;
 
   const styles = css({
     grid: {
       display: "grid",
       gridTemplateColumns: gridColumns,
-      gridTemplateRows: typeof rows === "number" ? `repeat(${rows}, auto)` : rows,
+      gridTemplateRows: typeof rows === "number"
+        ? `repeat(${rows}, auto)`
+        : rows,
       gap: typeof gap === "number" ? `${gap}px` : gap,
       ...(areas && { gridTemplateAreas: areas }),
     },
@@ -163,7 +179,7 @@ export function Grid(props: GridProps): string {
   return h(
     "div",
     { class: `${styles.classMap.grid} ${className}`.trim() },
-    ...children
+    ...children,
   );
 }
 
@@ -222,7 +238,7 @@ export function Card(props: CardProps): string {
   return h(
     "div",
     { class: `${styles.classMap.card} ${className}`.trim() },
-    ...content
+    ...content,
   );
 }
 
@@ -242,35 +258,51 @@ export function ButtonGroup(props: ButtonGroupProps): string {
     group: {
       display: "flex",
       flexDirection: orientation === "vertical" ? "column" : "row",
-      ...(variant === "attached" ? {
-        "& > *": {
-          margin: 0,
-          ...(orientation === "horizontal" ? {
-            borderRadius: 0,
-            "&:first-child": { borderTopLeftRadius: "0.375rem", borderBottomLeftRadius: "0.375rem" },
-            "&:last-child": { borderTopRightRadius: "0.375rem", borderBottomRightRadius: "0.375rem" },
-            "&:not(:last-child)": { borderRightWidth: 0 },
-          } : {
-            borderRadius: 0,
-            "&:first-child": { borderTopLeftRadius: "0.375rem", borderTopRightRadius: "0.375rem" },
-            "&:last-child": { borderBottomLeftRadius: "0.375rem", borderBottomRightRadius: "0.375rem" },
-            "&:not(:last-child)": { borderBottomWidth: 0 },
-          }),
-        },
-      } : {
-        gap: getSizeGap(size),
-      }),
+      ...(variant === "attached"
+        ? {
+          "& > *": {
+            margin: 0,
+            ...(orientation === "horizontal"
+              ? {
+                borderRadius: 0,
+                "&:first-child": {
+                  borderTopLeftRadius: "0.375rem",
+                  borderBottomLeftRadius: "0.375rem",
+                },
+                "&:last-child": {
+                  borderTopRightRadius: "0.375rem",
+                  borderBottomRightRadius: "0.375rem",
+                },
+                "&:not(:last-child)": { borderRightWidth: 0 },
+              }
+              : {
+                borderRadius: 0,
+                "&:first-child": {
+                  borderTopLeftRadius: "0.375rem",
+                  borderTopRightRadius: "0.375rem",
+                },
+                "&:last-child": {
+                  borderBottomLeftRadius: "0.375rem",
+                  borderBottomRightRadius: "0.375rem",
+                },
+                "&:not(:last-child)": { borderBottomWidth: 0 },
+              }),
+          },
+        }
+        : {
+          gap: getSizeGap(size),
+        }),
     },
   });
 
   return h(
     "div",
-    { 
+    {
       class: `${styles.classMap.group} ${className}`.trim(),
       role: "group",
-      "aria-label": "Button group"
+      "aria-label": "Button group",
     },
-    ...children
+    ...children,
   );
 }
 
@@ -311,7 +343,7 @@ export function Navigation(props: NavigationProps): string {
       color: "#6b7280",
       cursor: "pointer",
       transition: "all 0.2s ease",
-      
+
       ...(variant === "tabs" && {
         borderBottom: "2px solid transparent",
         "&:hover": {
@@ -323,7 +355,7 @@ export function Navigation(props: NavigationProps): string {
           borderBottom: "2px solid #2563eb",
         },
       }),
-      
+
       ...(variant === "pills" && {
         borderRadius: "0.375rem",
         "&:hover": {
@@ -335,7 +367,7 @@ export function Navigation(props: NavigationProps): string {
           color: "white",
         },
       }),
-      
+
       ...(variant === "breadcrumbs" && {
         fontSize: "0.875rem",
         "&:not(:last-child):after": {
@@ -344,7 +376,7 @@ export function Navigation(props: NavigationProps): string {
           color: "#9ca3af",
         },
       }),
-      
+
       ...(variant === "sidebar" && {
         borderRadius: "0.375rem",
         width: "100%",
@@ -358,7 +390,7 @@ export function Navigation(props: NavigationProps): string {
           color: "#1d4ed8",
         },
       }),
-      
+
       "&[data-disabled]": {
         opacity: 0.5,
         cursor: "not-allowed",
@@ -377,7 +409,7 @@ export function Navigation(props: NavigationProps): string {
     },
   });
 
-  const navItems = items.map(item => {
+  const navItems = items.map((item) => {
     const attributes: Record<string, string> = {
       class: styles.classMap.item,
       ...(item.active && { "data-active": "" }),
@@ -392,18 +424,18 @@ export function Navigation(props: NavigationProps): string {
       item.badge && h("span", { class: styles.classMap.badge }, item.badge),
     ].filter(Boolean).join("");
 
-    return item.href 
+    return item.href
       ? h("a", attributes, content)
       : h("button", { ...attributes, type: "button" }, content);
   });
 
   return h(
     "nav",
-    { 
+    {
       class: `${styles.classMap.nav} ${className}`.trim(),
-      role: "navigation"
+      role: "navigation",
     },
-    ...navItems
+    ...navItems,
   );
 }
 
@@ -441,14 +473,22 @@ export function Form(props: FormProps): string {
       border: "1px solid #d1d5db",
       borderRadius: "0.375rem",
       fontSize: "0.875rem",
+      background: "white",
+      color: "#374151",
+      cursor: "text",
+      transition: "border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out",
       "&:focus": {
         outline: "none",
         borderColor: "#2563eb",
         boxShadow: "0 0 0 3px rgba(37, 99, 235, 0.1)",
       },
+      "&:hover": {
+        borderColor: "#9ca3af",
+      },
       "&:disabled": {
         background: "#f9fafb",
         cursor: "not-allowed",
+        color: "#9ca3af",
       },
     },
     textarea: {
@@ -458,10 +498,17 @@ export function Form(props: FormProps): string {
       fontSize: "0.875rem",
       minHeight: "4rem",
       resize: "vertical",
+      background: "white",
+      color: "#374151",
+      cursor: "text",
+      transition: "border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out",
       "&:focus": {
         outline: "none",
         borderColor: "#2563eb",
         boxShadow: "0 0 0 3px rgba(37, 99, 235, 0.1)",
+      },
+      "&:hover": {
+        borderColor: "#9ca3af",
       },
     },
     select: {
@@ -470,10 +517,16 @@ export function Form(props: FormProps): string {
       borderRadius: "0.375rem",
       fontSize: "0.875rem",
       background: "white",
+      color: "#374151",
+      cursor: "pointer",
+      transition: "border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out",
       "&:focus": {
         outline: "none",
         borderColor: "#2563eb",
         boxShadow: "0 0 0 3px rgba(37, 99, 235, 0.1)",
+      },
+      "&:hover": {
+        borderColor: "#9ca3af",
       },
     },
     checkboxWrapper: {
@@ -516,7 +569,7 @@ export function Form(props: FormProps): string {
     },
   });
 
-  const formFields = fields.map(field => {
+  const formFields = fields.map((field) => {
     const fieldId = `field-${field.name}`;
     const commonAttributes = {
       id: fieldId,
@@ -536,9 +589,9 @@ export function Form(props: FormProps): string {
           placeholder: field.placeholder,
         }, field.value || "");
         break;
-        
+
       case "select":
-        const options = (field.options || []).map(option => 
+        const options = (field.options || []).map((option) =>
           h("option", { value: option.value }, option.label)
         );
         inputElement = h("select", {
@@ -546,7 +599,7 @@ export function Form(props: FormProps): string {
           class: styles.classMap.select,
         }, ...options);
         break;
-        
+
       case "checkbox":
         return h("div", { class: styles.classMap.field }, [
           h("div", { class: styles.classMap.checkboxWrapper }, [
@@ -556,10 +609,14 @@ export function Form(props: FormProps): string {
               class: styles.classMap.checkbox,
               ...(field.checked && { checked: true }),
             }),
-            h("label", { for: fieldId, class: styles.classMap.label }, field.label),
+            h(
+              "label",
+              { for: fieldId, class: styles.classMap.label },
+              field.label,
+            ),
           ]),
         ]);
-        
+
       default:
         inputElement = h("input", {
           ...commonAttributes,
@@ -567,10 +624,6 @@ export function Form(props: FormProps): string {
           class: styles.classMap.input,
           placeholder: field.placeholder,
         });
-    }
-
-    if ((field.type as string) === "checkbox") {
-      return inputElement;
     }
 
     return h("div", { class: styles.classMap.field }, [
@@ -600,33 +653,59 @@ export function Form(props: FormProps): string {
 /**
  * Helper functions
  */
-function getAlignValue(align: LayoutAlignment): "flex-start" | "flex-end" | "center" | "stretch" {
+function getAlignValue(
+  align: LayoutAlignment,
+): "flex-start" | "flex-end" | "center" | "stretch" {
   switch (align) {
-    case "start": return "flex-start";
-    case "end": return "flex-end";
-    case "center": return "center";
-    case "stretch": return "stretch";
-    default: return "stretch";
+    case "start":
+      return "flex-start";
+    case "end":
+      return "flex-end";
+    case "center":
+      return "center";
+    case "stretch":
+      return "stretch";
+    default:
+      return "stretch";
   }
 }
 
-function getJustifyValue(justify: LayoutJustification): "flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "space-evenly" {
+function getJustifyValue(
+  justify: LayoutJustification,
+):
+  | "flex-start"
+  | "flex-end"
+  | "center"
+  | "space-between"
+  | "space-around"
+  | "space-evenly" {
   switch (justify) {
-    case "start": return "flex-start";
-    case "end": return "flex-end";
-    case "center": return "center";
-    case "between": return "space-between";
-    case "around": return "space-around";
-    case "evenly": return "space-evenly";
-    default: return "flex-start";
+    case "start":
+      return "flex-start";
+    case "end":
+      return "flex-end";
+    case "center":
+      return "center";
+    case "between":
+      return "space-between";
+    case "around":
+      return "space-around";
+    case "evenly":
+      return "space-evenly";
+    default:
+      return "flex-start";
   }
 }
 
 function getSizeGap(size: "sm" | "md" | "lg"): string {
   switch (size) {
-    case "sm": return "0.25rem";
-    case "md": return "0.5rem";
-    case "lg": return "1rem";
-    default: return "0.5rem";
+    case "sm":
+      return "0.25rem";
+    case "md":
+      return "0.5rem";
+    case "lg":
+      return "1rem";
+    default:
+      return "0.5rem";
   }
 }

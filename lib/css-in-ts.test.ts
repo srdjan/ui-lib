@@ -1,5 +1,14 @@
-import { assertEquals, assertStringIncludes } from "https://deno.land/std@0.224.0/assert/mod.ts";
-import { css, createTheme, cssHelpers, composeStyles, responsive } from "./css-in-ts.ts";
+import {
+  assertEquals,
+  assertStringIncludes,
+} from "https://deno.land/std@0.224.0/assert/mod.ts";
+import {
+  composeStyles,
+  createTheme,
+  css,
+  cssHelpers,
+  responsive,
+} from "./css-in-ts.ts";
 
 Deno.test("css() generates class names and CSS", () => {
   const result = css({
@@ -17,7 +26,7 @@ Deno.test("css() generates class names and CSS", () => {
   // Check class map generation
   assertEquals(typeof result.classMap.button, "string");
   assertEquals(typeof result.classMap.container, "string");
-  
+
   // Check CSS generation
   assertStringIncludes(result.css, "padding: 10px;");
   assertStringIncludes(result.css, "background: blue;");
@@ -100,7 +109,10 @@ Deno.test("css() handles media queries", () => {
 
   assertStringIncludes(result.css, "@media (max-width: 640px)");
   assertStringIncludes(result.css, "font-size: 14px;");
-  assertStringIncludes(result.css, "@media (min-width: 1025px) and (max-width: 1440px)");
+  assertStringIncludes(
+    result.css,
+    "@media (min-width: 1025px) and (max-width: 1440px)",
+  );
   assertStringIncludes(result.css, "font-size: 18px;");
 });
 
@@ -171,9 +183,9 @@ Deno.test("composeStyles merges multiple style objects", () => {
   const base = { padding: "10px", color: "blue" };
   const hover = { color: "red", background: "yellow" };
   const active = { background: "green" };
-  
+
   const composed = composeStyles(base, hover, active);
-  
+
   assertEquals(composed.padding, "10px");
   assertEquals(composed.color, "red"); // hover overrides base
   assertEquals(composed.background, "green"); // active overrides hover
@@ -183,9 +195,9 @@ Deno.test("composeStyles filters out undefined values", () => {
   const style1 = { padding: "10px" };
   const style2 = undefined;
   const style3 = { margin: "20px" };
-  
+
   const composed = composeStyles(style1, style2, style3);
-  
+
   assertEquals(composed.padding, "10px");
   assertEquals(composed.margin, "20px");
   assertEquals(Object.keys(composed).length, 2);

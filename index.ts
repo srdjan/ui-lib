@@ -82,28 +82,28 @@ export {
 
 // Enhanced prop helpers (Phase 1)
 export {
+  array2,
+  boolean2,
+  isTypedPropHelper,
+  number2,
+  object2,
+  // Compatibility exports
+  string2,
   typedArray,
   typedBoolean,
   typedNumber,
   typedObject,
   typedString,
-  isTypedPropHelper,
-  // Compatibility exports
-  string2,
-  number2,
-  boolean2,
-  array2,
-  object2,
 } from "./lib/prop-helpers-v2.ts";
 
 // CSS-in-TypeScript system (Phase 2)
 export {
-  css,
-  createTheme,
-  cssHelpers,
   composeStyles,
-  responsive,
+  createTheme,
+  css,
+  cssHelpers,
   type CSSProperties,
+  responsive,
   type StyleMap,
   type StyleObject,
   type ThemeTokens,
@@ -111,20 +111,20 @@ export {
 
 // Component composition helpers (Phase 3)
 export {
-  Layout,
-  Grid,
-  Card,
   ButtonGroup,
-  Navigation,
-  Form,
-  type LayoutProps,
-  type GridProps,
-  type CardProps,
   type ButtonGroupProps,
-  type NavigationProps,
-  type FormProps,
-  type NavItem,
+  Card,
+  type CardProps,
+  Form,
   type FormField,
+  type FormProps,
+  Grid,
+  type GridProps,
+  Layout,
+  type LayoutProps,
+  Navigation,
+  type NavigationProps,
+  type NavItem,
 } from "./lib/composition.ts";
 
 // Utility TS types
@@ -195,55 +195,55 @@ export * from "./lib/layout/index.ts";
 
 // Development Tools and Debugging (Phase 4)
 export {
+  a11yChecker,
+  clearDevStats,
   componentInspector,
+  type ComponentRenderInfo,
+  configureDevTools,
+  type DevConfig,
+  devHelpers,
+  getComponentStats,
+  getDevConfig,
+  getPerformanceReport,
   performanceMonitor,
   propValidator,
-  a11yChecker,
-  devHelpers,
-  configureDevTools,
-  getDevConfig,
   trackComponentRender,
-  getComponentStats,
-  clearDevStats,
-  getPerformanceReport,
-  type DevConfig,
-  type ComponentRenderInfo,
 } from "./lib/dev-tools.ts";
 
 // Performance Optimizations (Phase 5)
 export {
-  PerformanceCache,
-  initializeRenderCache,
-  getRenderCache,
   cachedRender,
-  cacheWarming,
-  cacheMonitoring,
-  cachePresets,
   type CacheEntry,
-  type CacheOptions,
-  type CacheStats,
   type CacheKey,
+  cacheMonitoring,
+  type CacheOptions,
+  cachePresets,
+  type CacheStats,
+  cacheWarming,
+  getRenderCache,
+  initializeRenderCache,
+  PerformanceCache,
 } from "./lib/performance-cache.ts";
 
 export {
-  MinimalRuntime,
-  BundleAnalyzer,
-  treeShaking,
-  codeSplitting,
-  optimizationPresets,
   type BundleAnalysis,
+  BundleAnalyzer,
+  codeSplitting,
+  MinimalRuntime,
   type ModuleInfo,
   type OptimizationConfig,
+  optimizationPresets,
+  treeShaking,
 } from "./lib/bundle-optimizer.ts";
 
 export {
-  TemplateCompiler,
+  type CompiledTemplate,
+  type OptimizationReport,
   PropParserOptimizer,
   RenderBatchOptimizer,
-  RenderProfiler,
-  RenderOptimizer,
-  renderOptimizationPresets,
   type RenderMetrics,
-  type OptimizationReport,
-  type CompiledTemplate,
+  renderOptimizationPresets,
+  RenderOptimizer,
+  RenderProfiler,
+  TemplateCompiler,
 } from "./lib/render-optimizer.ts";

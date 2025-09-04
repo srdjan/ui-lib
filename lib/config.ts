@@ -32,7 +32,10 @@ function deepMerge<T>(target: T, source: DeepPartial<T>): T {
   for (const key in source) {
     const targetValue = (target as any)[key];
     const sourceValue = (source as any)[key];
-    if (targetValue && typeof targetValue === "object" && sourceValue && typeof sourceValue === "object") {
+    if (
+      targetValue && typeof targetValue === "object" && sourceValue &&
+      typeof sourceValue === "object"
+    ) {
       (output as any)[key] = deepMerge(targetValue, sourceValue);
     } else {
       (output as any)[key] = sourceValue;

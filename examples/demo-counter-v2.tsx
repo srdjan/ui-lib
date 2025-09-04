@@ -1,10 +1,10 @@
 /** @jsx h */
 import { router } from "./router.ts";
 import { defineComponent, h } from "../index.ts";
-import { 
-  typedBoolean as boolean2, 
-  typedNumber as number2, 
-  typedString as string2 
+import {
+  typedBoolean as boolean2,
+  typedNumber as number2,
+  typedString as string2,
 } from "../lib/prop-helpers-v2.ts";
 
 /**
@@ -14,14 +14,14 @@ import {
  * - NO MORE: typeof initialCount === "number" ? initialCount : 0
  * - NO MORE: typeof step === "number" ? step : 1
  * - Props are already correctly typed!
- * 
+ *
  * This showcases the new typed prop helpers that eliminate
  * all manual type checking in render functions.
  */
 defineComponent("demo-counter-v2", {
   router,
   autoProps: true,
-  
+
   styles: {
     container: `{ 
       display: inline-flex; 
@@ -74,13 +74,13 @@ defineComponent("demo-counter-v2", {
   render: (
     {
       // Look how clean this is! No type checking needed!
-      initialCount = number2(0),      // Already a number!
-      step = number2(1),               // Already a number!
-      maxValue = number2(100),         // Already a number!
-      minValue = number2(0),           // Already a number!
-      disabled = boolean2(false),      // Already a boolean!
-      theme = string2("blue"),         // Already a string!
-      showControls = boolean2(true),   // Already a boolean!
+      initialCount = number2(0), // Already a number!
+      step = number2(1), // Already a number!
+      maxValue = number2(100), // Already a number!
+      minValue = number2(0), // Already a number!
+      disabled = boolean2(false), // Already a boolean!
+      theme = string2("blue"), // Already a string!
+      showControls = boolean2(true), // Already a boolean!
       label = string2("Enhanced Counter"), // Already a string!
     },
     _api,
@@ -89,11 +89,15 @@ defineComponent("demo-counter-v2", {
     // ✨ Direct usage - no type checking required!
     const atMax = initialCount >= maxValue;
     const atMin = initialCount <= minValue;
-    
+
     // Set CSS variable for theme
-    const themeColor = theme === "red" ? "#dc3545" : 
-                       theme === "green" ? "#28a745" : 
-                       theme === "purple" ? "#6f42c1" : "#007bff";
+    const themeColor = theme === "red"
+      ? "#dc3545"
+      : theme === "green"
+      ? "#28a745"
+      : theme === "purple"
+      ? "#6f42c1"
+      : "#007bff";
 
     return (
       <div
@@ -104,13 +108,16 @@ defineComponent("demo-counter-v2", {
       >
         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
           <label class={classes!.label}>{label}</label>
-          
-          {showControls ? (
-            <div class={classes!.controls}>
-              <button
-                type="button"
-                class={`${classes!.button} ${(atMin || disabled) ? classes!.buttonDisabled : ""}`}
-                onclick={`
+
+          {showControls
+            ? (
+              <div class={classes!.controls}>
+                <button
+                  type="button"
+                  class={`${classes!.button} ${
+                    (atMin || disabled) ? classes!.buttonDisabled : ""
+                  }`}
+                  onclick={`
                   const container = this.closest('[data-count]');
                   const display = container.querySelector('[data-role="count-display"]');
                   const current = parseInt(container.dataset.count);
@@ -120,25 +127,31 @@ defineComponent("demo-counter-v2", {
                   
                   // Update button states
                   const buttons = container.querySelectorAll('button');
-                  buttons[0].classList.toggle('${classes!.buttonDisabled}', newCount <= ${minValue});
-                  buttons[1].classList.toggle('${classes!.buttonDisabled}', newCount >= ${maxValue});
+                  buttons[0].classList.toggle('${
+                    classes!.buttonDisabled
+                  }', newCount <= ${minValue});
+                  buttons[1].classList.toggle('${
+                    classes!.buttonDisabled
+                  }', newCount >= ${maxValue});
                 `}
-                disabled={atMin || disabled}
-              >
-                -{step}
-              </button>
+                  disabled={atMin || disabled}
+                >
+                  -{step}
+                </button>
 
-              <div
-                data-role="count-display"
-                class={classes!.display}
-              >
-                {initialCount}
-              </div>
+                <div
+                  data-role="count-display"
+                  class={classes!.display}
+                >
+                  {initialCount}
+                </div>
 
-              <button
-                type="button"
-                class={`${classes!.button} ${(atMax || disabled) ? classes!.buttonDisabled : ""}`}
-                onclick={`
+                <button
+                  type="button"
+                  class={`${classes!.button} ${
+                    (atMax || disabled) ? classes!.buttonDisabled : ""
+                  }`}
+                  onclick={`
                   const container = this.closest('[data-count]');
                   const display = container.querySelector('[data-role="count-display"]');
                   const current = parseInt(container.dataset.count);
@@ -148,18 +161,21 @@ defineComponent("demo-counter-v2", {
                   
                   // Update button states
                   const buttons = container.querySelectorAll('button');
-                  buttons[0].classList.toggle('${classes!.buttonDisabled}', newCount <= ${minValue});
-                  buttons[1].classList.toggle('${classes!.buttonDisabled}', newCount >= ${maxValue});
+                  buttons[0].classList.toggle('${
+                    classes!.buttonDisabled
+                  }', newCount <= ${minValue});
+                  buttons[1].classList.toggle('${
+                    classes!.buttonDisabled
+                  }', newCount >= ${maxValue});
                 `}
-                disabled={atMax || disabled}
-              >
-                +{step}
-              </button>
-            </div>
-          ) : (
-            <div class={classes!.display}>{initialCount}</div>
-          )}
-          
+                  disabled={atMax || disabled}
+                >
+                  +{step}
+                </button>
+              </div>
+            )
+            : <div class={classes!.display}>{initialCount}</div>}
+
           <div class={classes!.info}>
             <div>Range: {minValue}-{maxValue}</div>
             <div>Step: {step}</div>
@@ -176,7 +192,7 @@ defineComponent("demo-counter-v2", {
  */
 defineComponent("counter-comparison", {
   router,
-  
+
   styles: {
     grid: `{
       display: grid;
@@ -211,7 +227,7 @@ defineComponent("counter-comparison", {
       font-size: 0.875rem;
     }`,
   },
-  
+
   render: (_props, _api, classes) => (
     <div class={classes!.grid}>
       <div class={classes!.section}>
@@ -220,16 +236,16 @@ defineComponent("counter-comparison", {
           Required manual type checking for every prop
         </p>
         <pre class={classes!.code}>{`// Lots of boilerplate!
-const currentCount = typeof initialCount === "number" 
+const currentCount = typeof initialCount === "number"
   ? initialCount : 0;
-const stepSize = typeof step === "number" 
+const stepSize = typeof step === "number"
   ? step : 1;
 // ... and so on for every prop`}</pre>
         <div style="margin-top: 1rem;">
           <demo-counter initial-count="5" step="2" theme="red" />
         </div>
       </div>
-      
+
       <div class={classes!.section}>
         <h3 class={classes!.title}>✅ New Way (demo-counter-v2)</h3>
         <p class={classes!.subtitle}>

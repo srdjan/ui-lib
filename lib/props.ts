@@ -58,9 +58,7 @@ export function createPropSpec(spec: Record<string, string>): Record<string, {
       out[key] = {
         parse: (value: unknown) => {
           if (value === undefined || value === null) {
-            return isOptional
-              ? undefined
-              : false;
+            return isOptional ? undefined : false;
           }
           const s = String(value).toLowerCase();
           if (s === "false" || s === "0") return false;
@@ -72,9 +70,7 @@ export function createPropSpec(spec: Record<string, string>): Record<string, {
       out[key] = {
         parse: (value: unknown) => {
           if (value === undefined || value === null) {
-            return isOptional
-              ? undefined
-              : "";
+            return isOptional ? undefined : "";
           }
           return String(value);
         },

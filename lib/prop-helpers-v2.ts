@@ -24,7 +24,9 @@ function camelToKebab(str: string): string {
  * @param defaultValue - Default value if attribute is missing
  * @returns Strongly typed string value
  */
-export function typedString(defaultValue?: string): string & TypedPropHelper<string> {
+export function typedString(
+  defaultValue?: string,
+): string & TypedPropHelper<string> {
   const helper: TypedPropHelper<string> = {
     __propHelper: true,
     __typed: true,
@@ -52,7 +54,7 @@ export function typedString(defaultValue?: string): string & TypedPropHelper<str
       if (prop in helper) {
         return helper[prop as keyof typeof helper];
       }
-      if (prop === 'toString' || prop === Symbol.toStringTag) {
+      if (prop === "toString" || prop === Symbol.toStringTag) {
         return () => proxyTarget;
       }
       return (proxyTarget as any)[prop];
@@ -65,7 +67,9 @@ export function typedString(defaultValue?: string): string & TypedPropHelper<str
  * @param defaultValue - Default value if attribute is missing
  * @returns Strongly typed number value
  */
-export function typedNumber(defaultValue?: number): number & TypedPropHelper<number> {
+export function typedNumber(
+  defaultValue?: number,
+): number & TypedPropHelper<number> {
   const helper: TypedPropHelper<number> = {
     __propHelper: true,
     __typed: true,
@@ -84,7 +88,7 @@ export function typedNumber(defaultValue?: number): number & TypedPropHelper<num
       const parsed = Number(value);
       if (isNaN(parsed)) {
         throw new Error(
-          `Invalid number value for prop '${key}': ${value}. Expected a valid number but got "${value}".`
+          `Invalid number value for prop '${key}': ${value}. Expected a valid number but got "${value}".`,
         );
       }
       return parsed;
@@ -98,7 +102,9 @@ export function typedNumber(defaultValue?: number): number & TypedPropHelper<num
       if (prop in helper) {
         return helper[prop as keyof typeof helper];
       }
-      if (prop === Symbol.toPrimitive || prop === "valueOf" || prop === 'toString') {
+      if (
+        prop === Symbol.toPrimitive || prop === "valueOf" || prop === "toString"
+      ) {
         return () => proxyTarget;
       }
       return (proxyTarget as any)[prop];
@@ -111,7 +117,9 @@ export function typedNumber(defaultValue?: number): number & TypedPropHelper<num
  * @param defaultValue - Default value if attribute is missing
  * @returns Strongly typed boolean value
  */
-export function typedBoolean(defaultValue?: boolean): boolean & TypedPropHelper<boolean> {
+export function typedBoolean(
+  defaultValue?: boolean,
+): boolean & TypedPropHelper<boolean> {
   const helper: TypedPropHelper<boolean> = {
     __propHelper: true,
     __typed: true,
@@ -138,7 +146,9 @@ export function typedBoolean(defaultValue?: boolean): boolean & TypedPropHelper<
       if (prop in helper) {
         return helper[prop as keyof typeof helper];
       }
-      if (prop === Symbol.toPrimitive || prop === "valueOf" || prop === 'toString') {
+      if (
+        prop === Symbol.toPrimitive || prop === "valueOf" || prop === "toString"
+      ) {
         return () => proxyTarget;
       }
       return (proxyTarget as any)[prop];
@@ -152,7 +162,7 @@ export function typedBoolean(defaultValue?: boolean): boolean & TypedPropHelper<
  * @returns Strongly typed array value
  */
 export function typedArray<T = unknown>(
-  defaultValue?: T[]
+  defaultValue?: T[],
 ): T[] & TypedPropHelper<T[]> {
   const helper: TypedPropHelper<T[]> = {
     __propHelper: true,
@@ -173,14 +183,16 @@ export function typedArray<T = unknown>(
         const parsed = JSON.parse(value);
         if (!Array.isArray(parsed)) {
           throw new Error(
-            `Prop '${key}' must be a valid JSON array. Got ${typeof parsed} instead.`
+            `Prop '${key}' must be a valid JSON array. Got ${typeof parsed} instead.`,
           );
         }
         return parsed as T[];
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorMessage = error instanceof Error
+          ? error.message
+          : String(error);
         throw new Error(
-          `Invalid JSON array for prop '${key}': ${value}. Parse error: ${errorMessage}`
+          `Invalid JSON array for prop '${key}': ${value}. Parse error: ${errorMessage}`,
         );
       }
     },
@@ -203,8 +215,10 @@ export function typedArray<T = unknown>(
  * @param defaultValue - Default value if attribute is missing
  * @returns Strongly typed object value
  */
-export function typedObject<T extends Record<string, unknown> = Record<string, unknown>>(
-  defaultValue?: T
+export function typedObject<
+  T extends Record<string, unknown> = Record<string, unknown>,
+>(
+  defaultValue?: T,
 ): T & TypedPropHelper<T> {
   const helper: TypedPropHelper<T> = {
     __propHelper: true,
@@ -231,14 +245,16 @@ export function typedObject<T extends Record<string, unknown> = Record<string, u
           throw new Error(
             `Prop '${key}' must be a valid JSON object. Got ${
               Array.isArray(parsed) ? "array" : typeof parsed
-            } instead.`
+            } instead.`,
           );
         }
         return parsed as T;
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorMessage = error instanceof Error
+          ? error.message
+          : String(error);
         throw new Error(
-          `Invalid JSON object for prop '${key}': ${value}. Parse error: ${errorMessage}`
+          `Invalid JSON object for prop '${key}': ${value}. Parse error: ${errorMessage}`,
         );
       }
     },
@@ -259,7 +275,9 @@ export function typedObject<T extends Record<string, unknown> = Record<string, u
 /**
  * Type guard to check if a value is a typed prop helper
  */
-export function isTypedPropHelper(value: unknown): value is TypedPropHelper<unknown> {
+export function isTypedPropHelper(
+  value: unknown,
+): value is TypedPropHelper<unknown> {
   return (
     typeof value === "object" &&
     value !== null &&
@@ -273,10 +291,10 @@ export function isTypedPropHelper(value: unknown): value is TypedPropHelper<unkn
  * Used internally during prop parsing
  */
 export function extractTypedValues<T extends Record<string, unknown>>(
-  props: T
+  props: T,
 ): Record<string, unknown> {
   const result: Record<string, unknown> = {};
-  
+
   for (const [key, value] of Object.entries(props)) {
     if (isTypedPropHelper(value)) {
       // Extract the actual parsed value
@@ -285,9 +303,15 @@ export function extractTypedValues<T extends Record<string, unknown>>(
       result[key] = value;
     }
   }
-  
+
   return result;
 }
 
 // Re-export for backward compatibility with enhanced features
-export { typedString as string2, typedNumber as number2, typedBoolean as boolean2, typedArray as array2, typedObject as object2 };
+export {
+  typedArray as array2,
+  typedBoolean as boolean2,
+  typedNumber as number2,
+  typedObject as object2,
+  typedString as string2,
+};

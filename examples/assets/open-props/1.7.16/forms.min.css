@@ -1,39 +1,55 @@
 /* OPUI-like form styles using Open Props tokens; minimal layer to complement normalize/open-props */
-:where(form.opui-form) :where(input[type="text"],input[type="email"],input[type="password"],select,textarea){
-  width:100%;
-  padding:var(--size-2) var(--size-3);
-  border-radius:var(--radius-2);
-  border:var(--border-size-2) solid var(--surface-3);
-  background:var(--surface-1);
-  color:var(--text-1);
-  font-size:var(--font-size-1);
-  line-height:var(--line-height-2);
+:where(form.opui-form)
+  :where(
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    select,
+    textarea
+  ) {
+  width: 100%;
+  padding: var(--size-2) var(--size-3);
+  border-radius: var(--radius-2);
+  border: var(--border-size-2) solid var(--surface-3);
+  background: var(--surface-1);
+  color: var(--text-1);
+  font-size: var(--font-size-1);
+  line-height: var(--line-height-2);
 }
-:where(form.opui-form) :where(textarea){min-height:6rem;resize:vertical}
-:where(form.opui-form) :where(input[type="checkbox"],input[type="radio"]){
-  inline-size:1.1rem;block-size:1.1rem;
-  accent-color:var(--brand, var(--indigo-6));
+:where(form.opui-form) :where(textarea) {
+  min-height: 6rem;
+  resize: vertical;
 }
-:where(form.opui-form) :where(fieldset){
-  border:var(--border-size-2) solid var(--surface-3);
-  border-radius:var(--radius-2);
-  padding:var(--size-3);
+:where(form.opui-form) :where(input[type="checkbox"], input[type="radio"]) {
+  inline-size: 1.1rem;
+  block-size: 1.1rem;
+  accent-color: var(--brand, var(--indigo-6));
 }
-:where(form.opui-form) :where(legend){
-  font-weight:var(--font-weight-6);
-  padding-inline:var(--size-1);
+:where(form.opui-form) :where(fieldset) {
+  border: var(--border-size-2) solid var(--surface-3);
+  border-radius: var(--radius-2);
+  padding: var(--size-3);
 }
-:where(form.opui-form) :where(label){
-  font-weight:var(--font-weight-6);
-  font-size:var(--font-size-1);
+:where(form.opui-form) :where(legend) {
+  font-weight: var(--font-weight-6);
+  padding-inline: var(--size-1);
 }
-:where(form.opui-form) :where(input,select,textarea){
-  transition:border-color .2s ease, box-shadow .2s ease;
+:where(form.opui-form) :where(label) {
+  font-weight: var(--font-weight-6);
+  font-size: var(--font-size-1);
 }
-:where(form.opui-form) :where(input:focus,select:focus,textarea:focus){
-  outline:none; border-color:var(--brand, var(--indigo-6)); box-shadow:0 0 0 var(--border-size-2) color-mix(in oklab, var(--brand, var(--indigo-6)) 25%, transparent);
+:where(form.opui-form) :where(input, select, textarea) {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-@media (prefers-color-scheme: dark){
-  :where(form.opui-form) :where(input,select,textarea){background:var(--surface-2);border-color:var(--surface-4, var(--gray-6));}
+:where(form.opui-form) :where(input:focus, select:focus, textarea:focus) {
+  outline: none;
+  border-color: var(--brand, var(--indigo-6));
+  box-shadow: 0 0 0 var(--border-size-2)
+    color-mix(in oklab, var(--brand, var(--indigo-6)) 25%, transparent);
 }
-
+@media (prefers-color-scheme: dark) {
+  :where(form.opui-form) :where(input, select, textarea) {
+    background: var(--surface-2);
+    border-color: var(--surface-4, var(--gray-6));
+  }
+}

@@ -1,11 +1,13 @@
 // Development server for ui-lib examples
 import { router } from "./router.ts";
-import { Router } from "../lib/router.ts";
+import type { Router } from "../lib/router.ts";
 import { injectStateManager, renderComponent } from "../index.ts";
 import { runWithRequestHeadersAsync } from "../lib/request-headers.ts";
 
 // Import demo components to register them (layout components load via index.ts)
 import "./demo-counter.tsx";
+import "./demo-counter-v2.tsx";
+import "./demo-composition.tsx";
 import "./theme-controller.tsx";
 import "./cart-demo.tsx";
 import "./notification-demo.tsx";
@@ -112,7 +114,7 @@ async function handler(request: Request): Promise<Response> {
     // Demo content endpoints for HTMX partial updates
     if (pathname.startsWith("/demo/")) {
       const demoType = pathname.split("/")[2]; // Extract demo type (welcome, basic, reactive)
-      if (["welcome", "basic", "reactive", "forms"].includes(demoType)) {
+      if (["welcome", "basic", "reactive", "forms", "composition"].includes(demoType)) {
         // Cache partial content per demo based on layout mtime
         let layoutMtime: number | undefined;
         // Track layout changes using the library's app-layout file mtime

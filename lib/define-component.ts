@@ -9,7 +9,6 @@ import {
 // Re-export for use in reactive components
 export type { GeneratedApiMap };
 
-
 import { getConfig } from "./config.ts";
 
 import {
@@ -207,7 +206,7 @@ export function defineComponent<TProps = Record<string, string>>(
         continue;
       }
 
-            if (config.router) {
+      if (config.router) {
         config.router.register(method, path, handler);
       }
     }
@@ -248,7 +247,10 @@ export function defineComponent<TProps = Record<string, string>>(
           ch?: string,
         ) => string)(finalProps as TProps, undefined, classMap, children);
       // Inject reactive attrs only if present, then add data-component
-      return injectDataComponent(applyReactiveAttrs(html, reactive, name), name);
+      return injectDataComponent(
+        applyReactiveAttrs(html, reactive, name),
+        name,
+      );
     },
   };
 }

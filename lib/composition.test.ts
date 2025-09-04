@@ -1,11 +1,14 @@
-import { assertEquals, assertStringIncludes } from "https://deno.land/std@0.224.0/assert/mod.ts";
-import { 
-  Layout, 
-  Grid, 
-  Card, 
-  ButtonGroup, 
-  Navigation, 
-  Form 
+import {
+  type assertEquals,
+  assertStringIncludes,
+} from "https://deno.land/std@0.224.0/assert/mod.ts";
+import {
+  ButtonGroup,
+  Card,
+  Form,
+  Grid,
+  Layout,
+  Navigation,
 } from "./composition.ts";
 
 Deno.test("Layout component generates correct HTML structure", () => {
@@ -119,7 +122,7 @@ Deno.test("ButtonGroup component generates correct structure", () => {
     children: ["Button 1", "Button 2"],
   });
 
-  assertStringIncludes(result, '<div');
+  assertStringIncludes(result, "<div");
   assertStringIncludes(result, 'role="group"');
   assertStringIncludes(result, 'aria-label="Button group"');
   assertStringIncludes(result, "Button 1");
@@ -127,13 +130,13 @@ Deno.test("ButtonGroup component generates correct structure", () => {
 });
 
 Deno.test("ButtonGroup handles different variants", () => {
-  const attached = ButtonGroup({ 
-    variant: "attached", 
-    children: ["A", "B"] 
+  const attached = ButtonGroup({
+    variant: "attached",
+    children: ["A", "B"],
   });
-  const spaced = ButtonGroup({ 
-    variant: "spaced", 
-    children: ["A", "B"] 
+  const spaced = ButtonGroup({
+    variant: "spaced",
+    children: ["A", "B"],
   });
 
   assertStringIncludes(attached, "A");
@@ -152,26 +155,26 @@ Deno.test("Navigation component generates nav structure", () => {
     variant: "tabs",
   });
 
-  assertStringIncludes(result, '<nav');
+  assertStringIncludes(result, "<nav");
   assertStringIncludes(result, 'role="navigation"');
   assertStringIncludes(result, "Home");
   assertStringIncludes(result, "About");
   assertStringIncludes(result, "Contact");
-  assertStringIncludes(result, 'data-active');
+  assertStringIncludes(result, "data-active");
   assertStringIncludes(result, "2");
 });
 
 Deno.test("Navigation handles different variants", () => {
   const items = [{ label: "Test", href: "/test" }];
-  
+
   const tabs = Navigation({ items, variant: "tabs" });
   const pills = Navigation({ items, variant: "pills" });
   const breadcrumbs = Navigation({ items, variant: "breadcrumbs" });
   const sidebar = Navigation({ items, variant: "sidebar" });
 
-  [tabs, pills, breadcrumbs, sidebar].forEach(nav => {
+  [tabs, pills, breadcrumbs, sidebar].forEach((nav) => {
     assertStringIncludes(nav, "Test");
-    assertStringIncludes(nav, '<nav');
+    assertStringIncludes(nav, "<nav");
   });
 });
 
@@ -185,7 +188,7 @@ Deno.test("Navigation handles disabled items", () => {
 
   assertStringIncludes(result, "Enabled");
   assertStringIncludes(result, "Disabled");
-  assertStringIncludes(result, 'data-disabled');
+  assertStringIncludes(result, "data-disabled");
 });
 
 Deno.test("Form component generates form structure", () => {
@@ -212,14 +215,14 @@ Deno.test("Form handles different field types", () => {
   const result = Form({
     fields: [
       { type: "textarea", name: "bio", label: "Bio" },
-      { 
-        type: "select", 
-        name: "role", 
-        label: "Role", 
+      {
+        type: "select",
+        name: "role",
+        label: "Role",
         options: [
           { value: "admin", label: "Admin" },
           { value: "user", label: "User" },
-        ]
+        ],
       },
       { type: "checkbox", name: "agree", label: "I agree", checked: true },
     ],
@@ -251,14 +254,14 @@ Deno.test("Form includes submit and reset buttons", () => {
 Deno.test("Form handles field attributes correctly", () => {
   const result = Form({
     fields: [
-      { 
-        type: "text", 
-        name: "test", 
+      {
+        type: "text",
+        name: "test",
         label: "Test Field",
         placeholder: "Enter text",
         required: true,
         disabled: false,
-        value: "default value"
+        value: "default value",
       },
     ],
   });
@@ -286,7 +289,7 @@ Deno.test("Components handle empty children arrays", () => {
   const card = Card({ children: [] });
   const buttonGroup = ButtonGroup({ children: [] });
 
-  [layout, grid, card, buttonGroup].forEach(component => {
+  [layout, grid, card, buttonGroup].forEach((component) => {
     assertStringIncludes(component, "<div");
     assertStringIncludes(component, "</div>");
   });

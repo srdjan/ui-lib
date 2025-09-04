@@ -1,17 +1,17 @@
 /** @jsx h */
 import { router } from "./router.ts";
-import { defineComponent, h, number, string, boolean } from "../index.ts";
+import { boolean, defineComponent, h, number, string } from "../index.ts";
 
 /**
  * 💡 Enhanced Error Messages Demo
- * 
+ *
  * This component demonstrates the improved error messages with helpful suggestions.
  * Try using wrong prop names or invalid values to see the enhanced errors!
  */
 defineComponent("error-demo", {
   router,
   autoProps: true,
-  
+
   styles: {
     container: `{
       padding: 1.5rem;
@@ -42,32 +42,32 @@ defineComponent("error-demo", {
       font-weight: bold;
     }`,
   },
-  
+
   render: (
     {
       // These props will provide helpful errors if misused
-      userName = string("Anonymous"),  
+      userName = string("Anonymous"),
       userAge = number(0),
       isActive = boolean(false),
       maxRetries = number(3),
     },
     _api,
-    classes
+    classes,
   ) => {
     // Enhanced type checking happens automatically
     const age = typeof userAge === "number" ? userAge : 0;
     const name = typeof userName === "string" ? userName : "Anonymous";
     const active = typeof isActive === "boolean" ? isActive : false;
     const retries = typeof maxRetries === "number" ? maxRetries : 3;
-    
+
     return (
       <div class={classes!.container}>
         <h3 class={classes!.title}>🎯 Enhanced Error Messages Demo</h3>
-        
+
         <p>This component has enhanced error reporting. Try these:</p>
-        
+
         <code class={classes!.code}>
-{`<!-- ❌ Wrong: Typo in prop name -->
+          {`<!-- ❌ Wrong: Typo in prop name -->
 <error-demo user-nam="John" />
 <!-- 💡 Error will suggest: "Did you mean: user-name?" -->
 
@@ -88,7 +88,7 @@ defineComponent("error-demo", {
   max-retries="5"
 />`}
         </code>
-        
+
         <div style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 4px;">
           <p class={classes!.success}>✅ Props parsed successfully!</p>
           <ul>
@@ -108,7 +108,7 @@ defineComponent("error-demo", {
  */
 defineComponent("error-test", {
   router,
-  
+
   styles: {
     grid: `{
       display: grid;
@@ -128,19 +128,19 @@ defineComponent("error-test", {
       color: #495057;
     }`,
   },
-  
+
   render: (_props, _api, classes) => (
     <div class={classes!.grid}>
       <div class={classes!.section}>
         <h4 class={classes!.header}>Working Example</h4>
-        <error-demo 
-          user-name="Bob" 
-          user-age="30" 
+        <error-demo
+          user-name="Bob"
+          user-age="30"
           is-active="true"
           max-retries="10"
         />
       </div>
-      
+
       <div class={classes!.section}>
         <h4 class={classes!.header}>Example with Defaults</h4>
         <error-demo />

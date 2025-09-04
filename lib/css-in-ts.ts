@@ -27,7 +27,9 @@ function styleObjectToCSS(styles: StyleObject, selector: string): string {
     } else if (key === "@media") {
       const mediaQueries = value as MediaQueries["@media"];
       if (mediaQueries) {
-        for (const [breakpoint, breakpointStyles] of Object.entries(mediaQueries)) {
+        for (
+          const [breakpoint, breakpointStyles] of Object.entries(mediaQueries)
+        ) {
           if (breakpointStyles) {
             mediaStyles[breakpoint] = breakpointStyles;
           }
@@ -98,15 +100,15 @@ function formatCSSValue(property: string, value: unknown): string {
       "zIndex",
       "animationIterationCount",
     ];
-    
+
     if (unitlessProperties.includes(property)) {
       return String(value);
     }
-    
+
     // Default to px for other numeric values
     return `${value}px`;
   }
-  
+
   return String(value);
 }
 
@@ -118,7 +120,7 @@ function kebabCase(str: string): string {
   if (str.startsWith("--")) {
     return str;
   }
-  
+
   return str
     .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
     .replace(/^ms-/, "-ms-") // Handle vendor prefix
@@ -133,12 +135,12 @@ function getBreakpointQuery(breakpoint: string): string {
   if (breakpoint in defaultBreakpoints) {
     return defaultBreakpoints[breakpoint as keyof typeof defaultBreakpoints];
   }
-  
+
   // Allow custom media query strings
   if (breakpoint.startsWith("(") && breakpoint.endsWith(")")) {
     return breakpoint;
   }
-  
+
   // Default to min-width for unknown breakpoints
   return `(min-width: ${breakpoint})`;
 }
@@ -146,7 +148,9 @@ function getBreakpointQuery(breakpoint: string): string {
 /**
  * Main CSS function for creating type-safe styles
  */
-export function css(styles: Record<string, StyleObject>): { classMap: Record<string, string>; css: string } {
+export function css(
+  styles: Record<string, StyleObject>,
+): { classMap: Record<string, string>; css: string } {
   const classMap: Record<string, string> = {};
   const cssRules: string[] = [];
 
@@ -176,7 +180,7 @@ function generateClassName(key: string): string {
   const hash = key
     .split("")
     .reduce((acc, char) => ((acc << 5) - acc + char.charCodeAt(0)) | 0, 0);
-  
+
   const suffix = Math.abs(hash).toString(36).slice(0, 5);
   return `${kebabCase(key)}-${suffix}`;
 }
@@ -191,7 +195,7 @@ export function createTheme(tokens: ThemeTokens): {
   // Generate CSS custom properties from tokens
   const vars = () => {
     const properties: string[] = [];
-    
+
     for (const [category, values] of Object.entries(tokens)) {
       if (values && typeof values === "object") {
         for (const [key, value] of Object.entries(values)) {
@@ -199,7 +203,7 @@ export function createTheme(tokens: ThemeTokens): {
         }
       }
     }
-    
+
     return `:root { ${properties.join(" ")} }`;
   };
 
@@ -288,7 +292,9 @@ export const cssHelpers = {
 /**
  * Type-safe style composition
  */
-export function composeStyles(...styles: (CSSProperties | undefined)[]): CSSProperties {
+export function composeStyles(
+  ...styles: (CSSProperties | undefined)[]
+): CSSProperties {
   return Object.assign({}, ...styles.filter(Boolean));
 }
 
@@ -303,17 +309,22 @@ export function responsive<T>(values: {
   wide?: T;
 }): StyleObject {
   const { base, ...breakpoints } = values;
-  
+
   const result: StyleObject = base ? (base as any) : {};
-  
+
   if (Object.keys(breakpoints).length > 0) {
     result["@media"] = breakpoints as any;
   }
-  
+
   return result;
 }
 
 /**
  * Export types for external use
  */
-export type { CSSProperties, StyleMap, StyleObject, ThemeTokens } from "./css-types.ts";
+export type {
+  CSSProperties,
+  StyleMap,
+  StyleObject,
+  ThemeTokens,
+} from "./css-types.ts";

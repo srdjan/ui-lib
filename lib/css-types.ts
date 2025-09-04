@@ -3,7 +3,22 @@
 
 export type CSSProperties = {
   // Layout
-  display?: "none" | "block" | "inline" | "inline-block" | "flex" | "inline-flex" | "grid" | "inline-grid" | "table" | "table-row" | "table-cell" | "contents" | "list-item" | "flow-root" | string;
+  display?:
+    | "none"
+    | "block"
+    | "inline"
+    | "inline-block"
+    | "flex"
+    | "inline-flex"
+    | "grid"
+    | "inline-grid"
+    | "table"
+    | "table-row"
+    | "table-cell"
+    | "contents"
+    | "list-item"
+    | "flow-root"
+    | string;
   position?: "static" | "relative" | "absolute" | "fixed" | "sticky" | string;
   top?: string | number;
   right?: string | number;
@@ -11,7 +26,7 @@ export type CSSProperties = {
   left?: string | number;
   zIndex?: number | string;
   content?: string;
-  
+
   // Flexbox
   flexDirection?: "row" | "row-reverse" | "column" | "column-reverse";
   flexWrap?: "nowrap" | "wrap" | "wrap-reverse";
@@ -19,12 +34,31 @@ export type CSSProperties = {
   flexGrow?: number;
   flexShrink?: number;
   flex?: string | number;
-  justifyContent?: "flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "space-evenly" | "stretch";
+  justifyContent?:
+    | "flex-start"
+    | "flex-end"
+    | "center"
+    | "space-between"
+    | "space-around"
+    | "space-evenly"
+    | "stretch";
   alignItems?: "flex-start" | "flex-end" | "center" | "baseline" | "stretch";
-  alignSelf?: "auto" | "flex-start" | "flex-end" | "center" | "baseline" | "stretch";
-  alignContent?: "flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "stretch";
+  alignSelf?:
+    | "auto"
+    | "flex-start"
+    | "flex-end"
+    | "center"
+    | "baseline"
+    | "stretch";
+  alignContent?:
+    | "flex-start"
+    | "flex-end"
+    | "center"
+    | "space-between"
+    | "space-around"
+    | "stretch";
   order?: number;
-  
+
   // Grid
   gridTemplateColumns?: string;
   gridTemplateRows?: string;
@@ -41,7 +75,7 @@ export type CSSProperties = {
   gridColumn?: string;
   gridRow?: string;
   gridArea?: string;
-  
+
   // Box Model
   width?: string | number;
   minWidth?: string | number;
@@ -63,7 +97,7 @@ export type CSSProperties = {
   marginLeft?: string | number;
   marginBlock?: string | number;
   marginInline?: string | number;
-  
+
   // Border
   border?: string | number;
   borderTop?: string;
@@ -71,7 +105,17 @@ export type CSSProperties = {
   borderBottom?: string;
   borderLeft?: string;
   borderColor?: string;
-  borderStyle?: "none" | "hidden" | "dotted" | "dashed" | "solid" | "double" | "groove" | "ridge" | "inset" | "outset";
+  borderStyle?:
+    | "none"
+    | "hidden"
+    | "dotted"
+    | "dashed"
+    | "solid"
+    | "double"
+    | "groove"
+    | "ridge"
+    | "inset"
+    | "outset";
   borderWidth?: string | number;
   borderTopWidth?: string | number;
   borderRightWidth?: string | number;
@@ -82,21 +126,46 @@ export type CSSProperties = {
   borderTopRightRadius?: string | number;
   borderBottomLeftRadius?: string | number;
   borderBottomRightRadius?: string | number;
-  
+
   // Typography
   font?: string;
   fontSize?: string | number;
   fontFamily?: string;
-  fontWeight?: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | "normal" | "bold" | "lighter" | "bolder" | string;
+  fontWeight?:
+    | 100
+    | 200
+    | 300
+    | 400
+    | 500
+    | 600
+    | 700
+    | 800
+    | 900
+    | "normal"
+    | "bold"
+    | "lighter"
+    | "bolder"
+    | string;
   lineHeight?: string | number;
   letterSpacing?: string | number;
   textAlign?: "left" | "right" | "center" | "justify" | "start" | "end";
   textDecoration?: string;
-  textTransform?: "none" | "capitalize" | "uppercase" | "lowercase" | "full-width";
+  textTransform?:
+    | "none"
+    | "capitalize"
+    | "uppercase"
+    | "lowercase"
+    | "full-width";
   textOverflow?: "clip" | "ellipsis" | string;
-  whiteSpace?: "normal" | "nowrap" | "pre" | "pre-wrap" | "pre-line" | "break-spaces";
+  whiteSpace?:
+    | "normal"
+    | "nowrap"
+    | "pre"
+    | "pre-wrap"
+    | "pre-line"
+    | "break-spaces";
   wordBreak?: "normal" | "break-all" | "keep-all" | "break-word";
-  
+
   // Color & Background
   color?: string;
   background?: string;
@@ -104,23 +173,29 @@ export type CSSProperties = {
   backgroundImage?: string;
   backgroundSize?: "auto" | "cover" | "contain" | string;
   backgroundPosition?: string;
-  backgroundRepeat?: "repeat" | "repeat-x" | "repeat-y" | "no-repeat" | "space" | "round";
+  backgroundRepeat?:
+    | "repeat"
+    | "repeat-x"
+    | "repeat-y"
+    | "no-repeat"
+    | "space"
+    | "round";
   backgroundClip?: "border-box" | "padding-box" | "content-box" | "text";
   opacity?: number | string;
-  
+
   // Effects
   boxShadow?: string;
   textShadow?: string;
   filter?: string;
   backdropFilter?: string;
-  
+
   // Transforms
   transform?: string;
   transformOrigin?: string;
   transformStyle?: "flat" | "preserve-3d";
   perspective?: string | number;
   perspectiveOrigin?: string;
-  
+
   // Transitions & Animations
   transition?: string;
   transitionProperty?: string;
@@ -136,14 +211,34 @@ export type CSSProperties = {
   animationDirection?: "normal" | "reverse" | "alternate" | "alternate-reverse";
   animationFillMode?: "none" | "forwards" | "backwards" | "both";
   animationPlayState?: "paused" | "running";
-  
+
   // Other
   clip?: string;
   resize?: "none" | "both" | "horizontal" | "vertical" | "block" | "inline";
   overflow?: "visible" | "hidden" | "scroll" | "auto" | "clip";
   overflowX?: "visible" | "hidden" | "scroll" | "auto" | "clip";
   overflowY?: "visible" | "hidden" | "scroll" | "auto" | "clip";
-  cursor?: "auto" | "default" | "none" | "context-menu" | "help" | "pointer" | "progress" | "wait" | "cell" | "crosshair" | "text" | "vertical-text" | "alias" | "copy" | "move" | "no-drop" | "not-allowed" | "grab" | "grabbing" | string;
+  cursor?:
+    | "auto"
+    | "default"
+    | "none"
+    | "context-menu"
+    | "help"
+    | "pointer"
+    | "progress"
+    | "wait"
+    | "cell"
+    | "crosshair"
+    | "text"
+    | "vertical-text"
+    | "alias"
+    | "copy"
+    | "move"
+    | "no-drop"
+    | "not-allowed"
+    | "grab"
+    | "grabbing"
+    | string;
   userSelect?: "auto" | "none" | "text" | "all";
   pointerEvents?: "auto" | "none";
   visibility?: "visible" | "hidden" | "collapse";
@@ -152,7 +247,7 @@ export type CSSProperties = {
   outlineStyle?: string;
   outlineWidth?: string | number;
   outlineOffset?: string | number;
-  
+
   // CSS Variables (custom properties)
   [key: `--${string}`]: string | number;
 };
@@ -219,7 +314,7 @@ export const defaultBreakpoints = {
   tablet: "(min-width: 641px) and (max-width: 1024px)",
   desktop: "(min-width: 1025px) and (max-width: 1440px)",
   wide: "(min-width: 1441px)",
-  print: "print"
+  print: "print",
 } as const;
 
 // Utility type for extracting CSS variable names

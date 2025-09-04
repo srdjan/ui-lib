@@ -1,5 +1,4 @@
 /** @jsx h */
-// deno-lint-ignore verbatim-module-syntax
 import { router } from "./router.ts";
 import { defineComponent, h, string } from "../index.ts";
 

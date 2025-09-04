@@ -17,7 +17,10 @@ export function runWithRequestHeaders<T>(headers: HeaderMap, fn: () => T): T {
   }
 }
 
-export async function runWithRequestHeadersAsync<T>(headers: HeaderMap, fn: () => Promise<T>): Promise<T> {
+export async function runWithRequestHeadersAsync<T>(
+  headers: HeaderMap,
+  fn: () => Promise<T>,
+): Promise<T> {
   headerStack.push(headers);
   // Start a per-request style context for CSS deduplication
   pushStyleContext();

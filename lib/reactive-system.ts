@@ -1,6 +1,10 @@
 import { on, subscribeToState } from "./reactive-helpers.ts";
 
-export function applyReactiveAttrs(markup: string, reactive: any, name: string): string {
+export function applyReactiveAttrs(
+  markup: string,
+  reactive: any,
+  name: string,
+): string {
   if (!reactive?.inject) return markup;
 
   const reactiveAttrs: string[] = [];

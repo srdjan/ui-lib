@@ -48,11 +48,8 @@
     <script
       src="https://unpkg.com/htmx-ext-json-enc@2.0.1/json-enc.js"
     ></script>
-    
-    <!-- Import new enhanced counter demo -->
-    <script type="module">
-      import "./demo-counter-v2.tsx";
-    </script>
+
+    <!-- Components are server-side registered and loaded via HTMX routes -->
 
     <!-- CSS theme variables for reactivity -->
     <style>
@@ -181,6 +178,7 @@
         <navitem href="/?demo=welcome" active>Home</navitem>
         <navitem href="/?demo=basic">Basic Components</navitem>
         <navitem href="/?demo=reactive" badge="new">Reactivity</navitem>
+        <navitem href="/?demo=composition">Composition Helpers</navitem>
         <navitem href="/?demo=forms">Forms</navitem>
       </navbar>
 

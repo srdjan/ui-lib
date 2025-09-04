@@ -2,7 +2,7 @@
 // Provides component inspection, performance monitoring, and debugging aids
 
 import { getRegistry } from "./registry.ts";
-import type { ComponentConfig } from "./define-component.ts";
+import type { ComponentConfig as _ComponentConfig } from "./define-component.ts";
 
 /**
  * Development mode configuration
@@ -48,11 +48,15 @@ class DevToolsState {
   };
 
   private renderStats = new Map<string, ComponentRenderInfo>();
-  private renderHistory: { component: string; timestamp: Date; duration: number }[] = [];
+  private renderHistory: {
+    component: string;
+    timestamp: Date;
+    duration: number;
+  }[] = [];
 
   configure(config: Partial<DevConfig>): void {
     this.config = { ...this.config, ...config };
-    
+
     if (this.config.enabled && typeof window !== "undefined") {
       this.injectDevToolsScript();
     }
@@ -63,22 +67,22 @@ class DevToolsState {
   }
 
   trackRender(
-    componentName: string,
+    _componentName: string,
     renderTime: number,
     propsReceived: Record<string, unknown>,
     propsProcessed: Record<string, unknown>,
     htmlOutput: string,
-    warnings: string[] = []
+    warnings: string[] = [],
   ): void {
     if (!this.config.enabled || !this.config.renderTracking) return;
 
-    const existing = this.renderStats.get(componentName);
+    const existing = this.renderStats.get(_componentName);
     const info: ComponentRenderInfo = {
-      name: componentName,
+      name: _componentName,
       renderTime,
       propsReceived: { ...propsReceived },
       propsProcessed: { ...propsProcessed },
-      cssGenerated: htmlOutput.includes('<style>'),
+      cssGenerated: htmlOutput.includes("<style>"),
       apiEndpoints: this.extractApiEndpoints(htmlOutput),
       htmlSize: htmlOutput.length,
       renderCount: (existing?.renderCount || 0) + 1,
@@ -86,11 +90,11 @@ class DevToolsState {
       warnings,
     };
 
-    this.renderStats.set(componentName, info);
-    
+    this.renderStats.set(_componentName, info);
+
     if (this.config.performanceMonitoring) {
       this.renderHistory.push({
-        component: componentName,
+        component: _componentName,
         timestamp: new Date(),
         duration: renderTime,
       });
@@ -102,11 +106,14 @@ class DevToolsState {
     }
 
     if (this.config.verbose) {
-      console.log(`🔧 [DevTools] Rendered ${componentName} in ${renderTime.toFixed(2)}ms`, info);
+      console.log(
+        `🔧 [DevTools] Rendered ${_componentName} in ${renderTime.toFixed(2)}ms`,
+        info,
+      );
     }
 
     if (warnings.length > 0 && this.config.verbose) {
-      console.warn(`⚠️ [DevTools] Warnings for ${componentName}:`, warnings);
+      console.warn(`⚠️ [DevTools] Warnings for ${_componentName}:`, warnings);
     }
   }
 
@@ -118,7 +125,11 @@ class DevToolsState {
     return Array.from(this.renderStats.values());
   }
 
-  getRenderHistory(): { component: string; timestamp: Date; duration: number }[] {
+  getRenderHistory(): {
+    component: string;
+    timestamp: Date;
+    duration: number;
+  }[] {
     return [...this.renderHistory];
   }
 
@@ -131,15 +142,15 @@ class DevToolsState {
   } {
     const stats = Array.from(this.renderStats.values());
     const totalRenders = stats.reduce((sum, stat) => sum + stat.renderCount, 0);
-    const averageRenderTime = stats.length > 0 
-      ? stats.reduce((sum, stat) => sum + stat.renderTime, 0) / stats.length 
+    const averageRenderTime = stats.length > 0
+      ? stats.reduce((sum, stat) => sum + stat.renderTime, 0) / stats.length
       : 0;
 
     let slowest: { name: string; time: number } | null = null;
     let fastest: { name: string; time: number } | null = null;
     const componentsWithWarnings: string[] = [];
 
-    stats.forEach(stat => {
+    stats.forEach((stat) => {
       if (!slowest || stat.renderTime > slowest.time) {
         slowest = { name: stat.name, time: stat.renderTime };
       }
@@ -167,13 +178,19 @@ class DevToolsState {
 
   private extractApiEndpoints(html: string): string[] {
     const endpoints: string[] = [];
-    const hxAttributes = ['hx-get', 'hx-post', 'hx-put', 'hx-patch', 'hx-delete'];
-    
-    hxAttributes.forEach(attr => {
-      const regex = new RegExp(`${attr}="([^"]+)"`, 'g');
+    const hxAttributes = [
+      "hx-get",
+      "hx-post",
+      "hx-put",
+      "hx-patch",
+      "hx-delete",
+    ];
+
+    hxAttributes.forEach((attr) => {
+      const regex = new RegExp(`${attr}="([^"]+)"`, "g");
       let match;
       while ((match = regex.exec(html)) !== null) {
-        endpoints.push(`${attr.replace('hx-', '').toUpperCase()} ${match[1]}`);
+        endpoints.push(`${attr.replace("hx-", "").toUpperCase()} ${match[1]}`);
       }
     });
 
@@ -184,13 +201,15 @@ class DevToolsState {
     if (typeof document === "undefined") return;
 
     // Avoid double injection
-    if (document.getElementById('ui-lib-devtools')) return;
+    if (document.getElementById("ui-lib-devtools")) return;
 
-    const script = document.createElement('script');
-    script.id = 'ui-lib-devtools';
+    const script = document.createElement("script");
+    script.id = "ui-lib-devtools";
     script.innerHTML = `
       window.__UI_LIB_DEVTOOLS__ = {
-        getStats: () => (${JSON.stringify(Array.from(this.renderStats.entries()))}),
+        getStats: () => (${
+      JSON.stringify(Array.from(this.renderStats.entries()))
+    }),
         getConfig: () => (${JSON.stringify(this.config)}),
         inspect: (componentName) => {
           const components = document.querySelectorAll(\`[data-component="\${componentName}"]\`);
@@ -226,7 +245,7 @@ class DevToolsState {
       console.log('  __UI_LIB_DEVTOOLS__.highlight("component-name")');
       console.log('  __UI_LIB_DEVTOOLS__.getStats()');
     `;
-    
+
     document.head.appendChild(script);
   }
 }
@@ -252,27 +271,36 @@ export function getDevConfig(): DevConfig {
  * Track a component render for debugging
  */
 export function trackComponentRender(
-  componentName: string,
+  _componentName: string,
   renderTime: number,
   propsReceived: Record<string, unknown>,
   propsProcessed: Record<string, unknown>,
   htmlOutput: string,
-  warnings: string[] = []
+  warnings: string[] = [],
 ): void {
-  devTools.trackRender(componentName, renderTime, propsReceived, propsProcessed, htmlOutput, warnings);
+  devTools.trackRender(
+    _componentName,
+    renderTime,
+    propsReceived,
+    propsProcessed,
+    htmlOutput,
+    warnings,
+  );
 }
 
 /**
  * Get component rendering statistics
  */
-export function getComponentStats(componentName?: string): ComponentRenderInfo[] {
+export function getComponentStats(
+  componentName?: string,
+): ComponentRenderInfo[] {
   return devTools.getComponentStats(componentName);
 }
 
 /**
  * Get performance report
  */
-export function getPerformanceReport() {
+export function getPerformanceReport(): Record<string, unknown> {
   return devTools.getPerformanceReport();
 }
 
@@ -286,7 +314,7 @@ export function clearDevStats(): void {
 /**
  * Component inspector utilities
  */
-export const componentInspector = {
+export const componentInspector: Record<string, unknown> = {
   /**
    * List all registered components
    */
@@ -306,7 +334,7 @@ export const componentInspector = {
   } | null {
     const registry = getRegistry();
     const component = registry[name];
-    
+
     if (!component) {
       return null;
     }
@@ -331,21 +359,29 @@ export const componentInspector = {
     namePattern?: string;
   }): string[] {
     const registry = getRegistry();
-    return Object.keys(registry).filter(name => {
+    return Object.keys(registry).filter((name) => {
       const component = registry[name];
-      
-      if (criteria.hasStyles !== undefined && Boolean(component.css) !== criteria.hasStyles) {
+
+      if (
+        criteria.hasStyles !== undefined &&
+        Boolean(component.css) !== criteria.hasStyles
+      ) {
         return false;
       }
-      
-      if (criteria.hasApi !== undefined && Boolean(component.api) !== criteria.hasApi) {
+
+      if (
+        criteria.hasApi !== undefined &&
+        Boolean(component.api) !== criteria.hasApi
+      ) {
         return false;
       }
-      
-      if (criteria.namePattern && !name.match(new RegExp(criteria.namePattern))) {
+
+      if (
+        criteria.namePattern && !name.match(new RegExp(criteria.namePattern))
+      ) {
         return false;
       }
-      
+
       return true;
     });
   },
@@ -354,15 +390,15 @@ export const componentInspector = {
 /**
  * Performance monitoring utilities
  */
-export const performanceMonitor = {
+export const performanceMonitor: Record<string, unknown> = {
   /**
    * Start monitoring component renders
    */
   start(): void {
-    configureDevTools({ 
-      enabled: true, 
-      performanceMonitoring: true, 
-      renderTracking: true 
+    configureDevTools({
+      enabled: true,
+      performanceMonitoring: true,
+      renderTracking: true,
     });
   },
 
@@ -370,9 +406,9 @@ export const performanceMonitor = {
    * Stop monitoring
    */
   stop(): void {
-    configureDevTools({ 
-      performanceMonitoring: false, 
-      renderTracking: false 
+    configureDevTools({
+      performanceMonitoring: false,
+      renderTracking: false,
     });
   },
 
@@ -387,7 +423,9 @@ export const performanceMonitor = {
    * Find slow components (above threshold)
    */
   findSlowComponents(thresholdMs: number = 5): ComponentRenderInfo[] {
-    return devTools.getComponentStats().filter(stat => stat.renderTime > thresholdMs);
+    return devTools.getComponentStats().filter((stat) =>
+      stat.renderTime > thresholdMs
+    );
   },
 
   /**
@@ -415,13 +453,13 @@ export const performanceMonitor = {
 /**
  * Prop validation utilities
  */
-export const propValidator = {
+export const propValidator: Record<string, unknown> = {
   /**
    * Validate component props against expected types
    */
   validateProps(
-    componentName: string, 
-    props: Record<string, unknown>
+    _componentName: string,
+    props: Record<string, unknown>,
   ): { valid: boolean; errors: string[]; warnings: string[] } {
     const errors: string[] = [];
     const warnings: string[] = [];
@@ -445,7 +483,9 @@ export const propValidator = {
 
       // Check for very long strings (potential data issues)
       if (typeof value === "string" && value.length > 1000) {
-        warnings.push(`Prop '${key}' is very long (${value.length} characters)`);
+        warnings.push(
+          `Prop '${key}' is very long (${value.length} characters)`,
+        );
       }
 
       // Check for large objects
@@ -453,7 +493,9 @@ export const propValidator = {
         try {
           const jsonSize = JSON.stringify(value).length;
           if (jsonSize > 10000) {
-            warnings.push(`Prop '${key}' is a large object (${jsonSize} characters when serialized)`);
+            warnings.push(
+              `Prop '${key}' is a large object (${jsonSize} characters when serialized)`,
+            );
           }
         } catch {
           warnings.push(`Prop '${key}' contains non-serializable data`);
@@ -471,11 +513,17 @@ export const propValidator = {
   /**
    * Check for missing required props
    */
-  checkRequiredProps(componentName: string, props: Record<string, unknown>, required: string[]): string[] {
+  checkRequiredProps(
+    _componentName: string,
+    props: Record<string, unknown>,
+    required: string[],
+  ): string[] {
     const missing: string[] = [];
-    
+
     for (const prop of required) {
-      if (!(prop in props) || props[prop] === undefined || props[prop] === null) {
+      if (
+        !(prop in props) || props[prop] === undefined || props[prop] === null
+      ) {
         missing.push(prop);
       }
     }
@@ -487,7 +535,7 @@ export const propValidator = {
 /**
  * Accessibility checker utilities
  */
-export const a11yChecker = {
+export const a11yChecker: Record<string, unknown> = {
   /**
    * Check component HTML for accessibility issues
    */
@@ -501,13 +549,13 @@ export const a11yChecker = {
     const suggestions: string[] = [];
 
     // Check for missing alt text on images
-    if (html.includes('<img') && !html.match(/<img[^>]+alt=/)) {
-      errors.push('Images without alt attributes detected');
+    if (html.includes("<img") && !html.match(/<img[^>]+alt=/)) {
+      errors.push("Images without alt attributes detected");
     }
 
     // Check for form labels
     const inputs = html.match(/<input[^>]*>/g) || [];
-    inputs.forEach(input => {
+    inputs.forEach((input) => {
       const id = input.match(/id="([^"]+)"/)?.[1];
       if (id && !html.includes(`for="${id}"`)) {
         warnings.push(`Input with id="${id}" has no associated label`);
@@ -517,31 +565,43 @@ export const a11yChecker = {
     // Check for heading hierarchy
     const headings = html.match(/<h[1-6][^>]*>/g) || [];
     if (headings.length > 1) {
-      suggestions.push('Consider heading hierarchy (h1 → h2 → h3, etc.)');
+      suggestions.push("Consider heading hierarchy (h1 → h2 → h3, etc.)");
     }
 
     // Check for button accessibility
-    if (html.includes('<button') && !html.match(/aria-label|aria-labelledby/)) {
+    if (html.includes("<button") && !html.match(/aria-label|aria-labelledby/)) {
       const buttons = html.match(/<button[^>]*>([^<]*)<\/button>/g) || [];
-      buttons.forEach(button => {
-        const text = button.replace(/<[^>]*>/g, '').trim();
+      buttons.forEach((button) => {
+        const text = button.replace(/<[^>]*>/g, "").trim();
         if (!text) {
-          warnings.push('Button without text content or aria-label detected');
+          warnings.push("Button without text content or aria-label detected");
         }
       });
     }
 
     // Check for ARIA attributes
-    if (html.includes('role=')) {
-      suggestions.push('Good use of ARIA roles detected');
+    if (html.includes("role=")) {
+      suggestions.push("Good use of ARIA roles detected");
     }
 
     // Check for semantic HTML
-    const semanticElements = ['main', 'nav', 'header', 'footer', 'section', 'article', 'aside'];
-    const hasSemanticElements = semanticElements.some(element => html.includes(`<${element}`));
-    
-    if (!hasSemanticElements && html.includes('<div')) {
-      suggestions.push('Consider using semantic HTML elements (nav, main, section, etc.)');
+    const semanticElements = [
+      "main",
+      "nav",
+      "header",
+      "footer",
+      "section",
+      "article",
+      "aside",
+    ];
+    const hasSemanticElements = semanticElements.some((element) =>
+      html.includes(`<${element}`)
+    );
+
+    if (!hasSemanticElements && html.includes("<div")) {
+      suggestions.push(
+        "Consider using semantic HTML elements (nav, main, section, etc.)",
+      );
     }
 
     return { errors, warnings, suggestions };
@@ -551,7 +611,7 @@ export const a11yChecker = {
 /**
  * Development mode helpers
  */
-export const devHelpers = {
+export const devHelpers: Record<string, unknown> = {
   /**
    * Enable full development mode
    */
@@ -565,10 +625,10 @@ export const devHelpers = {
       renderTracking: true,
       verbose,
     });
-    
-    console.log('🛠️ ui-lib Development mode enabled');
+
+    console.log("🛠️ ui-lib Development mode enabled");
     if (verbose) {
-      console.log('📊 Verbose logging is ON');
+      console.log("📊 Verbose logging is ON");
     }
   },
 
@@ -585,8 +645,8 @@ export const devHelpers = {
       renderTracking: false,
       verbose: false,
     });
-    
-    console.log('🛠️ ui-lib Development mode disabled');
+
+    console.log("🛠️ ui-lib Development mode disabled");
   },
 
   /**
@@ -617,34 +677,40 @@ export const errorHandler = {
    * Wrap component render with error handling
    */
   safeRender<T>(
-    componentName: string,
+    _componentName: string,
     renderFn: () => T,
-    fallback?: (error: Error) => T
+    fallback?: (error: Error) => T,
   ): T {
     try {
       const startTime = performance.now();
       const result = renderFn();
       const renderTime = performance.now() - startTime;
-      
+
       if (devTools.getConfig().renderTracking) {
-        trackComponentRender(componentName, renderTime, {}, {}, String(result));
+        trackComponentRender(_componentName, renderTime, {}, {}, String(result));
       }
-      
+
       return result;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error(`❌ Error rendering component ${componentName}:`, error);
-      
+      const errorMessage = error instanceof Error
+        ? error.message
+        : String(error);
+      console.error(`❌ Error rendering component ${_componentName}:`, error);
+
       if (devTools.getConfig().renderTracking) {
-        trackComponentRender(componentName, 0, {}, {}, '', [`Render error: ${errorMessage}`]);
+        trackComponentRender(_componentName, 0, {}, {}, "", [
+          `Render error: ${errorMessage}`,
+        ]);
       }
-      
+
       if (fallback) {
-        return fallback(error instanceof Error ? error : new Error(String(error)));
+        return fallback(
+          error instanceof Error ? error : new Error(String(error)),
+        );
       }
-      
+
       // Default fallback
-      return `<!-- Error rendering ${componentName}: ${errorMessage} -->` as T;
+      return `<!-- Error rendering ${_componentName}: ${errorMessage} -->` as T;
     }
   },
 };

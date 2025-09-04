@@ -260,7 +260,7 @@ defineComponent("dev-tools-demo", {
 
     return (
       <div class={classes!.container}>
-        {h("style", { dangerouslySetInnerHTML: { __html: theme.vars() } })}
+        <style>{theme.vars()}</style>
         
         <h1 class={classes!.header}>{title}</h1>
         <p class={classes!.subtitle}>

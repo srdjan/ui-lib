@@ -1,6 +1,6 @@
 /** @jsx h */
 // ui-lib NavItem Component - Individual navigation item
-import { boolean, defineComponent, get, h, string } from "../../index.ts";
+import { boolean, defineComponent, type get, h, string } from "../../index.ts";
 import type { NavItemProps } from "./layout-types.ts";
 
 /**

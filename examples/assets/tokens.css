@@ -40,7 +40,7 @@
   /* Force darker surfaces/text irrespective of system pref */
   --theme-bg: var(--gray-9);
   --theme-text: var(--gray-1);
-  
+
   /* Update surface aliases for dark mode */
   --surface-1: var(--gray-9);
   --surface-2: var(--gray-8);

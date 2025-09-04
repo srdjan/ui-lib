@@ -204,6 +204,16 @@ defineComponent("app-layout", {
             </div>
           `;
 
+        case "composition":
+          return `
+            <h1>🧩 Component Composition Helpers</h1>
+            <p>Higher-level building blocks for rapid UI development.</p>
+
+            <div class="u-card u-my-4 u-p-4">
+              <demo-composition title="Component Composition Helpers" show-code="true"></demo-composition>
+            </div>
+          `;
+
         default: // "welcome"
           return `
             <h1>Welcome to ui-lib</h1>

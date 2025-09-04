@@ -16,7 +16,7 @@ export interface NavItemState {
 export interface ResponsiveConfig {
   breakpoints?: {
     mobile?: string;
-    tablet?: string; 
+    tablet?: string;
     desktop?: string;
   };
   collapsible?: boolean;

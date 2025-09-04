@@ -1,6 +1,5 @@
 // In src/lib/router.ts
 
-
 export type RouteParams = Record<string, string>;
 
 export type RouteHandler = (
@@ -44,7 +43,6 @@ export class Router {
       paramNames,
       handler,
     });
-    
   }
 
   public match(
@@ -67,5 +65,3 @@ export class Router {
     return null;
   }
 }
-
-

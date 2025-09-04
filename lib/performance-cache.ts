@@ -10,25 +10,25 @@ export interface CacheEntry<T = string> {
 }
 
 export interface CacheOptions {
-  readonly maxSize: number;          // Maximum cache size in MB
-  readonly maxEntries: number;       // Maximum number of cached entries  
-  readonly ttl: number;             // Time to live in milliseconds
+  readonly maxSize: number; // Maximum cache size in MB
+  readonly maxEntries: number; // Maximum number of cached entries
+  readonly ttl: number; // Time to live in milliseconds
   readonly enableCompression: boolean; // Enable gzip compression for large entries
   readonly trackDependencies: boolean; // Track component dependencies for invalidation
 }
 
 export interface CacheStats {
   readonly entries: number;
-  readonly totalSize: number;        // Size in bytes
-  readonly hitRate: number;          // Cache hit percentage
-  readonly memoryUsage: number;      // Memory usage in MB
+  readonly totalSize: number; // Size in bytes
+  readonly hitRate: number; // Cache hit percentage
+  readonly memoryUsage: number; // Memory usage in MB
   readonly compressionRatio: number; // Compression effectiveness
 }
 
 export interface CacheKey {
   readonly component: string;
-  readonly props: string;            // Serialized props hash
-  readonly context: string;          // Render context (theme, locale, etc.)
+  readonly props: string; // Serialized props hash
+  readonly context: string; // Render context (theme, locale, etc.)
 }
 
 /**
@@ -39,7 +39,7 @@ class PerformanceCache<T = string> {
   private accessOrder = new Map<string, number>(); // For LRU eviction
   private compressionCache = new Map<string, Uint8Array>(); // Compressed data
   private dependencyGraph = new Map<string, Set<string>>(); // Component dependencies
-  
+
   private hitCount = 0;
   private missCount = 0;
   private currentSize = 0; // Size in bytes
@@ -50,7 +50,11 @@ class PerformanceCache<T = string> {
   /**
    * Generate cache key from component name, props, and context
    */
-  generateKey(component: string, props: Record<string, unknown>, context: Record<string, unknown> = {}): string {
+  generateKey(
+    component: string,
+    props: Record<string, unknown>,
+    context: Record<string, unknown> = {},
+  ): string {
     const propsHash = this.hashObject(props);
     const contextHash = this.hashObject(context);
     return `${component}:${propsHash}:${contextHash}`;
@@ -61,7 +65,7 @@ class PerformanceCache<T = string> {
    */
   get(key: string): T | null {
     const entry = this.entries.get(key);
-    
+
     if (!entry) {
       this.missCount++;
       return null;
@@ -76,13 +80,13 @@ class PerformanceCache<T = string> {
 
     // Update LRU access order
     this.accessOrder.set(key, ++this.accessCounter);
-    
+
     // Update hit statistics
     this.entries.set(key, {
       ...entry,
       hits: entry.hits + 1,
     });
-    
+
     this.hitCount++;
 
     // Decompress if needed
@@ -98,7 +102,9 @@ class PerformanceCache<T = string> {
    * Store value in cache with optional compression
    */
   set(key: string, value: T, dependencies: readonly string[] = []): void {
-    const serialized = typeof value === 'string' ? value : JSON.stringify(value);
+    const serialized = typeof value === "string"
+      ? value
+      : JSON.stringify(value);
     const size = new TextEncoder().encode(serialized).length;
 
     // Check if we need compression
@@ -111,7 +117,7 @@ class PerformanceCache<T = string> {
       this.compressionCache.set(key, compressed);
       finalSize = compressed.length;
       // Store a placeholder value since actual data is compressed
-      finalValue = '' as T;
+      finalValue = "" as T;
     }
 
     const entry: CacheEntry<T> = {
@@ -202,12 +208,20 @@ class PerformanceCache<T = string> {
    */
   getStats(): CacheStats {
     const totalRequests = this.hitCount + this.missCount;
-    const hitRate = totalRequests > 0 ? (this.hitCount / totalRequests) * 100 : 0;
-    
+    const hitRate = totalRequests > 0
+      ? (this.hitCount / totalRequests) * 100
+      : 0;
+
     let compressionRatio = 1;
     if (this.options.enableCompression && this.compressionCache.size > 0) {
-      const originalSize = Array.from(this.entries.values()).reduce((sum, entry) => sum + entry.size, 0);
-      const compressedSize = Array.from(this.compressionCache.values()).reduce((sum, data) => sum + data.length, 0);
+      const originalSize = Array.from(this.entries.values()).reduce(
+        (sum, entry) => sum + entry.size,
+        0,
+      );
+      const compressedSize = Array.from(this.compressionCache.values()).reduce(
+        (sum, data) => sum + data.length,
+        0,
+      );
       compressionRatio = compressedSize > 0 ? originalSize / compressedSize : 1;
     }
 
@@ -223,7 +237,9 @@ class PerformanceCache<T = string> {
   /**
    * Get most accessed entries for debugging
    */
-  getHotEntries(limit = 10): Array<{ key: string; hits: number; size: number }> {
+  getHotEntries(
+    limit = 10,
+  ): Array<{ key: string; hits: number; size: number }> {
     return Array.from(this.entries.entries())
       .map(([key, entry]) => ({ key, hits: entry.hits, size: entry.size }))
       .sort((a, b) => b.hits - a.hits)
@@ -251,7 +267,7 @@ class PerformanceCache<T = string> {
    * Evict least recently used entry
    */
   private evictLRU(): void {
-    let lruKey = '';
+    let lruKey = "";
     let lruAccess = Infinity;
 
     for (const [key, accessTime] of this.accessOrder) {
@@ -269,7 +285,10 @@ class PerformanceCache<T = string> {
   /**
    * Update dependency graph for cache invalidation
    */
-  private updateDependencyGraph(key: string, dependencies: readonly string[]): void {
+  private updateDependencyGraph(
+    key: string,
+    dependencies: readonly string[],
+  ): void {
     for (const dep of dependencies) {
       if (!this.dependencyGraph.has(dep)) {
         this.dependencyGraph.set(dep, new Set());
@@ -284,13 +303,13 @@ class PerformanceCache<T = string> {
   private hashObject(obj: Record<string, unknown>): string {
     const str = JSON.stringify(obj, Object.keys(obj).sort());
     let hash = 0;
-    
+
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
       hash = ((hash << 5) - hash) + char;
       hash = hash & hash; // Convert to 32bit integer
     }
-    
+
     return Math.abs(hash).toString(36);
   }
 
@@ -318,27 +337,27 @@ class PerformanceCache<T = string> {
 export const cachePresets = {
   // High-performance production cache
   production: {
-    maxSize: 100,           // 100MB cache
-    maxEntries: 10000,      // Up to 10k components
-    ttl: 3600000,          // 1 hour TTL
+    maxSize: 100, // 100MB cache
+    maxEntries: 10000, // Up to 10k components
+    ttl: 3600000, // 1 hour TTL
     enableCompression: true,
     trackDependencies: true,
   },
 
   // Development cache with faster invalidation
   development: {
-    maxSize: 50,            // 50MB cache
-    maxEntries: 5000,       // Up to 5k components
-    ttl: 300000,           // 5 minute TTL
+    maxSize: 50, // 50MB cache
+    maxEntries: 5000, // Up to 5k components
+    ttl: 300000, // 5 minute TTL
     enableCompression: false, // Faster dev builds
     trackDependencies: true,
   },
 
   // Memory-constrained environments
   minimal: {
-    maxSize: 10,            // 10MB cache
-    maxEntries: 1000,       // Up to 1k components
-    ttl: 600000,           // 10 minute TTL
+    maxSize: 10, // 10MB cache
+    maxEntries: 1000, // Up to 1k components
+    ttl: 600000, // 10 minute TTL
     enableCompression: true,
     trackDependencies: false, // Less memory overhead
   },
@@ -352,7 +371,9 @@ let globalRenderCache: PerformanceCache<string> | null = null;
 /**
  * Initialize render cache with configuration
  */
-export function initializeRenderCache(options: CacheOptions = cachePresets.production): PerformanceCache<string> {
+export function initializeRenderCache(
+  options: CacheOptions = cachePresets.production,
+): PerformanceCache<string> {
   globalRenderCache = new PerformanceCache<string>(options);
   return globalRenderCache;
 }
@@ -372,10 +393,10 @@ export function cachedRender<T extends Record<string, unknown>>(
   props: T,
   renderFn: () => string,
   dependencies: readonly string[] = [],
-  context: Record<string, unknown> = {}
+  context: Record<string, unknown> = {},
 ): string {
   const cache = getRenderCache();
-  
+
   if (!cache) {
     // No cache - render directly
     return renderFn();
@@ -392,38 +413,40 @@ export function cachedRender<T extends Record<string, unknown>>(
   // Cache miss - render and store
   const rendered = renderFn();
   cache.set(key, rendered, dependencies);
-  
+
   return rendered;
 }
 
 /**
  * Cache warming utilities for critical components
  */
-export const cacheWarming = {
+export const cacheWarming: Record<string, unknown> = {
   /**
    * Pre-render critical components with common prop combinations
    */
-  warmCriticalComponents(components: Array<{
-    name: string;
-    propVariations: Array<Record<string, unknown>>;
-    renderFn: (props: Record<string, unknown>) => string;
-    dependencies?: readonly string[];
-  }>): Promise<number> {
+  warmCriticalComponents(
+    components: Array<{
+      name: string;
+      propVariations: Array<Record<string, unknown>>;
+      renderFn: (props: Record<string, unknown>) => string;
+      dependencies?: readonly string[];
+    }>,
+  ): Promise<number> {
     return new Promise((resolve) => {
       let warmed = 0;
-      
+
       for (const component of components) {
         for (const props of component.propVariations) {
           cachedRender(
             component.name,
             props,
             () => component.renderFn(props),
-            component.dependencies
+            component.dependencies,
           );
           warmed++;
         }
       }
-      
+
       // Simulate async warming
       setTimeout(() => resolve(warmed), 0);
     });
@@ -432,18 +455,20 @@ export const cacheWarming = {
   /**
    * Warm cache based on usage analytics
    */
-  warmFromAnalytics(analytics: Array<{
-    component: string;
-    props: Record<string, unknown>;
-    frequency: number;
-  }>): number {
+  warmFromAnalytics(
+    analytics: Array<{
+      component: string;
+      props: Record<string, unknown>;
+      frequency: number;
+    }>,
+  ): number {
     const cache = getRenderCache();
     if (!cache) return 0;
 
     let warmed = 0;
     // Sort by frequency and warm most used first
     const sorted = analytics.sort((a, b) => b.frequency - a.frequency);
-    
+
     for (const { component, props } of sorted.slice(0, 100)) { // Top 100
       const key = cache.generateKey(component, props);
       if (!cache.get(key)) {
@@ -452,7 +477,7 @@ export const cacheWarming = {
         warmed++;
       }
     }
-    
+
     return warmed;
   },
 };
@@ -460,18 +485,18 @@ export const cacheWarming = {
 /**
  * Cache monitoring and debugging utilities
  */
-export const cacheMonitoring = {
+export const cacheMonitoring: Record<string, unknown> = {
   /**
    * Monitor cache performance over time
    */
   createMonitor(intervalMs = 30000) {
     const stats: CacheStats[] = [];
-    
+
     const monitor = setInterval(() => {
       const cache = getRenderCache();
       if (cache) {
         stats.push(cache.getStats());
-        
+
         // Keep only last 100 measurements
         if (stats.length > 100) {
           stats.shift();
@@ -497,9 +522,17 @@ export const cacheMonitoring = {
     const cache = getRenderCache();
     if (!cache) {
       return {
-        summary: { entries: 0, totalSize: 0, hitRate: 0, memoryUsage: 0, compressionRatio: 1 },
+        summary: {
+          entries: 0,
+          totalSize: 0,
+          hitRate: 0,
+          memoryUsage: 0,
+          compressionRatio: 1,
+        },
         hotEntries: [],
-        recommendations: ['Cache not initialized. Consider calling initializeRenderCache()'],
+        recommendations: [
+          "Cache not initialized. Consider calling initializeRenderCache()",
+        ],
       };
     }
 
@@ -509,16 +542,26 @@ export const cacheMonitoring = {
 
     // Generate recommendations
     if (summary.hitRate < 50) {
-      recommendations.push('Low cache hit rate. Consider increasing TTL or cache size.');
+      recommendations.push(
+        "Low cache hit rate. Consider increasing TTL or cache size.",
+      );
     }
     if (summary.memoryUsage > 80) {
-      recommendations.push('High memory usage. Consider enabling compression or reducing cache size.');
+      recommendations.push(
+        "High memory usage. Consider enabling compression or reducing cache size.",
+      );
     }
     if (summary.entries < 100 && summary.memoryUsage < 10) {
-      recommendations.push('Cache underutilized. Consider increasing maxEntries.');
+      recommendations.push(
+        "Cache underutilized. Consider increasing maxEntries.",
+      );
     }
-    if (summary.compressionRatio < 1.5 && hotEntries.some(e => e.size > 10000)) {
-      recommendations.push('Large entries with poor compression. Review component output size.');
+    if (
+      summary.compressionRatio < 1.5 && hotEntries.some((e) => e.size > 10000)
+    ) {
+      recommendations.push(
+        "Large entries with poor compression. Review component output size.",
+      );
     }
 
     return { summary, hotEntries, recommendations };
