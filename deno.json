@@ -30,7 +30,7 @@
     "fmt:check": "deno fmt --check",
     "lint": "deno lint",
     "coverage": "rm -rf coverage coverage.lcov && deno test --coverage=coverage && deno coverage coverage --lcov --exclude='(jsx-runtime|define-component)\\.ts$' --output=coverage.lcov",
-    "serve": "cd examples/demo && deno run --allow-net --allow-read --allow-env server.ts",
+    "serve": "cd examples && deno run --allow-net --allow-read --allow-env server.ts",
     "start": "deno task check && deno task serve",
     "docs": "deno doc index.ts",
     "audit:css": "deno run --allow-read scripts/audit_css.ts",
