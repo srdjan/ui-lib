@@ -80,6 +80,53 @@ export {
   string,
 } from "./lib/prop-helpers.ts";
 
+// Enhanced prop helpers (Phase 1)
+export {
+  typedArray,
+  typedBoolean,
+  typedNumber,
+  typedObject,
+  typedString,
+  isTypedPropHelper,
+  // Compatibility exports
+  string2,
+  number2,
+  boolean2,
+  array2,
+  object2,
+} from "./lib/prop-helpers-v2.ts";
+
+// CSS-in-TypeScript system (Phase 2)
+export {
+  css,
+  createTheme,
+  cssHelpers,
+  composeStyles,
+  responsive,
+  type CSSProperties,
+  type StyleMap,
+  type StyleObject,
+  type ThemeTokens,
+} from "./lib/css-in-ts.ts";
+
+// Component composition helpers (Phase 3)
+export {
+  Layout,
+  Grid,
+  Card,
+  ButtonGroup,
+  Navigation,
+  Form,
+  type LayoutProps,
+  type GridProps,
+  type CardProps,
+  type ButtonGroupProps,
+  type NavigationProps,
+  type FormProps,
+  type NavItem,
+  type FormField,
+} from "./lib/composition.ts";
+
 // Utility TS types
 export type { PropsOf, UnwrapHelpers } from "./lib/types.ts";
 
