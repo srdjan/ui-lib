@@ -1,5 +1,5 @@
 /** @jsx h */
-import { defineComponent, h, string, number, boolean, post, patch, del } from "../../index.ts";
+import { defineComponent, h, string, post } from "../../index.ts";
 
 /**
  * Hero Stats Component - Animated statistics display
@@ -76,15 +76,102 @@ defineComponent("showcase-hero-stats", {
 defineComponent("showcase-demo-viewer", {
   styles: {
     viewer: `{
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
+      display: flex;
+      flex-direction: column;
       width: 100%;
-    }
-    @media (max-width: 968px) {
-      .viewer {
-        grid-template-columns: 1fr;
-      }
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+    }`,
+    
+    viewCodeButton: `{
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 10;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+    }`,
+    
+    viewCodeButtonHover: `{
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    }`,
+    
+    codeModal: `{
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }`,
+    
+    codeModalOpen: `{
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+    }`,
+    
+    codeModalContent: `{
+      background: white;
+      border-radius: 1rem;
+      width: 90%;
+      max-width: 1000px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      animation: slideUp 0.3s ease;
+    }`,
+    
+    codeModalHeader: `{
+      padding: 1.5rem;
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+      border-radius: 1rem 1rem 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }`,
+    
+    codeModalTitle: `{
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }`,
+    
+    codeModalClose: `{
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #6b7280;
+      cursor: pointer;
+      padding: 0.25rem;
+      transition: color 0.2s ease;
+    }`,
+    
+    codeModalBody: `{
+      flex: 1;
+      overflow: auto;
+      padding: 0;
     }`,
     
     codePanel: `{
@@ -143,8 +230,8 @@ defineComponent("showcase-demo-viewer", {
           <div class={classes!.panelHeader}>
             <span class={classes!.panelTitle}>📝 ui-lib Code</span>
             <div class="panel-actions">
-              <button class="panel-action" onclick="copyCode(this)">📋 Copy</button>
-              <button class="panel-action" onclick="formatCode(this)">✨ Format</button>
+              <button type="button" class="panel-action" onclick="copyCode(this)">📋 Copy</button>
+              <button type="button" class="panel-action" onclick="formatCode(this)">✨ Format</button>
             </div>
           </div>
           <pre class={classes!.codeContent}>
@@ -158,8 +245,8 @@ defineComponent("showcase-demo-viewer", {
           <div class={classes!.panelHeader}>
             <span class={classes!.panelTitle}>👁️ Live Preview</span>
             <div class="panel-actions">
-              <button class="panel-action" onclick="refreshPreview(this)">🔄 Refresh</button>
-              <button class="panel-action" onclick="toggleFullscreen(this)">⛶ Fullscreen</button>
+              <button type="button" class="panel-action" onclick="refreshPreview(this)">🔄 Refresh</button>
+              <button type="button" class="panel-action" onclick="toggleFullscreen(this)">⛶ Fullscreen</button>
             </div>
           </div>
           <div class={classes!.previewContent} id={`preview-${demoName}`} 
@@ -180,7 +267,7 @@ defineComponent("showcase-demo-viewer", {
 defineComponent("showcase-playground", {
   api: {
     runCode: post("/api/showcase/run", async (req) => {
-      const { code } = await req.json();
+      const { code: _code } = await req.json();
       // Process the code and return result
       return new Response(JSON.stringify({ 
         output: "Component rendered successfully!",
@@ -293,7 +380,7 @@ defineComponent("my-component", {
 });`}</textarea>
         <button 
           class={classes!.runButton}
-          {...api.runCode()}
+          {...(api.runCode as any)()}
           hx-include="#playground-code"
           hx-target="#playground-output"
           hx-swap="innerHTML"

@@ -15,6 +15,7 @@ import {
   publishState,
   createCartAction
 } from "../../../index.ts";
+import { router } from "../../router.ts";
 
 /**
  * 🏪 E-commerce Product Catalog
@@ -30,6 +31,7 @@ import {
 
 // Product Card Component
 defineComponent("product-card", {
+  router,
   api: {
     addToCart: post("/api/cart/add", async (req) => {
       const product = await req.json();
@@ -41,13 +43,16 @@ defineComponent("product-card", {
     }),
     
     toggleFavorite: patch("/api/products/:id/favorite", async (req, params) => {
-      const { id } = params;
-      // Toggle favorite status
-      return new Response(renderComponent("product-card", {
-        ...await req.json(),
-        isFavorite: true
-      }));
-    })
+      const productId = params.id;
+      const isFavorited = Math.random() > 0.5;
+      
+      // Return HTML heart span that replaces the current heart
+      const heartHtml = `<span id="heart-${productId}" style="color: ${isFavorited ? '#ef4444' : '#9ca3af'}">${isFavorited ? '❤️' : '🤍'}</span>`;
+      
+      return new Response(heartHtml, {
+        headers: { "Content-Type": "text/html" }
+      });
+    }),
   },
   
   styles: {
@@ -208,7 +213,7 @@ defineComponent("product-card", {
     inStock = boolean(true),
     isFavorite = boolean(false),
     discount = number(0)
-  }, api: any, classes: any) => {
+  }, _api: any, classes: any) => {
     const productId = typeof id === "string" ? id : "";
     const productName = typeof name === "string" ? name : "Product";
     const productDescription = typeof description === "string" ? description : "";
@@ -241,12 +246,14 @@ defineComponent("product-card", {
           )}
           
           <button 
+            type="button"
             class={classes!.favoriteBtn}
-            {...api.toggleFavorite(productId)}
+            {..._api.toggleFavorite(productId)}
+            hx-target={`#heart-${productId}`}
             hx-swap="outerHTML"
             aria-label="Toggle favorite"
           >
-            <span style={`color: ${isFav ? '#ef4444' : '#9ca3af'}`}>
+            <span id={`heart-${productId}`} style={`color: ${isFav ? '#ef4444' : '#9ca3af'}`}>
               {isFav ? '❤️' : '🤍'}
             </span>
           </button>
@@ -323,7 +330,7 @@ defineComponent("product-grid", {
           description: "Crystal clear sound with active noise cancellation",
           price: 149.99,
           originalPrice: 199.99,
-          image: "/api/placeholder/300/200",
+          image: "https://picsum.photos/300/200?random=1",
           rating: 4.8,
           reviews: 342,
           inStock: true,
@@ -335,7 +342,7 @@ defineComponent("product-grid", {
           description: "Track your fitness and stay connected",
           price: 299.99,
           originalPrice: 399.99,
-          image: "/api/placeholder/300/200",
+          image: "https://picsum.photos/300/200?random=2",
           rating: 4.6,
           reviews: 567,
           inStock: true,
@@ -346,7 +353,7 @@ defineComponent("product-grid", {
           name: "4K Webcam",
           description: "Professional quality video for remote work",
           price: 89.99,
-          image: "/api/placeholder/300/200",
+          image: "https://picsum.photos/300/200?random=3",
           rating: 4.5,
           reviews: 123,
           inStock: true
@@ -357,7 +364,7 @@ defineComponent("product-grid", {
           description: "RGB backlit with custom switches",
           price: 129.99,
           originalPrice: 159.99,
-          image: "/api/placeholder/300/200",
+          image: "https://picsum.photos/300/200?random=4",
           rating: 4.9,
           reviews: 892,
           inStock: false,
@@ -496,6 +503,8 @@ defineComponent("product-grid", {
         id="product-grid"
         hx-get="/api/products"
         hx-trigger="load"
+        hx-swap="innerHTML"
+        hx-on={`htmx:afterRequest: if (event.detail.successful) htmx.process(this)`}
       >
         <product-card 
           id="1"
