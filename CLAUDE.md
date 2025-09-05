@@ -43,7 +43,7 @@ deno task fmt:check
 # Lint code  
 deno task lint
 
-# Generate test coverage (includes LCOV output)
+# Generate test coverage (includes LCOV output with exclusions)
 deno task coverage
 
 # Generate documentation
@@ -51,6 +51,12 @@ deno task docs
 
 # Run benchmarks
 deno task bench
+
+# Audit CSS usage across components
+deno task audit:css
+
+# Complete release preparation (check, format, lint, audit, test, coverage, docs)
+deno task release:prep
 ```
 
 ### Manual Commands
@@ -77,18 +83,23 @@ deno doc index.ts --html --name="ui-lib" --output=./docs/
 ### Library Structure
 
 The codebase follows a functional, modular architecture built around
-SSR-compatible web components:
+SSR-compatible web components with enterprise-grade features:
 
-1. **defineComponent API** (`src/lib/define-component.ts`) - Clean, object-based
-   configuration for component creation (now includes optional reactive wiring)
-2. **Component Registry** (`src/lib/registry.ts`) - Global registry for SSR
+1. **defineComponent API** (`lib/define-component.ts`) - Clean, object-based
+   configuration for component creation with optional reactive wiring
+2. **Component Registry** (`lib/registry.ts`) - Global registry for SSR
    component definitions
-3. **JSX Runtime** (`src/lib/jsx-runtime.ts`) - Custom JSX runtime that renders
+3. **JSX Runtime** (`lib/jsx-runtime.ts`) - Custom JSX runtime that renders
    directly to HTML strings
-4. **SSR Engine** (`src/lib/component-state.ts`) - Server-side rendering system
+4. **SSR Engine** (`lib/component-state.ts`) - Server-side rendering system
    with `renderComponent()` function
-5. **Unified API System** (`src/lib/api-generator.ts`) - Auto-generates HTMX
+5. **Unified API System** (`lib/api-generator.ts`) - Auto-generates HTMX
    client functions from server route definitions
+6. **CSS-in-TypeScript System** (`lib/css-in-ts.ts`) - Full CSS-in-TS with theming, responsive design, and IntelliSense
+7. **Component Composition Library** (`lib/composition.ts`) - Higher-level building blocks (Cards, Forms, Grids, Layouts)
+8. **Development Tools** (`lib/dev-tools.ts`) - Performance monitoring, A11y checking, component inspection
+9. **Performance Optimization** (`lib/performance-cache.ts`, `lib/render-optimizer.ts`, `lib/bundle-optimizer.ts`) - Enterprise-grade caching and optimization
+10. **Layout System** (`lib/layout/`) - Complete layout components with responsive design
 
 ### Key Architecture Patterns
 
@@ -138,7 +149,7 @@ defineComponent("my-counter", {
 ### File Organization
 
 ```
-├── index.ts                    # Main exports - all public API
+├── index.ts                    # Main exports - all public API with enterprise features
 ├── deno.json                   # Deno configuration with tasks, compiler options, imports
 ├── lib/                        # Core library implementation
 │   ├── define-component.ts     # Primary defineComponent API with function-style props + reactive options
@@ -148,8 +159,11 @@ defineComponent("my-counter", {
 │   ├── api-generator.ts        # Unified API system (auto-generates HTMX from routes)
 │   ├── api-helpers.ts          # HTTP method helpers (post, get, patch, del, create, remove)
 │   ├── prop-helpers.ts         # Smart type helpers (string, number, boolean, array, object)
+│   ├── prop-helpers-v2.ts      # Enhanced TypeScript prop helpers with zero type checking
 │   ├── render-parameter-parser.ts # Function signature parsing for function-style props
 │   ├── styles-parser.ts        # CSS-only format parser and class name generation
+│   ├── css-in-ts.ts           # Complete CSS-in-TypeScript system with themes and responsive design
+│   ├── composition.ts          # Higher-level component building blocks (Card, Form, Grid, Layout, Navigation)
 │   ├── reactive-helpers.ts     # Hybrid Reactivity System (3-tier: CSS, Pub/Sub, DOM Events)
 │   ├── state-manager.ts        # Pub/Sub state manager infrastructure
 │   ├── dom-helpers.ts          # DOM manipulation utilities (toggleClass, conditionalClass, etc.)
@@ -158,28 +172,34 @@ defineComponent("my-counter", {
 │   ├── ssr.ts                  # Server-side rendering utilities
 │   ├── result.ts               # Functional error handling (Result<T,E>)
 │   ├── config.ts               # Global configuration utilities
+│   ├── dev-tools.ts            # Enterprise development tools (performance monitoring, a11y checking, component inspection)
+│   ├── performance-cache.ts    # Advanced SSR caching with dependency tracking and compression
+│   ├── render-optimizer.ts     # Template compilation and render optimization
+│   ├── bundle-optimizer.ts     # Bundle analysis, code splitting, and tree shaking
 │   ├── actions.ts              # Component action types
 │   ├── props.ts                # Props handling utilities
 │   ├── immutability.ts         # Immutability helpers
 │   ├── style-registry.ts       # Style management system
 │   ├── request-headers.ts      # HTTP request header utilities
+│   ├── layout/                 # Layout system
+│   │   ├── index.ts            # Layout component exports
+│   │   └── layout-types.ts     # Layout type definitions
 │   └── types.ts                # Core TypeScript types and utilities
 examples/
-├── server.ts                   # Development server with SSR, API routing, and state manager injection
-├── index.html                  # Demo page displaying all components
-├── layout.tsx                  # Layout components and demo rendering
-├── demo-counter.tsx            # Counter component demonstrations
-├── theme-controller.tsx        # Theme switching examples
-├── cart-demo.tsx               # Shopping cart with pub/sub state
-├── notification-demo.tsx       # Notification system with DOM events
-└── [other].tsx                 # Additional component examples
+├── server.ts                   # Development server with SSR, API routing, and showcase integration
+├── router.ts                   # API router setup
+├── showcase/                   # Comprehensive component showcase
+│   ├── index.html              # Complete demo page with all features
+│   └── components.tsx          # All showcase components
+├── apps/                       # Full application examples
+│   └── ecommerce/              # E-commerce product catalog example
+└── [other dirs]                # Additional example categories
 bench/
 ├── ssr.bench.ts               # SSR performance benchmarks
 docs/
-├── dev-guide.md               # Developer usage guide
 ├── AUTHORING.md               # Component authoring guide
 ├── UNIFIED-API.md             # API system documentation
-└── RFC-ergonomics.md          # Ergonomics improvements RFC
+└── [other guides]             # Additional documentation
 ```
 
 ## TypeScript Configuration
@@ -218,6 +238,12 @@ import {
   number,
   object,
   string,
+  // Enhanced v2 prop helpers with zero type checking
+  typedString,
+  typedNumber,
+  typedBoolean,
+  typedArray,
+  typedObject,
 } from "../index.ts";
 
 defineComponent("modern-card", {
@@ -448,10 +474,15 @@ The development server (`examples/server.ts`) provides:
 3. **Zero Configuration**: Deno automatically handles TypeScript transpilation
    and custom JSX runtime
 4. **Testing**: Access components at `http://localhost:8080` after
-   `deno task start`
+   `deno task start` - visit the showcase page for comprehensive demos
 5. **Event Handling**: Use DOM helpers or inline strings for direct DOM
    manipulation
-6. **Styling**: Include styles in `styles` property for scoped CSS
+6. **Styling**: Multiple options available:
+   - CSS-only format for simple styles with auto-generated class names
+   - Full CSS-in-TypeScript system with theming and responsive design
+   - Higher-level composition components (Card, Form, Grid, Layout)
+7. **Performance Monitoring**: Use built-in dev tools for performance analysis and A11y checking
+8. **Enterprise Features**: Leverage caching, bundle optimization, and render optimization for production apps
 
 ### SSR Integration
 
@@ -808,3 +839,121 @@ The hybrid reactivity system delivers exceptional performance:
 - **State Manager**: Efficient subscription cleanup prevents memory leaks
 - **DOM Events**: Leverages native browser event optimization
 - **Bundle Size**: Minimal overhead (~2KB total for all reactive features)
+
+## Enterprise-Grade Features
+
+ui-lib has evolved into a complete enterprise development platform with advanced tooling and optimization features:
+
+### CSS-in-TypeScript System
+
+Full CSS authoring capabilities with TypeScript integration:
+
+```tsx
+import { css, createTheme, responsive } from "../index.ts";
+
+const theme = createTheme({
+  colors: { primary: "#007bff", secondary: "#6c757d" },
+  spacing: { sm: "0.5rem", md: "1rem", lg: "2rem" },
+});
+
+const styles = css({
+  card: {
+    padding: theme.spacing.md,
+    backgroundColor: theme.colors.primary,
+    "&:hover": { backgroundColor: theme.colors.secondary },
+    ...responsive({
+      mobile: { fontSize: "0.875rem" },
+      desktop: { fontSize: "1rem" },
+    }),
+  },
+});
+```
+
+### Component Composition Library
+
+Higher-level building blocks for rapid development:
+
+```tsx
+import { Card, Form, Grid, Layout, Navigation } from "../index.ts";
+
+// Pre-built components with accessibility and responsive design
+<Layout direction="horizontal" gap="2rem" align="center">
+  <Card variant="elevated" header="Dashboard">
+    <Grid columns={3} gap="1rem">
+      <Navigation variant="pills" items={navItems} />
+    </Grid>
+  </Card>
+</Layout>
+```
+
+### Development Tools
+
+Comprehensive debugging and monitoring capabilities:
+
+```tsx
+import {
+  a11yChecker,
+  componentInspector,
+  performanceMonitor,
+  getPerformanceReport,
+} from "../index.ts";
+
+// Performance monitoring
+performanceMonitor.findSlowComponents(10); // Components >10ms render time
+const report = getPerformanceReport(); // Detailed metrics
+
+// Accessibility validation
+a11yChecker.validateAccessibility(); // WCAG compliance checking
+
+// Component debugging
+componentInspector.inspectComponent("my-card"); // Deep component analysis
+```
+
+### Performance Optimization
+
+Production-ready caching and optimization:
+
+```tsx
+import {
+  PerformanceCache,
+  BundleAnalyzer,
+  renderOptimizer,
+  cachedRender,
+} from "../index.ts";
+
+// Intelligent SSR caching with dependency tracking
+const cache = new PerformanceCache({
+  compression: true,
+  dependencyTracking: true,
+  ttl: 3600,
+});
+
+// Use cached rendering for expensive components
+const html = await cachedRender("product-list", { products }, {
+  cache: "aggressive",
+  dependencies: ["products", "user.preferences"],
+});
+
+// Bundle optimization analysis
+const analyzer = new BundleAnalyzer();
+const savings = analyzer.calculatePotentialSavings(bundle);
+```
+
+### Enhanced TypeScript Integration
+
+Zero-overhead prop helpers with full type inference:
+
+```tsx
+import { typedString, typedNumber, typedBoolean } from "../index.ts";
+
+defineComponent("typed-card", {
+  render: ({
+    title = typedString("Hello"), // Already typed as string!
+    count = typedNumber(0),       // Already typed as number!
+    active = typedBoolean(false), // Already typed as boolean!
+  }) => {
+    // Use directly - TypeScript knows the exact types
+    return <h1>{title.toUpperCase()}</h1>; // No type assertions needed
+  },
+});
+```

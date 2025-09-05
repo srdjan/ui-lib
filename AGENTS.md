@@ -2,10 +2,11 @@
 
 ## Project Structure & Module Organization
 
-- `index.ts`: Public API entry; re-exports stable APIs.
-- `lib/`: Core implementation; colocate tests as `*.test.ts` next to sources.
+- `index.ts`: Public API surface; re-export stable types/functions.
+- `lib/`: Core implementation. Co-locate tests next to sources as `*.test.ts`.
 - `docs/`: Authoring and API docs (`docs/AUTHORING.md`, `docs/UNIFIED-API.md`).
 - Config: `deno.json` (tasks, JSX runtime), `tsconfig.json` (strict TypeScript).
+- Philosophy: Small, pure helpers; the DOM is the state.
 
 ## Build, Test, and Development Commands
 
@@ -18,34 +19,33 @@
 
 ## Coding Style & Naming Conventions
 
-- Language: TypeScript (strict); prefer small, pure, side‑effect‑free helpers.
+- Language: TypeScript (strict). Prefer pure, side‑effect‑free helpers.
 - Indentation: 2 spaces; rely on `deno fmt` and `deno lint`.
 - Components: kebab-case, e.g., `defineComponent("theme-toggle", …)`.
 - Files: Library code is `.ts`; tests live next to sources as `*.test.ts`.
-- Philosophy: The DOM is the state; prefer class/data attributes over JS state.
+- State: Use class/data attributes; avoid global mutable state.
 
 ## Testing Guidelines
 
 - Framework: Deno built‑in `deno test`.
-- Naming/location: `lib/**/*.test.ts` beside implementation files.
+- Naming/location: `lib/**/*.test.ts` beside implementations.
 - Run: `deno task test` or `deno test path/to/file.test.ts`.
 - Coverage: `deno task coverage` produces LCOV for CI.
 
 ## Commit & Pull Request Guidelines
 
-- Commits: Short, imperative subjects (e.g., "linter fixes",
-  `router: improve matching`). Tag releases like `v0.4.0`.
+- Commits: Short, imperative subjects (e.g., "linter fixes", `router: improve matching`). Tag releases like `v0.4.0`.
 - PRs: Provide clear description, link issues, and update tests/docs as needed.
-- Must pass before merge: `deno task check fmt:check lint test`.
+- Required before merge: `deno task check fmt:check lint test` must pass.
 
 ## Security & Configuration Tips
 
 - No runtime network/env requirements; avoid adding runtime dependencies.
-- If tooling requires permissions, scope narrowly and document in `deno.json`.
+- If tooling needs permissions, scope narrowly and document in `deno.json`.
 
 ## Architecture Overview
 
-- Model: Functional Web Components with small, composable helpers in `lib/`.
+- Model: Functional Web Components; small, composable helpers in `lib/`.
 - Rendering: DOM‑first; SSR emits HTML; client enhances progressively.
 - Data flow: Attributes/`data-*` map to props; events via delegated listeners.
-- State: Avoid global mutable state; reflect via class/data attributes.
+
