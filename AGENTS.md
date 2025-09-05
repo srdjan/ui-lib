@@ -34,7 +34,8 @@
 
 ## Commit & Pull Request Guidelines
 
-- Commits: Short, imperative subjects (e.g., "linter fixes", `router: improve matching`). Tag releases like `v0.4.0`.
+- Commits: Short, imperative subjects (e.g., "linter fixes",
+  `router: improve matching`). Tag releases like `v0.4.0`.
 - PRs: Provide clear description, link issues, and update tests/docs as needed.
 - Required before merge: `deno task check fmt:check lint test` must pass.
 
@@ -48,4 +49,3 @@
 - Model: Functional Web Components; small, composable helpers in `lib/`.
 - Rendering: DOM‑first; SSR emits HTML; client enhances progressively.
 - Data flow: Attributes/`data-*` map to props; events via delegated listeners.
-

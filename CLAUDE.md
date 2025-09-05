@@ -91,15 +91,21 @@ SSR-compatible web components with enterprise-grade features:
    component definitions
 3. **JSX Runtime** (`lib/jsx-runtime.ts`) - Custom JSX runtime that renders
    directly to HTML strings
-4. **SSR Engine** (`lib/component-state.ts`) - Server-side rendering system
-   with `renderComponent()` function
-5. **Unified API System** (`lib/api-generator.ts`) - Auto-generates HTMX
-   client functions from server route definitions
-6. **CSS-in-TypeScript System** (`lib/css-in-ts.ts`) - Full CSS-in-TS with theming, responsive design, and IntelliSense
-7. **Component Composition Library** (`lib/composition.ts`) - Higher-level building blocks (Cards, Forms, Grids, Layouts)
-8. **Development Tools** (`lib/dev-tools.ts`) - Performance monitoring, A11y checking, component inspection
-9. **Performance Optimization** (`lib/performance-cache.ts`, `lib/render-optimizer.ts`, `lib/bundle-optimizer.ts`) - Enterprise-grade caching and optimization
-10. **Layout System** (`lib/layout/`) - Complete layout components with responsive design
+4. **SSR Engine** (`lib/component-state.ts`) - Server-side rendering system with
+   `renderComponent()` function
+5. **Unified API System** (`lib/api-generator.ts`) - Auto-generates HTMX client
+   functions from server route definitions
+6. **CSS-in-TypeScript System** (`lib/css-in-ts.ts`) - Full CSS-in-TS with
+   theming, responsive design, and IntelliSense
+7. **Component Composition Library** (`lib/composition.ts`) - Higher-level
+   building blocks (Cards, Forms, Grids, Layouts)
+8. **Development Tools** (`lib/dev-tools.ts`) - Performance monitoring, A11y
+   checking, component inspection
+9. **Performance Optimization** (`lib/performance-cache.ts`,
+   `lib/render-optimizer.ts`, `lib/bundle-optimizer.ts`) - Enterprise-grade
+   caching and optimization
+10. **Layout System** (`lib/layout/`) - Complete layout components with
+    responsive design
 
 ### Key Architecture Patterns
 
@@ -238,12 +244,12 @@ import {
   number,
   object,
   string,
+  typedArray,
+  typedBoolean,
+  typedNumber,
+  typedObject,
   // Enhanced v2 prop helpers with zero type checking
   typedString,
-  typedNumber,
-  typedBoolean,
-  typedArray,
-  typedObject,
 } from "../index.ts";
 
 defineComponent("modern-card", {
@@ -481,8 +487,10 @@ The development server (`examples/server.ts`) provides:
    - CSS-only format for simple styles with auto-generated class names
    - Full CSS-in-TypeScript system with theming and responsive design
    - Higher-level composition components (Card, Form, Grid, Layout)
-7. **Performance Monitoring**: Use built-in dev tools for performance analysis and A11y checking
-8. **Enterprise Features**: Leverage caching, bundle optimization, and render optimization for production apps
+7. **Performance Monitoring**: Use built-in dev tools for performance analysis
+   and A11y checking
+8. **Enterprise Features**: Leverage caching, bundle optimization, and render
+   optimization for production apps
 
 ### SSR Integration
 
@@ -842,14 +850,15 @@ The hybrid reactivity system delivers exceptional performance:
 
 ## Enterprise-Grade Features
 
-ui-lib has evolved into a complete enterprise development platform with advanced tooling and optimization features:
+ui-lib has evolved into a complete enterprise development platform with advanced
+tooling and optimization features:
 
 ### CSS-in-TypeScript System
 
 Full CSS authoring capabilities with TypeScript integration:
 
 ```tsx
-import { css, createTheme, responsive } from "../index.ts";
+import { createTheme, css, responsive } from "../index.ts";
 
 const theme = createTheme({
   colors: { primary: "#007bff", secondary: "#6c757d" },
@@ -883,7 +892,7 @@ import { Card, Form, Grid, Layout, Navigation } from "../index.ts";
       <Navigation variant="pills" items={navItems} />
     </Grid>
   </Card>
-</Layout>
+</Layout>;
 ```
 
 ### Development Tools
@@ -894,8 +903,8 @@ Comprehensive debugging and monitoring capabilities:
 import {
   a11yChecker,
   componentInspector,
-  performanceMonitor,
   getPerformanceReport,
+  performanceMonitor,
 } from "../index.ts";
 
 // Performance monitoring
@@ -915,10 +924,10 @@ Production-ready caching and optimization:
 
 ```tsx
 import {
-  PerformanceCache,
   BundleAnalyzer,
-  renderOptimizer,
   cachedRender,
+  PerformanceCache,
+  renderOptimizer,
 } from "../index.ts";
 
 // Intelligent SSR caching with dependency tracking
@@ -944,12 +953,12 @@ const savings = analyzer.calculatePotentialSavings(bundle);
 Zero-overhead prop helpers with full type inference:
 
 ```tsx
-import { typedString, typedNumber, typedBoolean } from "../index.ts";
+import { typedBoolean, typedNumber, typedString } from "../index.ts";
 
 defineComponent("typed-card", {
   render: ({
     title = typedString("Hello"), // Already typed as string!
-    count = typedNumber(0),       // Already typed as number!
+    count = typedNumber(0), // Already typed as number!
     active = typedBoolean(false), // Already typed as boolean!
   }) => {
     // Use directly - TypeScript knows the exact types

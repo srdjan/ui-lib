@@ -1,6 +1,7 @@
 # ui-lib Revolutionary Showcase Examples
 
-Welcome to the **most compelling demonstration of why ui-lib is the most ergonomic component library ever built**.
+Welcome to the **most compelling demonstration of why ui-lib is the most
+ergonomic component library ever built**.
 
 ## 🚀 Quick Start
 
@@ -38,20 +39,24 @@ examples/
 ## 🎯 What's Revolutionary
 
 ### 1. **Interactive Demo Hub** (`showcase/index.html`)
+
 - Live performance metrics bar showing real-time stats
 - Animated feature cards with actual metrics
 - Code/preview side-by-side comparison
 - Interactive playground with live TypeScript checking
 
 ### 2. **E-commerce Application** (`apps/ecommerce/`)
+
 Complete shopping experience demonstrating:
+
 - **Zero duplication** with function-style props
-- **CSS-only format** with auto-generated classes  
+- **CSS-only format** with auto-generated classes
 - **Three-tier reactivity** (CSS properties, pub/sub, DOM events)
 - **Unified API System** with automatic HTMX generation
 - **DOM-native state** management
 
 ### 3. **Showcase Components** (`showcase/components.tsx`)
+
 - `showcase-hero-stats` - Animated statistics display
 - `showcase-demo-viewer` - Code and preview side-by-side
 - `showcase-playground` - Interactive code editor
@@ -59,6 +64,7 @@ Complete shopping experience demonstrating:
 ## 💡 Key Innovations Demonstrated
 
 ### ✨ Function-Style Props (Zero Duplication!)
+
 ```tsx
 render: ({
   name = string("Product"),      // Type once, use everywhere
@@ -68,6 +74,7 @@ render: ({
 ```
 
 ### 🎨 CSS-Only Format (Auto-Generated Classes!)
+
 ```tsx
 styles: {
   card: `{ background: white; }`,     // Just CSS
@@ -77,14 +84,16 @@ styles: {
 ```
 
 ### 🚀 Unified API System
+
 ```tsx
 api: {
-  addToCart: post("/api/cart/add", handler)  // Define once
+  addToCart: post("/api/cart/add", handler); // Define once
 }
 // Use: {...api.addToCart()} // HTMX attributes generated!
 ```
 
 ### 📡 Three-Tier Reactivity
+
 1. **CSS Properties** - Instant theme switching
 2. **Pub/Sub State** - Shopping cart synchronization
 3. **DOM Events** - Component communication
@@ -93,24 +102,27 @@ api: {
 
 The showcase demonstrates **real, measurable advantages**:
 
-| Metric | ui-lib | React | Vue | Savings |
-|--------|--------|-------|-----|---------|
-| Bundle Size | 0kb | 45kb | 34kb | **100%** |
-| Runtime Overhead | 0ms | 16ms | 12ms | **100%** |
-| Lines of Code | 10 | 28 | 24 | **64%** |
-| Type Safety | 100% | 85% | 80% | **+18%** |
-| Development Time | 5min | 20min | 15min | **75%** |
+| Metric           | ui-lib | React | Vue   | Savings  |
+| ---------------- | ------ | ----- | ----- | -------- |
+| Bundle Size      | 0kb    | 45kb  | 34kb  | **100%** |
+| Runtime Overhead | 0ms    | 16ms  | 12ms  | **100%** |
+| Lines of Code    | 10     | 28    | 24    | **64%**  |
+| Type Safety      | 100%   | 85%   | 80%   | **+18%** |
+| Development Time | 5min   | 20min | 15min | **75%**  |
 
 ## 🛠️ Development Experience
 
 ### Live Playground
+
 Edit code and see:
+
 - Instant preview updates
 - Live type checking
 - Real-time performance metrics
 - Bundle size analysis
 
 ### Developer Tools Integration
+
 ```tsx
 // Coming soon
 import { componentInspector } from "ui-lib/dev-tools";
@@ -121,6 +133,7 @@ componentInspector.inspectComponent("product-card");
 ## 🔄 Next Steps
 
 ### Coming Soon
+
 1. **Dashboard Application** - Real-time data visualization
 2. **Collaborative Todo App** - Multi-user state sync
 3. **Media Player** - Advanced UI patterns
@@ -128,6 +141,7 @@ componentInspector.inspectComponent("product-card");
 5. **Performance Lab** - Interactive benchmarks
 
 ### Planned Features
+
 - [ ] Component inspector DevTools extension
 - [ ] Visual regression testing
 - [ ] Accessibility analyzer

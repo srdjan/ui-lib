@@ -476,7 +476,8 @@ export function Form(props: FormProps): string {
       background: "white",
       color: "#374151",
       cursor: "text",
-      transition: "border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out",
+      transition:
+        "border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out",
       "&:focus": {
         outline: "none",
         borderColor: "#2563eb",
@@ -501,7 +502,8 @@ export function Form(props: FormProps): string {
       background: "white",
       color: "#374151",
       cursor: "text",
-      transition: "border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out",
+      transition:
+        "border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out",
       "&:focus": {
         outline: "none",
         borderColor: "#2563eb",
@@ -519,7 +521,8 @@ export function Form(props: FormProps): string {
       background: "white",
       color: "#374151",
       cursor: "pointer",
-      transition: "border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out",
+      transition:
+        "border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out",
       "&:focus": {
         outline: "none",
         borderColor: "#2563eb",

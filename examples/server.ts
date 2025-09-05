@@ -17,19 +17,19 @@ async function handler(request: Request): Promise<Response> {
     // Serve the showcase index
     if (pathname === "/" || pathname === "/showcase") {
       let htmlContent = await Deno.readTextFile("./showcase/index.html");
-      
+
       // Inject state manager for reactivity
       const sm = injectStateManager(true);
       if (!htmlContent.includes(sm)) {
         htmlContent = htmlContent.replace("</head>", `${sm}\n</head>`);
       }
-      
+
       // Process component tags with SSR
       const processedHtml = await runWithRequestHeadersAsync(
         {},
-        async () => await processComponentTags(htmlContent)
+        async () => await processComponentTags(htmlContent),
       );
-      
+
       return new Response(processedHtml, {
         headers: { "Content-Type": "text/html; charset=utf-8" },
       });
@@ -40,19 +40,20 @@ async function handler(request: Request): Promise<Response> {
       const parts = pathname.split("/");
       const action = parts[3];
       const demo = parts[4];
-      
+
       // Special case for playground
       if (action === "playground") {
         const playgroundHtml = renderComponent("showcase-playground", {});
         return new Response(playgroundHtml, {
-          headers: { "Content-Type": "text/html" }
+          headers: { "Content-Type": "text/html" },
         });
       }
-      
+
       if (action === "code") {
         // Return code examples for demos
         const codeExamples: Record<string, string> = {
-          ecommerce: `import { defineComponent, h, string, number, boolean } from "ui-lib";
+          ecommerce:
+            `import { defineComponent, h, string, number, boolean } from "ui-lib";
 
 defineComponent("product-card", {
   styles: {
@@ -80,8 +81,9 @@ defineComponent("product-card", {
     </div>
   )
 });`,
-          
-          dashboard: `import { defineComponent, h, string, number, boolean } from "ui-lib";
+
+          dashboard:
+            `import { defineComponent, h, string, number, boolean } from "ui-lib";
 
 // Dashboard Metric Card with Real-time Updates
 defineComponent("metric-card", {
@@ -207,7 +209,7 @@ defineComponent("dashboard-chart", {
     </div>
   )
 });`,
-          
+
           forms: `// Advanced Form with Validation
 defineComponent("smart-form", {
   api: {
@@ -232,7 +234,7 @@ defineComponent("smart-form", {
     </form>
   )
 });`,
-          
+
           comparison: `// Traditional React (28 lines, 3.2kb)
 function ProductCard({ name, price, inStock }) {
   const [quantity, setQuantity] = useState(1);
@@ -284,9 +286,9 @@ defineComponent("product-card", {
       </button>
     </div>
   )
-});`
+});`,
         };
-        
+
         const code = codeExamples[demo] || `// ${demo} Example Coming Soon!
 import { defineComponent, h, string, number } from "ui-lib";
 
@@ -309,20 +311,20 @@ defineComponent("${demo}-demo", {
     </div>
   )
 });`;
-        
+
         return new Response(code, {
-          headers: { "Content-Type": "text/plain" }
+          headers: { "Content-Type": "text/plain" },
         });
       }
-      
+
       if (action === "preview") {
         // Return live preview HTML
         if (demo === "ecommerce") {
           return new Response(renderComponent("product-grid", {}), {
-            headers: { "Content-Type": "text/html" }
+            headers: { "Content-Type": "text/html" },
           });
         }
-        
+
         if (demo === "dashboard") {
           // Create a full dashboard preview
           const dashboardPreview = `
@@ -400,38 +402,42 @@ defineComponent("${demo}-demo", {
               }
             </style>
           `;
-          
+
           return new Response(dashboardPreview, {
-            headers: { "Content-Type": "text/html" }
+            headers: { "Content-Type": "text/html" },
           });
         }
-        
+
         // Generate preview for other demos
-        const demoPreview = `<div style="padding: 2rem; text-align: center; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 0.5rem; min-height: 300px; display: flex; flex-direction: column; justify-content: center;">
-          <h3 style="color: #0369a1; margin-bottom: 1rem; font-size: 1.5rem;">🚀 ${demo.charAt(0).toUpperCase() + demo.slice(1)} Demo Preview</h3>
+        const demoPreview =
+          `<div style="padding: 2rem; text-align: center; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 0.5rem; min-height: 300px; display: flex; flex-direction: column; justify-content: center;">
+          <h3 style="color: #0369a1; margin-bottom: 1rem; font-size: 1.5rem;">🚀 ${
+            demo.charAt(0).toUpperCase() + demo.slice(1)
+          } Demo Preview</h3>
           <p style="color: #075985; margin-bottom: 1rem;">Revolutionary ${demo} components coming soon!</p>
           <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem;">
-            ${demo === 'forms' ?
-              '<div style="padding: 0.5rem 1rem; background: #f59e0b; color: white; border-radius: 0.25rem; font-size: 0.875rem;">📝 Smart Validation</div><div style="padding: 0.5rem 1rem; background: #ef4444; color: white; border-radius: 0.25rem; font-size: 0.875rem;">🎯 Auto-Forms</div><div style="padding: 0.5rem 1rem; background: #06b6d4; color: white; border-radius: 0.25rem; font-size: 0.875rem;">⚡ Zero Config</div>' :
-            demo === 'media' ?
-              '<div style="padding: 0.5rem 1rem; background: #ec4899; color: white; border-radius: 0.25rem; font-size: 0.875rem;">🎵 Audio Player</div><div style="padding: 0.5rem 1rem; background: #84cc16; color: white; border-radius: 0.25rem; font-size: 0.875rem;">🎥 Video Controls</div><div style="padding: 0.5rem 1rem; background: #f97316; color: white; border-radius: 0.25rem; font-size: 0.875rem;">🎨 UI Themes</div>' :
-              '<div style="padding: 0.5rem 1rem; background: #6366f1; color: white; border-radius: 0.25rem; font-size: 0.875rem;">⚡ 10x Faster</div><div style="padding: 0.5rem 1rem; background: #14b8a6; color: white; border-radius: 0.25rem; font-size: 0.875rem;">📦 0kb Bundle</div><div style="padding: 0.5rem 1rem; background: #f43f5e; color: white; border-radius: 0.25rem; font-size: 0.875rem;">✨ 100% Type Safe</div>'
-            }
+            ${
+            demo === "forms"
+              ? '<div style="padding: 0.5rem 1rem; background: #f59e0b; color: white; border-radius: 0.25rem; font-size: 0.875rem;">📝 Smart Validation</div><div style="padding: 0.5rem 1rem; background: #ef4444; color: white; border-radius: 0.25rem; font-size: 0.875rem;">🎯 Auto-Forms</div><div style="padding: 0.5rem 1rem; background: #06b6d4; color: white; border-radius: 0.25rem; font-size: 0.875rem;">⚡ Zero Config</div>'
+              : demo === "media"
+              ? '<div style="padding: 0.5rem 1rem; background: #ec4899; color: white; border-radius: 0.25rem; font-size: 0.875rem;">🎵 Audio Player</div><div style="padding: 0.5rem 1rem; background: #84cc16; color: white; border-radius: 0.25rem; font-size: 0.875rem;">🎥 Video Controls</div><div style="padding: 0.5rem 1rem; background: #f97316; color: white; border-radius: 0.25rem; font-size: 0.875rem;">🎨 UI Themes</div>'
+              : '<div style="padding: 0.5rem 1rem; background: #6366f1; color: white; border-radius: 0.25rem; font-size: 0.875rem;">⚡ 10x Faster</div><div style="padding: 0.5rem 1rem; background: #14b8a6; color: white; border-radius: 0.25rem; font-size: 0.875rem;">📦 0kb Bundle</div><div style="padding: 0.5rem 1rem; background: #f43f5e; color: white; border-radius: 0.25rem; font-size: 0.875rem;">✨ 100% Type Safe</div>'
+          }
           </div>
         </div>`;
-        
+
         return new Response(demoPreview, {
-          headers: { "Content-Type": "text/html" }
+          headers: { "Content-Type": "text/html" },
         });
       }
-      
+
       if (action === "run") {
         // Run playground code - simplified approach
-        let code = '';
-        
+        let code = "";
+
         try {
           const formData = await request.formData();
-          code = formData.get('playground-code')?.toString() || '';
+          code = formData.get("playground-code")?.toString() || "";
         } catch {
           // Fallback to demo code
           code = `defineComponent("my-component", {
@@ -443,48 +449,67 @@ defineComponent("${demo}-demo", {
   )
 })`;
         }
-        
+
         try {
           // Simple component extraction and rendering simulation
-          let renderedComponent = '';
-          
+          let renderedComponent = "";
+
           // Safety check for code input
-          if (!code || typeof code !== 'string') {
-            code = 'defineComponent("demo-component", { render: () => (<div>No code provided</div>) })';
+          if (!code || typeof code !== "string") {
+            code =
+              'defineComponent("demo-component", { render: () => (<div>No code provided</div>) })';
           }
-          
+
           // Extract component name from defineComponent call
-          const componentNameMatch = code.match(/defineComponent\(["']([^"']+)["']/);
-          const componentName = componentNameMatch ? componentNameMatch[1] : 'demo-component';
-          
+          const componentNameMatch = code.match(
+            /defineComponent\(["']([^"']+)["']/,
+          );
+          const componentName = componentNameMatch
+            ? componentNameMatch[1]
+            : "demo-component";
+
           // More robust regex to extract JSX from render function
           // Look for render function and capture everything inside the parentheses
-          const renderMatch = code.match(/render:\s*\([^)]*\)\s*=>\s*\(([\s\S]*?)\n\s*\)/);
-          
+          const renderMatch = code.match(
+            /render:\s*\([^)]*\)\s*=>\s*\(([\s\S]*?)\n\s*\)/,
+          );
+
           if (renderMatch) {
             let jsxContent = renderMatch[1];
-            
+
             // Clean up the JSX and convert to HTML
             jsxContent = jsxContent
-              .replace(/\s*<div[^>]*class=\{[^}]*\}[^>]*>/g, '<div style="padding: 1rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; background: #f9fafb;">')
-              .replace(/\s*<\/div>/g, '</div>')
-              .replace(/<h3[^>]*>/g, '<h3 style="margin: 0 0 0.5rem 0; color: #374151; font-size: 1.25rem; font-weight: 600;">')
-              .replace(/<\/h3>/g, '</h3>')
-              .replace(/<p[^>]*>/g, '<p style="margin: 0.5rem 0; color: #6b7280; font-size: 0.875rem;">')
-              .replace(/<\/p>/g, '</p>')
-              .replace(/\{title\}/g, 'Hello World')
-              .replace(/\{count\}/g, '42')
+              .replace(
+                /\s*<div[^>]*class=\{[^}]*\}[^>]*>/g,
+                '<div style="padding: 1rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; background: #f9fafb;">',
+              )
+              .replace(/\s*<\/div>/g, "</div>")
+              .replace(
+                /<h3[^>]*>/g,
+                '<h3 style="margin: 0 0 0.5rem 0; color: #374151; font-size: 1.25rem; font-weight: 600;">',
+              )
+              .replace(/<\/h3>/g, "</h3>")
+              .replace(
+                /<p[^>]*>/g,
+                '<p style="margin: 0.5rem 0; color: #6b7280; font-size: 0.875rem;">',
+              )
+              .replace(/<\/p>/g, "</p>")
+              .replace(/\{title\}/g, "Hello World")
+              .replace(/\{count\}/g, "42")
               .replace(/\{([^}]+)\}/g, (match, variable) => {
                 // Handle other variables
-                if (variable.includes('enabled')) return 'Yes';
+                if (variable.includes("enabled")) return "Yes";
                 return `[${variable}]`;
               })
               .trim();
-            
+
             renderedComponent = jsxContent;
           } else {
             // Try a simpler approach - look for JSX patterns in the code
-            if (code.includes('<div') || code.includes('<h3') || code.includes('<p')) {
+            if (
+              code.includes("<div") || code.includes("<h3") ||
+              code.includes("<p")
+            ) {
               // Extract and render basic JSX elements
               renderedComponent = `
                 <div style="padding: 1rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; background: #f9fafb;">
@@ -505,7 +530,7 @@ defineComponent("${demo}-demo", {
               `;
             }
           }
-          
+
           const outputHtml = `
             <div style="padding: 1.5rem; background: #f0fdf4; border: 1px solid #10b981; border-radius: 0.5rem; margin-bottom: 1rem;">
               <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
@@ -529,11 +554,10 @@ defineComponent("${demo}-demo", {
               </div>
             </div>
           `;
-          
+
           return new Response(outputHtml, {
-            headers: { "Content-Type": "text/html" }
+            headers: { "Content-Type": "text/html" },
           });
-          
         } catch (error) {
           // Error handling
           const errorHtml = `
@@ -547,59 +571,62 @@ ${error instanceof Error ? error.message : String(error)}
               </p>
             </div>
           `;
-          
+
           return new Response(errorHtml, {
-            headers: { "Content-Type": "text/html" }
+            headers: { "Content-Type": "text/html" },
           });
         }
       }
     }
-    
-    
+
     // API for products
     if (pathname === "/api/products") {
       const productNames = [
         "Premium Wireless Headphones",
-        "Smart Watch Pro", 
+        "Smart Watch Pro",
         "4K Webcam",
         "Mechanical Keyboard",
         "Bluetooth Speaker",
         "USB-C Hub",
         "Wireless Mouse",
-        "Phone Stand"
+        "Phone Stand",
       ];
-      
+
       const descriptions = [
         "Crystal clear sound with active noise cancellation",
         "Track your fitness and stay connected",
         "Professional quality video for remote work",
-        "RGB backlit with custom switches", 
+        "RGB backlit with custom switches",
         "360-degree sound with deep bass",
         "7-in-1 connectivity solution",
         "Ergonomic design for all-day comfort",
-        "Adjustable angle with wireless charging"
+        "Adjustable angle with wireless charging",
       ];
-      
-      const products = Array.from({ length: 8 }, (_, i) => 
-        renderComponent("product-card", {
-          id: `${i + 1}`,
-          name: productNames[i],
-          description: descriptions[i],
-          price: Math.floor(Math.random() * 200) + 50,
-          originalPrice: Math.floor(Math.random() * 100) + 200,
-          image: `https://picsum.photos/300/200?random=${i + 1}`,
-          rating: (Math.random() * 2 + 3).toFixed(1),
-          reviews: Math.floor(Math.random() * 1000),
-          inStock: Math.random() > 0.2,
-          discount: Math.random() > 0.5 ? Math.floor(Math.random() * 40) + 10 : 0
-        })
+
+      const products = Array.from(
+        { length: 8 },
+        (_, i) =>
+          renderComponent("product-card", {
+            id: `${i + 1}`,
+            name: productNames[i],
+            description: descriptions[i],
+            price: Math.floor(Math.random() * 200) + 50,
+            originalPrice: Math.floor(Math.random() * 100) + 200,
+            image: `https://picsum.photos/300/200?random=${i + 1}`,
+            rating: (Math.random() * 2 + 3).toFixed(1),
+            reviews: Math.floor(Math.random() * 1000),
+            inStock: Math.random() > 0.2,
+            discount: Math.random() > 0.5
+              ? Math.floor(Math.random() * 40) + 10
+              : 0,
+          }),
       ).join("");
-      
+
       return new Response(products, {
-        headers: { "Content-Type": "text/html" }
+        headers: { "Content-Type": "text/html" },
       });
     }
-    
+
     // Placeholder images
     if (pathname.startsWith("/api/placeholder/")) {
       const [width, height] = pathname.split("/").slice(-2);
@@ -612,7 +639,7 @@ ${error instanceof Error ? error.message : String(error)}
         </svg>
       `;
       return new Response(svg, {
-        headers: { "Content-Type": "image/svg+xml" }
+        headers: { "Content-Type": "image/svg+xml" },
       });
     }
 
@@ -621,14 +648,14 @@ ${error instanceof Error ? error.message : String(error)}
       try {
         const filePath = `.${pathname}`;
         const content = await Deno.readTextFile(filePath);
-        
+
         let contentType = "text/plain";
         if (pathname.endsWith(".css")) contentType = "text/css";
         if (pathname.endsWith(".js")) contentType = "application/javascript";
         if (pathname.endsWith(".svg")) contentType = "image/svg+xml";
-        
+
         return new Response(content, {
-          headers: { "Content-Type": contentType }
+          headers: { "Content-Type": contentType },
         });
       } catch {
         return new Response("Not Found", { status: 404 });
@@ -640,7 +667,7 @@ ${error instanceof Error ? error.message : String(error)}
       try {
         const content = await Deno.readTextFile(`.${pathname}`);
         return new Response(content, {
-          headers: { "Content-Type": "application/typescript" }
+          headers: { "Content-Type": "application/typescript" },
         });
       } catch {
         return new Response("Not Found", { status: 404 });
@@ -663,37 +690,40 @@ ${error instanceof Error ? error.message : String(error)}
 // Process component tags in HTML
 async function processComponentTags(
   html: string,
-  props: Record<string, string> = {}
+  props: Record<string, string> = {},
 ): Promise<string> {
   let processedHtml = html;
-  
+
   // Component names to process
   const components = [
     "showcase-hero-stats",
-    "showcase-demo-viewer", 
+    "showcase-demo-viewer",
     "showcase-playground",
     "product-card",
     "product-grid",
-    "shopping-cart"
+    "shopping-cart",
   ];
-  
+
   for (const componentName of components) {
     const regex = new RegExp(
       `<${componentName}([^>]*?)(?:>([\\s\\S]*?)<\\/${componentName}>|\\/>)`,
-      "g"
+      "g",
     );
-    
+
     let match;
     while ((match = regex.exec(html)) !== null) {
       const [fullMatch, attributes] = match;
-      
+
       try {
         // Parse attributes
-        const componentProps = { ...parseAttributes(attributes || ""), ...props };
-        
+        const componentProps = {
+          ...parseAttributes(attributes || ""),
+          ...props,
+        };
+
         // Render component
         const rendered = renderComponent(componentName, componentProps);
-        
+
         // Replace in HTML
         processedHtml = processedHtml.replace(fullMatch, rendered);
       } catch (error) {
@@ -701,30 +731,30 @@ async function processComponentTags(
       }
     }
   }
-  
+
   return processedHtml;
 }
 
 // Parse HTML attributes
 function parseAttributes(attributeString: string): Record<string, string> {
   const props: Record<string, string> = {};
-  
+
   if (!attributeString?.trim()) return props;
-  
+
   const attrRegex = /([a-z-]+)=["']([^"']*)["']|([a-z-]+)/g;
   let match;
-  
+
   while ((match = attrRegex.exec(attributeString)) !== null) {
     const [, name1, value, name2] = match;
     const name = name1 || name2;
-    
+
     if (value !== undefined) {
       props[name] = value;
     } else {
       props[name] = "true";
     }
   }
-  
+
   return props;
 }
 

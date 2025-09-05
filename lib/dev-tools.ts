@@ -107,7 +107,9 @@ class DevToolsState {
 
     if (this.config.verbose) {
       console.log(
-        `🔧 [DevTools] Rendered ${_componentName} in ${renderTime.toFixed(2)}ms`,
+        `🔧 [DevTools] Rendered ${_componentName} in ${
+          renderTime.toFixed(2)
+        }ms`,
         info,
       );
     }
@@ -687,7 +689,13 @@ export const errorHandler = {
       const renderTime = performance.now() - startTime;
 
       if (devTools.getConfig().renderTracking) {
-        trackComponentRender(_componentName, renderTime, {}, {}, String(result));
+        trackComponentRender(
+          _componentName,
+          renderTime,
+          {},
+          {},
+          String(result),
+        );
       }
 
       return result;

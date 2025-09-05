@@ -72,3 +72,11 @@ export interface SidebarProps {
   collapsed?: boolean;
   children?: string;
 }
+
+export interface ModalProps {
+  id: string;
+  title: string;
+  children: string;
+  open?: boolean;
+  onClose?: string;
+}

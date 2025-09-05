@@ -1,5 +1,6 @@
 /** @jsx h */
-import { defineComponent, h, string, post } from "../../index.ts";
+import { defineComponent, h, post, string } from "../../index.ts";
+import { ModalShowcase } from "./modal-showcase.tsx";
 
 /**
  * Hero Stats Component - Animated statistics display
@@ -13,28 +14,28 @@ defineComponent("showcase-hero-stats", {
       margin-top: 2rem;
       flex-wrap: wrap;
     }`,
-    
+
     statItem: `{
       text-align: center;
       animation: fadeInUp 0.6s ease forwards;
       opacity: 0;
     }`,
-    
+
     statValue: `{
       font-size: 2.5rem;
       font-weight: 900;
       display: block;
       margin-bottom: 0.25rem;
     }`,
-    
+
     statLabel: `{
       font-size: 0.875rem;
       opacity: 0.9;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-    }`
+    }`,
   },
-  
+
   render: (_, __, classes) => (
     <div class={classes!.statsContainer}>
       <div class={classes!.statItem} style="animation-delay: 0.1s;">
@@ -53,8 +54,10 @@ defineComponent("showcase-hero-stats", {
         <span class={classes!.statValue}>∞</span>
         <span class={classes!.statLabel}>Scalability</span>
       </div>
-      
-      <style dangerouslySetInnerHTML={{ __html: `
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         @keyframes fadeInUp {
           from {
             opacity: 0;
@@ -65,9 +68,11 @@ defineComponent("showcase-hero-stats", {
             transform: translateY(0);
           }
         }
-      `}} />
+      `,
+        }}
+      />
     </div>
-  )
+  ),
 });
 
 /**
@@ -83,7 +88,7 @@ defineComponent("showcase-demo-viewer", {
       margin: 0 auto;
       position: relative;
     }`,
-    
+
     viewCodeButton: `{
       position: absolute;
       top: 1rem;
@@ -103,12 +108,12 @@ defineComponent("showcase-demo-viewer", {
       transition: all 0.3s ease;
       box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
     }`,
-    
+
     viewCodeButtonHover: `{
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
     }`,
-    
+
     codeModal: `{
       display: none;
       position: fixed;
@@ -120,13 +125,13 @@ defineComponent("showcase-demo-viewer", {
       z-index: 1000;
       animation: fadeIn 0.3s ease;
     }`,
-    
+
     codeModalOpen: `{
       display: flex !important;
       align-items: center;
       justify-content: center;
     }`,
-    
+
     codeModalContent: `{
       background: white;
       border-radius: 1rem;
@@ -138,7 +143,7 @@ defineComponent("showcase-demo-viewer", {
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
       animation: slideUp 0.3s ease;
     }`,
-    
+
     codeModalHeader: `{
       padding: 1.5rem;
       background: #f9fafb;
@@ -148,7 +153,7 @@ defineComponent("showcase-demo-viewer", {
       justify-content: space-between;
       align-items: center;
     }`,
-    
+
     codeModalTitle: `{
       font-size: 1.25rem;
       font-weight: 700;
@@ -157,7 +162,7 @@ defineComponent("showcase-demo-viewer", {
       align-items: center;
       gap: 0.5rem;
     }`,
-    
+
     codeModalClose: `{
       background: none;
       border: none;
@@ -167,27 +172,27 @@ defineComponent("showcase-demo-viewer", {
       padding: 0.25rem;
       transition: color 0.2s ease;
     }`,
-    
+
     codeModalBody: `{
       flex: 1;
       overflow: auto;
       padding: 0;
     }`,
-    
+
     codePanel: `{
       background: white;
       border-radius: 0.75rem;
       box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
       overflow: hidden;
     }`,
-    
+
     previewPanel: `{
       background: white;
       border-radius: 0.75rem;
       box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
       overflow: hidden;
     }`,
-    
+
     panelHeader: `{
       padding: 1rem 1.5rem;
       background: #f9fafb;
@@ -196,12 +201,12 @@ defineComponent("showcase-demo-viewer", {
       justify-content: space-between;
       align-items: center;
     }`,
-    
+
     panelTitle: `{
       font-weight: 600;
       color: #374151;
     }`,
-    
+
     codeContent: `{
       padding: 1.5rem;
       font-family: 'Cascadia Code', 'Fira Code', monospace;
@@ -212,26 +217,42 @@ defineComponent("showcase-demo-viewer", {
       overflow-x: auto;
       min-height: 400px;
     }`,
-    
+
     previewContent: `{
       padding: 2rem;
       min-height: 400px;
-    }`
+    }`,
   },
-  
-  render: ({
-    demo = string("ecommerce")
-  }, _, classes) => {
+
+  render: (
+    {
+      demo = string("ecommerce"),
+    },
+    _,
+    classes,
+  ) => {
     const demoName = typeof demo === "string" ? demo : "ecommerce";
-    
+
     return (
       <div class={classes!.viewer}>
         <div class={classes!.codePanel}>
           <div class={classes!.panelHeader}>
             <span class={classes!.panelTitle}>📝 ui-lib Code</span>
             <div class="panel-actions">
-              <button type="button" class="panel-action" onclick="copyCode(this)">📋 Copy</button>
-              <button type="button" class="panel-action" onclick="formatCode(this)">✨ Format</button>
+              <button
+                type="button"
+                class="panel-action"
+                onclick="copyCode(this)"
+              >
+                📋 Copy
+              </button>
+              <button
+                type="button"
+                class="panel-action"
+                onclick="formatCode(this)"
+              >
+                ✨ Format
+              </button>
             </div>
           </div>
           <pre class={classes!.codeContent}>
@@ -240,25 +261,48 @@ defineComponent("showcase-demo-viewer", {
             </code>
           </pre>
         </div>
-        
+
         <div class={classes!.previewPanel}>
           <div class={classes!.panelHeader}>
             <span class={classes!.panelTitle}>👁️ Live Preview</span>
             <div class="panel-actions">
-              <button type="button" class="panel-action" onclick="refreshPreview(this)">🔄 Refresh</button>
-              <button type="button" class="panel-action" onclick="toggleFullscreen(this)">⛶ Fullscreen</button>
+              <button
+                type="button"
+                class="panel-action"
+                onclick="refreshPreview(this)"
+              >
+                🔄 Refresh
+              </button>
+              <button
+                type="button"
+                class="panel-action"
+                onclick="toggleFullscreen(this)"
+              >
+                ⛶ Fullscreen
+              </button>
             </div>
           </div>
-          <div class={classes!.previewContent} id={`preview-${demoName}`} 
-               hx-get={`/api/showcase/preview/${demoName}`} 
-               hx-trigger="load">
+          <div
+            class={classes!.previewContent}
+            id={`preview-${demoName}`}
+            hx-get={`/api/showcase/preview/${demoName}`}
+            hx-trigger="load"
+          >
             Loading preview...
           </div>
         </div>
-        
+
+        <div class={classes!.previewPanel}>
+          <div class={classes!.panelHeader}>
+            <span class={classes!.panelTitle}>👁️ Modal Preview</span>
+          </div>
+          <div class={classes!.previewContent}>
+            <ModalShowcase />
+          </div>
+        </div>
       </div>
     );
-  }
+  },
 });
 
 /**
@@ -269,13 +313,13 @@ defineComponent("showcase-playground", {
     runCode: post("/api/showcase/run", async (req) => {
       const { code: _code } = await req.json();
       // Process the code and return result
-      return new Response(JSON.stringify({ 
+      return new Response(JSON.stringify({
         output: "Component rendered successfully!",
-        metrics: { renderTime: 3, bundleSize: 0 }
+        metrics: { renderTime: 3, bundleSize: 0 },
       }));
-    })
+    }),
   },
-  
+
   styles: {
     playground: `{
       max-width: 1200px;
@@ -290,7 +334,7 @@ defineComponent("showcase-playground", {
         grid-template-columns: 1fr;
       }
     }`,
-    
+
     editorPanel: `{
       background: white;
       border-radius: 0.75rem;
@@ -298,7 +342,7 @@ defineComponent("showcase-playground", {
       display: flex;
       flex-direction: column;
     }`,
-    
+
     editorHeader: `{
       padding: 1rem 1.5rem;
       background: #f9fafb;
@@ -306,7 +350,7 @@ defineComponent("showcase-playground", {
       font-weight: 600;
       color: #374151;
     }`,
-    
+
     editorTextarea: `{
       flex: 1;
       padding: 1.5rem;
@@ -319,7 +363,7 @@ defineComponent("showcase-playground", {
       color: #e2e8f0;
       outline: none;
     }`,
-    
+
     runButton: `{
       margin: 1rem;
       padding: 0.75rem 1.5rem;
@@ -332,7 +376,7 @@ defineComponent("showcase-playground", {
       cursor: pointer;
       transition: all 0.3s ease;
     }`,
-    
+
     outputPanel: `{
       background: white;
       border-radius: 0.75rem;
@@ -340,24 +384,25 @@ defineComponent("showcase-playground", {
       display: flex;
       flex-direction: column;
     }`,
-    
+
     outputContent: `{
       flex: 1;
       padding: 1.5rem;
       overflow-y: auto;
-    }`
+    }`,
   },
-  
+
   render: (_: any, api: any, classes: any) => (
     <div class={classes!.playground}>
       <div class={classes!.editorPanel}>
         <div class={classes!.editorHeader}>✏️ Code Editor</div>
-        <textarea 
+        <textarea
           class={classes!.editorTextarea}
           id="playground-code"
           placeholder="// Write your ui-lib component here..."
           spellcheck="false"
-        >{`import { defineComponent, h, string, number } from "ui-lib";
+        >
+          {`import { defineComponent, h, string, number } from "ui-lib";
 
 defineComponent("my-component", {
   styles: {
@@ -377,8 +422,9 @@ defineComponent("my-component", {
       <p>Count: {count}</p>
     </div>
   )
-});`}</textarea>
-        <button 
+});`}
+        </textarea>
+        <button
           class={classes!.runButton}
           {...(api.runCode as any)()}
           hx-include="#playground-code"
@@ -388,7 +434,7 @@ defineComponent("my-component", {
           ▶️ Run Code
         </button>
       </div>
-      
+
       <div class={classes!.outputPanel}>
         <div class={classes!.editorHeader}>📦 Output</div>
         <div class={classes!.outputContent} id="playground-output">
@@ -398,5 +444,5 @@ defineComponent("my-component", {
         </div>
       </div>
     </div>
-  )
+  ),
 });

@@ -1,12 +1,25 @@
-<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="40" height="40" rx="8" fill="url(#gradient)"/>
-  <path d="M12 14h16v2h-7v12h-2V16h-7v-2z" fill="white"/>
-  <path d="M12 20h8v2h-8v-2z" fill="white"/>
-  <path d="M12 26h12v2h-12v-2z" fill="white"/>
+<svg
+  width="40"
+  height="40"
+  viewBox="0 0 40 40"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <rect width="40" height="40" rx="8" fill="url(#gradient)" />
+  <path d="M12 14h16v2h-7v12h-2V16h-7v-2z" fill="white" />
+  <path d="M12 20h8v2h-8v-2z" fill="white" />
+  <path d="M12 26h12v2h-12v-2z" fill="white" />
   <defs>
-    <linearGradient id="gradient" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#2563eb"/>
-      <stop offset="100%" stop-color="#0ea5e9"/>
+    <linearGradient
+      id="gradient"
+      x1="0"
+      y1="0"
+      x2="40"
+      y2="40"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#0ea5e9" />
     </linearGradient>
   </defs>
 </svg>
