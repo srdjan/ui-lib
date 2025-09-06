@@ -352,6 +352,7 @@
 
       .preview-content {
         padding: var(--space-xl);
+        min-height: 500px;
       }
 
       /* Metrics Bar */
@@ -658,7 +659,6 @@
           The Most Ergonomic Component Library Ever Built
         </p>
 
-
         <showcase-hero-stats></showcase-hero-stats>
       </div>
     </section>
@@ -954,17 +954,17 @@
         const modalId = `code-modal-${demoName}`;
 
         content.innerHTML = `
-        <div class="viewer" data-component="showcase-demo-viewer" style="position: relative;">          
+        <div class="viewer" data-component="showcase-demo-viewer">
           <!-- Full-width Preview -->
-          <div class="preview-panel" style="width: 100%; background: white; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); overflow: hidden;">
-            <div class="panel-header" style="padding: 1rem 1.5rem; background: #f9fafb; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
-              <span class="panel-title" style="font-weight: 600; color: #374151; display: flex; align-items: center; gap: 0.5rem;">👁️ Live Preview</span>
+          <div class="preview-panel">
+            <div class="panel-header">
+              <span class="panel-title">👁️ Live Preview</span>
               <div class="panel-actions">
-                <button type="button" class="panel-action" onclick="refreshPreview(this)" style="background: none; border: none; color: #6b7280; cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 0.25rem; transition: color 0.2s;">🔄 Refresh</button>
-                <button type="button" class="panel-action" onclick="toggleFullscreen(this)" style="background: none; border: none; color: #6b7280; cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 0.25rem; transition: color 0.2s;">⛶ Fullscreen</button>
+                <button type="button" class="panel-action" onclick="refreshPreview(this)">🔄 Refresh</button>
+                <button type="button" class="panel-action" onclick="toggleFullscreen(this)">⛶ Fullscreen</button>
               </div>
             </div>
-            <div class="preview-content" id="preview-${demoName}" hx-get="/api/showcase/preview/${demoName}" hx-trigger="load" style="min-height: 500px; padding: 1.5rem;">
+            <div class="preview-content" id="preview-${demoName}" hx-get="/api/showcase/preview/${demoName}" hx-trigger="load">
               Loading preview...
             </div>
           </div>
@@ -1130,10 +1130,10 @@
       });
 
       // View Forms Code function
-      window.viewFormsCode = function() {
-        const modal = document.getElementById('forms-code-modal');
+      window.viewFormsCode = function () {
+        const modal = document.getElementById("forms-code-modal");
         if (modal) {
-          modal.style.display = 'flex';
+          modal.style.display = "flex";
         } else {
           // Create modal if it doesn't exist
           const modalHTML = `
@@ -1269,7 +1269,7 @@ router.register("POST", "/api/forms/register", async (request) => {
               </div>
             </div>
           `;
-          document.body.insertAdjacentHTML('beforeend', modalHTML);
+          document.body.insertAdjacentHTML("beforeend", modalHTML);
         }
       };
     </script>
