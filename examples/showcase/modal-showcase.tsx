@@ -1,5 +1,5 @@
 import { h } from "../../lib/jsx-runtime.ts";
-import { Modal } from "../../lib/layout/modal.tsx";
+import { Modal, modalClassNames } from "../../lib/layout/modal.tsx";
 
 export const ModalShowcase = () => {
   return (
@@ -7,7 +7,7 @@ export const ModalShowcase = () => {
       <h2>Modal Showcase</h2>
       <button
         type="button"
-        onclick={`document.getElementById('demo-modal').classList.add('overlay-open-state-class'); document.querySelector('#demo-modal > div').classList.add('modal-open-state-class')`}
+        onclick={`(function(){const overlay=document.getElementById('demo-modal'); if(!overlay) return; overlay.classList.add('${modalClassNames.overlayOpen}'); const dlg=overlay.querySelector('div'); if(dlg) dlg.classList.add('${modalClassNames.modalOpen}');})()`}
       >
         Open Modal
       </button>

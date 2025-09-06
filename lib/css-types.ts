@@ -282,9 +282,9 @@ export type PseudoSelectors = {
   "&::placeholder"?: CSSProperties;
   "&[data-disabled]"?: CSSProperties;
   "&[data-active]"?: CSSProperties;
-  [key: `&:${string}`]: (CSSProperties & PseudoSelectors) | undefined;
-  [key: `&[${string}]`]: (CSSProperties & PseudoSelectors) | undefined;
-  [key: `&.${string}`]: (CSSProperties & PseudoSelectors) | undefined;
+  [key: `&:${string}`]: StyleObject | undefined;
+  [key: `&[${string}]`]: StyleObject | undefined;
+  [key: `&.${string}`]: StyleObject | undefined;
 };
 
 // Media queries for responsive design

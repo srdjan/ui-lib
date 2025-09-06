@@ -64,6 +64,8 @@ const styles = css({
   },
 });
 
+export const modalClassNames = styles.classMap;
+
 export const Modal = (
   { id, title, children, open = false }: ModalProps,
 ): string => {
@@ -88,6 +90,7 @@ export const Modal = (
         class={modalClasses}
         role="dialog"
         aria-modal="true"
+        data-modal-dialog
         aria-labelledby={`${id}-title`}
       >
         <div class={styles.classMap.header}>
@@ -96,8 +99,7 @@ export const Modal = (
             type="button"
             class={styles.classMap.closeButton}
             aria-label="Close modal"
-            // This is a placeholder for the toggle functionality
-            onclick={`document.getElementById('${id}').classList.remove('${styles.classMap.overlayOpen}'); document.querySelector('#${id} [data-modal-overlay]').classList.remove('${styles.classMap.modalOpen}')`}
+            onclick={`(function(){const overlay=document.getElementById('${id}'); if(!overlay) return; overlay.classList.remove('${styles.classMap.overlayOpen}'); const dlg=overlay.querySelector('div'); if(dlg) dlg.classList.remove('${styles.classMap.modalOpen}');})()`}
           >
             &times;
           </button>

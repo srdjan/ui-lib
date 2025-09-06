@@ -580,7 +580,7 @@ defineComponent("${demo}-demo", {
               "&.primary": {
                 backgroundColor: "#3b82f6",
                 color: "white",
-                "&:hover:not(:disabled)": {
+                "&:hover": {
                   backgroundColor: "#2563eb",
                 },
               },
@@ -588,7 +588,7 @@ defineComponent("${demo}-demo", {
               "&.secondary": {
                 backgroundColor: "#6b7280",
                 color: "white",
-                "&:hover:not(:disabled)": {
+                "&:hover": {
                   backgroundColor: "#4b5563",
                 },
               },
@@ -597,7 +597,7 @@ defineComponent("${demo}-demo", {
                 backgroundColor: "transparent",
                 color: "#3b82f6",
                 border: "1px solid #3b82f6",
-                "&:hover:not(:disabled)": {
+                "&:hover": {
                   backgroundColor: "#3b82f6",
                   color: "white",
                 },
