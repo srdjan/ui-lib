@@ -327,15 +327,30 @@ export function Input(props: InputProps): string {
       alignItems: "center",
       gap: componentTokens.spacing[1],
     },
+
+    // Adjust input padding when icons are present (without inline styles)
+    inputWithLeftIcon: {
+      paddingLeft: componentTokens.spacing[10],
+    },
+    inputWithRightIcon: {
+      paddingRight: componentTokens.spacing[10],
+    },
   });
 
   // Build input attributes
   const isTextarea = type === "textarea";
 
+  const inputClasses = [
+    styles.classMap.input,
+    className,
+    (leftIcon && !leftAddon) ? styles.classMap.inputWithLeftIcon : "",
+    (rightIcon && !rightAddon) ? styles.classMap.inputWithRightIcon : "",
+  ].filter(Boolean).join(" ");
+
   const inputAttributes: Record<string, string | number | boolean> = {
     ...(isTextarea ? {} : { type }),
     id: inputId,
-    class: `${styles.classMap.input} ${className}`.trim(),
+    class: inputClasses,
     ...(name && { name }),
     ...(placeholder && { placeholder }),
     ...(value !== undefined && { value: String(value) }),
@@ -367,21 +382,10 @@ export function Input(props: InputProps): string {
     .map(([key, value]) => `${key}="${value}` + `"`)
     .join(" ");
 
-  // Adjust input padding for icons
-  let inputStyle = "";
-  if (leftIcon && !leftAddon) {
-    inputStyle += `padding-left: ${componentTokens.spacing[10]};`;
-  }
-  if (rightIcon && !rightAddon) {
-    inputStyle += `padding-right: ${componentTokens.spacing[10]};`;
-  }
-
-  const finalInputStyle = inputStyle ? ` style="${inputStyle}"` : "";
-
   // Build the input group
   const inputElement = isTextarea
-    ? `<textarea ${inputAttributeString}${finalInputStyle}></textarea>`
-    : `<input ${inputAttributeString}${finalInputStyle} />`;
+    ? `<textarea ${inputAttributeString}></textarea>`
+    : `<input ${inputAttributeString} />`;
 
   const inputGroup = [
     // Left addon
@@ -418,7 +422,7 @@ export function Input(props: InputProps): string {
     : "";
 
   return `
-    <div class="${styles.classMap.wrapper}"${style ? ` style="${style}"` : ""}>
+    <div class="${styles.classMap.wrapper}">
       <div class="${styles.classMap.inputGroup}">
         ${inputGroup}
       </div>
