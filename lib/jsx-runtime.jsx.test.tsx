@@ -1,6 +1,6 @@
 /** @jsx h */
 import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
-import type { h } from "./jsx-runtime.ts";
+import { h } from "./jsx-runtime.ts";
 import { defineComponent } from "./define-component.ts";
 import { resetRegistry } from "./registry.ts";
 import { boolean, number, string } from "./prop-helpers.ts";

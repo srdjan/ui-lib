@@ -11,6 +11,7 @@ import "./showcase/forms-preview.tsx";
 import "./showcase/dashboard-preview.tsx";
 import "./showcase/generic-demo-preview.tsx";
 import "./showcase/playground-output.tsx";
+import "./showcase/placeholder-image.tsx";
 
 const PORT = 8080;
 
@@ -420,148 +421,7 @@ defineComponent("${demo}-demo", {
         }
 
         if (demo === "forms") {
-          // Show live form components preview
-          const { Input, Button, Alert } = await import(
-            "../lib/components/index.ts"
-          );
-          const { css } = await import("../lib/css-in-ts.ts");
-
-          // Generate component styles that will be used
-          const inputStyles = css({
-            wrapper: {
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.5rem",
-            },
-            inputGroup: {
-              display: "flex",
-              alignItems: "center",
-              position: "relative",
-            },
-            input: {
-              width: "100%",
-              padding: "0.75rem 1rem",
-              border: "1px solid var(--gray-300)",
-              borderRadius: "0.5rem",
-              fontSize: "1rem",
-              lineHeight: "1.5",
-              color: "var(--gray-900)",
-              backgroundColor: "white",
-              transition: "all 0.2s ease",
-              "&:focus": {
-                outline: "none",
-                borderColor: "var(--blue-5)",
-                boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.1)",
-              },
-              "&:disabled": {
-                backgroundColor: "var(--gray-100)",
-                color: "var(--gray-500)",
-                cursor: "not-allowed",
-              },
-            },
-            label: {
-              fontSize: "0.875rem",
-              fontWeight: "500",
-              color: "var(--gray-700)",
-              marginBottom: "0.25rem",
-            },
-            helpText: {
-              fontSize: "0.875rem",
-              color: "var(--gray-500)",
-            },
-            errorText: {
-              fontSize: "0.875rem",
-              color: "var(--red-7)",
-            },
-            addon: {
-              padding: "0.75rem",
-              backgroundColor: "var(--gray-50)",
-              border: "1px solid var(--gray-300)",
-              fontSize: "0.875rem",
-              color: "var(--gray-500)",
-            },
-            leftAddon: {
-              borderRight: "none",
-              borderRadius: "0.5rem 0 0 0.5rem",
-            },
-          });
-
-          const buttonStyles = css({
-            button: {
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "0.75rem 1.5rem",
-              fontSize: "1rem",
-              fontWeight: "500",
-              lineHeight: "1.25",
-              border: "none",
-              borderRadius: "0.5rem",
-              cursor: "pointer",
-              transition: "all 0.2s ease",
-              textDecoration: "none",
-              "&:disabled": {
-                opacity: "0.6",
-                cursor: "not-allowed",
-              },
-              // Primary variant
-              "&.primary": {
-                backgroundColor: "var(--blue-5)",
-                color: "white",
-                "&:hover": {
-                  backgroundColor: "var(--blue-6)",
-                },
-              },
-              // Secondary variant
-              "&.secondary": {
-                backgroundColor: "var(--gray-500)",
-                color: "white",
-                "&:hover": {
-                  backgroundColor: "var(--gray-600)",
-                },
-              },
-              // Outline variant
-              "&.outline": {
-                backgroundColor: "transparent",
-                color: "var(--blue-5)",
-                border: "1px solid var(--blue-5)",
-                "&:hover": {
-                  backgroundColor: "var(--blue-5)",
-                  color: "white",
-                },
-              },
-            },
-            content: {
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-            },
-          });
-
-          const alertStyles = css({
-            alert: {
-              display: "flex",
-              padding: "1rem",
-              borderRadius: "0.5rem",
-              fontSize: "0.875rem",
-              "&.info": {
-                backgroundColor: "var(--blue-1)",
-                color: "var(--blue-9)",
-                border: "1px solid var(--blue-3)",
-              },
-            },
-            icon: {
-              flexShrink: "0",
-              marginRight: "0.75rem",
-            },
-            content: {
-              flex: "1",
-            },
-            description: {
-              color: "inherit",
-            },
-          });
-
+          // SSR-first: render dedicated TSX component
           return new Response(renderComponent("forms-preview", {}), {
             headers: { "Content-Type": "text/html" },
           });
@@ -730,14 +590,7 @@ defineComponent("${demo}-demo", {
     // Placeholder images
     if (pathname.startsWith("/api/placeholder/")) {
       const [width, height] = pathname.split("/").slice(-2);
-      const svg = `
-        <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-          <rect width="100%" height="100%" fill="rgb(243,244,246)"/>
-          <text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="rgb(156,163,175)" font-family="sans-serif" font-size="16">
-            ${width}×${height}
-          </text>
-        </svg>
-      `;
+      const svg = renderComponent("placeholder-image", { width, height });
       return new Response(svg, {
         headers: { "Content-Type": "image/svg+xml" },
       });
