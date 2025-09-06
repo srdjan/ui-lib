@@ -10,6 +10,8 @@ import "./apps/ecommerce/product-catalog.tsx";
 import "./showcase/forms-preview.tsx";
 import "./showcase/dashboard-preview.tsx";
 import "./showcase/generic-demo-preview.tsx";
+import "./showcase/playground-output.tsx";
+
 const PORT = 8080;
 
 async function handler(request: Request): Promise<Response> {
@@ -101,7 +103,7 @@ defineComponent("metric-card", {
     }\`,
     label: \`{
       font-size: 0.875rem;
-      color: #6b7280;
+      color: var(--gray-500);
       margin-bottom: 0.5rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -109,7 +111,7 @@ defineComponent("metric-card", {
     value: \`{
       font-size: 2rem;
       font-weight: bold;
-      color: #111827;
+      color: var(--gray-900);
       margin-bottom: 0.5rem;
     }\`,
     trend: \`{
@@ -122,12 +124,12 @@ defineComponent("metric-card", {
       font-weight: 500;
     }\`,
     trendUp: \`{
-      background: #d1fae5;
-      color: #065f46;
+      background: var(--green-2);
+      color: var(--green-9);
     }\`,
     trendDown: \`{
-      background: #fee2e2;
-      color: #991b1b;
+      background: var(--red-2);
+      color: var(--red-9);
     }\`
   },
 
@@ -173,11 +175,11 @@ defineComponent("dashboard-chart", {
       font-size: 1.125rem;
       font-weight: 600;
       margin-bottom: 1rem;
-      color: #111827;
+      color: var(--gray-900);
     }\`,
     chart: \`{
       height: 200px;
-      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+      background: linear-gradient(180deg, var(--blue-1) 0%, white 100%);
       border-radius: 0.5rem;
       position: relative;
       overflow: hidden;
@@ -191,7 +193,7 @@ defineComponent("dashboard-chart", {
     }\`,
     bar: \`{
       width: 30px;
-      background: linear-gradient(180deg, #3b82f6, #2563eb);
+      background: linear-gradient(180deg, var(--blue-5), var(--blue-6));
       border-radius: 0.25rem 0.25rem 0 0;
       transition: height 0.5s ease;
     }\`
@@ -383,7 +385,7 @@ defineComponent("${demo}-demo", {
     container: \`{
       padding: 2rem;
       text-align: center;
-      background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+      background: linear-gradient(135deg, var(--blue-1), var(--blue-2));
       border-radius: 0.5rem;
     }\`
   },
@@ -439,44 +441,44 @@ defineComponent("${demo}-demo", {
             input: {
               width: "100%",
               padding: "0.75rem 1rem",
-              border: "1px solid #d1d5db",
+              border: "1px solid var(--gray-300)",
               borderRadius: "0.5rem",
               fontSize: "1rem",
               lineHeight: "1.5",
-              color: "#111827",
+              color: "var(--gray-900)",
               backgroundColor: "white",
               transition: "all 0.2s ease",
               "&:focus": {
                 outline: "none",
-                borderColor: "#3b82f6",
+                borderColor: "var(--blue-5)",
                 boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.1)",
               },
               "&:disabled": {
-                backgroundColor: "#f3f4f6",
-                color: "#6b7280",
+                backgroundColor: "var(--gray-100)",
+                color: "var(--gray-500)",
                 cursor: "not-allowed",
               },
             },
             label: {
               fontSize: "0.875rem",
               fontWeight: "500",
-              color: "#374151",
+              color: "var(--gray-700)",
               marginBottom: "0.25rem",
             },
             helpText: {
               fontSize: "0.875rem",
-              color: "#6b7280",
+              color: "var(--gray-500)",
             },
             errorText: {
               fontSize: "0.875rem",
-              color: "#dc2626",
+              color: "var(--red-7)",
             },
             addon: {
               padding: "0.75rem",
-              backgroundColor: "#f9fafb",
-              border: "1px solid #d1d5db",
+              backgroundColor: "var(--gray-50)",
+              border: "1px solid var(--gray-300)",
               fontSize: "0.875rem",
-              color: "#6b7280",
+              color: "var(--gray-500)",
             },
             leftAddon: {
               borderRight: "none",
@@ -504,27 +506,27 @@ defineComponent("${demo}-demo", {
               },
               // Primary variant
               "&.primary": {
-                backgroundColor: "#3b82f6",
+                backgroundColor: "var(--blue-5)",
                 color: "white",
                 "&:hover": {
-                  backgroundColor: "#2563eb",
+                  backgroundColor: "var(--blue-6)",
                 },
               },
               // Secondary variant
               "&.secondary": {
-                backgroundColor: "#6b7280",
+                backgroundColor: "var(--gray-500)",
                 color: "white",
                 "&:hover": {
-                  backgroundColor: "#4b5563",
+                  backgroundColor: "var(--gray-600)",
                 },
               },
               // Outline variant
               "&.outline": {
                 backgroundColor: "transparent",
-                color: "#3b82f6",
-                border: "1px solid #3b82f6",
+                color: "var(--blue-5)",
+                border: "1px solid var(--blue-5)",
                 "&:hover": {
-                  backgroundColor: "#3b82f6",
+                  backgroundColor: "var(--blue-5)",
                   color: "white",
                 },
               },
@@ -543,9 +545,9 @@ defineComponent("${demo}-demo", {
               borderRadius: "0.5rem",
               fontSize: "0.875rem",
               "&.info": {
-                backgroundColor: "#eff6ff",
-                color: "#1e40af",
-                border: "1px solid #bfdbfe",
+                backgroundColor: "var(--blue-1)",
+                color: "var(--blue-9)",
+                border: "1px solid var(--blue-3)",
               },
             },
             icon: {
@@ -619,28 +621,13 @@ defineComponent("${demo}-demo", {
 
             // Clean up the JSX and convert to HTML
             jsxContent = jsxContent
-              .replace(
-                /\s*<div[^>]*class=\{[^}]*\}[^>]*>/g,
-                '<div style="padding: 1rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; background: #f9fafb;">',
-              )
-              .replace(/\s*<\/div>/g, "</div>")
-              .replace(
-                /<h3[^>]*>/g,
-                '<h3 style="margin: 0 0 0.5rem 0; color: #374151; font-size: 1.25rem; font-weight: 600;">',
-              )
-              .replace(/<\/h3>/g, "</h3>")
-              .replace(
-                /<p[^>]*>/g,
-                '<p style="margin: 0.5rem 0; color: #6b7280; font-size: 0.875rem;">',
-              )
-              .replace(/<\/p>/g, "</p>")
               .replace(/\{title\}/g, "Hello World")
               .replace(/\{count\}/g, "42")
-              .replace(/\{([^}]+)\}/g, (match, variable) => {
-                // Handle other variables
-                if (variable.includes("enabled")) return "Yes";
-                return `[${variable}]`;
-              })
+              .replace(
+                /\{([^}]+)\}/g,
+                (_match, variable) =>
+                  variable.includes("enabled") ? "Yes" : `[${variable}]`,
+              )
               .trim();
 
             renderedComponent = jsxContent;
@@ -652,67 +639,40 @@ defineComponent("${demo}-demo", {
             ) {
               // Extract and render basic JSX elements
               renderedComponent = `
-                <div style="padding: 1rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; background: #f9fafb;">
-                  <h3 style="margin: 0 0 0.5rem 0; color: #374151; font-size: 1.25rem; font-weight: 600;">Hello World</h3>
-                  <p style="margin: 0.5rem 0; color: #6b7280; font-size: 0.875rem;">Count: 42</p>
+                <div>
+                  <h3>Hello World</h3>
+                  <p>Count: 42</p>
                 </div>
               `;
             } else {
               // Fallback demo component
               renderedComponent = `
-                <div style="padding: 1.5rem; border: 2px solid #2563eb; border-radius: 0.5rem; background: linear-gradient(135deg, #f0f9ff, #dbeafe);">
-                  <h3 style="margin: 0 0 1rem 0; color: #1e40af; font-size: 1.5rem; font-weight: 700;">${componentName}</h3>
-                  <p style="margin: 0 0 0.75rem 0; color: #1e40af;">✨ Your component is working perfectly!</p>
-                  <div style="padding: 0.75rem; background: white; border-radius: 0.375rem; border: 1px solid #2563eb;">
-                    <span style="color: #374151; font-size: 0.875rem;">Component rendered with ui-lib's revolutionary architecture.</span>
-                  </div>
+                <div>
+                  <h3>${componentName}</h3>
+                  <p>✨ Your component is working perfectly!</p>
                 </div>
               `;
             }
           }
 
-          const outputHtml = `
-            <div style="padding: 1.5rem; background: #f0fdf4; border: 1px solid #10b981; border-radius: 0.5rem; margin-bottom: 1rem;">
-              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
-                <span style="font-size: 1.25rem;">✅</span>
-                <strong style="color: #065f46; font-size: 1.1rem;">Success!</strong>
-              </div>
-              <p style="margin: 0 0 0.5rem 0; color: #065f46;">
-                Component "${componentName}" compiled and rendered successfully.
-              </p>
-              <div style="font-size: 0.875rem; color: #047857; display: flex; gap: 1rem; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid #bbf7d0;">
-                <span>⏱️ Render time: <strong>3ms</strong></span>
-                <span>📦 Bundle size: <strong>0kb</strong></span>
-                <span>🔍 Type check: <strong>✅ Passed</strong></span>
-              </div>
-            </div>
+          const output = renderComponent("playground-output", {
+            name: componentName,
+            rendered: renderedComponent,
+            status: "success",
+          });
 
-            <div style="padding: 1.5rem; background: white; border: 1px solid #e5e7eb; border-radius: 0.5rem;">
-              <h4 style="margin: 0 0 1rem 0; color: #374151; font-size: 1rem;">Live Component Output:</h4>
-              <div style="padding: 1.5rem; background: #fafafa; border-radius: 0.375rem; border: 1px solid #e5e7eb;">
-                ${renderedComponent}
-              </div>
-            </div>
-          `;
-
-          return new Response(outputHtml, {
+          return new Response(output, {
             headers: { "Content-Type": "text/html" },
           });
         } catch (error) {
           // Error handling
-          const errorHtml = `
-            <div style="padding: 1.5rem; background: #fef2f2; border: 1px solid #f87171; border-radius: 0.5rem;">
-              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
-                <span style="font-size: 1.25rem;">❌</span>
-                <strong style="color: #dc2626; font-size: 1.1rem;">Compilation Error</strong>
-              </div>
-              <p style="margin: 0; color: #dc2626; font-family: monospace; font-size: 0.875rem;">
-${error instanceof Error ? error.message : String(error)}
-              </p>
-            </div>
-          `;
+          const output = renderComponent("playground-output", {
+            rendered: "",
+            status: "error",
+            error: error instanceof Error ? error.message : String(error),
+          });
 
-          return new Response(errorHtml, {
+          return new Response(output, {
             headers: { "Content-Type": "text/html" },
           });
         }
@@ -772,8 +732,8 @@ ${error instanceof Error ? error.message : String(error)}
       const [width, height] = pathname.split("/").slice(-2);
       const svg = `
         <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-          <rect width="100%" height="100%" fill="#f3f4f6"/>
-          <text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="#9ca3af" font-family="sans-serif" font-size="16">
+          <rect width="100%" height="100%" fill="rgb(243,244,246)"/>
+          <text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="rgb(156,163,175)" font-family="sans-serif" font-size="16">
             ${width}×${height}
           </text>
         </svg>

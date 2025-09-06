@@ -106,7 +106,7 @@ defineComponent("showcase-demo-viewer", {
       top: 1rem;
       right: 1rem;
       padding: 0.75rem 1.5rem;
-      background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      background: linear-gradient(135deg, var(--blue-6), var(--cyan-6));
       color: white;
       border: none;
       border-radius: 0.5rem;
@@ -158,8 +158,8 @@ defineComponent("showcase-demo-viewer", {
 
     codeModalHeader: `{
       padding: 1.5rem;
-      background: #f9fafb;
-      border-bottom: 1px solid #e5e7eb;
+      background: var(--gray-50);
+      border-bottom: 1px solid var(--gray-200);
       border-radius: 1rem 1rem 0 0;
       display: flex;
       justify-content: space-between;
@@ -169,7 +169,7 @@ defineComponent("showcase-demo-viewer", {
     codeModalTitle: `{
       font-size: 1.25rem;
       font-weight: 700;
-      color: #111827;
+      color: var(--gray-900);
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -179,7 +179,7 @@ defineComponent("showcase-demo-viewer", {
       background: none;
       border: none;
       font-size: 1.5rem;
-      color: #6b7280;
+      color: var(--gray-500);
       cursor: pointer;
       padding: 0.25rem;
       transition: color 0.2s ease;
@@ -207,8 +207,8 @@ defineComponent("showcase-demo-viewer", {
 
     panelHeader: `{
       padding: 1rem 1.5rem;
-      background: #f9fafb;
-      border-bottom: 1px solid #e5e7eb;
+      background: var(--gray-50);
+      border-bottom: 1px solid var(--gray-200);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -216,7 +216,7 @@ defineComponent("showcase-demo-viewer", {
 
     panelTitle: `{
       font-weight: 600;
-      color: #374151;
+      color: var(--gray-700);
     }`,
 
     codeContent: `{
@@ -224,8 +224,8 @@ defineComponent("showcase-demo-viewer", {
       font-family: 'Cascadia Code', 'Fira Code', monospace;
       font-size: 0.9rem;
       line-height: 1.6;
-      background: #1e293b;
-      color: #e2e8f0;
+      background: var(--gray-900);
+      color: var(--gray-100);
       overflow-x: auto;
       min-height: 400px;
     }`,
@@ -357,10 +357,10 @@ defineComponent("showcase-playground", {
 
     editorHeader: `{
       padding: 1rem 1.5rem;
-      background: #f9fafb;
-      border-bottom: 1px solid #e5e7eb;
+      background: var(--gray-50);
+      border-bottom: 1px solid var(--gray-200);
       font-weight: 600;
-      color: #374151;
+      color: var(--gray-700);
     }`,
 
     editorTextarea: `{
@@ -371,15 +371,15 @@ defineComponent("showcase-playground", {
       font-size: 0.9rem;
       line-height: 1.6;
       resize: none;
-      background: #1e293b;
-      color: #e2e8f0;
+      background: var(--gray-900);
+      color: var(--gray-100);
       outline: none;
     }`,
 
     runButton: `{
       margin: 1rem;
       padding: 0.75rem 1.5rem;
-      background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      background: linear-gradient(135deg, var(--blue-6), var(--cyan-6));
       color: white;
       border: none;
       border-radius: 0.5rem;
@@ -426,7 +426,7 @@ defineComponent("my-component", {
   styles: {
     container: \`{
       padding: 1rem;
-      background: #f3f4f6;
+      background: var(--gray-100);
       border-radius: 0.5rem;
     }\`
   },

@@ -77,7 +77,7 @@ defineComponent("product-card", {
       position: relative;
       width: 100%;
       height: 200px;
-      background: #f3f4f6;
+      background: var(--gray-100);
       overflow: hidden;
     }`,
 
@@ -93,7 +93,7 @@ defineComponent("product-card", {
       top: 0.5rem;
       right: 0.5rem;
       padding: 0.25rem 0.75rem;
-      background: #ef4444;
+      background: var(--red-6);
       color: white;
       border-radius: 9999px;
       font-size: 0.75rem;
@@ -124,7 +124,7 @@ defineComponent("product-card", {
     title: `{
       font-size: 1.125rem;
       font-weight: 600;
-      color: #111827;
+      color: var(--gray-900);
       margin-bottom: 0.5rem;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -133,7 +133,7 @@ defineComponent("product-card", {
 
     description: `{
       font-size: 0.875rem;
-      color: #6b7280;
+      color: var(--gray-500);
       margin-bottom: 1rem;
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -151,12 +151,12 @@ defineComponent("product-card", {
     price: `{
       font-size: 1.5rem;
       font-weight: 700;
-      color: #2563eb;
+      color: var(--blue-6);
     }`,
 
     originalPrice: `{
       font-size: 1rem;
-      color: #9ca3af;
+      color: var(--gray-400);
       text-decoration: line-through;
       margin-left: 0.5rem;
     }`,
@@ -166,13 +166,13 @@ defineComponent("product-card", {
       align-items: center;
       gap: 0.25rem;
       font-size: 0.875rem;
-      color: #6b7280;
+      color: var(--gray-500);
     }`,
 
     addToCartBtn: `{
       width: 100%;
       padding: 0.75rem;
-      background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      background: linear-gradient(135deg, var(--blue-6), var(--cyan-6));
       color: white;
       border: none;
       border-radius: 0.5rem;
@@ -431,7 +431,7 @@ defineComponent("product-grid", {
     title: `{
       font-size: 3rem;
       font-weight: 900;
-      background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      background: linear-gradient(135deg, var(--blue-6), var(--cyan-6));
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -440,7 +440,7 @@ defineComponent("product-grid", {
 
     subtitle: `{
       font-size: 1.25rem;
-      color: #6b7280;
+      color: var(--gray-500);
     }`,
 
     filters: `{
@@ -460,21 +460,21 @@ defineComponent("product-grid", {
     filterBtn: `{
       padding: 0.5rem 1rem;
       background: white;
-      border: 1px solid #e5e7eb;
+      border: 1px solid var(--gray-200);
       border-radius: 0.5rem;
       cursor: pointer;
       transition: all 0.2s ease;
     }`,
 
     filterBtnActive: `{
-      background: #2563eb;
+      background: var(--blue-6);
       color: white;
-      border-color: #2563eb;
+      border-color: var(--blue-6);
     }`,
 
     searchBox: `{
       padding: 0.75rem 1rem;
-      border: 1px solid #e5e7eb;
+      border: 1px solid var(--gray-200);
       border-radius: 0.5rem;
       width: 300px;
       font-size: 1rem;
@@ -491,7 +491,7 @@ defineComponent("product-grid", {
       display: block;
       margin: 2rem auto;
       padding: 1rem 2rem;
-      background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      background: linear-gradient(135deg, var(--blue-6), var(--cyan-6));
       color: white;
       border: none;
       border-radius: 0.5rem;
@@ -617,7 +617,7 @@ defineComponent("shopping-cart", {
 
     header: `{
       padding: 1.5rem;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid var(--gray-200);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -636,7 +636,7 @@ defineComponent("shopping-cart", {
       border: none;
       font-size: 1.5rem;
       cursor: pointer;
-      color: #6b7280;
+      color: var(--gray-500);
     }`,
 
     items: `{
@@ -646,7 +646,7 @@ defineComponent("shopping-cart", {
 
     footer: `{
       padding: 1.5rem;
-      border-top: 1px solid #e5e7eb;
+      border-top: 1px solid var(--gray-200);
     }`,
 
     totalRow: `{
@@ -660,7 +660,7 @@ defineComponent("shopping-cart", {
     checkoutBtn: `{
       width: 100%;
       padding: 1rem;
-      background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      background: linear-gradient(135deg, var(--blue-6), var(--cyan-6));
       color: white;
       border: none;
       border-radius: 0.5rem;
