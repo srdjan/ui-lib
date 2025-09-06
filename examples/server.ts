@@ -8,6 +8,8 @@ import "./showcase/components.tsx";
 import "./apps/ecommerce/product-catalog.tsx";
 
 import "./showcase/forms-preview.tsx";
+import "./showcase/dashboard-preview.tsx";
+import "./showcase/generic-demo-preview.tsx";
 const PORT = 8080;
 
 async function handler(request: Request): Promise<Response> {
@@ -410,84 +412,7 @@ defineComponent("${demo}-demo", {
         }
 
         if (demo === "dashboard") {
-          // Create a full dashboard preview
-          const dashboardPreview = `
-            <div style="padding: 2rem; background: #f9fafb; min-height: 500px;">
-              <h2 style="font-size: 1.875rem; font-weight: bold; color: #111827; margin-bottom: 1.5rem;">Analytics Dashboard</h2>
-
-              <!-- Metrics Grid -->
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-                <!-- Revenue Card -->
-                <div style="background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                  <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Revenue</div>
-                  <div style="font-size: 2rem; font-weight: bold; color: #111827; margin-bottom: 0.5rem;">$54,320</div>
-                  <div style="display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.875rem; font-weight: 500; background: #d1fae5; color: #065f46;">
-                    ↑ 12.5%
-                  </div>
-                </div>
-
-                <!-- Users Card -->
-                <div style="background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                  <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Active Users</div>
-                  <div style="font-size: 2rem; font-weight: bold; color: #111827; margin-bottom: 0.5rem;">2,847</div>
-                  <div style="display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.875rem; font-weight: 500; background: #d1fae5; color: #065f46;">
-                    ↑ 8.3%
-                  </div>
-                </div>
-
-                <!-- Conversion Card -->
-                <div style="background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                  <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Conversion Rate</div>
-                  <div style="font-size: 2rem; font-weight: bold; color: #111827; margin-bottom: 0.5rem;">3.24%</div>
-                  <div style="display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.875rem; font-weight: 500; background: #fee2e2; color: #991b1b;">
-                    ↓ 2.1%
-                  </div>
-                </div>
-
-                <!-- Sessions Card -->
-                <div style="background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                  <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Sessions</div>
-                  <div style="font-size: 2rem; font-weight: bold; color: #111827; margin-bottom: 0.5rem;">18,549</div>
-                  <div style="display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.875rem; font-weight: 500; background: #d1fae5; color: #065f46;">
-                    ↑ 5.7%
-                  </div>
-                </div>
-              </div>
-
-              <!-- Chart Section -->
-              <div style="background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: #111827;">Revenue Trend</h3>
-                <div style="height: 200px; background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%); border-radius: 0.5rem; position: relative; overflow: hidden;">
-                  <div style="display: flex; align-items: flex-end; justify-content: space-around; height: 100%; padding: 1rem;">
-                    <div style="width: 30px; background: linear-gradient(180deg, #3b82f6, #2563eb); border-radius: 0.25rem 0.25rem 0 0; height: 40%;"></div>
-                    <div style="width: 30px; background: linear-gradient(180deg, #3b82f6, #2563eb); border-radius: 0.25rem 0.25rem 0 0; height: 65%;"></div>
-                    <div style="width: 30px; background: linear-gradient(180deg, #3b82f6, #2563eb); border-radius: 0.25rem 0.25rem 0 0; height: 30%;"></div>
-                    <div style="width: 30px; background: linear-gradient(180deg, #3b82f6, #2563eb); border-radius: 0.25rem 0.25rem 0 0; height: 85%;"></div>
-                    <div style="width: 30px; background: linear-gradient(180deg, #3b82f6, #2563eb); border-radius: 0.25rem 0.25rem 0 0; height: 50%;"></div>
-                    <div style="width: 30px; background: linear-gradient(180deg, #3b82f6, #2563eb); border-radius: 0.25rem 0.25rem 0 0; height: 70%;"></div>
-                    <div style="width: 30px; background: linear-gradient(180deg, #3b82f6, #2563eb); border-radius: 0.25rem 0.25rem 0 0; height: 45%;"></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Real-time Indicator -->
-              <div style="margin-top: 1rem; text-align: center;">
-                <span style="display: inline-flex; align-items: center; gap: 0.5rem; color: #6b7280; font-size: 0.875rem;">
-                  <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; animation: pulse 2s infinite;"></span>
-                  Real-time data streaming via Pub/Sub
-                </span>
-              </div>
-            </div>
-
-            <style>
-              @keyframes pulse {
-                0%, 100% { opacity: 1; }
-                50% { opacity: 0.5; }
-              }
-            </style>
-          `;
-
-          return new Response(dashboardPreview, {
+          return new Response(renderComponent("dashboard-preview", {}), {
             headers: { "Content-Type": "text/html" },
           });
         }
@@ -641,22 +566,7 @@ defineComponent("${demo}-demo", {
         }
 
         // Generate preview for other demos
-        const demoPreview =
-          `<div style="padding: 2rem; text-align: center; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 0.5rem; min-height: 300px; display: flex; flex-direction: column; justify-content: center;">
-          <h3 style="color: #0369a1; margin-bottom: 1rem; font-size: 1.5rem;">🚀 ${
-            demo.charAt(0).toUpperCase() + demo.slice(1)
-          } Demo Preview</h3>
-          <p style="color: #075985; margin-bottom: 1rem;">Revolutionary ${demo} components coming soon!</p>
-          <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem;">
-            ${
-            demo === "media"
-              ? '<div style="padding: 0.5rem 1rem; background: #ec4899; color: white; border-radius: 0.25rem; font-size: 0.875rem;">🎵 Audio Player</div><div style="padding: 0.5rem 1rem; background: #84cc16; color: white; border-radius: 0.25rem; font-size: 0.875rem;">🎥 Video Controls</div><div style="padding: 0.5rem 1rem; background: #f97316; color: white; border-radius: 0.25rem; font-size: 0.875rem;">🎨 UI Themes</div>'
-              : '<div style="padding: 0.5rem 1rem; background: #6366f1; color: white; border-radius: 0.25rem; font-size: 0.875rem;">⚡ 10x Faster</div><div style="padding: 0.5rem 1rem; background: #14b8a6; color: white; border-radius: 0.25rem; font-size: 0.875rem;">📦 0kb Bundle</div><div style="padding: 0.5rem 1rem; background: #f43f5e; color: white; border-radius: 0.25rem; font-size: 0.875rem;">✨ 100% Type Safe</div>'
-          }
-          </div>
-        </div>`;
-
-        return new Response(demoPreview, {
+        return new Response(renderComponent("generic-demo-preview", { demo }), {
           headers: { "Content-Type": "text/html" },
         });
       }
