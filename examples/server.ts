@@ -210,29 +210,111 @@ defineComponent("dashboard-chart", {
   )
 });`,
 
-          forms: `// Advanced Form with Validation
-defineComponent("smart-form", {
-  api: {
-    submit: post("/api/form/submit", async (req) => {
-      const data = await req.formData();
-      // Process form with zero boilerplate
-      return new Response("Success!");
+          forms: `// Real Working Form Components from ui-lib
+import { Form, Input, Button, Alert } from "ui-lib";
+
+// User Registration Form with Live Validation
+const registrationForm = Form({
+  title: "Create Account",
+  className: "registration-form",
+  children: [
+    Input({
+      type: "text",
+      name: "username",
+      label: "Username",
+      placeholder: "Enter username",
+      required: true,
+      helpText: "Must be 3-20 characters"
+    }),
+    
+    Input({
+      type: "email", 
+      name: "email",
+      label: "Email Address",
+      placeholder: "you@example.com",
+      required: true,
+      error: false,
+      helpText: "We'll never share your email"
+    }),
+    
+    Input({
+      type: "password",
+      name: "password",
+      label: "Password",
+      placeholder: "Choose a strong password",
+      required: true,
+      helpText: "At least 8 characters"
+    }),
+    
+    Button({
+      type: "submit",
+      variant: "primary",
+      size: "lg",
+      children: "Create Account",
+      className: "submit-btn"
     })
-  },
-  
-  render: ({ 
-    fields = array([]) 
-  }, api, classes) => (
-    <form {...api.submit()}>
-      {fields.map(field => (
-        <input 
-          type={field.type}
-          name={field.name}
-          required={field.required}
-        />
-      ))}
-    </form>
-  )
+  ]
+});
+
+// Contact Form with Interactive Components
+const contactForm = Form({
+  title: "Get in Touch", 
+  description: "We'd love to hear from you!",
+  children: [
+    Input({
+      type: "text",
+      name: "name",
+      label: "Full Name",
+      required: true
+    }),
+    
+    Input({
+      type: "email",
+      name: "email", 
+      label: "Email",
+      required: true
+    }),
+    
+    Input({
+      type: "textarea",
+      name: "message",
+      label: "Message",
+      placeholder: "Tell us about your project...",
+      rows: 4,
+      required: true
+    }),
+    
+    Alert({
+      variant: "info",
+      children: "We typically respond within 24 hours"
+    }),
+    
+    Button({
+      type: "submit",
+      variant: "primary", 
+      children: "Send Message"
+    })
+  ]
+});
+
+// Newsletter Signup with Validation States  
+const newsletterForm = Form({
+  title: "Stay Updated",
+  className: "newsletter-form",
+  children: [
+    Input({
+      type: "email",
+      name: "email",
+      placeholder: "Enter your email",
+      leftAddon: "📧"
+    }),
+    
+    Button({
+      type: "submit",
+      variant: "secondary",
+      children: "Subscribe"
+    })
+  ]
 });`,
 
           comparison: `// Traditional React (28 lines, 3.2kb)
@@ -408,6 +490,337 @@ defineComponent("${demo}-demo", {
           });
         }
 
+        if (demo === "forms") {
+          // Show live form components preview
+          const { Form, Input, Button, Alert } = await import("../lib/components/index.ts");
+          const { css } = await import("../lib/css-in-ts.ts");
+          
+          // Generate component styles that will be used
+          const inputStyles = css({
+            wrapper: {
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.5rem",
+            },
+            inputGroup: {
+              display: "flex",
+              alignItems: "center",
+              position: "relative",
+            },
+            input: {
+              width: "100%",
+              padding: "0.75rem 1rem",
+              border: "1px solid #d1d5db",
+              borderRadius: "0.5rem",
+              fontSize: "1rem",
+              lineHeight: "1.5",
+              color: "#111827",
+              backgroundColor: "white",
+              transition: "all 0.2s ease",
+              "&:focus": {
+                outline: "none",
+                borderColor: "#3b82f6",
+                boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.1)",
+              },
+              "&:disabled": {
+                backgroundColor: "#f3f4f6",
+                color: "#6b7280",
+                cursor: "not-allowed",
+              },
+            },
+            label: {
+              fontSize: "0.875rem",
+              fontWeight: "500",
+              color: "#374151",
+              marginBottom: "0.25rem",
+            },
+            helpText: {
+              fontSize: "0.875rem",
+              color: "#6b7280",
+            },
+            errorText: {
+              fontSize: "0.875rem",
+              color: "#dc2626",
+            },
+            addon: {
+              padding: "0.75rem",
+              backgroundColor: "#f9fafb",
+              border: "1px solid #d1d5db",
+              fontSize: "0.875rem",
+              color: "#6b7280",
+            },
+            leftAddon: {
+              borderRight: "none",
+              borderRadius: "0.5rem 0 0 0.5rem",
+            },
+          });
+          
+          const buttonStyles = css({
+            button: {
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "0.75rem 1.5rem",
+              fontSize: "1rem",
+              fontWeight: "500",
+              lineHeight: "1.25",
+              border: "none",
+              borderRadius: "0.5rem",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+              textDecoration: "none",
+              "&:disabled": {
+                opacity: "0.6",
+                cursor: "not-allowed",
+              },
+              // Primary variant
+              "&.primary": {
+                backgroundColor: "#3b82f6",
+                color: "white",
+                "&:hover:not(:disabled)": {
+                  backgroundColor: "#2563eb",
+                },
+              },
+              // Secondary variant  
+              "&.secondary": {
+                backgroundColor: "#6b7280",
+                color: "white",
+                "&:hover:not(:disabled)": {
+                  backgroundColor: "#4b5563",
+                },
+              },
+              // Outline variant
+              "&.outline": {
+                backgroundColor: "transparent",
+                color: "#3b82f6",
+                border: "1px solid #3b82f6",
+                "&:hover:not(:disabled)": {
+                  backgroundColor: "#3b82f6",
+                  color: "white",
+                },
+              },
+            },
+            content: {
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+            },
+          });
+          
+          const alertStyles = css({
+            alert: {
+              display: "flex",
+              padding: "1rem",
+              borderRadius: "0.5rem",
+              fontSize: "0.875rem",
+              "&.info": {
+                backgroundColor: "#eff6ff",
+                color: "#1e40af",
+                border: "1px solid #bfdbfe",
+              },
+            },
+            icon: {
+              flexShrink: "0",
+              marginRight: "0.75rem",
+            },
+            content: {
+              flex: "1",
+            },
+            description: {
+              color: "inherit",
+            },
+          });
+          
+          const formsPreview = `
+            <style>
+              ${inputStyles.css}
+              ${buttonStyles.css}
+              ${alertStyles.css}
+              
+              /* HTMX loading indicator */
+              .htmx-indicator {
+                display: none;
+              }
+              .htmx-request .htmx-indicator {
+                display: inline;
+              }
+            </style>
+            <div style="width: 100%; background: white; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); overflow: hidden;">
+              <div class="panel-header" style="padding: 1rem 1.5rem; background: #f9fafb; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+                <span class="panel-title" style="font-weight: 600; color: #374151; display: flex; align-items: center; gap: 0.5rem;">👁️ Live Form Components</span>
+                <div class="panel-actions" style="display: flex; gap: 0.5rem;">
+                  <button type="button" class="panel-action" onclick="viewFormsCode()" style="padding: 0.25rem 0.75rem; background: white; border: 1px solid #d1d5db; border-radius: 0.375rem; color: #6b7280; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease;">📝 View Code</button>
+                  <button type="button" class="panel-action" onclick="refreshPreview(this)" style="padding: 0.25rem 0.75rem; background: white; border: 1px solid #d1d5db; border-radius: 0.375rem; color: #6b7280; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease;">🔄 Refresh</button>
+                  <button type="button" class="panel-action" onclick="toggleFullscreen(this)" style="padding: 0.25rem 0.75rem; background: white; border: 1px solid #d1d5db; border-radius: 0.375rem; color: #6b7280; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease;">⛶ Fullscreen</button>
+                </div>
+              </div>
+              
+              <div class="preview-content" style="padding: 2rem; min-height: 500px;">
+                <div style="display: grid; gap: 2rem; max-width: 1200px; margin: 0 auto;">
+                  <!-- Registration Form -->
+                  <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 2rem;">
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: #111827;">User Registration</h3>
+                  <div id="registration-result" style="margin-bottom: 1rem;"></div>
+                  <form 
+                    hx-post="/api/forms/register" 
+                    hx-target="#registration-result" 
+                    hx-indicator="#reg-spinner"
+                    style="display: flex; flex-direction: column; gap: 1rem;"
+                  >
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                      ${Input({
+                        type: "text",
+                        name: "firstName", 
+                        label: "First Name",
+                        placeholder: "John",
+                        required: true
+                      })}
+                      ${Input({
+                        type: "text",
+                        name: "lastName",
+                        label: "Last Name", 
+                        placeholder: "Doe",
+                        required: true
+                      })}
+                    </div>
+                    ${Input({
+                      type: "email",
+                      name: "email",
+                      label: "Email Address",
+                      placeholder: "john@example.com",
+                      required: true,
+                      helpText: "We'll never share your email"
+                    })}
+                    ${Input({
+                      type: "password",
+                      name: "password",
+                      label: "Password",
+                      placeholder: "Choose a strong password",
+                      required: true,
+                      helpText: "At least 8 characters"
+                    })}
+                    ${Alert({
+                      variant: "info",
+                      children: "All fields are validated in real-time"
+                    })}
+                    <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1rem;">
+                      ${Button({
+                        type: "submit",
+                        variant: "primary",
+                        children: "Create Account"
+                      })}
+                      ${Button({
+                        type: "button", 
+                        variant: "outline",
+                        children: "Cancel"
+                      })}
+                      <div id="reg-spinner" class="htmx-indicator" style="margin-left: 1rem;">
+                        <span style="color: #6b7280;">Processing...</span>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                
+                  <!-- Contact Form -->
+                  <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 2rem;">
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: #111827;">Contact Us</h3>
+                  <div id="contact-result" style="margin-bottom: 1rem;"></div>
+                  <form 
+                    hx-post="/api/forms/contact" 
+                    hx-target="#contact-result" 
+                    hx-indicator="#contact-spinner"
+                    style="display: flex; flex-direction: column; gap: 1rem;"
+                  >
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                      ${Input({
+                        type: "text",
+                        name: "name",
+                        label: "Full Name",
+                        required: true
+                      })}
+                      ${Input({
+                        type: "email",
+                        name: "email",
+                        label: "Email",
+                        required: true
+                      })}
+                    </div>
+                    ${Input({
+                      type: "tel",
+                      name: "phone",
+                      label: "Phone Number",
+                      placeholder: "(555) 123-4567"
+                    })}
+                    ${Input({
+                      type: "textarea",
+                      name: "message",
+                      label: "Message",
+                      placeholder: "Tell us about your project...",
+                      rows: 4,
+                      required: true
+                    })}
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                      ${Button({
+                        type: "submit",
+                        variant: "primary",
+                        size: "lg",
+                        children: "Send Message"
+                      })}
+                      <div id="contact-spinner" class="htmx-indicator">
+                        <span style="color: #6b7280;">Sending...</span>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                
+                  <!-- Newsletter Signup -->
+                  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 0.75rem; padding: 2rem; color: white;">
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Stay Updated</h3>
+                    <p style="margin-bottom: 1.5rem; opacity: 0.9;">Get the latest news and updates delivered to your inbox.</p>
+                  <div id="newsletter-result" style="margin-bottom: 1rem;"></div>
+                  <form 
+                    hx-post="/api/forms/newsletter" 
+                    hx-target="#newsletter-result" 
+                    hx-indicator="#newsletter-spinner"
+                    style="display: flex; gap: 1rem; align-items: end;"
+                  >
+                    ${Input({
+                      type: "email",
+                      name: "email",
+                      placeholder: "Enter your email",
+                      leftAddon: "📧",
+                      style: "flex: 1;"
+                    })}
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                      ${Button({
+                        type: "submit",
+                        variant: "secondary",
+                        children: "Subscribe"
+                      })}
+                      <div id="newsletter-spinner" class="htmx-indicator">
+                        <span style="color: #e2e8f0; opacity: 0.8;">Subscribing...</span>
+                      </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 2rem;">
+                  <div style="display: inline-flex; gap: 1rem;">
+                    <div style="padding: 0.5rem 1rem; background: #10b981; color: white; border-radius: 0.25rem; font-size: 0.875rem;">✅ Real Components</div>
+                    <div style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border-radius: 0.25rem; font-size: 0.875rem;">🎯 Live Validation</div>
+                    <div style="padding: 0.5rem 1rem; background: #8b5cf6; color: white; border-radius: 0.25rem; font-size: 0.875rem;">⚡ Zero Config</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+          
+          return new Response(formsPreview, {
+            headers: { "Content-Type": "text/html" },
+          });
+        }
+
         // Generate preview for other demos
         const demoPreview =
           `<div style="padding: 2rem; text-align: center; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 0.5rem; min-height: 300px; display: flex; flex-direction: column; justify-content: center;">
@@ -417,9 +830,7 @@ defineComponent("${demo}-demo", {
           <p style="color: #075985; margin-bottom: 1rem;">Revolutionary ${demo} components coming soon!</p>
           <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem;">
             ${
-            demo === "forms"
-              ? '<div style="padding: 0.5rem 1rem; background: #f59e0b; color: white; border-radius: 0.25rem; font-size: 0.875rem;">📝 Smart Validation</div><div style="padding: 0.5rem 1rem; background: #ef4444; color: white; border-radius: 0.25rem; font-size: 0.875rem;">🎯 Auto-Forms</div><div style="padding: 0.5rem 1rem; background: #06b6d4; color: white; border-radius: 0.25rem; font-size: 0.875rem;">⚡ Zero Config</div>'
-              : demo === "media"
+            demo === "media"
               ? '<div style="padding: 0.5rem 1rem; background: #ec4899; color: white; border-radius: 0.25rem; font-size: 0.875rem;">🎵 Audio Player</div><div style="padding: 0.5rem 1rem; background: #84cc16; color: white; border-radius: 0.25rem; font-size: 0.875rem;">🎥 Video Controls</div><div style="padding: 0.5rem 1rem; background: #f97316; color: white; border-radius: 0.25rem; font-size: 0.875rem;">🎨 UI Themes</div>'
               : '<div style="padding: 0.5rem 1rem; background: #6366f1; color: white; border-radius: 0.25rem; font-size: 0.875rem;">⚡ 10x Faster</div><div style="padding: 0.5rem 1rem; background: #14b8a6; color: white; border-radius: 0.25rem; font-size: 0.875rem;">📦 0kb Bundle</div><div style="padding: 0.5rem 1rem; background: #f43f5e; color: white; border-radius: 0.25rem; font-size: 0.875rem;">✨ 100% Type Safe</div>'
           }

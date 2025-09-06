@@ -5,6 +5,9 @@ export { defineComponent } from "./lib/define-component.ts";
 export { renderComponent } from "./lib/component-state.ts";
 export { h } from "./lib/jsx-runtime.ts";
 
+// NEW: Complete component library
+export * from "./lib/components/index.ts";
+
 // HTTP method helpers for clean API definitions
 export {
   create,
@@ -111,8 +114,6 @@ export {
 
 // Component composition helpers (Phase 3)
 export {
-  ButtonGroup,
-  type ButtonGroupProps,
   Card,
   type CardProps,
   Form,
@@ -126,6 +127,9 @@ export {
   type NavigationProps,
   type NavItem,
 } from "./lib/composition.ts";
+
+// Re-export ButtonGroup for backward compatibility (now in components library)
+export { ButtonGroup, type ButtonGroupProps } from "./lib/components/button/index.ts";
 
 // Utility TS types
 export type { PropsOf, UnwrapHelpers } from "./lib/types.ts";

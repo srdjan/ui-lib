@@ -1,0 +1,384 @@
+// Input component - Versatile text input with variants and states
+import { css } from "../../css-in-ts.ts";
+import { componentTokens } from "../../themes/component-tokens.ts";
+import type { ComponentSize, BaseComponentProps } from "../types.ts";
+
+export type InputType = 
+  | "text"
+  | "email"
+  | "password"
+  | "number"
+  | "search"
+  | "tel"
+  | "url";
+
+export type InputVariant = "default" | "filled" | "flushed" | "unstyled";
+
+export interface InputProps extends BaseComponentProps {
+  type?: InputType;
+  variant?: InputVariant;
+  size?: ComponentSize;
+  placeholder?: string;
+  value?: string | number;
+  defaultValue?: string | number;
+  required?: boolean;
+  readOnly?: boolean;
+  autoFocus?: boolean;
+  maxLength?: number;
+  minLength?: number;
+  min?: number;
+  max?: number;
+  step?: number;
+  pattern?: string;
+  name?: string;
+  id?: string;
+  "aria-label"?: string;
+  "aria-describedby"?: string;
+  leftAddon?: string;
+  rightAddon?: string;
+  leftIcon?: string;
+  rightIcon?: string;
+  error?: boolean;
+  errorMessage?: string;
+  helpText?: string;
+  onChange?: string;
+  onInput?: string;
+  onFocus?: string;
+  onBlur?: string;
+  onKeyDown?: string;
+  onKeyUp?: string;
+}
+
+/**
+ * Input component with comprehensive variants and accessibility features
+ * 
+ * @example
+ * ```tsx
+ * // Basic input
+ * Input({ placeholder: "Enter your name" })
+ * 
+ * // With addons and icons
+ * Input({ 
+ *   leftIcon: "👤", 
+ *   placeholder: "Username",
+ *   rightAddon: "@company.com" 
+ * })
+ * 
+ * // Error state
+ * Input({ 
+ *   error: true, 
+ *   errorMessage: "Please enter a valid email",
+ *   type: "email"
+ * })
+ * ```
+ */
+export function Input(props: InputProps): string {
+  const {
+    type = "text",
+    variant = "default",
+    size = "md",
+    placeholder,
+    value,
+    defaultValue,
+    required = false,
+    disabled = false,
+    readOnly = false,
+    autoFocus = false,
+    maxLength,
+    minLength,
+    min,
+    max,
+    step,
+    pattern,
+    name,
+    id,
+    "aria-label": ariaLabel,
+    "aria-describedby": ariaDescribedBy,
+    leftAddon,
+    rightAddon,
+    leftIcon,
+    rightIcon,
+    error = false,
+    errorMessage,
+    helpText,
+    className = "",
+    onChange,
+    onInput,
+    onFocus,
+    onBlur,
+    onKeyDown,
+    onKeyUp,
+  } = props;
+
+  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+  const hasLeftAddon = Boolean(leftAddon || leftIcon);
+  const hasRightAddon = Boolean(rightAddon || rightIcon);
+  
+  const styles = css({
+    wrapper: {
+      position: "relative",
+      width: "100%",
+    },
+    
+    inputGroup: {
+      display: "flex",
+      alignItems: "stretch",
+      width: "100%",
+      position: "relative",
+      
+      // Size variants for group
+      ...(size === "sm" && {
+        height: componentTokens.component.input.height.sm,
+      }),
+      ...(size === "md" && {
+        height: componentTokens.component.input.height.md,
+      }),
+      ...(size === "lg" && {
+        height: componentTokens.component.input.height.lg,
+      }),
+    },
+    
+    input: {
+      width: "100%",
+      border: "1px solid",
+      borderColor: error ? componentTokens.colors.error[300] : componentTokens.colors.gray[300],
+      borderRadius: componentTokens.radius.md,
+      fontSize: componentTokens.typography.sizes.sm,
+      fontWeight: componentTokens.typography.weights.normal,
+      lineHeight: componentTokens.typography.lineHeights.tight,
+      color: componentTokens.colors.gray[900],
+      backgroundColor: componentTokens.colors.surface.input,
+      transition: `all ${componentTokens.animation.duration.normal} ${componentTokens.animation.easing.out}`,
+      
+      // Size variants
+      ...(size === "sm" && {
+        height: componentTokens.component.input.height.sm,
+        padding: componentTokens.component.input.padding.sm,
+        fontSize: componentTokens.typography.sizes.sm,
+      }),
+      ...(size === "md" && {
+        height: componentTokens.component.input.height.md, 
+        padding: componentTokens.component.input.padding.md,
+        fontSize: componentTokens.typography.sizes.sm,
+      }),
+      ...(size === "lg" && {
+        height: componentTokens.component.input.height.lg,
+        padding: componentTokens.component.input.padding.lg,
+        fontSize: componentTokens.typography.sizes.base,
+      }),
+      
+      // Variant styles
+      ...(variant === "default" && {
+        backgroundColor: componentTokens.colors.surface.input,
+        borderColor: error ? componentTokens.colors.error[300] : componentTokens.colors.gray[300],
+      }),
+      
+      ...(variant === "filled" && {
+        backgroundColor: componentTokens.colors.gray[50],
+        borderColor: "transparent",
+        "&:hover": {
+          backgroundColor: componentTokens.colors.gray[100],
+        },
+      }),
+      
+      ...(variant === "flushed" && {
+        backgroundColor: "transparent",
+        borderColor: "transparent",
+        borderRadius: 0,
+        borderBottom: `2px solid ${error ? componentTokens.colors.error[300] : componentTokens.colors.gray[300]}`,
+        paddingLeft: 0,
+        paddingRight: 0,
+      }),
+      
+      ...(variant === "unstyled" && {
+        backgroundColor: "transparent",
+        border: "none",
+        borderRadius: 0,
+        padding: 0,
+      }),
+      
+      // States
+      "&:hover:not(:disabled)": {
+        borderColor: error ? componentTokens.colors.error[400] : componentTokens.colors.gray[400],
+      },
+      
+      "&:focus": {
+        outline: "none",
+        borderColor: error ? componentTokens.colors.error[500] : componentTokens.colors.primary[500],
+        boxShadow: error 
+          ? `0 0 0 3px ${componentTokens.colors.error[100]}` 
+          : `0 0 0 3px ${componentTokens.colors.primary[100]}`,
+      },
+      
+      "&:disabled": {
+        backgroundColor: componentTokens.colors.gray[100],
+        borderColor: componentTokens.colors.gray[200],
+        color: componentTokens.colors.gray[500],
+        cursor: "not-allowed",
+      },
+      
+      "&:read-only": {
+        backgroundColor: componentTokens.colors.gray[50],
+        cursor: "default",
+      },
+      
+      "&::placeholder": {
+        color: componentTokens.colors.gray[400],
+      },
+      
+      // Adjust padding when addons are present
+      ...(hasLeftAddon && {
+        borderTopLeftRadius: 0,
+        borderBottomLeftRadius: 0,
+        borderLeft: "none",
+      }),
+      
+      ...(hasRightAddon && {
+        borderTopRightRadius: 0,
+        borderBottomRightRadius: 0,
+        borderRight: "none",
+      }),
+    },
+    
+    addon: {
+      display: "flex",
+      alignItems: "center",
+      padding: `0 ${componentTokens.spacing[3]}`,
+      backgroundColor: componentTokens.colors.gray[50],
+      borderColor: error ? componentTokens.colors.error[300] : componentTokens.colors.gray[300],
+      border: "1px solid",
+      fontSize: componentTokens.typography.sizes.sm,
+      color: componentTokens.colors.gray[600],
+      whiteSpace: "nowrap",
+    },
+    
+    leftAddon: {
+      borderTopRightRadius: 0,
+      borderBottomRightRadius: 0,
+      borderRight: "none",
+      borderTopLeftRadius: componentTokens.radius.md,
+      borderBottomLeftRadius: componentTokens.radius.md,
+    },
+    
+    rightAddon: {
+      borderTopLeftRadius: 0,
+      borderBottomLeftRadius: 0,
+      borderLeft: "none",
+      borderTopRightRadius: componentTokens.radius.md,
+      borderBottomRightRadius: componentTokens.radius.md,
+    },
+    
+    icon: {
+      position: "absolute",
+      top: "50%",
+      transform: "translateY(-50%)",
+      color: componentTokens.colors.gray[400],
+      pointerEvents: "none",
+      zIndex: 1,
+      fontSize: "1rem",
+    },
+    
+    leftIcon: {
+      left: componentTokens.spacing[3],
+    },
+    
+    rightIcon: {
+      right: componentTokens.spacing[3],
+    },
+    
+    helpText: {
+      fontSize: componentTokens.typography.sizes.xs,
+      color: componentTokens.colors.gray[600],
+      marginTop: componentTokens.spacing[1],
+    },
+    
+    errorText: {
+      fontSize: componentTokens.typography.sizes.xs,
+      color: componentTokens.colors.error[600],
+      marginTop: componentTokens.spacing[1],
+      display: "flex",
+      alignItems: "center",
+      gap: componentTokens.spacing[1],
+    },
+  });
+  
+  // Build input attributes
+  const inputAttributes: Record<string, string | number | boolean> = {
+    type,
+    id: inputId,
+    class: `${styles.classMap.input} ${className}`.trim(),
+    ...(name && { name }),
+    ...(placeholder && { placeholder }),
+    ...(value !== undefined && { value: String(value) }),
+    ...(defaultValue !== undefined && { "default-value": String(defaultValue) }),
+    ...(required && { required: true }),
+    ...(disabled && { disabled: true }),
+    ...(readOnly && { readonly: true }),
+    ...(autoFocus && { autofocus: true }),
+    ...(maxLength && { maxlength: maxLength }),
+    ...(minLength && { minlength: minLength }),
+    ...(min !== undefined && { min }),
+    ...(max !== undefined && { max }),
+    ...(step !== undefined && { step }),
+    ...(pattern && { pattern }),
+    ...(ariaLabel && { "aria-label": ariaLabel }),
+    ...(ariaDescribedBy && { "aria-describedby": ariaDescribedBy }),
+    ...(error && { "aria-invalid": true }),
+    ...(onChange && { onchange: onChange }),
+    ...(onInput && { oninput: onInput }),
+    ...(onFocus && { onfocus: onFocus }),
+    ...(onBlur && { onblur: onBlur }),
+    ...(onKeyDown && { onkeydown: onKeyDown }),
+    ...(onKeyUp && { onkeyup: onKeyUp }),
+  };
+  
+  const inputAttributeString = Object.entries(inputAttributes)
+    .map(([key, value]) => `${key}="${value}"`)
+    .join(" ");
+  
+  // Adjust input padding for icons
+  let inputStyle = "";
+  if (leftIcon && !leftAddon) {
+    inputStyle += `padding-left: ${componentTokens.spacing[10]};`;
+  }
+  if (rightIcon && !rightAddon) {
+    inputStyle += `padding-right: ${componentTokens.spacing[10]};`;
+  }
+  
+  const finalInputStyle = inputStyle ? ` style="${inputStyle}"` : "";
+  
+  // Build the input group
+  const inputGroup = [
+    // Left addon
+    leftAddon && `<div class="${styles.classMap.addon} ${styles.classMap.leftAddon}">${leftAddon}</div>`,
+    
+    // Input with icons
+    `<div style="position: relative; flex: 1;">
+      ${leftIcon && !leftAddon ? `<span class="${styles.classMap.icon} ${styles.classMap.leftIcon}">${leftIcon}</span>` : ""}
+      <input ${inputAttributeString}${finalInputStyle} />
+      ${rightIcon && !rightAddon ? `<span class="${styles.classMap.icon} ${styles.classMap.rightIcon}">${rightIcon}</span>` : ""}
+    </div>`,
+    
+    // Right addon
+    rightAddon && `<div class="${styles.classMap.addon} ${styles.classMap.rightAddon}">${rightAddon}</div>`,
+  ].filter(Boolean).join("");
+  
+  // Build help/error text
+  const helpTextElement = helpText && !error 
+    ? `<div class="${styles.classMap.helpText}">${helpText}</div>`
+    : "";
+  
+  const errorTextElement = error && errorMessage
+    ? `<div class="${styles.classMap.errorText}">⚠️ ${errorMessage}</div>`
+    : "";
+  
+  return `
+    <div class="${styles.classMap.wrapper}">
+      <div class="${styles.classMap.inputGroup}">
+        ${inputGroup}
+      </div>
+      ${helpTextElement}
+      ${errorTextElement}
+    </div>
+  `.trim();
+}

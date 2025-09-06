@@ -53,17 +53,6 @@ export interface CardProps {
 }
 
 /**
- * Button group types
- */
-export interface ButtonGroupProps {
-  variant?: "attached" | "spaced";
-  size?: "sm" | "md" | "lg";
-  orientation?: "horizontal" | "vertical";
-  className?: string;
-  children?: unknown[];
-}
-
-/**
  * Navigation composition types
  */
 export interface NavItem {
@@ -239,70 +228,6 @@ export function Card(props: CardProps): string {
     "div",
     { class: `${styles.classMap.card} ${className}`.trim() },
     ...content,
-  );
-}
-
-/**
- * ButtonGroup component - Groups buttons with consistent spacing
- */
-export function ButtonGroup(props: ButtonGroupProps): string {
-  const {
-    variant = "attached",
-    size = "md",
-    orientation = "horizontal",
-    className = "",
-    children = [],
-  } = props;
-
-  const styles = css({
-    group: {
-      display: "flex",
-      flexDirection: orientation === "vertical" ? "column" : "row",
-      ...(variant === "attached"
-        ? {
-          "& > *": {
-            margin: 0,
-            ...(orientation === "horizontal"
-              ? {
-                borderRadius: 0,
-                "&:first-child": {
-                  borderTopLeftRadius: "0.375rem",
-                  borderBottomLeftRadius: "0.375rem",
-                },
-                "&:last-child": {
-                  borderTopRightRadius: "0.375rem",
-                  borderBottomRightRadius: "0.375rem",
-                },
-                "&:not(:last-child)": { borderRightWidth: 0 },
-              }
-              : {
-                borderRadius: 0,
-                "&:first-child": {
-                  borderTopLeftRadius: "0.375rem",
-                  borderTopRightRadius: "0.375rem",
-                },
-                "&:last-child": {
-                  borderBottomLeftRadius: "0.375rem",
-                  borderBottomRightRadius: "0.375rem",
-                },
-                "&:not(:last-child)": { borderBottomWidth: 0 },
-              }),
-          },
-        }
-        : {
-          gap: getSizeGap(size),
-        }),
-    },
-  });
-
-  return h(
-    "div",
-    {
-      class: `${styles.classMap.group} ${className}`.trim(),
-      role: "group",
-      "aria-label": "Button group",
-    },
-    ...children,
   );
 }
 

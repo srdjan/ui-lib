@@ -658,14 +658,6 @@
           The Most Ergonomic Component Library Ever Built
         </p>
 
-        <button
-          type="button"
-          class="view-code-btn"
-          onclick="document.getElementById('demo-modal').style.display='flex'"
-          style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #2563eb, #0ea5e9); color: white; border: none; border-radius: 0.5rem; font-size: 0.95rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; z-index: 10; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(37, 99, 253, 0.3)"
-        >
-          Show Modal
-        </button>
 
         <showcase-hero-stats></showcase-hero-stats>
       </div>
@@ -962,19 +954,7 @@
         const modalId = `code-modal-${demoName}`;
 
         content.innerHTML = `
-        <div class="viewer" data-component="showcase-demo-viewer" style="position: relative;">
-          <!-- View Code Button -->
-          <button 
-            type="button"
-            class="view-code-btn"
-            onclick="document.getElementById('${modalId}').style.display='flex'"
-            style="position: absolute; top: 1rem; right: 1rem; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #2563eb, #0ea5e9); color: white; border: none; border-radius: 0.5rem; font-size: 0.95rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; z-index: 10; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);"
-            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(37, 99, 235, 0.4)'"
-            onmouseout="this.style.transform=''; this.style.boxShadow='0 2px 8px rgba(37, 99, 235, 0.3)'"
-          >
-            <span>&lt;/&gt;</span> View Code
-          </button>
-          
+        <div class="viewer" data-component="showcase-demo-viewer" style="position: relative;">          
           <!-- Full-width Preview -->
           <div class="preview-panel" style="width: 100%; background: white; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); overflow: hidden;">
             <div class="panel-header" style="padding: 1rem 1.5rem; background: #f9fafb; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
@@ -1148,6 +1128,150 @@
             : "⛶ Fullscreen";
         }
       });
+
+      // View Forms Code function
+      window.viewFormsCode = function() {
+        const modal = document.getElementById('forms-code-modal');
+        if (modal) {
+          modal.style.display = 'flex';
+        } else {
+          // Create modal if it doesn't exist
+          const modalHTML = `
+            <div id="forms-code-modal" style="display: flex; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center;">
+              <div style="background: white; border-radius: 1rem; width: 90%; max-width: 1000px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+                <div style="padding: 1.5rem; background: #f9fafb; border-bottom: 1px solid #e5e7eb; border-radius: 1rem 1rem 0 0; display: flex; justify-content: space-between; align-items: center;">
+                  <h3 style="font-size: 1.25rem; font-weight: 700; color: #111827; display: flex; align-items: center; gap: 0.5rem;">📝 Forms Code</h3>
+                  <button onclick="document.getElementById('forms-code-modal').style.display='none'" style="background: none; border: none; font-size: 1.5rem; color: #6b7280; cursor: pointer; padding: 0.25rem;">✕</button>
+                </div>
+                <div style="flex: 1; overflow: auto; padding: 0;">
+                  <pre style="margin: 0; padding: 1.5rem; font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 0.9rem; line-height: 1.6; background: #1e293b; color: #e2e8f0; overflow-x: auto; min-height: 400px;"><code>// Real Form Components with Validation
+
+import { Form, Input, Button, Alert } from "ui-lib";
+
+// Registration Form with Live Validation
+const registrationForm = (
+  &lt;form hx-post="/api/forms/register" hx-target="#result"&gt;
+    {Input({
+      type: "text",
+      name: "firstName", 
+      label: "First Name",
+      placeholder: "John",
+      required: true
+    })}
+    
+    {Input({
+      type: "email",
+      name: "email",
+      label: "Email Address", 
+      placeholder: "john@example.com",
+      required: true,
+      helpText: "We'll never share your email"
+    })}
+    
+    {Input({
+      type: "password",
+      name: "password",
+      label: "Password",
+      required: true,
+      helpText: "At least 8 characters"
+    })}
+    
+    {Alert({
+      variant: "info",
+      children: "All fields are validated in real-time"
+    })}
+    
+    {Button({
+      type: "submit",
+      variant: "primary",
+      children: "Create Account"
+    })}
+  &lt;/form&gt;
+);
+
+// Contact Form with Interactive Components
+const contactForm = (
+  &lt;form hx-post="/api/forms/contact" hx-target="#contact-result"&gt;
+    {Input({
+      type: "text",
+      name: "name",
+      label: "Full Name",
+      required: true
+    })}
+    
+    {Input({
+      type: "email", 
+      name: "email",
+      label: "Email",
+      required: true
+    })}
+    
+    {Input({
+      type: "textarea",
+      name: "message",
+      label: "Message",
+      placeholder: "Tell us about your project...",
+      rows: 4,
+      required: true
+    })}
+    
+    {Button({
+      type: "submit",
+      variant: "primary",
+      size: "lg", 
+      children: "Send Message"
+    })}
+  &lt;/form&gt;
+);
+
+// Newsletter with Validation
+const newsletterForm = (
+  &lt;form hx-post="/api/forms/newsletter"&gt;
+    {Input({
+      type: "email",
+      name: "email", 
+      placeholder: "Enter your email",
+      leftAddon: "📧"
+    })}
+    
+    {Button({
+      type: "submit",
+      variant: "secondary",
+      children: "Subscribe"
+    })}
+  &lt;/form&gt;
+);
+
+// Server-side validation with HTMX responses
+router.register("POST", "/api/forms/register", async (request) => {
+  const formData = await request.formData();
+  const { firstName, lastName, email, password } = Object.fromEntries(formData);
+  
+  // Real-time validation
+  if (!email.includes("@")) {
+    return new Response(\`
+      &lt;div class="error-alert"&gt;❌ Please enter a valid email&lt;/div&gt;
+    \`);
+  }
+  
+  if (password.length &lt; 8) {
+    return new Response(\`
+      &lt;div class="error-alert"&gt;❌ Password must be at least 8 characters&lt;/div&gt;
+    \`);
+  }
+  
+  // Success response
+  return new Response(\`
+    &lt;div class="success-alert"&gt;✅ Account created successfully!&lt;/div&gt;
+  \`);
+});</code></pre>
+                </div>
+              </div>
+            </div>
+          `;
+          document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+      };
     </script>
   </body>
 </html>
