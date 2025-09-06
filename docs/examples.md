@@ -8,16 +8,16 @@ Real-world examples demonstrating ui-lib's capabilities.
 
 The simplest possible component:
 
-```typescript
-import { defineComponent } from "ui-lib";
+```tsx
+import { defineComponent, h } from "ui-lib";
 
 const HelloWorld = defineComponent({
   name: "hello-world",
-  render: () => `<h1>Hello, World!</h1>`
+  render: () => <h1>Hello, World!</h1>
 });
 
 // Usage
-const html = HelloWorld();
+const html = <HelloWorld />;
 console.log(html); // <h1>Hello, World!</h1>
 ```
 
@@ -25,32 +25,32 @@ console.log(html); // <h1>Hello, World!</h1>
 
 Using typed props with defaults:
 
-```typescript
-import { defineComponent, string, number } from "ui-lib";
+```tsx
+import { defineComponent, string, number, h } from "ui-lib";
 
 const Greeting = defineComponent({
   name: "greeting",
   render: (
     name = string("Guest"),
     age = number(0)
-  ) => `
+  ) => (
     <div class="greeting">
-      <h2>Hello, ${name}!</h2>
-      ${age > 0 ? `<p>You are ${age} years old.</p>` : ''}
+      <h2>Hello, {name}!</h2>
+      {age > 0 && <p>You are {age} years old.</p>}
     </div>
-  `
+  )
 });
 
 // Usage
-Greeting({ name: "Alice", age: 25 });
+<Greeting name="Alice" age={25} />
 ```
 
 ### Styled Component
 
 Component with CSS-in-TypeScript styling:
 
-```typescript
-import { defineComponent, css } from "ui-lib";
+```tsx
+import { defineComponent, css, h } from "ui-lib";
 
 const StyledBox = defineComponent({
   name: "styled-box",
@@ -65,11 +65,11 @@ const StyledBox = defineComponent({
       boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
     }
   }),
-  render: ({ content }) => `
+  render: ({ content }) => (
     <div class="styled-box">
-      ${content}
+      {content}
     </div>
-  `
+  )
 });
 ```
 
@@ -79,48 +79,45 @@ const StyledBox = defineComponent({
 
 Complete login form with validation:
 
-```typescript
-import { defineComponent } from "ui-lib";
+```tsx
+import { defineComponent, h } from "ui-lib";
 import { Input, Button, Card, Alert } from "ui-lib/components";
 
 const LoginForm = defineComponent({
   name: "login-form",
-  render: ({ error }) => Card({
-    title: "Login",
-    children: `
-      ${error ? Alert({ 
-        type: "error", 
-        children: error 
-      }) : ''}
+  render: ({ error }) => (
+    <Card title="Login">
+      {error && <Alert type="error">{error}</Alert>}
       
       <form method="POST" action="/api/login">
-        ${Input({
-          type: "email",
-          name: "email",
-          label: "Email",
-          placeholder: "your@email.com",
-          required: true
-        })}
+        <Input
+          type="email"
+          name="email"
+          label="Email"
+          placeholder="your@email.com"
+          required
+        />
         
-        ${Input({
-          type: "password",
-          name: "password",
-          label: "Password",
-          placeholder: "Enter your password",
-          required: true
-        })}
+        <Input
+          type="password"
+          name="password"
+          label="Password"
+          placeholder="Enter your password"
+          required
+        />
         
         <div class="form-footer">
-          ${Button({
-            type: "submit",
-            variant: "primary",
-            fullWidth: true,
-            children: "Sign In"
-          })}
+          <Button
+            type="submit"
+            variant="primary"
+            fullWidth
+          >
+            Sign In
+          </Button>
         </div>
       </form>
-    `
-  })
+    </Card>
+  )
 });
 ```
 
@@ -128,71 +125,80 @@ const LoginForm = defineComponent({
 
 Form with multiple steps and progress indicator:
 
-```typescript
-import { defineComponent } from "ui-lib";
+```tsx
+import { defineComponent, h } from "ui-lib";
 import { Stepper, Input, Select, Button } from "ui-lib/components";
 
 const MultiStepForm = defineComponent({
   name: "multi-step-form",
-  render: ({ currentStep = 1 }) => `
-    ${Stepper({
-      steps: [
-        { label: "Personal Info", completed: currentStep > 1 },
-        { label: "Contact Details", completed: currentStep > 2 },
-        { label: "Preferences", completed: currentStep > 3 }
-      ],
-      current: currentStep - 1
-    })}
-    
-    <div class="form-content">
-      ${currentStep === 1 ? `
-        <div class="step-1">
-          ${Input({ label: "First Name", name: "firstName" })}
-          ${Input({ label: "Last Name", name: "lastName" })}
-          ${Select({
-            label: "Gender",
-            name: "gender",
-            options: [
-              { value: "male", label: "Male" },
-              { value: "female", label: "Female" },
-              { value: "other", label: "Other" }
-            ]
-          })}
-        </div>
-      ` : ''}
+  render: ({ currentStep = 1 }) => (
+    <>
+      <Stepper
+        steps={[
+          { label: "Personal Info", completed: currentStep > 1 },
+          { label: "Contact Details", completed: currentStep > 2 },
+          { label: "Preferences", completed: currentStep > 3 }
+        ]}
+        current={currentStep - 1}
+      />
       
-      ${currentStep === 2 ? `
-        <div class="step-2">
-          ${Input({ label: "Email", type: "email", name: "email" })}
-          ${Input({ label: "Phone", type: "tel", name: "phone" })}
-          ${Input({ label: "Address", name: "address" })}
-        </div>
-      ` : ''}
+      <div class="form-content">
+        {currentStep === 1 && (
+          <div class="step-1">
+            <Input label="First Name" name="firstName" />
+            <Input label="Last Name" name="lastName" />
+            <Select
+              label="Gender"
+              name="gender"
+              options={[
+                { value: "male", label: "Male" },
+                { value: "female", label: "Female" },
+                { value: "other", label: "Other" }
+              ]}
+            />
+          </div>
+        )}
+        
+        {currentStep === 2 && (
+          <div class="step-2">
+            <Input label="Email" type="email" name="email" />
+            <Input label="Phone" type="tel" name="phone" />
+            <Input label="Address" name="address" />
+          </div>
+        )}
+        
+        {currentStep === 3 && (
+          <div class="step-3">
+            {/* Preferences content */}
+          </div>
+        )}
+      </div>
       
-      ${currentStep === 3 ? `
-        <div class="step-3">
-          <!-- Preferences content -->
-        </div>
-      ` : ''}
-    </div>
-    
-    <div class="form-actions">
-      ${currentStep > 1 ? Button({
-        variant: "outline",
-        children: "Previous",
-        onclick: `setStep(${currentStep - 1})`
-      }) : ''}
-      
-      ${currentStep < 3 ? Button({
-        variant: "primary",
-        children: "Next",
-        onclick: `setStep(${currentStep + 1})`
-      }) : Button({
-        variant: "primary",
-        children: "Submit"
-      })}
-    </div>
-  `
+      <div class="form-actions">
+        {currentStep > 1 && (
+          <Button
+            variant="outline"
+            onclick={`setStep(${currentStep - 1})`}
+          >
+            Previous
+          </Button>
+        )}
+        
+        {currentStep < 3 ? (
+          <Button
+            variant="primary"
+            onclick={`setStep(${currentStep + 1})`}
+          >
+            Next
+          </Button>
+        ) : (
+          <Button variant="primary">
+            Submit
+          </Button>
+        )}
+      </div>
+    </>
+  )
 });
 ```
 
@@ -202,13 +208,13 @@ const MultiStepForm = defineComponent({
 
 Interactive data table with sorting and filtering:
 
-```typescript
-import { defineComponent } from "ui-lib";
+```tsx
+import { defineComponent, h } from "ui-lib";
 import { Table, Input, Select } from "ui-lib/components";
 
 const UserTable = defineComponent({
   name: "user-table",
-  render: ({ users, filter = "", sortBy = "name" }) => `
+  render: ({ users, filter = "", sortBy = "name" }) => (
     <div class="table-container">
       <div class="table-controls">
         ${Input({
@@ -357,21 +363,24 @@ const CartButton = defineComponent({
       "cart-count": "data-count"
     }
   },
-  render: () => `
-    <button class="cart-button" data-count="0">
-      🛒 Cart
-      ${Badge({
-        variant: "danger",
-        children: `<span class="cart-count">0</span>`
-      })}
-    </button>
-    
-    <script>
-      subscribeToState('cart-count', (count) => {
-        document.querySelector('.cart-count').textContent = count;
-      });
-    </script>
-  `
+  render: () => (
+    <>
+      <button class="cart-button" data-count="0">
+        🛒 Cart
+        <Badge variant="danger">
+          <span class="cart-count">0</span>
+        </Badge>
+      </button>
+      
+      <script>
+        {`
+          subscribeToState('cart-count', (count) => {
+            document.querySelector('.cart-count').textContent = count;
+          });
+        `}
+      </script>
+    </>
+  )
 });
 
 const ProductCard = defineComponent({

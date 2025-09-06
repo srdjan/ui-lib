@@ -52,11 +52,11 @@ ui-lib is built on five fundamental principles:
 
 Components are defined using a declarative configuration object:
 
-```typescript
+```tsx
 interface ComponentConfig {
   name: string;           // Unique identifier
   styles?: StyleObject;   // Component styles
-  render: Function;       // Render function
+  render: Function;       // JSX render function
   reactive?: Reactive;    // Optional reactivity
   api?: ApiMap;          // Optional API endpoints
 }
@@ -66,18 +66,18 @@ interface ComponentConfig {
 
 1. **Props Processing** - Transform raw attributes to typed props
 2. **Style Generation** - Convert CSS-in-TS to class names
-3. **Template Rendering** - Execute render function with props
+3. **JSX Rendering** - Execute JSX render function with props
 4. **Reactivity Injection** - Add reactive attributes if configured
-5. **HTML Generation** - Return final HTML string
+5. **HTML Generation** - Convert JSX to HTML string
 
-```typescript
+```tsx
 // Simplified render pipeline
-function renderComponent(name: string, props: any): string {
-  const component = getComponent(name);
-  const processedProps = component.props(props);
+function renderComponent(element: JSX.Element): string {
+  const component = getComponent(element.type);
+  const processedProps = component.props(element.props);
   const styles = generateStyles(component.styles);
-  const html = component.render(processedProps);
-  return injectReactivity(html, component.reactive);
+  const jsx = component.render(processedProps);
+  return renderToString(jsx, component.reactive);
 }
 ```
 
@@ -87,12 +87,12 @@ function renderComponent(name: string, props: any): string {
 
 Traditional frameworks store state in JavaScript memory and sync it to the DOM. ui-lib inverts this - the DOM *is* the state.
 
-```html
-<!-- Traditional: State in JS, synced to DOM -->
-<div>{{ count }}</div>  <!-- count is in JS memory -->
+```tsx
+{/* Traditional: State in JS, synced to DOM */}
+<div>{count}</div>  {/* count is in JS memory */}
 
-<!-- ui-lib: State in DOM -->
-<div data-count="5">5</div>  <!-- count is in the DOM -->
+{/* ui-lib: State in DOM */}
+<div data-count="5">5</div>  {/* count is in the DOM */}
 ```
 
 ### Benefits
@@ -240,11 +240,11 @@ Three-level caching system:
 
 1. **Component Cache** - Caches rendered components
 2. **Style Cache** - Caches generated CSS classes
-3. **Template Cache** - Caches compiled templates
+3. **JSX Cache** - Caches compiled JSX functions
 
-```typescript
+```tsx
 // Cache hierarchy
-L1: Template Cache (compiled functions)
+L1: JSX Cache (compiled functions)
     ↓
 L2: Component Cache (rendered HTML)
     ↓
@@ -304,9 +304,9 @@ Total (all features):   ~10 KB
 
 All user input is automatically escaped:
 
-```typescript
+```tsx
 // Input
-render: ({ userInput }) => `<div>${escapeHtml(userInput)}</div>`
+render: ({ userInput }) => <div>{escapeHtml(userInput)}</div>
 
 // Output (safe)
 <div>&lt;script&gt;alert('XSS')&lt;/script&gt;</div>
@@ -326,12 +326,12 @@ Works with strict Content Security Policies:
 
 Props are validated at component boundaries:
 
-```typescript
+```tsx
 const Component = defineComponent({
   render: (
     email = string().email(),  // Validates email format
     age = number().min(0).max(120)  // Range validation
-  ) => `...`
+  ) => <div>...</div>
 });
 ```
 
@@ -341,9 +341,11 @@ const Component = defineComponent({
 
 Seamless integration with HTMX for interactivity:
 
-```html
-<button hx-post="/api/action" 
-        hx-target="#result">
+```tsx
+<button 
+  hx-post="/api/action" 
+  hx-target="#result"
+>
   Click Me
 </button>
 ```
@@ -352,10 +354,10 @@ Seamless integration with HTMX for interactivity:
 
 Can be wrapped as standard Web Components:
 
-```typescript
+```tsx
 class MyElement extends HTMLElement {
   connectedCallback() {
-    this.innerHTML = MyComponent(this.attributes);
+    this.innerHTML = renderToString(<MyComponent {...this.attributes} />);
   }
 }
 customElements.define('my-element', MyElement);
@@ -365,11 +367,11 @@ customElements.define('my-element', MyElement);
 
 Adapters available for popular frameworks:
 
-```typescript
+```tsx
 // React adapter
 export const ReactButton = (props) => {
   return <div dangerouslySetInnerHTML={{ 
-    __html: Button(props) 
+    __html: renderToString(<Button {...props} />) 
   }} />;
 };
 ```

@@ -24,19 +24,19 @@ defineComponent(config: ComponentConfig): Component
 
 #### Example
 
-```typescript
+```tsx
 const MyComponent = defineComponent({
   name: "my-component",
   styles: {
     padding: "1rem",
     backgroundColor: "white"
   },
-  render: ({ title, content }) => `
+  render: ({ title, content }) => (
     <div class="my-component">
-      <h2>${title}</h2>
-      <p>${content}</p>
+      <h2>{title}</h2>
+      <p>{content}</p>
     </div>
-  `
+  )
 });
 ```
 
@@ -46,56 +46,56 @@ Type-safe prop helpers with default values and validation.
 
 #### string(defaultValue?: string)
 
-```typescript
+```tsx
 const Component = defineComponent({
   render: (
     name = string("Default"),
     title = string()  // Optional string
-  ) => `...`
+  ) => <div>...</div>
 });
 ```
 
 #### number(defaultValue?: number)
 
-```typescript
+```tsx
 const Component = defineComponent({
   render: (
     count = number(0),
     max = number(100)
-  ) => `...`
+  ) => <div>...</div>
 });
 ```
 
 #### boolean(defaultValue?: boolean)
 
-```typescript
+```tsx
 const Component = defineComponent({
   render: (
     isActive = boolean(false),
     showDetails = boolean(true)
-  ) => `...`
+  ) => <div>...</div>
 });
 ```
 
 #### array<T>(defaultValue?: T[])
 
-```typescript
+```tsx
 const Component = defineComponent({
   render: (
     items = array<string>([]),
     tags = array<{id: number, name: string}>([])
-  ) => `...`
+  ) => <div>...</div>
 });
 ```
 
 #### object<T>(defaultValue?: T)
 
-```typescript
+```tsx
 const Component = defineComponent({
   render: (
     config = object<Config>({ theme: "light" }),
     user = object<User>()
-  ) => `...`
+  ) => <div>...</div>
 });
 ```
 
@@ -172,7 +172,7 @@ interface ReactiveConfig {
 
 Bind CSS custom properties to data attributes:
 
-```typescript
+```tsx
 const ThemeComponent = defineComponent({
   reactive: {
     css: {
@@ -180,11 +180,11 @@ const ThemeComponent = defineComponent({
       "--font-size": "data-font-size"
     }
   },
-  render: () => `
+  render: () => (
     <div data-theme-color="#007bff" data-font-size="16px">
       Content with reactive styles
     </div>
-  `
+  )
 });
 ```
 
@@ -192,7 +192,7 @@ const ThemeComponent = defineComponent({
 
 Cross-component state synchronization:
 
-```typescript
+```tsx
 const StatefulComponent = defineComponent({
   reactive: {
     state: {
@@ -200,12 +200,12 @@ const StatefulComponent = defineComponent({
       "user-role": "data-role"
     }
   },
-  render: () => `
+  render: () => (
     <div data-name="" data-role="">
       User: <span class="name"></span>
       Role: <span class="role"></span>
     </div>
-  `
+  )
 });
 ```
 
@@ -213,7 +213,7 @@ const StatefulComponent = defineComponent({
 
 Component-to-component messaging:
 
-```typescript
+```tsx
 const EventComponent = defineComponent({
   reactive: {
     on: {
@@ -221,9 +221,9 @@ const EventComponent = defineComponent({
       "user:login": "handleLogin"
     }
   },
-  render: () => `
+  render: () => (
     <div id="notifications"></div>
-  `
+  )
 });
 ```
 
@@ -664,7 +664,7 @@ type EventTarget = Element | Document | Window;
 
 ### Custom Prop Transformers
 
-```typescript
+```tsx
 const Component = defineComponent({
   name: "custom",
   props: (attrs) => ({
@@ -672,16 +672,16 @@ const Component = defineComponent({
     count: parseInt(attrs.count || "0"),
     items: JSON.parse(attrs.items || "[]")
   }),
-  render: (props) => `...`
+  render: (props) => <div>...</div>
 });
 ```
 
 ### Composition Patterns
 
-```typescript
+```tsx
 // Higher-order component
 const withTheme = (Component) => (props) => 
-  Component({ ...props, theme: getCurrentTheme() });
+  <Component {...props} theme={getCurrentTheme()} />;
 
 // Component composition
 const EnhancedButton = withTheme(Button);
@@ -689,7 +689,7 @@ const EnhancedButton = withTheme(Button);
 
 ### Custom Reactivity
 
-```typescript
+```tsx
 const CustomReactive = defineComponent({
   reactive: {
     mount: `
@@ -701,6 +701,6 @@ const CustomReactive = defineComponent({
       this.removeEventListener('click');
     `
   },
-  render: () => `<div>Click me</div>`
+  render: () => <div>Click me</div>
 });
 ```

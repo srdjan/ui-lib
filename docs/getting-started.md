@@ -44,8 +44,8 @@ deno task serve  # Start dev server
 
 Let's create a simple greeting component:
 
-```typescript
-import { defineComponent } from "ui-lib";
+```tsx
+import { defineComponent, h } from "ui-lib";
 
 const Greeting = defineComponent({
   name: "greeting",
@@ -55,16 +55,16 @@ const Greeting = defineComponent({
     borderRadius: "8px",
     textAlign: "center"
   },
-  render: ({ name = "World" }) => `
+  render: ({ name = "World" }) => (
     <div class="greeting">
-      <h1>Hello, ${name}!</h1>
+      <h1>Hello, {name}!</h1>
       <p>Welcome to ui-lib</p>
     </div>
-  `
+  )
 });
 
 // Use the component
-const html = Greeting({ name: "Developer" });
+const html = <Greeting name="Developer" />;
 console.log(html);
 ```
 
@@ -72,8 +72,8 @@ console.log(html);
 
 ui-lib provides type-safe prop helpers that eliminate boilerplate:
 
-```typescript
-import { defineComponent, string, number, boolean, array } from "ui-lib";
+```tsx
+import { defineComponent, string, number, boolean, array, h } from "ui-lib";
 
 const TodoList = defineComponent({
   name: "todo-list",
@@ -82,25 +82,25 @@ const TodoList = defineComponent({
     items = array<string>([]),
     showCompleted = boolean(true),
     maxItems = number(10)
-  ) => `
+  ) => (
     <div class="todo-list">
-      <h2>${title}</h2>
+      <h2>{title}</h2>
       <ul>
-        ${items.slice(0, maxItems).map(item => 
-          `<li>${item}</li>`
-        ).join('')}
+        {items.slice(0, maxItems).map(item => 
+          <li>{item}</li>
+        )}
       </ul>
-      ${showCompleted ? '<p>Showing completed items</p>' : ''}
+      {showCompleted && <p>Showing completed items</p>}
     </div>
-  `
+  )
 });
 
 // Type-safe usage
-TodoList({
-  title: "Shopping List",
-  items: ["Milk", "Bread", "Eggs"],
-  maxItems: 5
-});
+<TodoList 
+  title="Shopping List"
+  items={["Milk", "Bread", "Eggs"]}
+  maxItems={5}
+/>
 ```
 
 ## Styling Components
@@ -109,8 +109,8 @@ TodoList({
 
 Define styles directly in TypeScript with full type safety:
 
-```typescript
-import { defineComponent, css } from "ui-lib";
+```tsx
+import { defineComponent, css, h } from "ui-lib";
 
 const StyledCard = defineComponent({
   name: "styled-card",
@@ -124,9 +124,9 @@ const StyledCard = defineComponent({
       transform: "translateY(-2px)"
     }
   }),
-  render: ({ children }) => `
-    <div class="styled-card">${children}</div>
-  `
+  render: ({ children }) => (
+    <div class="styled-card">{children}</div>
+  )
 });
 ```
 
@@ -134,7 +134,7 @@ const StyledCard = defineComponent({
 
 Leverage CSS custom properties for theming:
 
-```typescript
+```tsx
 const ThemedButton = defineComponent({
   name: "themed-button",
   styles: {
@@ -144,9 +144,9 @@ const ThemedButton = defineComponent({
     border: "none",
     borderRadius: "var(--border-radius, 4px)"
   },
-  render: ({ label }) => `
-    <button class="themed-button">${label}</button>
-  `
+  render: ({ label }) => (
+    <button class="themed-button">{label}</button>
+  )
 });
 ```
 
@@ -154,7 +154,7 @@ const ThemedButton = defineComponent({
 
 ui-lib comes with 50+ pre-built components:
 
-```typescript
+```tsx
 import { 
   Button, 
   Card, 
@@ -164,41 +164,36 @@ import {
 } from "ui-lib/components";
 
 // Create a form
-const ContactForm = () => `
-  ${Card({
-    title: "Contact Us",
-    children: `
-      ${Input({
-        label: "Name",
-        placeholder: "Enter your name",
-        required: true
-      })}
-      
-      ${Input({
-        label: "Email",
-        type: "email",
-        placeholder: "your@email.com",
-        required: true
-      })}
-      
-      ${Button({
-        variant: "primary",
-        fullWidth: true,
-        children: "Submit"
-      })}
-    `
-  })}
-`;
+const ContactForm = () => (
+  <Card title="Contact Us">
+    <Input
+      label="Name"
+      placeholder="Enter your name"
+      required
+    />
+    
+    <Input
+      label="Email"
+      type="email"
+      placeholder="your@email.com"
+      required
+    />
+    
+    <Button variant="primary" fullWidth>
+      Submit
+    </Button>
+  </Card>
+);
 ```
 
 ## Adding Reactivity
 
 ### Basic Reactivity with HTMX
 
-```typescript
+```tsx
 const SearchBox = defineComponent({
   name: "search-box",
-  render: () => `
+  render: () => (
     <div class="search-box">
       <input 
         type="search"
@@ -210,13 +205,13 @@ const SearchBox = defineComponent({
       />
       <div id="search-results"></div>
     </div>
-  `
+  )
 });
 ```
 
 ### CSS Property Reactivity
 
-```typescript
+```tsx
 const ThemeSwitch = defineComponent({
   name: "theme-switch",
   reactive: {
@@ -224,20 +219,20 @@ const ThemeSwitch = defineComponent({
       "--theme-mode": "data-theme"
     }
   },
-  render: () => `
+  render: () => (
     <div class="theme-switch" data-theme="light">
       <button onclick="this.parentElement.dataset.theme = 
         this.parentElement.dataset.theme === 'light' ? 'dark' : 'light'">
         Toggle Theme
       </button>
     </div>
-  `
+  )
 });
 ```
 
 ### State Management
 
-```typescript
+```tsx
 const ShoppingCart = defineComponent({
   name: "shopping-cart",
   reactive: {
@@ -250,12 +245,12 @@ const ShoppingCart = defineComponent({
       "cart:remove": "handleRemove"
     }
   },
-  render: () => `
+  render: () => (
     <div class="shopping-cart" data-items="0" data-total="0">
       <span>Items: <span class="count">0</span></span>
       <span>Total: $<span class="total">0</span></span>
     </div>
-  `
+  )
 });
 ```
 
@@ -263,16 +258,16 @@ const ShoppingCart = defineComponent({
 
 ### Basic HTTP Server
 
-```typescript
+```tsx
 import { serve } from "https://deno.land/std/http/server.ts";
 import { renderComponent } from "ui-lib";
-import { HomePage } from "./components/HomePage.ts";
+import { HomePage } from "./components/HomePage.tsx";
 
 serve(async (req) => {
   const url = new URL(req.url);
   
   if (url.pathname === "/") {
-    const html = await renderComponent("home-page", {});
+    const html = await renderComponent(<HomePage />);
     
     return new Response(html, {
       headers: { "content-type": "text/html" }
@@ -285,16 +280,16 @@ serve(async (req) => {
 
 ### With Routing
 
-```typescript
+```tsx
 import { serve } from "https://deno.land/std/http/server.ts";
 import { Router } from "ui-lib/router";
-import * as pages from "./pages/index.ts";
+import { HomePage, AboutPage, ContactPage } from "./pages/index.tsx";
 
 const router = new Router();
 
-router.get("/", () => pages.HomePage());
-router.get("/about", () => pages.AboutPage());
-router.get("/contact", () => pages.ContactPage());
+router.get("/", () => <HomePage />);
+router.get("/about", () => <AboutPage />);
+router.get("/contact", () => <ContactPage />);
 
 serve(router.handler(), { port: 8000 });
 ```
@@ -356,17 +351,19 @@ my-app/
 
 Keep components small and focused:
 
-```typescript
+```tsx
 // Good: Single responsibility
 const UserAvatar = defineComponent({
-  render: ({ src, alt, size = "md" }) => 
-    `<img class="avatar avatar-${size}" src="${src}" alt="${alt}" />`
+  render: ({ src, alt, size = "md" }) => (
+    <img class={`avatar avatar-${size}`} src={src} alt={alt} />
+  )
 });
 
 // Avoid: Too many responsibilities
 const UserProfile = defineComponent({
-  render: (props) => 
+  render: (props) => (
     // Too complex - break into smaller components
+  )
 });
 ```
 
@@ -374,14 +371,14 @@ const UserProfile = defineComponent({
 
 Use TypeScript and prop helpers for validation:
 
-```typescript
+```tsx
 import { string, number } from "ui-lib";
 
 const ValidatedComponent = defineComponent({
   render: (
     name = string("Default").min(1).max(50),
     age = number(0).min(0).max(120)
-  ) => `...`
+  ) => <div>...</div>
 });
 ```
 
@@ -389,14 +386,14 @@ const ValidatedComponent = defineComponent({
 
 Cache expensive renders:
 
-```typescript
+```tsx
 import { cachedRender } from "ui-lib";
 
 const ExpensiveComponent = defineComponent({
   name: "expensive",
   render: cachedRender((props) => {
     // Expensive computation
-    return `...`;
+    return <div>...</div>;
   }, { ttl: 60000 }) // Cache for 1 minute
 });
 ```

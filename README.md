@@ -29,7 +29,7 @@ deno task start
 
 ### Basic Usage
 
-```typescript
+```tsx
 import { defineComponent, h } from "ui-lib";
 
 // Define a component
@@ -41,21 +41,21 @@ const Card = defineComponent({
     backgroundColor: "white",
     boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
   },
-  render: ({ title, content }) => `
+  render: ({ title, content }) => (
     <div class="card">
-      <h2>${title}</h2>
-      <p>${content}</p>
+      <h2>{title}</h2>
+      <p>{content}</p>
     </div>
-  `
+  )
 });
 
 // Use it
-const html = Card({ title: "Hello", content: "World" });
+const html = <Card title="Hello" content="World" />;
 ```
 
 ### With Function-Style Props
 
-```typescript
+```tsx
 import { defineComponent, string, number, boolean } from "ui-lib";
 
 const Counter = defineComponent({
@@ -64,37 +64,36 @@ const Counter = defineComponent({
     label = string("Count"),
     value = number(0),
     disabled = boolean(false)
-  ) => `
+  ) => (
     <div class="counter">
-      <span>${label}: ${value}</span>
-      <button ${disabled ? 'disabled' : ''}>Increment</button>
+      <span>{label}: {value}</span>
+      <button disabled={disabled}>Increment</button>
     </div>
-  `
+  )
 });
 
 // Type-safe usage
-Counter({ label: "Items", value: 5 });
+<Counter label="Items" value={5} />
 ```
 
 ### Using Built-in Components
 
-```typescript
+```tsx
 import { Button, Card, Alert } from "ui-lib/components";
 
-const page = `
-  ${Alert({ 
-    type: "success", 
-    children: "Operation completed!" 
-  })}
-  
-  ${Card({ 
-    title: "Welcome",
-    children: Button({ 
-      variant: "primary",
-      children: "Get Started" 
-    })
-  })}
-`;
+const Page = () => (
+  <>
+    <Alert type="success">
+      Operation completed!
+    </Alert>
+    
+    <Card title="Welcome">
+      <Button variant="primary">
+        Get Started
+      </Button>
+    </Card>
+  </>
+);
 ```
 
 ## Three-Tier Reactivity
@@ -102,50 +101,50 @@ const page = `
 ### Tier 1: CSS Property Reactivity
 Instant visual updates via CSS custom properties:
 
-```typescript
+```tsx
 const ThemeToggle = defineComponent({
   reactive: {
     css: {
       "--theme": "data-theme"
     }
   },
-  render: () => `
+  render: () => (
     <button onclick="toggleTheme()">Toggle Theme</button>
-  `
+  )
 });
 ```
 
 ### Tier 2: Pub/Sub State Manager
 Cross-component state synchronization:
 
-```typescript
+```tsx
 const Cart = defineComponent({
   reactive: {
     state: {
       "cart-count": "data-count"
     }
   },
-  render: () => `
+  render: () => (
     <div data-count="0">
       Cart Items: <span x-text="count">0</span>
     </div>
-  `
+  )
 });
 ```
 
 ### Tier 3: DOM Event Communication
 Component-to-component messaging:
 
-```typescript
+```tsx
 const Notification = defineComponent({
   reactive: {
     on: {
       "user:login": "handleLogin"
     }
   },
-  render: () => `
+  render: () => (
     <div id="notification"></div>
-  `
+  )
 });
 ```
 
