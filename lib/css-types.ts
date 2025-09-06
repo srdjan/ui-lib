@@ -32,7 +32,7 @@ export type CSSProperties = {
   flexWrap?: "nowrap" | "wrap" | "wrap-reverse";
   flexBasis?: string | number;
   flexGrow?: number;
-  flexShrink?: number;
+  flexShrink?: number | string;
   flex?: string | number;
   justifyContent?:
     | "flex-start"
@@ -128,6 +128,14 @@ export type CSSProperties = {
   borderBottomRightRadius?: string | number;
 
   // Typography
+  verticalAlign?:
+    | "baseline"
+    | "sub"
+    | "super"
+    | "text-top"
+    | "text-bottom"
+    | "middle"
+    | string;
   font?: string;
   fontSize?: string | number;
   fontFamily?: string;
@@ -168,6 +176,10 @@ export type CSSProperties = {
 
   // Color & Background
   color?: string;
+  fill?: string;
+  stroke?: string;
+  strokeWidth?: number | string;
+  strokeLinecap?: "butt" | "round" | "square" | string;
   background?: string;
   backgroundColor?: string;
   backgroundImage?: string;
@@ -270,8 +282,9 @@ export type PseudoSelectors = {
   "&::placeholder"?: CSSProperties;
   "&[data-disabled]"?: CSSProperties;
   "&[data-active]"?: CSSProperties;
-  [key: `&:${string}`]: CSSProperties | undefined;
-  [key: `&[${string}]`]: CSSProperties | undefined;
+  [key: `&:${string}`]: (CSSProperties & PseudoSelectors) | undefined;
+  [key: `&[${string}]`]: (CSSProperties & PseudoSelectors) | undefined;
+  [key: `&.${string}`]: (CSSProperties & PseudoSelectors) | undefined;
 };
 
 // Media queries for responsive design

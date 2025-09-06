@@ -16,7 +16,8 @@ async function handler(request: Request): Promise<Response> {
   try {
     // Serve the showcase index
     if (pathname === "/" || pathname === "/showcase") {
-      let htmlContent = await Deno.readTextFile("./showcase/index.html");
+      const indexUrl = new URL("./showcase/index.html", import.meta.url);
+      let htmlContent = await Deno.readTextFile(indexUrl);
 
       // Inject state manager for reactivity
       const sm = injectStateManager(true);
@@ -492,9 +493,11 @@ defineComponent("${demo}-demo", {
 
         if (demo === "forms") {
           // Show live form components preview
-          const { Form, Input, Button, Alert } = await import("../lib/components/index.ts");
+          const { Input, Button, Alert } = await import(
+            "../lib/components/index.ts"
+          );
           const { css } = await import("../lib/css-in-ts.ts");
-          
+
           // Generate component styles that will be used
           const inputStyles = css({
             wrapper: {
@@ -554,7 +557,7 @@ defineComponent("${demo}-demo", {
               borderRadius: "0.5rem 0 0 0.5rem",
             },
           });
-          
+
           const buttonStyles = css({
             button: {
               display: "inline-flex",
@@ -581,7 +584,7 @@ defineComponent("${demo}-demo", {
                   backgroundColor: "#2563eb",
                 },
               },
-              // Secondary variant  
+              // Secondary variant
               "&.secondary": {
                 backgroundColor: "#6b7280",
                 color: "white",
@@ -606,7 +609,7 @@ defineComponent("${demo}-demo", {
               gap: "0.5rem",
             },
           });
-          
+
           const alertStyles = css({
             alert: {
               display: "flex",
@@ -630,7 +633,7 @@ defineComponent("${demo}-demo", {
               color: "inherit",
             },
           });
-          
+
           const formsPreview = `
             <style>
               ${inputStyles.css}
@@ -668,52 +671,66 @@ defineComponent("${demo}-demo", {
                     style="display: flex; flex-direction: column; gap: 1rem;"
                   >
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                      ${Input({
-                        type: "text",
-                        name: "firstName", 
-                        label: "First Name",
-                        placeholder: "John",
-                        required: true
-                      })}
-                      ${Input({
-                        type: "text",
-                        name: "lastName",
-                        label: "Last Name", 
-                        placeholder: "Doe",
-                        required: true
-                      })}
+                      ${
+            Input({
+              type: "text",
+              name: "firstName",
+              label: "First Name",
+              placeholder: "John",
+              required: true,
+            })
+          }
+                      ${
+            Input({
+              type: "text",
+              name: "lastName",
+              label: "Last Name",
+              placeholder: "Doe",
+              required: true,
+            })
+          }
                     </div>
-                    ${Input({
-                      type: "email",
-                      name: "email",
-                      label: "Email Address",
-                      placeholder: "john@example.com",
-                      required: true,
-                      helpText: "We'll never share your email"
-                    })}
-                    ${Input({
-                      type: "password",
-                      name: "password",
-                      label: "Password",
-                      placeholder: "Choose a strong password",
-                      required: true,
-                      helpText: "At least 8 characters"
-                    })}
-                    ${Alert({
-                      variant: "info",
-                      children: "All fields are validated in real-time"
-                    })}
+                    ${
+            Input({
+              type: "email",
+              name: "email",
+              label: "Email Address",
+              placeholder: "john@example.com",
+              required: true,
+              helpText: "We'll never share your email",
+            })
+          }
+                    ${
+            Input({
+              type: "password",
+              name: "password",
+              label: "Password",
+              placeholder: "Choose a strong password",
+              required: true,
+              helpText: "At least 8 characters",
+            })
+          }
+                    ${
+            Alert({
+              variant: "info",
+              children: "All fields are validated in real-time",
+            })
+          }
                     <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1rem;">
-                      ${Button({
-                        type: "submit",
-                        variant: "primary",
-                        children: "Create Account"
-                      })}
-                      ${Button({
-                        type: "button", 
-                        variant: "outline",
-                        children: "Cancel"
-                      })}
+                      ${
+            Button({
+              type: "submit",
+              variant: "primary",
+              children: "Create Account",
+            })
+          }
+                      ${
+            Button({
+              type: "button",
+              variant: "outline",
+              children: "Cancel",
+            })
+          }
                       <div id="reg-spinner" class="htmx-indicator" style="margin-left: 1rem;">
                         <span style="color: #6b7280;">Processing...</span>
                       </div>
@@ -732,40 +749,50 @@ defineComponent("${demo}-demo", {
                     style="display: flex; flex-direction: column; gap: 1rem;"
                   >
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                      ${Input({
-                        type: "text",
-                        name: "name",
-                        label: "Full Name",
-                        required: true
-                      })}
-                      ${Input({
-                        type: "email",
-                        name: "email",
-                        label: "Email",
-                        required: true
-                      })}
+                      ${
+            Input({
+              type: "text",
+              name: "name",
+              label: "Full Name",
+              required: true,
+            })
+          }
+                      ${
+            Input({
+              type: "email",
+              name: "email",
+              label: "Email",
+              required: true,
+            })
+          }
                     </div>
-                    ${Input({
-                      type: "tel",
-                      name: "phone",
-                      label: "Phone Number",
-                      placeholder: "(555) 123-4567"
-                    })}
-                    ${Input({
-                      type: "textarea",
-                      name: "message",
-                      label: "Message",
-                      placeholder: "Tell us about your project...",
-                      rows: 4,
-                      required: true
-                    })}
+                    ${
+            Input({
+              type: "tel",
+              name: "phone",
+              label: "Phone Number",
+              placeholder: "(555) 123-4567",
+            })
+          }
+                    ${
+            Input({
+              type: "textarea",
+              name: "message",
+              label: "Message",
+              placeholder: "Tell us about your project...",
+              rows: 4,
+              required: true,
+            })
+          }
                     <div style="display: flex; gap: 1rem; align-items: center;">
-                      ${Button({
-                        type: "submit",
-                        variant: "primary",
-                        size: "lg",
-                        children: "Send Message"
-                      })}
+                      ${
+            Button({
+              type: "submit",
+              variant: "primary",
+              size: "lg",
+              children: "Send Message",
+            })
+          }
                       <div id="contact-spinner" class="htmx-indicator">
                         <span style="color: #6b7280;">Sending...</span>
                       </div>
@@ -784,19 +811,23 @@ defineComponent("${demo}-demo", {
                     hx-indicator="#newsletter-spinner"
                     style="display: flex; gap: 1rem; align-items: end;"
                   >
-                    ${Input({
-                      type: "email",
-                      name: "email",
-                      placeholder: "Enter your email",
-                      leftAddon: "📧",
-                      style: "flex: 1;"
-                    })}
+                    ${
+            Input({
+              type: "email",
+              name: "email",
+              placeholder: "Enter your email",
+              leftAddon: "📧",
+              style: "flex: 1;",
+            })
+          }
                     <div style="display: flex; gap: 1rem; align-items: center;">
-                      ${Button({
-                        type: "submit",
-                        variant: "secondary",
-                        children: "Subscribe"
-                      })}
+                      ${
+            Button({
+              type: "submit",
+              variant: "secondary",
+              children: "Subscribe",
+            })
+          }
                       <div id="newsletter-spinner" class="htmx-indicator">
                         <span style="color: #e2e8f0; opacity: 0.8;">Subscribing...</span>
                       </div>
@@ -815,7 +846,7 @@ defineComponent("${demo}-demo", {
               </div>
             </div>
           `;
-          
+
           return new Response(formsPreview, {
             headers: { "Content-Type": "text/html" },
           });
@@ -1057,8 +1088,11 @@ ${error instanceof Error ? error.message : String(error)}
     // Serve static assets
     if (pathname.startsWith("/assets/")) {
       try {
-        const filePath = `.${pathname}`;
-        const content = await Deno.readTextFile(filePath);
+        const fileUrl = new URL(
+          pathname.startsWith("/") ? `.${pathname}` : pathname,
+          import.meta.url,
+        );
+        const content = await Deno.readTextFile(fileUrl);
 
         let contentType = "text/plain";
         if (pathname.endsWith(".css")) contentType = "text/css";
@@ -1076,7 +1110,11 @@ ${error instanceof Error ? error.message : String(error)}
     // Serve TypeScript files for development
     if (pathname.endsWith(".ts") || pathname.endsWith(".tsx")) {
       try {
-        const content = await Deno.readTextFile(`.${pathname}`);
+        const tsUrl = new URL(
+          pathname.startsWith("/") ? `.${pathname}` : pathname,
+          import.meta.url,
+        );
+        const content = await Deno.readTextFile(tsUrl);
         return new Response(content, {
           headers: { "Content-Type": "application/typescript" },
         });

@@ -420,7 +420,23 @@ export function cachedRender<T extends Record<string, unknown>>(
 /**
  * Cache warming utilities for critical components
  */
-export const cacheWarming: Record<string, unknown> = {
+export const cacheWarming: {
+  warmCriticalComponents: (
+    components: Array<{
+      name: string;
+      propVariations: Array<Record<string, unknown>>;
+      renderFn: (props: Record<string, unknown>) => string;
+      dependencies?: readonly string[];
+    }>,
+  ) => Promise<number>;
+  warmFromAnalytics: (
+    analytics: Array<{
+      component: string;
+      props: Record<string, unknown>;
+      frequency: number;
+    }>,
+  ) => number;
+} = {
   /**
    * Pre-render critical components with common prop combinations
    */
@@ -485,7 +501,18 @@ export const cacheWarming: Record<string, unknown> = {
 /**
  * Cache monitoring and debugging utilities
  */
-export const cacheMonitoring: Record<string, unknown> = {
+export const cacheMonitoring: {
+  createMonitor: (intervalMs?: number) => {
+    getHistory: () => CacheStats[];
+    stop: () => void;
+    getCurrentStats: () => CacheStats | null;
+  };
+  generateReport: () => {
+    summary: CacheStats;
+    hotEntries: Array<{ key: string; hits: number; size: number }>;
+    recommendations: string[];
+  };
+} = {
   /**
    * Monitor cache performance over time
    */

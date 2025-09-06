@@ -548,7 +548,14 @@ export class BundleAnalyzer {
 /**
  * Tree shaking utilities
  */
-export const treeShaking: Record<string, unknown> = {
+export const treeShaking: {
+  findUnusedImports: (componentCode: string) => string[];
+  optimizeImports: (componentCode: string) => string;
+  calculateTreeShakingSavings: (
+    originalSize: number,
+    optimizedSize: number,
+  ) => { savedBytes: number; savedPercentage: number; isWorthwhile: boolean };
+} = {
   /**
    * Identify unused imports in ui-lib components
    */
@@ -621,7 +628,21 @@ export const treeShaking: Record<string, unknown> = {
 /**
  * Code splitting utilities
  */
-export const codeSplitting: Record<string, unknown> = {
+export const codeSplitting: {
+  identifyLazyCandidates: (
+    components: Array<{ name: string; size: number; criticalPath: boolean }>,
+  ) => string[];
+  generateLazyWrapper: (name: string) => string;
+  calculateSplitBenefits: (
+    originalSize: number,
+    criticalSize: number,
+    lazySize: number,
+  ) => {
+    initialBundleReduction: number;
+    initialLoadImprovement: number;
+    lazyLoadOverhead: number;
+  };
+} = {
   /**
    * Identify components suitable for lazy loading
    */

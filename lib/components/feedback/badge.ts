@@ -1,10 +1,16 @@
 // Badge component - Small status descriptors and labels
 import { css } from "../../css-in-ts.ts";
 import { componentTokens } from "../../themes/component-tokens.ts";
-import type { ComponentSize, BaseComponentProps } from "../types.ts";
+import type { BaseComponentProps, ComponentSize } from "../types.ts";
 
 export type BadgeVariant = "solid" | "subtle" | "outline" | "ghost";
-export type BadgeColorScheme = "gray" | "primary" | "success" | "warning" | "error" | "info";
+export type BadgeColorScheme =
+  | "gray"
+  | "primary"
+  | "success"
+  | "warning"
+  | "error"
+  | "info";
 export type BadgeShape = "rectangle" | "pill" | "circle";
 
 export interface BadgeProps extends BaseComponentProps {
@@ -20,24 +26,24 @@ export interface BadgeProps extends BaseComponentProps {
 
 /**
  * Badge component for status indicators and labels
- * 
+ *
  * @example
  * ```tsx
  * // Basic badges
  * Badge({ children: "New" })
  * Badge({ variant: "solid", colorScheme: "success", children: "Active" })
- * 
+ *
  * // Badge with icon and removal
- * Badge({ 
- *   icon: "🏷️", 
+ * Badge({
+ *   icon: "🏷️",
  *   children: "Tag",
  *   removable: true,
  *   onRemove: "handleTagRemove",
  *   shape: "pill"
  * })
- * 
+ *
  * // Notification badge
- * Badge({ 
+ * Badge({
  *   variant: "solid",
  *   colorScheme: "error",
  *   shape: "circle",
@@ -60,50 +66,94 @@ export function Badge(props: BadgeProps): string {
   } = props;
 
   const badgeId = `badge-${Math.random().toString(36).substr(2, 9)}`;
-  const badgeText = Array.isArray(children) ? children.join("") : String(children);
-  
+  const badgeText = Array.isArray(children)
+    ? children.join("")
+    : String(children);
+
   // Color scheme definitions
   const colorSchemes = {
     gray: {
       solid: { bg: componentTokens.colors.gray[500], color: "white" },
-      subtle: { bg: componentTokens.colors.gray[100], color: componentTokens.colors.gray[800] },
-      outline: { bg: "transparent", color: componentTokens.colors.gray[600], border: componentTokens.colors.gray[300] },
+      subtle: {
+        bg: componentTokens.colors.gray[100],
+        color: componentTokens.colors.gray[800],
+      },
+      outline: {
+        bg: "transparent",
+        color: componentTokens.colors.gray[600],
+        border: componentTokens.colors.gray[300],
+      },
       ghost: { bg: "transparent", color: componentTokens.colors.gray[600] },
     },
     primary: {
       solid: { bg: componentTokens.colors.primary[500], color: "white" },
-      subtle: { bg: componentTokens.colors.primary[100], color: componentTokens.colors.primary[800] },
-      outline: { bg: "transparent", color: componentTokens.colors.primary[600], border: componentTokens.colors.primary[300] },
+      subtle: {
+        bg: componentTokens.colors.primary[100],
+        color: componentTokens.colors.primary[800],
+      },
+      outline: {
+        bg: "transparent",
+        color: componentTokens.colors.primary[600],
+        border: componentTokens.colors.primary[300],
+      },
       ghost: { bg: "transparent", color: componentTokens.colors.primary[600] },
     },
     success: {
       solid: { bg: componentTokens.colors.success[500], color: "white" },
-      subtle: { bg: componentTokens.colors.success[100], color: componentTokens.colors.success[800] },
-      outline: { bg: "transparent", color: componentTokens.colors.success[600], border: componentTokens.colors.success[300] },
+      subtle: {
+        bg: componentTokens.colors.success[100],
+        color: componentTokens.colors.success[800],
+      },
+      outline: {
+        bg: "transparent",
+        color: componentTokens.colors.success[600],
+        border: componentTokens.colors.success[300],
+      },
       ghost: { bg: "transparent", color: componentTokens.colors.success[600] },
     },
     warning: {
       solid: { bg: componentTokens.colors.warning[500], color: "white" },
-      subtle: { bg: componentTokens.colors.warning[100], color: componentTokens.colors.warning[800] },
-      outline: { bg: "transparent", color: componentTokens.colors.warning[600], border: componentTokens.colors.warning[300] },
+      subtle: {
+        bg: componentTokens.colors.warning[100],
+        color: componentTokens.colors.warning[800],
+      },
+      outline: {
+        bg: "transparent",
+        color: componentTokens.colors.warning[600],
+        border: componentTokens.colors.warning[300],
+      },
       ghost: { bg: "transparent", color: componentTokens.colors.warning[600] },
     },
     error: {
       solid: { bg: componentTokens.colors.error[500], color: "white" },
-      subtle: { bg: componentTokens.colors.error[100], color: componentTokens.colors.error[800] },
-      outline: { bg: "transparent", color: componentTokens.colors.error[600], border: componentTokens.colors.error[300] },
+      subtle: {
+        bg: componentTokens.colors.error[100],
+        color: componentTokens.colors.error[800],
+      },
+      outline: {
+        bg: "transparent",
+        color: componentTokens.colors.error[600],
+        border: componentTokens.colors.error[300],
+      },
       ghost: { bg: "transparent", color: componentTokens.colors.error[600] },
     },
     info: {
       solid: { bg: componentTokens.colors.primary[500], color: "white" },
-      subtle: { bg: componentTokens.colors.primary[50], color: componentTokens.colors.primary[700] },
-      outline: { bg: "transparent", color: componentTokens.colors.primary[600], border: componentTokens.colors.primary[300] },
+      subtle: {
+        bg: componentTokens.colors.primary[50],
+        color: componentTokens.colors.primary[700],
+      },
+      outline: {
+        bg: "transparent",
+        color: componentTokens.colors.primary[600],
+        border: componentTokens.colors.primary[300],
+      },
       ghost: { bg: "transparent", color: componentTokens.colors.primary[600] },
     },
   };
-  
+
   const colors = colorSchemes[colorScheme][variant];
-  
+
   const styles = css({
     badge: {
       display: "inline-flex",
@@ -117,23 +167,30 @@ export function Badge(props: BadgeProps): string {
       verticalAlign: "middle",
       backgroundColor: colors.bg,
       color: colors.color,
-      border: colors.border ? `1px solid ${colors.border}` : "none",
-      transition: `all ${componentTokens.animation.duration.normal} ${componentTokens.animation.easing.out}`,
-      
+      border: ("border" in colors) ? `1px solid ${colors.border}` : "none",
+      transition:
+        `all ${componentTokens.animation.duration.normal} ${componentTokens.animation.easing.out}`,
+
       // Size variants
       ...(size === "xs" && {
         fontSize: "0.625rem", // 10px
-        padding: `${componentTokens.spacing[0.5]} ${componentTokens.spacing[1.5]}`,
+        padding: `${componentTokens.spacing[0.5]} ${
+          componentTokens.spacing[1.5]
+        }`,
         minHeight: "1rem",
       }),
       ...(size === "sm" && {
         fontSize: componentTokens.typography.sizes.xs,
-        padding: `${componentTokens.spacing[0.5]} ${componentTokens.spacing[2]}`,
+        padding: `${componentTokens.spacing[0.5]} ${
+          componentTokens.spacing[2]
+        }`,
         minHeight: "1.25rem",
       }),
       ...(size === "md" && {
         fontSize: componentTokens.typography.sizes.xs,
-        padding: `${componentTokens.spacing[1]} ${componentTokens.spacing[2.5]}`,
+        padding: `${componentTokens.spacing[1]} ${
+          componentTokens.spacing[2.5]
+        }`,
         minHeight: "1.5rem",
       }),
       ...(size === "lg" && {
@@ -143,10 +200,12 @@ export function Badge(props: BadgeProps): string {
       }),
       ...(size === "xl" && {
         fontSize: componentTokens.typography.sizes.sm,
-        padding: `${componentTokens.spacing[1.5]} ${componentTokens.spacing[4]}`,
+        padding: `${componentTokens.spacing[1.5]} ${
+          componentTokens.spacing[4]
+        }`,
         minHeight: "2rem",
       }),
-      
+
       // Shape variants
       ...(shape === "rectangle" && {
         borderRadius: componentTokens.radius.sm,
@@ -158,22 +217,30 @@ export function Badge(props: BadgeProps): string {
         borderRadius: componentTokens.radius.full,
         aspectRatio: "1",
         padding: 0,
-        minWidth: size === "xs" ? "1rem" : size === "sm" ? "1.25rem" : size === "md" ? "1.5rem" : size === "lg" ? "1.75rem" : "2rem",
+        minWidth: size === "xs"
+          ? "1rem"
+          : size === "sm"
+          ? "1.25rem"
+          : size === "md"
+          ? "1.5rem"
+          : size === "lg"
+          ? "1.75rem"
+          : "2rem",
       }),
     },
-    
+
     icon: {
       fontSize: "0.875em",
       lineHeight: 1,
       flexShrink: 0,
     },
-    
+
     content: {
       flex: shape === "circle" ? 0 : 1,
       textAlign: "center",
       minWidth: 0,
     },
-    
+
     removeButton: {
       display: "inline-flex",
       alignItems: "center",
@@ -189,14 +256,15 @@ export function Badge(props: BadgeProps): string {
       fontSize: "0.75em",
       lineHeight: 1,
       opacity: 0.8,
-      transition: `all ${componentTokens.animation.duration.fast} ${componentTokens.animation.easing.out}`,
-      
+      transition:
+        `all ${componentTokens.animation.duration.fast} ${componentTokens.animation.easing.out}`,
+
       "&:hover": {
         opacity: 1,
         backgroundColor: "rgba(0, 0, 0, 0.3)",
         transform: "scale(1.1)",
       },
-      
+
       "&:focus": {
         outline: "none",
         opacity: 1,
@@ -204,9 +272,10 @@ export function Badge(props: BadgeProps): string {
       },
     },
   });
-  
+
   // Remove functionality
-  const removeScript = removable ? `
+  const removeScript = removable
+    ? `
     <script>
       (function() {
         function removeBadge() {
@@ -223,33 +292,38 @@ export function Badge(props: BadgeProps): string {
             }, 200);
             
             // Call custom remove handler
-            ${onRemove ? `(${onRemove})();` : ''}
+            ${onRemove ? `(${onRemove})();` : ""}
           }
         }
         
         // Make function globally accessible
-        window.removeBadge_${badgeId.replace(/-/g, '_')} = removeBadge;
+        window.removeBadge_${badgeId.replace(/-/g, "_")} = removeBadge;
       })();
     </script>
-  ` : "";
-  
-  const removeButton = removable && shape !== "circle" ? `
+  `
+    : "";
+
+  const removeButton = removable && shape !== "circle"
+    ? `
     <button 
       class="${styles.classMap.removeButton}"
       type="button"
       aria-label="Remove badge"
-      onclick="removeBadge_${badgeId.replace(/-/g, '_')}()"
+      onclick="removeBadge_${badgeId.replace(/-/g, "_")}()"
     >
       ×
     </button>
-  ` : "";
-  
-  const iconElement = icon ? `<span class="${styles.classMap.icon}">${icon}</span>` : "";
-  
-  const contentElement = shape === "circle" && badgeText.length > 2 
+  `
+    : "";
+
+  const iconElement = icon
+    ? `<span class="${styles.classMap.icon}">${icon}</span>`
+    : "";
+
+  const contentElement = shape === "circle" && badgeText.length > 2
     ? badgeText.slice(0, 2) + (badgeText.length > 2 ? "+" : "") // Truncate for circle badges
     : badgeText;
-  
+
   return `
     <span 
       id="${badgeId}"

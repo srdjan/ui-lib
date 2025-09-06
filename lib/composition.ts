@@ -3,6 +3,7 @@
 
 import { h } from "./jsx-runtime.ts";
 import { css } from "./css-in-ts.ts";
+export { ButtonGroup } from "./components/button/button-group.ts";
 
 /**
  * Layout composition types

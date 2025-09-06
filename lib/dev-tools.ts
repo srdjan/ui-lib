@@ -316,7 +316,19 @@ export function clearDevStats(): void {
 /**
  * Component inspector utilities
  */
-export const componentInspector: Record<string, unknown> = {
+export const componentInspector: {
+  listComponents: () => string[];
+  inspectComponent: (name: string) => {
+    registered: boolean;
+    hasStyles: boolean;
+    hasApi: boolean;
+    renderFunction: string;
+    stats?: ComponentRenderInfo;
+  } | null;
+  findComponents: (
+    criteria: { hasStyles?: boolean; hasApi?: boolean; namePattern?: string },
+  ) => string[];
+} = {
   /**
    * List all registered components
    */
@@ -392,7 +404,18 @@ export const componentInspector: Record<string, unknown> = {
 /**
  * Performance monitoring utilities
  */
-export const performanceMonitor: Record<string, unknown> = {
+export const performanceMonitor: {
+  start: () => void;
+  stop: () => void;
+  getTimeline: () => { component: string; timestamp: Date; duration: number }[];
+  findSlowComponents: (thresholdMs?: number) => ComponentRenderInfo[];
+  getMemoryUsage: () => {
+    registrySize: number;
+    statsSize: number;
+    historySize: number;
+    totalComponents: number;
+  };
+} = {
   /**
    * Start monitoring component renders
    */

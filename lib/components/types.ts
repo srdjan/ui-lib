@@ -1,25 +1,42 @@
 // Shared component types for ui-lib component library
 
 export type ComponentSize = "xs" | "sm" | "md" | "lg" | "xl";
-export type ComponentVariant = 
-  | "primary" 
-  | "secondary" 
-  | "outline" 
-  | "ghost" 
-  | "link" 
-  | "success" 
-  | "warning" 
-  | "error" 
-  | "info";
+export type ComponentVariant =
+  | "primary"
+  | "secondary"
+  | "outline"
+  | "ghost"
+  | "link"
+  | "success"
+  | "warning"
+  | "error"
+  | "info"
+  // Extended to allow component-specific variants to remain compatible with BaseComponentProps
+  | "destructive"
+  | "subtle"
+  | "solid"
+  | "linear"
+  | "attached"
+  | "spaced"
+  | "default"
+  | "filled"
+  | "flushed"
+  | "unstyled"
+  | "circular";
 
-export type ComponentState = "default" | "hover" | "focus" | "active" | "disabled";
+export type ComponentState =
+  | "default"
+  | "hover"
+  | "focus"
+  | "active"
+  | "disabled";
 
 export interface BaseComponentProps {
   className?: string;
   size?: ComponentSize;
   variant?: ComponentVariant;
   disabled?: boolean;
-  children?: unknown[];
+  children?: unknown | unknown[];
 }
 
 export interface InteractiveComponentProps extends BaseComponentProps {
@@ -30,16 +47,16 @@ export interface InteractiveComponentProps extends BaseComponentProps {
 }
 
 // Position types for overlays
-export type Position = 
-  | "top" 
-  | "top-start" 
+export type Position =
+  | "top"
+  | "top-start"
   | "top-end"
-  | "bottom" 
-  | "bottom-start" 
+  | "bottom"
+  | "bottom-start"
   | "bottom-end"
   | "left"
   | "left-start"
-  | "left-end" 
+  | "left-end"
   | "right"
   | "right-start"
   | "right-end";
