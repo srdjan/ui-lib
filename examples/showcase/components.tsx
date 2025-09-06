@@ -38,19 +38,19 @@ defineComponent("showcase-hero-stats", {
 
   render: (_, __, classes) => (
     <div class={classes!.statsContainer}>
-      <div class={classes!.statItem} style="animation-delay: 0.1s;">
+      <div class={classes!.statItem}>
         <span class={classes!.statValue}>0kb</span>
         <span class={classes!.statLabel}>Client Runtime</span>
       </div>
-      <div class={classes!.statItem} style="animation-delay: 0.2s;">
+      <div class={classes!.statItem}>
         <span class={classes!.statValue}>100%</span>
         <span class={classes!.statLabel}>Type Safe</span>
       </div>
-      <div class={classes!.statItem} style="animation-delay: 0.3s;">
+      <div class={classes!.statItem}>
         <span class={classes!.statValue}>3ms</span>
         <span class={classes!.statLabel}>Render Time</span>
       </div>
-      <div class={classes!.statItem} style="animation-delay: 0.4s;">
+      <div class={classes!.statItem}>
         <span class={classes!.statValue}>∞</span>
         <span class={classes!.statLabel}>Scalability</span>
       </div>
@@ -68,6 +68,18 @@ defineComponent("showcase-hero-stats", {
             transform: translateY(0);
           }
         }
+        .${classes!.statsContainer} .${
+            classes!.statItem
+          }:nth-child(1) { animation-delay: 0.1s; }
+        .${classes!.statsContainer} .${
+            classes!.statItem
+          }:nth-child(2) { animation-delay: 0.2s; }
+        .${classes!.statsContainer} .${
+            classes!.statItem
+          }:nth-child(3) { animation-delay: 0.3s; }
+        .${classes!.statsContainer} .${
+            classes!.statItem
+          }:nth-child(4) { animation-delay: 0.4s; }
       `,
         }}
       />
@@ -390,6 +402,12 @@ defineComponent("showcase-playground", {
       padding: 1.5rem;
       overflow-y: auto;
     }`,
+
+    placeholder: `{
+      color: var(--gray-600);
+      text-align: center;
+      padding: 2rem;
+    }`,
   },
 
   render: (_: any, api: any, classes: any) => (
@@ -438,7 +456,7 @@ defineComponent("my-component", {
       <div class={classes!.outputPanel}>
         <div class={classes!.editorHeader}>📦 Output</div>
         <div class={classes!.outputContent} id="playground-output">
-          <div style="color: #6b7280; text-align: center; padding: 2rem;">
+          <div class={classes!.placeholder}>
             Press "Run Code" to see your component in action!
           </div>
         </div>

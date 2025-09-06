@@ -47,8 +47,8 @@ defineComponent("product-card", {
       const isFavorited = Math.random() > 0.5;
 
       // Return HTML heart span that replaces the current heart
-      const heartHtml = `<span id="heart-${productId}" style="color: ${
-        isFavorited ? "#ef4444" : "#9ca3af"
+      const heartHtml = `<span id="heart-${productId}" class="heart ${
+        isFavorited ? "is-favorite" : ""
       }">${isFavorited ? "❤️" : "🤍"}</span>`;
 
       return new Response(heartHtml, {
@@ -265,7 +265,7 @@ defineComponent("product-card", {
           >
             <span
               id={`heart-${productId}`}
-              style={`color: ${isFav ? "#ef4444" : "#9ca3af"}`}
+              class={`heart ${isFav ? "is-favorite" : ""}`}
             >
               {isFav ? "❤️" : "🤍"}
             </span>
@@ -310,10 +310,10 @@ defineComponent("product-card", {
               )
             }
               this.textContent = '✓ Added!';
-              this.style.background = '#10b981';
+              this.classList.add('added');
               setTimeout(() => {
                 this.textContent = '🛒 Add to Cart';
-                this.style.background = 'linear-gradient(135deg, #2563eb, #0ea5e9)';
+                this.classList.remove('added');
               }, 2000);
             `}
             disabled={!isInStock}
@@ -336,6 +336,16 @@ defineComponent("product-card", {
           .${classes!.card}:hover .${classes!.image} {
             transform: scale(1.05);
           }
+          .${classes!.card}:hover .${classes!.quickViewBtn} {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+          }
+          .${classes!.card}:hover .${classes!.image} {
+            transform: scale(1.05);
+          }
+          .heart { color: var(--gray-600); font-size: 1.1rem; }
+          .heart.is-favorite { color: var(--red-6); }
+          .${classes!.addToCartBtn}.added { background: var(--green-6); }
         `,
           }}
         />
@@ -566,16 +576,16 @@ defineComponent("shopping-cart", {
       const countEl = this.querySelector('.cart-count');
 
       if (items.length === 0) {
-        itemsContainer.innerHTML = '<div style="padding: 2rem; text-align: center; color: #6b7280;">Your cart is empty</div>';
+        itemsContainer.innerHTML = '<div class="cart-empty">Your cart is empty</div>';
       } else {
         itemsContainer.innerHTML = items.map(item => \`
-          <div style="display: flex; gap: 1rem; padding: 1rem; border-bottom: 1px solid #e5e7eb;">
-            <img src="\${item.image}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 0.5rem;">
-            <div style="flex: 1;">
-              <div style="font-weight: 600;">\${item.name}</div>
-              <div style="color: #6b7280; font-size: 0.875rem;">Qty: \${item.quantity}</div>
+          <div class="cart-item">
+            <img class="cart-item-img" src="\${item.image}">
+            <div class="cart-item-main">
+              <div class="cart-item-title">\${item.name}</div>
+              <div class="cart-item-qty">Qty: \${item.quantity}</div>
             </div>
-            <div style="font-weight: 600; color: #2563eb;">$\${(item.price * item.quantity).toFixed(2)}</div>
+            <div class="cart-item-price">$\${(item.price * item.quantity).toFixed(2)}</div>
           </div>
         \`).join('');
       }
@@ -676,7 +686,7 @@ defineComponent("shopping-cart", {
       </div>
 
       <div class={`${classes!.items} cart-items`}>
-        <div style="padding: 2rem; text-align: center; color: #6b7280;">
+        <div class="cart-empty">
           Your cart is empty
         </div>
       </div>
@@ -697,6 +707,13 @@ defineComponent("shopping-cart", {
         #shopping-cart-sidebar.open {
           transform: translateX(0);
         }
+        .cart-empty { padding: 2rem; text-align: center; color: var(--gray-600); }
+        .cart-item { display: flex; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--gray-200); }
+        .cart-item-img { width: 60px; height: 60px; object-fit: cover; border-radius: 0.5rem; }
+        .cart-item-main { flex: 1; }
+        .cart-item-title { font-weight: 600; }
+        .cart-item-qty { color: var(--gray-500); font-size: 0.875rem; }
+        .cart-item-price { font-weight: 600; color: var(--blue-7); }
       `,
         }}
       />

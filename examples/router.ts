@@ -14,52 +14,67 @@ router.register("POST", "/api/forms/register", async (request) => {
 
     // Simulate validation
     if (!firstName || !lastName || !email || !password) {
-      return new Response(`
-        <div style="color: #ef4444; background: #fee2e2; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+      return new Response(
+        `
+        <div class="alert alert-error">
           ❌ Please fill in all required fields.
         </div>
-      `, {
-        headers: { "Content-Type": "text/html" }
-      });
+      `,
+        {
+          headers: { "Content-Type": "text/html" },
+        },
+      );
     }
 
     if (!email.includes("@")) {
-      return new Response(`
-        <div style="color: #ef4444; background: #fee2e2; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+      return new Response(
+        `
+        <div class="alert alert-error">
           ❌ Please enter a valid email address.
         </div>
-      `, {
-        headers: { "Content-Type": "text/html" }
-      });
+      `,
+        {
+          headers: { "Content-Type": "text/html" },
+        },
+      );
     }
 
     if (password.length < 8) {
-      return new Response(`
-        <div style="color: #ef4444; background: #fee2e2; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+      return new Response(
+        `
+        <div class="alert alert-error">
           ❌ Password must be at least 8 characters long.
         </div>
-      `, {
-        headers: { "Content-Type": "text/html" }
-      });
+      `,
+        {
+          headers: { "Content-Type": "text/html" },
+        },
+      );
     }
 
     // Success response
-    return new Response(`
-      <div style="color: #065f46; background: #d1fae5; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+    return new Response(
+      `
+      <div class="alert alert-success">
         ✅ Account created successfully! Welcome ${firstName} ${lastName}.
       </div>
-    `, {
-      headers: { "Content-Type": "text/html" }
-    });
+    `,
+      {
+        headers: { "Content-Type": "text/html" },
+      },
+    );
   } catch (error) {
     console.error("Registration error:", error);
-    return new Response(`
-      <div style="color: #ef4444; background: #fee2e2; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+    return new Response(
+      `
+      <div class="alert alert-error">
         ❌ Registration failed. Please try again.
       </div>
-    `, {
-      headers: { "Content-Type": "text/html" }
-    });
+    `,
+      {
+        headers: { "Content-Type": "text/html" },
+      },
+    );
   }
 });
 
@@ -73,32 +88,41 @@ router.register("POST", "/api/forms/contact", async (request) => {
 
     // Simulate validation
     if (!name || !email || !message) {
-      return new Response(`
-        <div style="color: #ef4444; background: #fee2e2; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+      return new Response(
+        `
+        <div class="alert alert-error">
           ❌ Please fill in all required fields.
         </div>
-      `, {
-        headers: { "Content-Type": "text/html" }
-      });
+      `,
+        {
+          headers: { "Content-Type": "text/html" },
+        },
+      );
     }
 
     // Success response
-    return new Response(`
-      <div style="color: #065f46; background: #d1fae5; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+    return new Response(
+      `
+      <div class="alert alert-success">
         ✅ Thank you ${name}! We'll get back to you within 24 hours.
       </div>
-    `, {
-      headers: { "Content-Type": "text/html" }
-    });
+    `,
+      {
+        headers: { "Content-Type": "text/html" },
+      },
+    );
   } catch (error) {
     console.error("Contact form error:", error);
-    return new Response(`
-      <div style="color: #ef4444; background: #fee2e2; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+    return new Response(
+      `
+      <div class="alert alert-error">
         ❌ Message failed to send. Please try again.
       </div>
-    `, {
-      headers: { "Content-Type": "text/html" }
-    });
+    `,
+      {
+        headers: { "Content-Type": "text/html" },
+      },
+    );
   }
 });
 
@@ -109,31 +133,40 @@ router.register("POST", "/api/forms/newsletter", async (request) => {
 
     // Simulate validation
     if (!email || !email.includes("@")) {
-      return new Response(`
-        <div style="color: #ef4444; background: #fee2e2; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+      return new Response(
+        `
+        <div class="alert alert-error">
           ❌ Please enter a valid email address.
         </div>
-      `, {
-        headers: { "Content-Type": "text/html" }
-      });
+      `,
+        {
+          headers: { "Content-Type": "text/html" },
+        },
+      );
     }
 
     // Success response
-    return new Response(`
-      <div style="color: #065f46; background: #d1fae5; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+    return new Response(
+      `
+      <div class="alert alert-success">
         ✅ Successfully subscribed! Check your inbox for confirmation.
       </div>
-    `, {
-      headers: { "Content-Type": "text/html" }
-    });
+    `,
+      {
+        headers: { "Content-Type": "text/html" },
+      },
+    );
   } catch (error) {
     console.error("Newsletter subscription error:", error);
-    return new Response(`
-      <div style="color: #ef4444; background: #fee2e2; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+    return new Response(
+      `
+      <div class="alert alert-error">
         ❌ Subscription failed. Please try again.
       </div>
-    `, {
-      headers: { "Content-Type": "text/html" }
-    });
+    `,
+      {
+        headers: { "Content-Type": "text/html" },
+      },
+    );
   }
 });

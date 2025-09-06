@@ -66,7 +66,7 @@ defineComponent("product-card", {
     }\`,
     // CSS-only format - classes auto-generated!
   },
-  
+
   render: ({
     // ✨ Function-style props - zero duplication!
     name = string("Product"),
@@ -96,16 +96,16 @@ defineComponent("metric-card", {
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       transition: all 0.3s ease;
     }\`,
-    label: \`{ 
-      font-size: 0.875rem; 
-      color: #6b7280; 
+    label: \`{
+      font-size: 0.875rem;
+      color: #6b7280;
       margin-bottom: 0.5rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }\`,
-    value: \`{ 
-      font-size: 2rem; 
-      font-weight: bold; 
+    value: \`{
+      font-size: 2rem;
+      font-weight: bold;
       color: #111827;
       margin-bottom: 0.5rem;
     }\`,
@@ -127,7 +127,7 @@ defineComponent("metric-card", {
       color: #991b1b;
     }\`
   },
-  
+
   // Subscribe to real-time metric updates
   stateSubscriptions: {
     metrics: \`
@@ -140,8 +140,8 @@ defineComponent("metric-card", {
       }
     \`
   },
-  
-  render: ({ 
+
+  render: ({
     label = string("Metric"),
     value = string("0"),
     trend = number(0),
@@ -193,8 +193,8 @@ defineComponent("dashboard-chart", {
       transition: height 0.5s ease;
     }\`
   },
-  
-  render: ({ 
+
+  render: ({
     title = string("Revenue Trend"),
     data = array([40, 65, 30, 85, 50, 70, 45])
   }, _, classes) => (
@@ -227,9 +227,9 @@ const registrationForm = Form({
       required: true,
       helpText: "Must be 3-20 characters"
     }),
-    
+
     Input({
-      type: "email", 
+      type: "email",
       name: "email",
       label: "Email Address",
       placeholder: "you@example.com",
@@ -237,7 +237,7 @@ const registrationForm = Form({
       error: false,
       helpText: "We'll never share your email"
     }),
-    
+
     Input({
       type: "password",
       name: "password",
@@ -246,7 +246,7 @@ const registrationForm = Form({
       required: true,
       helpText: "At least 8 characters"
     }),
-    
+
     Button({
       type: "submit",
       variant: "primary",
@@ -259,7 +259,7 @@ const registrationForm = Form({
 
 // Contact Form with Interactive Components
 const contactForm = Form({
-  title: "Get in Touch", 
+  title: "Get in Touch",
   description: "We'd love to hear from you!",
   children: [
     Input({
@@ -268,14 +268,14 @@ const contactForm = Form({
       label: "Full Name",
       required: true
     }),
-    
+
     Input({
       type: "email",
-      name: "email", 
+      name: "email",
       label: "Email",
       required: true
     }),
-    
+
     Input({
       type: "textarea",
       name: "message",
@@ -284,21 +284,21 @@ const contactForm = Form({
       rows: 4,
       required: true
     }),
-    
+
     Alert({
       variant: "info",
       children: "We typically respond within 24 hours"
     }),
-    
+
     Button({
       type: "submit",
-      variant: "primary", 
+      variant: "primary",
       children: "Send Message"
     })
   ]
 });
 
-// Newsletter Signup with Validation States  
+// Newsletter Signup with Validation States
 const newsletterForm = Form({
   title: "Stay Updated",
   className: "newsletter-form",
@@ -309,7 +309,7 @@ const newsletterForm = Form({
       placeholder: "Enter your email",
       leftAddon: "📧"
     }),
-    
+
     Button({
       type: "submit",
       variant: "secondary",
@@ -322,26 +322,26 @@ const newsletterForm = Form({
 function ProductCard({ name, price, inStock }) {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
-  
+
   const handleAddToCart = async () => {
     setLoading(true);
     try {
       await fetch('/api/cart/add', {
         method: 'POST',
-        body: JSON.stringify({ 
-          name, price, quantity 
+        body: JSON.stringify({
+          name, price, quantity
         })
       });
     } finally {
       setLoading(false);
     }
   };
-  
+
   return (
     <div className="card">
       <h3>{name}</h3>
       <p>\${price}</p>
-      <button 
+      <button
         onClick={handleAddToCart}
         disabled={!inStock || loading}
       >
@@ -356,7 +356,7 @@ defineComponent("product-card", {
   api: {
     addToCart: post("/api/cart/add", handler)
   },
-  render: ({ 
+  render: ({
     name = string(""),
     price = number(0),
     inStock = boolean(true)
@@ -384,7 +384,7 @@ defineComponent("${demo}-demo", {
       border-radius: 0.5rem;
     }\`
   },
-  
+
   render: ({
     title = string("${demo.charAt(0).toUpperCase() + demo.slice(1)} Demo")
   }, _, classes) => (
@@ -413,7 +413,7 @@ defineComponent("${demo}-demo", {
           const dashboardPreview = `
             <div style="padding: 2rem; background: #f9fafb; min-height: 500px;">
               <h2 style="font-size: 1.875rem; font-weight: bold; color: #111827; margin-bottom: 1.5rem;">Analytics Dashboard</h2>
-              
+
               <!-- Metrics Grid -->
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
                 <!-- Revenue Card -->
@@ -424,7 +424,7 @@ defineComponent("${demo}-demo", {
                     ↑ 12.5%
                   </div>
                 </div>
-                
+
                 <!-- Users Card -->
                 <div style="background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                   <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Active Users</div>
@@ -433,7 +433,7 @@ defineComponent("${demo}-demo", {
                     ↑ 8.3%
                   </div>
                 </div>
-                
+
                 <!-- Conversion Card -->
                 <div style="background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                   <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Conversion Rate</div>
@@ -442,7 +442,7 @@ defineComponent("${demo}-demo", {
                     ↓ 2.1%
                   </div>
                 </div>
-                
+
                 <!-- Sessions Card -->
                 <div style="background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                   <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Sessions</div>
@@ -452,7 +452,7 @@ defineComponent("${demo}-demo", {
                   </div>
                 </div>
               </div>
-              
+
               <!-- Chart Section -->
               <div style="background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                 <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: #111827;">Revenue Trend</h3>
@@ -468,7 +468,7 @@ defineComponent("${demo}-demo", {
                   </div>
                 </div>
               </div>
-              
+
               <!-- Real-time Indicator -->
               <div style="margin-top: 1rem; text-align: center;">
                 <span style="display: inline-flex; align-items: center; gap: 0.5rem; color: #6b7280; font-size: 0.875rem;">
@@ -477,7 +477,7 @@ defineComponent("${demo}-demo", {
                 </span>
               </div>
             </div>
-            
+
             <style>
               @keyframes pulse {
                 0%, 100% { opacity: 1; }
@@ -639,7 +639,7 @@ defineComponent("${demo}-demo", {
               ${inputStyles.css}
               ${buttonStyles.css}
               ${alertStyles.css}
-              
+
               /* HTMX loading indicator */
               .htmx-indicator {
                 display: none;
@@ -647,30 +647,103 @@ defineComponent("${demo}-demo", {
               .htmx-request .htmx-indicator {
                 display: inline;
               }
+
+            <style>
+              /* Utility extensions for forms preview */
+              .row { display: flex; gap: 1rem; align-items: center; }
+              .align-end { align-items: end; }
+              .mt-1 { margin-top: 1rem; }
+              .mt-2 { margin-top: 2rem; }
+              .ml-1 { margin-left: 1rem; }
+              .inline-row { display: inline-flex; gap: 1rem; }
+              .text-center { text-align: center; }
+              .text-muted { color: var(--gray-600); }
+              .text-hero-muted { color: var(--gray-100); opacity: 0.8; }
+              .lead { margin-bottom: 1.5rem; opacity: 0.9; }
+              .card-hero { background: linear-gradient(135deg, var(--indigo-6) 0%, var(--purple-6) 100%); border-radius: 0.75rem; padding: 2rem; color: white; }
+              .badge { padding: 0.5rem 1rem; border-radius: 0.25rem; font-size: 0.875rem; color: white; }
+              .badge-success { background: var(--green-6); }
+              .badge-primary { background: var(--blue-6); }
+              .badge-purple { background: var(--purple-6); }
             </style>
-            <div style="width: 100%; background: white; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); overflow: hidden;">
-              <div class="panel-header" style="padding: 1rem 1.5rem; background: #f9fafb; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
-                <span class="panel-title" style="font-weight: 600; color: #374151; display: flex; align-items: center; gap: 0.5rem;">👁️ Live Form Components</span>
-                <div class="panel-actions" style="display: flex; gap: 0.5rem;">
-                  <button type="button" class="panel-action" onclick="viewFormsCode()" style="padding: 0.25rem 0.75rem; background: white; border: 1px solid #d1d5db; border-radius: 0.375rem; color: #6b7280; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease;">📝 View Code</button>
-                  <button type="button" class="panel-action" onclick="refreshPreview(this)" style="padding: 0.25rem 0.75rem; background: white; border: 1px solid #d1d5db; border-radius: 0.375rem; color: #6b7280; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease;">🔄 Refresh</button>
-                  <button type="button" class="panel-action" onclick="toggleFullscreen(this)" style="padding: 0.25rem 0.75rem; background: white; border: 1px solid #d1d5db; border-radius: 0.375rem; color: #6b7280; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease;">⛶ Fullscreen</button>
+
+              /* Preview panel utility classes */
+              .panel {
+                width: 100%;
+                background: white;
+                border-radius: 0.75rem;
+                box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+                overflow: hidden;
+              }
+              .panel-header {
+                padding: 1rem 1.5rem;
+                background: var(--gray-50);
+                border-bottom: 1px solid var(--gray-200);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              }
+              .panel-title {
+                font-weight: 600;
+                color: var(--gray-700);
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+              }
+              .panel-actions { display: flex; gap: 0.5rem; }
+              .panel-action {
+                padding: 0.25rem 0.75rem;
+                background: white;
+                border: 1px solid var(--gray-300);
+                border-radius: 0.375rem;
+                color: var(--gray-600);
+                font-size: 0.875rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+              }
+              .preview-content { padding: 2rem; min-height: 500px; }
+              .page-grid {
+                display: grid; gap: 2rem; max-width: 1200px; margin: 0 auto;
+              }
+              .card {
+                background: var(--gray-50);
+                border: 1px solid var(--gray-200);
+                border-radius: 0.75rem;
+                padding: 2rem;
+              }
+              .card-title {
+                font-size: 1.25rem;
+                font-weight: 600;
+                margin-bottom: 1rem;
+                color: var(--gray-900);
+              }
+              .result { margin-bottom: 1rem; }
+              .form-vertical { display: flex; flex-direction: column; gap: 1rem; }
+              .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+            </style>
+            <div class="panel">
+              <div class="panel-header">
+                <span class="panel-title">👁️ Live Form Components</span>
+                <div class="panel-actions">
+                  <button type="button" class="panel-action" onclick="viewFormsCode()">📝 View Code</button>
+                  <button type="button" class="panel-action" onclick="refreshPreview(this)">🔄 Refresh</button>
+                  <button type="button" class="panel-action" onclick="toggleFullscreen(this)">⛶ Fullscreen</button>
                 </div>
               </div>
-              
-              <div class="preview-content" style="padding: 2rem; min-height: 500px;">
-                <div style="display: grid; gap: 2rem; max-width: 1200px; margin: 0 auto;">
+
+              <div class="preview-content">
+                <div class="page-grid">
                   <!-- Registration Form -->
-                  <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 2rem;">
-                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: #111827;">User Registration</h3>
-                  <div id="registration-result" style="margin-bottom: 1rem;"></div>
-                  <form 
-                    hx-post="/api/forms/register" 
-                    hx-target="#registration-result" 
+                  <div class="card">
+                    <h3 class="card-title">User Registration</h3>
+                  <div id="registration-result" class="result"></div>
+                  <form
+                    hx-post="/api/forms/register"
+                    hx-target="#registration-result"
                     hx-indicator="#reg-spinner"
-                    style="display: flex; flex-direction: column; gap: 1rem;"
+                    class="form-vertical"
                   >
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="grid-2">
                       ${
             Input({
               type: "text",
@@ -716,7 +789,7 @@ defineComponent("${demo}-demo", {
               children: "All fields are validated in real-time",
             })
           }
-                    <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1rem;">
+                    <div class="row mt-1">
                       ${
             Button({
               type: "submit",
@@ -731,24 +804,24 @@ defineComponent("${demo}-demo", {
               children: "Cancel",
             })
           }
-                      <div id="reg-spinner" class="htmx-indicator" style="margin-left: 1rem;">
-                        <span style="color: #6b7280;">Processing...</span>
+                      <div id="reg-spinner" class="htmx-indicator ml-1">
+                        <span class="text-muted">Processing...</span>
                       </div>
                     </div>
                   </form>
                 </div>
-                
+
                   <!-- Contact Form -->
-                  <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 2rem;">
-                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: #111827;">Contact Us</h3>
-                  <div id="contact-result" style="margin-bottom: 1rem;"></div>
-                  <form 
-                    hx-post="/api/forms/contact" 
-                    hx-target="#contact-result" 
+                  <div class="card">
+                    <h3 class="card-title">Contact Us</h3>
+                  <div id="contact-result" class="result"></div>
+                  <form
+                    hx-post="/api/forms/contact"
+                    hx-target="#contact-result"
                     hx-indicator="#contact-spinner"
-                    style="display: flex; flex-direction: column; gap: 1rem;"
+                    class="form-vertical"
                   >
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="grid-2">
                       ${
             Input({
               type: "text",
@@ -794,22 +867,22 @@ defineComponent("${demo}-demo", {
             })
           }
                       <div id="contact-spinner" class="htmx-indicator">
-                        <span style="color: #6b7280;">Sending...</span>
+                        <span class="text-muted">Sending...</span>
                       </div>
                     </div>
                   </form>
                 </div>
-                
+
                   <!-- Newsletter Signup -->
-                  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 0.75rem; padding: 2rem; color: white;">
-                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Stay Updated</h3>
-                    <p style="margin-bottom: 1.5rem; opacity: 0.9;">Get the latest news and updates delivered to your inbox.</p>
-                  <div id="newsletter-result" style="margin-bottom: 1rem;"></div>
-                  <form 
-                    hx-post="/api/forms/newsletter" 
-                    hx-target="#newsletter-result" 
+                  <div class="card-hero">
+                    <h3 class="hero-title">Stay Updated</h3>
+                    <p class="lead">Get the latest news and updates delivered to your inbox.</p>
+                  <div id="newsletter-result" class="result"></div>
+                  <form
+                    hx-post="/api/forms/newsletter"
+                    hx-target="#newsletter-result"
                     hx-indicator="#newsletter-spinner"
-                    style="display: flex; gap: 1rem; align-items: end;"
+                    class="row align-end"
                   >
                     ${
             Input({
@@ -829,18 +902,18 @@ defineComponent("${demo}-demo", {
             })
           }
                       <div id="newsletter-spinner" class="htmx-indicator">
-                        <span style="color: #e2e8f0; opacity: 0.8;">Subscribing...</span>
+                        <span class="text-hero-muted">Subscribing...</span>
                       </div>
                       </div>
                     </form>
                   </div>
                 </div>
-                
-                <div style="text-align: center; margin-top: 2rem;">
-                  <div style="display: inline-flex; gap: 1rem;">
-                    <div style="padding: 0.5rem 1rem; background: #10b981; color: white; border-radius: 0.25rem; font-size: 0.875rem;">✅ Real Components</div>
-                    <div style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border-radius: 0.25rem; font-size: 0.875rem;">🎯 Live Validation</div>
-                    <div style="padding: 0.5rem 1rem; background: #8b5cf6; color: white; border-radius: 0.25rem; font-size: 0.875rem;">⚡ Zero Config</div>
+
+                <div class="text-center mt-2">
+                  <div class="inline-row">
+                    <div class="badge badge-success">✅ Real Components</div>
+                    <div class="badge badge-primary">🎯 Live Validation</div>
+                    <div class="badge badge-purple">⚡ Zero Config</div>
                   </div>
                 </div>
               </div>
@@ -988,7 +1061,7 @@ defineComponent("${demo}-demo", {
                 <span>🔍 Type check: <strong>✅ Passed</strong></span>
               </div>
             </div>
-            
+
             <div style="padding: 1.5rem; background: white; border: 1px solid #e5e7eb; border-radius: 0.5rem;">
               <h4 style="margin: 0 0 1rem 0; color: #374151; font-size: 1rem;">Live Component Output:</h4>
               <div style="padding: 1.5rem; background: #fafafa; border-radius: 0.375rem; border: 1px solid #e5e7eb;">
