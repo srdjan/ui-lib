@@ -13,7 +13,12 @@ export type InputType =
   | "url"
   | "textarea";
 
-export type InputVariant = "default" | "filled" | "flushed" | "unstyled";
+export type InputVariant =
+  | "default"
+  | "filled"
+  | "flushed"
+  | "unstyled"
+  | "compact";
 
 export interface InputProps extends BaseComponentProps {
   type?: InputType;
@@ -127,6 +132,19 @@ export function Input(props: InputProps): string {
       width: "100%",
     },
 
+    label: {
+      display: "block",
+      marginBottom: componentTokens.spacing[2],
+      fontSize: componentTokens.typography.sizes.sm,
+      fontWeight: componentTokens.typography.weights.medium,
+      color: componentTokens.colors.gray[700],
+    },
+
+    labelRequired: {
+      marginLeft: componentTokens.spacing[1],
+      color: componentTokens.colors.error[600],
+    },
+
     inputGroup: {
       display: "flex",
       alignItems: "stretch",
@@ -216,6 +234,28 @@ export function Input(props: InputProps): string {
         border: "none",
         borderRadius: 0,
         padding: 0,
+      }),
+
+      // Compact variant for denser forms
+      ...(variant === "compact" && {
+        backgroundColor: componentTokens.colors.gray[50],
+        borderColor: componentTokens.colors.gray[300],
+        // Size adjustments: step down one size where possible
+        ...(size === "lg" && {
+          height: componentTokens.component.input.height.md,
+          padding: componentTokens.component.input.padding.md,
+          fontSize: componentTokens.typography.sizes.sm,
+        }),
+        ...(size === "md" && {
+          height: componentTokens.component.input.height.sm,
+          padding: componentTokens.component.input.padding.sm,
+          fontSize: componentTokens.typography.sizes.sm,
+        }),
+        ...(size === "sm" && {
+          // sm is already smallest; nudge padding/font a bit tighter
+          padding: "0.375rem 0.5rem",
+          fontSize: componentTokens.typography.sizes.xs,
+        }),
       }),
 
       // States
@@ -421,8 +461,17 @@ export function Input(props: InputProps): string {
     ? `<div class="${styles.classMap.errorText}">⚠️ ${errorMessage}</div>`
     : "";
 
+  const labelElement = label
+    ? `<label for="${inputId}" class="${styles.classMap.label}">${label}${
+      required
+        ? `<span class="${styles.classMap.labelRequired}" aria-hidden="true">*</span>`
+        : ""
+    }</label>`
+    : "";
+
   return `
     <div class="${styles.classMap.wrapper}">
+      ${labelElement}
       <div class="${styles.classMap.inputGroup}">
         ${inputGroup}
       </div>

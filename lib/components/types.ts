@@ -22,7 +22,8 @@ export type ComponentVariant =
   | "filled"
   | "flushed"
   | "unstyled"
-  | "circular";
+  | "circular"
+  | "compact";
 
 export type ComponentState =
   | "default"
