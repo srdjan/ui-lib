@@ -45,7 +45,7 @@ const styles = css({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    borderBottom: "1px solid #e5e7eb",
+    borderBottom: "1px solid var(--gray-200)",
     paddingBottom: "1rem",
     marginBottom: "1rem",
   },

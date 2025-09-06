@@ -145,6 +145,11 @@ export function Input(props: InputProps): string {
       }),
     },
 
+    fieldWrapper: {
+      position: "relative",
+      flex: "1",
+    },
+
     input: {
       width: "100%",
       border: "1px solid",
@@ -384,7 +389,7 @@ export function Input(props: InputProps): string {
     `<div class="${styles.classMap.addon} ${styles.classMap.leftAddon}">${leftAddon}</div>`,
 
     // Input with icons
-    `<div style="position: relative; flex: 1;">
+    `<div class="${styles.classMap.fieldWrapper}">
       ${
       leftIcon && !leftAddon
         ? `<span class="${styles.classMap.icon} ${styles.classMap.leftIcon}">${leftIcon}</span>`

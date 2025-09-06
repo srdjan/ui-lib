@@ -29,26 +29,33 @@
       src="https://unpkg.com/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"
     ></script>
 
+    <!-- Open Props (design tokens) -->
+    <link rel="stylesheet" href="https://unpkg.com/open-props@1.6.21" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/open-props@1.6.21/normalize.min.css"
+    />
+
     <style>
       :root {
-        --primary: #2563eb;
-        --primary-dark: #1d4ed8;
-        --secondary: #0ea5e9;
-        --success: #10b981;
-        --warning: #f59e0b;
-        --danger: #ef4444;
-        --dark: #0f172a;
-        --light: #f8fafc;
-        --gray-50: #f9fafb;
-        --gray-100: #f3f4f6;
-        --gray-200: #e5e7eb;
-        --gray-300: #d1d5db;
-        --gray-400: #9ca3af;
-        --gray-500: #6b7280;
-        --gray-600: #4b5563;
-        --gray-700: #374151;
-        --gray-800: #1f2937;
-        --gray-900: #111827;
+        --primary: var(--blue-6);
+        --primary-dark: var(--blue-7);
+        --secondary: var(--cyan-6);
+        --success: var(--green-6);
+        --warning: var(--yellow-6);
+        --danger: var(--red-6);
+        --dark: var(--gray-10);
+        --light: var(--gray-0);
+        --gray-50: var(--gray-0);
+        --gray-100: var(--gray-1);
+        --gray-200: var(--gray-2);
+        --gray-300: var(--gray-3);
+        --gray-400: var(--gray-5);
+        --gray-500: var(--gray-6);
+        --gray-600: var(--gray-7);
+        --gray-700: var(--gray-8);
+        --gray-800: var(--gray-9);
+        --gray-900: var(--gray-10);
 
         /* Spacing */
         --space-xs: 0.25rem;
@@ -68,12 +75,12 @@
         --radius-full: 9999px;
 
         /* Shadows */
-        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-        --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-        --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
-        --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+        --shadow-sm: var(--shadow-1);
+        --shadow: var(--shadow-2);
+        --shadow-md: var(--shadow-3);
+        --shadow-lg: var(--shadow-4);
+        --shadow-xl: var(--shadow-5);
+        --shadow-2xl: var(--shadow-6);
       }
 
       * {
@@ -346,8 +353,8 @@
         font-size: 0.9rem;
         line-height: 1.5;
         overflow-x: auto;
-        background: #2d2d2d;
-        color: #f8f8f2;
+        background: var(--gray-10);
+        color: var(--gray-0);
       }
 
       .preview-content {
@@ -448,8 +455,8 @@
         font-size: 0.9rem;
         line-height: 1.5;
         resize: none;
-        background: #2d2d2d;
-        color: #f8f8f2;
+        background: var(--gray-10);
+        color: var(--gray-0);
       }
 
       .run-button {
@@ -527,7 +534,7 @@
         position: fixed;
         bottom: 2rem;
         right: 2rem;
-        background: linear-gradient(135deg, #2563eb, #0ea5e9);
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
         color: white;
         border: none;
         border-radius: 50px;
@@ -647,6 +654,92 @@
       .cart-checkout-btn:hover {
         transform: translateY(-1px);
         box-shadow: var(--shadow-md);
+      }
+
+      /* Modal styles and utilities */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-content {
+        background: white;
+        border-radius: var(--radius-xl);
+        width: 90%;
+        max-width: 1000px;
+        max-height: 85vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: var(--shadow-2xl);
+        animation: slideUp 0.3s ease;
+      }
+      .modal-header {
+        padding: var(--space-lg);
+        background: var(--gray-50);
+        border-bottom: 1px solid var(--gray-200);
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .modal-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--gray-900);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .modal-close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--gray-500);
+        cursor: pointer;
+        padding: 0.25rem;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+      }
+      .modal-close-btn:hover {
+        background: var(--gray-200);
+        color: var(--gray-700);
+      }
+      .modal-body {
+        flex: 1;
+        overflow: auto;
+        padding: 0;
+      }
+      .modal-footer {
+        padding: 1rem;
+        background: var(--gray-50);
+        border-top: 1px solid var(--gray-200);
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+      }
+      .btn {
+        padding: 0.5rem 1rem;
+        background: white;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+      }
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+        border: none;
+      }
+      .muted-center {
+        padding: 2rem;
+        text-align: center;
+        color: var(--gray-500);
       }
     </style>
   </head>
@@ -825,7 +918,7 @@
       </div>
 
       <div class="cart-items">
-        <div style="padding: 2rem; text-align: center; color: #6b7280">
+        <div class="muted-center">
           Your cart is empty
         </div>
       </div>
@@ -851,24 +944,23 @@
 
     <div
       id="demo-modal"
-      style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center"
+      class="modal-overlay"
     >
       <div
-        style="background: white; border-radius: 1rem; width: 90%; max-width: 500px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+        class="modal-content"
       >
         <div
-          style="padding: 1.5rem; background: #f9fafb; border-bottom: 1px solid #e5e7eb; border-radius: 1rem 1rem 0 0; display: flex; justify-content: space-between; align-items: center"
+          class="modal-header"
         >
-          <span style="font-size: 1.25rem; font-weight: 700; color: #111827"
-          >Modal Example</span>
+          <span class="modal-title">Modal Example</span>
           <button
             onclick="document.getElementById('demo-modal').style.display='none'"
-            style="background: none; border: none; font-size: 1.5rem; color: #6b7280; cursor: pointer; padding: 0.25rem"
+            class="modal-close-btn"
           >
             ✕
           </button>
         </div>
-        <div style="padding: 1.5rem">
+        <div class="modal-body">
           <p>
             This is a modal dialog. You can put any content here, like a form,
             some text, or even other components.
@@ -968,27 +1060,27 @@
               Loading preview...
             </div>
           </div>
-          
+
           <!-- Code Modal -->
-          <div id="${modalId}" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center;">
-            <div style="background: white; border-radius: 1rem; width: 90%; max-width: 1000px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: slideUp 0.3s ease;">
-              <div style="padding: 1.5rem; background: #f9fafb; border-bottom: 1px solid #e5e7eb; border-radius: 1rem 1rem 0 0; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 1.25rem; font-weight: 700; color: #111827; display: flex; align-items: center; gap: 0.5rem;">📝 ui-lib Code</span>
-                <button onclick="document.getElementById('${modalId}').style.display='none'" style="background: none; border: none; font-size: 1.5rem; color: #6b7280; cursor: pointer; padding: 0.25rem;">✕</button>
+          <div id="${modalId}" class="modal-overlay">
+            <div class="modal-content">
+              <div class="modal-header">
+                <span class="modal-title">📝 ui-lib Code</span>
+                <button onclick="document.getElementById('${modalId}').style.display='none'" class="modal-close-btn">✕</button>
               </div>
-              <div style="flex: 1; overflow: auto; padding: 0;">
-                <pre style="margin: 0; padding: 1.5rem; background: #1e293b; color: #e2e8f0; font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 0.9rem; line-height: 1.6; overflow: auto; border-radius: 0;">
+              <div class="modal-body">
+                <pre class="code-content">
                   <code id="code-${demoName}" hx-get="/api/showcase/code/${demoName}" hx-trigger="load">Loading code example...</code>
                 </pre>
               </div>
-              <div style="padding: 1rem; background: #f9fafb; border-top: 1px solid #e5e7eb; display: flex; gap: 1rem; justify-content: flex-end;">
-                <button onclick="copyCode(this)" style="padding: 0.5rem 1rem; background: white; border: 1px solid #e5e7eb; border-radius: 0.375rem; cursor: pointer;">📋 Copy Code</button>
-                <button onclick="document.getElementById('${modalId}').style.display='none'" style="padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 0.375rem; cursor: pointer;">Close</button>
+              <div class="modal-footer">
+                <button onclick="copyCode(this)" class="btn">📋 Copy Code</button>
+                <button onclick="document.getElementById('${modalId}').style.display='none'" class="btn btn-primary">Close</button>
               </div>
             </div>
           </div>
         </div>
-        
+
         <style>
           @keyframes slideUp {
             from { transform: translateY(20px); opacity: 0; }
@@ -1137,14 +1229,14 @@
         } else {
           // Create modal if it doesn't exist
           const modalHTML = `
-            <div id="forms-code-modal" style="display: flex; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center;">
-              <div style="background: white; border-radius: 1rem; width: 90%; max-width: 1000px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
-                <div style="padding: 1.5rem; background: #f9fafb; border-bottom: 1px solid #e5e7eb; border-radius: 1rem 1rem 0 0; display: flex; justify-content: space-between; align-items: center;">
-                  <h3 style="font-size: 1.25rem; font-weight: 700; color: #111827; display: flex; align-items: center; gap: 0.5rem;">📝 Forms Code</h3>
-                  <button onclick="document.getElementById('forms-code-modal').style.display='none'" style="background: none; border: none; font-size: 1.5rem; color: #6b7280; cursor: pointer; padding: 0.25rem;">✕</button>
+            <div id="forms-code-modal" class="modal-overlay">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h3 class="modal-title">📝 Forms Code</h3>
+                  <button onclick="document.getElementById('forms-code-modal').style.display='none'" class="modal-close-btn">✕</button>
                 </div>
-                <div style="flex: 1; overflow: auto; padding: 0;">
-                  <pre style="margin: 0; padding: 1.5rem; font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 0.9rem; line-height: 1.6; background: #1e293b; color: #e2e8f0; overflow-x: auto; min-height: 400px;"><code>// Real Form Components with Validation
+                <div class="modal-body">
+                  <pre class="code-content"><code>// Real Form Components with Validation
 
 import { Form, Input, Button, Alert } from "ui-lib";
 
@@ -1153,21 +1245,21 @@ const registrationForm = (
   &lt;form hx-post="/api/forms/register" hx-target="#result"&gt;
     {Input({
       type: "text",
-      name: "firstName", 
+      name: "firstName",
       label: "First Name",
       placeholder: "John",
       required: true
     })}
-    
+
     {Input({
       type: "email",
       name: "email",
-      label: "Email Address", 
+      label: "Email Address",
       placeholder: "john@example.com",
       required: true,
       helpText: "We'll never share your email"
     })}
-    
+
     {Input({
       type: "password",
       name: "password",
@@ -1175,12 +1267,12 @@ const registrationForm = (
       required: true,
       helpText: "At least 8 characters"
     })}
-    
+
     {Alert({
       variant: "info",
       children: "All fields are validated in real-time"
     })}
-    
+
     {Button({
       type: "submit",
       variant: "primary",
@@ -1198,14 +1290,14 @@ const contactForm = (
       label: "Full Name",
       required: true
     })}
-    
+
     {Input({
-      type: "email", 
+      type: "email",
       name: "email",
       label: "Email",
       required: true
     })}
-    
+
     {Input({
       type: "textarea",
       name: "message",
@@ -1214,11 +1306,11 @@ const contactForm = (
       rows: 4,
       required: true
     })}
-    
+
     {Button({
       type: "submit",
       variant: "primary",
-      size: "lg", 
+      size: "lg",
       children: "Send Message"
     })}
   &lt;/form&gt;
@@ -1229,11 +1321,11 @@ const newsletterForm = (
   &lt;form hx-post="/api/forms/newsletter"&gt;
     {Input({
       type: "email",
-      name: "email", 
+      name: "email",
       placeholder: "Enter your email",
       leftAddon: "📧"
     })}
-    
+
     {Button({
       type: "submit",
       variant: "secondary",
@@ -1246,20 +1338,20 @@ const newsletterForm = (
 router.register("POST", "/api/forms/register", async (request) => {
   const formData = await request.formData();
   const { firstName, lastName, email, password } = Object.fromEntries(formData);
-  
+
   // Real-time validation
   if (!email.includes("@")) {
     return new Response(\`
       &lt;div class="error-alert"&gt;❌ Please enter a valid email&lt;/div&gt;
     \`);
   }
-  
+
   if (password.length &lt; 8) {
     return new Response(\`
       &lt;div class="error-alert"&gt;❌ Password must be at least 8 characters&lt;/div&gt;
     \`);
   }
-  
+
   // Success response
   return new Response(\`
     &lt;div class="success-alert"&gt;✅ Account created successfully!&lt;/div&gt;

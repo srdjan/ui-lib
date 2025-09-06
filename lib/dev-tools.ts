@@ -231,7 +231,7 @@ class DevToolsState {
           const components = document.querySelectorAll(\`[data-component="\${componentName}"]\`);
           components.forEach(el => {
             el.setAttribute('data-ui-lib-highlight', '');
-            el.style.outline = '2px solid #ff6b6b';
+            el.style.outline = '2px solid var(--danger)';
           });
         },
         clearHighlights: () => {

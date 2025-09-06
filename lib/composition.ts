@@ -193,14 +193,14 @@ export function Card(props: CardProps): string {
       borderRadius: typeof radius === "number" ? `${radius}px` : radius,
       padding: typeof padding === "number" ? `${padding}px` : padding,
       ...(variant === "elevated" && {
-        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+        boxShadow: "var(--shadow-md)",
       }),
       ...(variant === "outlined" && {
-        border: "1px solid #e5e7eb",
+        border: "1px solid var(--gray-200)",
       }),
       ...(variant === "filled" && {
-        background: "#f9fafb",
-        border: "1px solid #f3f4f6",
+        background: "var(--gray-50)",
+        border: "1px solid var(--gray-100)",
       }),
     },
     header: {
@@ -208,14 +208,14 @@ export function Card(props: CardProps): string {
       fontSize: "1.125rem",
       marginBottom: "1rem",
       paddingBottom: "0.5rem",
-      borderBottom: "1px solid #e5e7eb",
+      borderBottom: "1px solid var(--gray-200)",
     },
     footer: {
       marginTop: "1rem",
       paddingTop: "0.5rem",
-      borderTop: "1px solid #e5e7eb",
+      borderTop: "1px solid var(--gray-200)",
       fontSize: "0.875rem",
-      color: "#6b7280",
+      color: "var(--gray-500)",
     },
   });
 
@@ -248,7 +248,7 @@ export function Navigation(props: NavigationProps): string {
       display: "flex",
       flexDirection: orientation === "vertical" ? "column" : "row",
       ...(variant === "tabs" && {
-        borderBottom: "1px solid #e5e7eb",
+        borderBottom: "1px solid var(--gray-200)",
         gap: 0,
       }),
       ...(variant === "pills" && {
@@ -266,30 +266,30 @@ export function Navigation(props: NavigationProps): string {
     item: {
       padding: "0.5rem 1rem",
       textDecoration: "none",
-      color: "#6b7280",
+      color: "var(--gray-500)",
       cursor: "pointer",
       transition: "all 0.2s ease",
 
       ...(variant === "tabs" && {
         borderBottom: "2px solid transparent",
         "&:hover": {
-          color: "#374151",
-          borderBottom: "2px solid #d1d5db",
+          color: "var(--gray-700)",
+          borderBottom: "2px solid var(--gray-300)",
         },
         "&[data-active]": {
-          color: "#2563eb",
-          borderBottom: "2px solid #2563eb",
+          color: "var(--primary)",
+          borderBottom: "2px solid var(--primary)",
         },
       }),
 
       ...(variant === "pills" && {
         borderRadius: "0.375rem",
         "&:hover": {
-          background: "#f3f4f6",
-          color: "#374151",
+          background: "var(--gray-100)",
+          color: "var(--gray-700)",
         },
         "&[data-active]": {
-          background: "#2563eb",
+          background: "var(--primary)",
           color: "white",
         },
       }),
@@ -299,7 +299,7 @@ export function Navigation(props: NavigationProps): string {
         "&:not(:last-child):after": {
           content: '"/"',
           marginLeft: "0.5rem",
-          color: "#9ca3af",
+          color: "var(--gray-400)",
         },
       }),
 
@@ -308,12 +308,12 @@ export function Navigation(props: NavigationProps): string {
         width: "100%",
         textAlign: "left",
         "&:hover": {
-          background: "#f3f4f6",
-          color: "#374151",
+          background: "var(--gray-100)",
+          color: "var(--gray-700)",
         },
         "&[data-active]": {
-          background: "#dbeafe",
-          color: "#1d4ed8",
+          background: "var(--gray-100)",
+          color: "var(--primary)",
         },
       }),
 
@@ -327,7 +327,7 @@ export function Navigation(props: NavigationProps): string {
       display: "inline-block",
       marginLeft: "0.5rem",
       padding: "0.125rem 0.5rem",
-      background: "#ef4444",
+      background: "var(--danger)",
       color: "white",
       borderRadius: "999px",
       fontSize: "0.75rem",
@@ -392,70 +392,70 @@ export function Form(props: FormProps): string {
     label: {
       fontSize: "0.875rem",
       fontWeight: 500,
-      color: "#374151",
+      color: "var(--gray-700)",
     },
     input: {
       padding: "0.5rem 0.75rem",
-      border: "1px solid #d1d5db",
+      border: "1px solid var(--gray-300)",
       borderRadius: "0.375rem",
       fontSize: "0.875rem",
       background: "white",
-      color: "#374151",
+      color: "var(--gray-700)",
       cursor: "text",
       transition:
         "border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out",
       "&:focus": {
         outline: "none",
-        borderColor: "#2563eb",
+        borderColor: "var(--primary)",
         boxShadow: "0 0 0 3px rgba(37, 99, 235, 0.1)",
       },
       "&:hover": {
-        borderColor: "#9ca3af",
+        borderColor: "var(--gray-400)",
       },
       "&:disabled": {
-        background: "#f9fafb",
+        background: "var(--gray-50)",
         cursor: "not-allowed",
-        color: "#9ca3af",
+        color: "var(--gray-400)",
       },
     },
     textarea: {
       padding: "0.5rem 0.75rem",
-      border: "1px solid #d1d5db",
+      border: "1px solid var(--gray-300)",
       borderRadius: "0.375rem",
       fontSize: "0.875rem",
       minHeight: "4rem",
       resize: "vertical",
       background: "white",
-      color: "#374151",
+      color: "var(--gray-700)",
       cursor: "text",
       transition:
         "border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out",
       "&:focus": {
         outline: "none",
-        borderColor: "#2563eb",
+        borderColor: "var(--primary)",
         boxShadow: "0 0 0 3px rgba(37, 99, 235, 0.1)",
       },
       "&:hover": {
-        borderColor: "#9ca3af",
+        borderColor: "var(--gray-400)",
       },
     },
     select: {
       padding: "0.5rem 0.75rem",
-      border: "1px solid #d1d5db",
+      border: "1px solid var(--gray-300)",
       borderRadius: "0.375rem",
       fontSize: "0.875rem",
       background: "white",
-      color: "#374151",
+      color: "var(--gray-700)",
       cursor: "pointer",
       transition:
         "border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out",
       "&:focus": {
         outline: "none",
-        borderColor: "#2563eb",
+        borderColor: "var(--primary)",
         boxShadow: "0 0 0 3px rgba(37, 99, 235, 0.1)",
       },
       "&:hover": {
-        borderColor: "#9ca3af",
+        borderColor: "var(--gray-400)",
       },
     },
     checkboxWrapper: {
@@ -481,19 +481,19 @@ export function Form(props: FormProps): string {
       transition: "all 0.2s ease",
     },
     submitButton: {
-      background: "#2563eb",
+      background: "var(--primary)",
       color: "white",
       border: "none",
       "&:hover": {
-        background: "#1d4ed8",
+        background: "var(--primary-dark)",
       },
     },
     resetButton: {
       background: "white",
-      color: "#374151",
-      border: "1px solid #d1d5db",
+      color: "var(--gray-700)",
+      border: "1px solid var(--gray-300)",
       "&:hover": {
-        background: "#f9fafb",
+        background: "var(--gray-50)",
       },
     },
   });
