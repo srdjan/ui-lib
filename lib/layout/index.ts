@@ -11,7 +11,7 @@ export type {
 } from "./layout-types.ts";
 
 // Export layout components
-export { AppLayout } from "./app-layout.tsx";
+export { AppLayout } from "../components/app-layout.tsx";
 export { Navbar } from "./navbar.tsx";
 export { NavItem } from "./navitem.tsx";
 export { MainContent } from "./main-content.tsx";
@@ -19,7 +19,7 @@ export { Sidebar } from "./sidebar.tsx";
 export { Modal } from "./modal.tsx";
 
 // Auto-register all layout components when imported
-import "./app-layout.tsx";
+import "../components/app-layout.tsx";
 import "./navbar.tsx";
 import "./navitem.tsx";
 import "./main-content.tsx";

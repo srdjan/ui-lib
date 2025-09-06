@@ -1,7 +1,6 @@
 /** @jsx h */
 // ui-lib App Layout Component - Root layout container with child content support
 import { boolean, defineComponent, h, string } from "../../index.ts";
-import type { AppLayoutProps } from "./layout-types.ts";
 
 /**
  * 🎯 App Layout Component - Composable Root Layout Container
