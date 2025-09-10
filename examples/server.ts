@@ -9,6 +9,7 @@ import "./showcase/product-catalog.tsx";
 import "./showcase/components/index.ts";
 
 import "./showcase/forms-preview.tsx";
+import "./showcase/components/forms-demo.tsx";
 import "./showcase/dashboard-preview.tsx";
 import "./showcase/generic-demo-preview.tsx";
 import "./showcase/playground-output.tsx";
@@ -422,8 +423,8 @@ defineComponent("${demo}-demo", {
         }
 
         if (demo === "forms") {
-          // SSR-first: render dedicated TSX component
-          return new Response(renderComponent("forms-preview", {}), {
+          // SSR-first: render dedicated TSX component with improved styling
+          return new Response(renderComponent("showcase-forms-demo", {}), {
             headers: { "Content-Type": "text/html" },
           });
         }

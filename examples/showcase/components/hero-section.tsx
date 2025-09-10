@@ -14,10 +14,10 @@ defineComponent("showcase-hero-section", {
     const showStats = props?.showStats !== "false";
 
     return (
-      <section class={showcaseClasses.showcaseHero}>
-        <div class={showcaseClasses.showcaseHeroContent}>
-          <h1 class={showcaseClasses.showcaseHeroTitle}>{title}</h1>
-          <p class={showcaseClasses.showcaseHeroSubtitle}>
+      <section class="showcase-hero">
+        <div class="showcase-hero-content">
+          <h1 class="showcase-hero-title">{title}</h1>
+          <p class="showcase-hero-subtitle">
             {subtitle}
           </p>
           {showStats && <showcase-hero-stats></showcase-hero-stats>}
@@ -35,22 +35,22 @@ defineComponent("showcase-hero-stats", {
   render: () => {
     return (
       <div
-        class={showcaseClasses.showcaseGrid}
+        class="showcase-grid"
         style="max-width: 800px; margin: 0 auto;"
       >
         <div style="text-align: center;">
-          <span class={showcaseClasses.showcaseStatValue}>0kb</span>
-          <span class={showcaseClasses.showcaseStatLabel}>
+          <span class="showcase-stat-value">0kb</span>
+          <span class="showcase-stat-label">
             Runtime Overhead
           </span>
         </div>
         <div style="text-align: center;">
-          <span class={showcaseClasses.showcaseStatValue}>100%</span>
-          <span class={showcaseClasses.showcaseStatLabel}>Type Safe</span>
+          <span class="showcase-stat-value">100%</span>
+          <span class="showcase-stat-label">Type Safe</span>
         </div>
         <div style="text-align: center;">
-          <span class={showcaseClasses.showcaseStatValue}>47+</span>
-          <span class={showcaseClasses.showcaseStatLabel}>Components</span>
+          <span class="showcase-stat-value">47+</span>
+          <span class="showcase-stat-label">Components</span>
         </div>
       </div>
     );
