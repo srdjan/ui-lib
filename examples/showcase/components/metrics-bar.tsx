@@ -1,6 +1,6 @@
 /** @jsx h */
 import { defineComponent, h, object } from "../../../index.ts";
-import { showcaseClasses } from "../../../lib/utilities/showcase-utilities.ts";
+import { showcaseClasses } from "../utilities/showcase-utilities.ts";
 
 /**
  * Metrics Bar Component

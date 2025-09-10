@@ -1,7 +1,7 @@
 // Showcase-specific utility classes using Open Props
 // Higher-level semantic patterns for the showcase pages
 
-import { css } from "../css-in-ts.ts";
+import { css } from "../../../lib/css-in-ts.ts";
 
 /**
  * Showcase utility classes that leverage Open Props design tokens

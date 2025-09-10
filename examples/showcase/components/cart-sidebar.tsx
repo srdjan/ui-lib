@@ -1,6 +1,6 @@
 /** @jsx h */
 import { boolean, defineComponent, h, number, string } from "../../../index.ts";
-import { showcaseClasses } from "../../../lib/utilities/showcase-utilities.ts";
+import { showcaseClasses } from "../utilities/showcase-utilities.ts";
 
 /**
  * Shopping Cart Sidebar Component

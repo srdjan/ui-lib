@@ -9,4 +9,4 @@ export * from "./cart-sidebar.tsx";
 export * from "./footer.tsx";
 
 // Export utilities as well
-export { showcaseClasses, showcaseStyles } from "../../../lib/utilities/showcase-utilities.ts";
+export { showcaseClasses, showcaseStyles } from "../utilities/showcase-utilities.ts";
