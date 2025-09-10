@@ -79,11 +79,45 @@
       /* Modal visibility - ensure modals are hidden by default */
       .modal-overlay {
         display: none !important;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
       }
 
-      .modal-overlay.open {
-        display: flex !important;
+      .modal-overlay.open { display: flex !important; }
+
+      /* Minimal modal shell for inline examples */
+      .modal-content {
+        background: var(--surface-1);
+        border-radius: var(--radius-3);
+        width: 90%;
+        max-width: 1000px;
+        max-height: 85vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: var(--shadow-6);
+        animation: var(--animation-slide-in-up);
       }
+      .modal-header {
+        padding: var(--size-fluid-2);
+        background: var(--surface-2);
+        border-bottom: 1px solid var(--surface-3);
+        border-radius: var(--radius-3) var(--radius-3) 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .modal-title { font-size: var(--font-size-3); font-weight: var(--font-weight-7); }
+      .modal-body { flex: 1; overflow: auto; padding: 0; }
+      .modal-footer { padding: var(--size-3); background: var(--surface-2); border-top: 1px solid var(--surface-3); display: flex; gap: var(--size-3); justify-content: flex-end; }
+      .modal-close-btn { background: none; border: none; font-size: var(--font-size-4); cursor: pointer; color: var(--text-2); }
+      .btn { padding: var(--size-2) var(--size-4); background: var(--surface-1); border: 1px solid var(--surface-3); border-radius: var(--radius-2); cursor: pointer; font-size: var(--font-size-1); font-weight: var(--font-weight-5); }
+      .btn:hover { background: var(--surface-2); }
+      .btn-primary { background: var(--gradient-3); color: var(--gray-0); border: none; }
+      .code-content { padding: var(--size-fluid-2); background: var(--gray-11); color: var(--gray-0); font-family: var(--font-mono); font-size: var(--font-size-0); line-height: var(--font-lineheight-3); }
 
       /* Demo content should not display raw text */
       #demo-content {
@@ -92,62 +126,6 @@
 
       /* Showcase utility styles will be injected here by components */
     </style>
-    
-    <script>
-      // Inject showcase utility styles
-      document.addEventListener('DOMContentLoaded', function() {
-        // Manually inject showcase utility styles since they're not automatically included
-        const showcaseStyles = `
-          .showcase-hero { background: var(--gradient-19); color: var(--gray-0); padding: var(--size-fluid-6) var(--size-fluid-3); text-align: center; position: relative; overflow: hidden; min-height: 50vh; display: flex; align-items: center; justify-content: center; }
-          .showcase-hero-content { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; }
-          .showcase-hero-title { font-size: var(--font-size-fluid-3); font-weight: var(--font-weight-9); line-height: var(--font-lineheight-0); margin-bottom: var(--size-fluid-2); background: linear-gradient(to right, var(--gray-0), var(--gray-2)); background-clip: text; color: transparent; }
-          .showcase-hero-subtitle { font-size: var(--font-size-fluid-1); font-weight: var(--font-weight-3); margin-bottom: var(--size-fluid-4); opacity: 0.95; color: var(--gray-1); }
-          .showcase-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--size-fluid-3); }
-          .showcase-feature-card { background: var(--surface-1); border-radius: var(--radius-3); padding: var(--size-fluid-3); box-shadow: var(--shadow-3); transition: all var(--animation-fade-in); cursor: pointer; position: relative; overflow: hidden; }
-          .showcase-feature-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--gradient-3); transform: scaleX(0); transition: transform var(--animation-fade-in); }
-          .showcase-feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-5); }
-          .showcase-feature-card:hover::before { transform: scaleX(1); }
-          .showcase-feature-icon { font-size: 2.5rem; margin-bottom: var(--size-3); display: inline-block; }
-          .showcase-card-title { font-size: var(--font-size-4); font-weight: var(--font-weight-7); color: var(--text-1); margin-bottom: var(--size-2); }
-          .showcase-card-description { color: var(--text-2); line-height: var(--font-lineheight-3); margin-bottom: var(--size-fluid-2); }
-          .showcase-feature-stats { display: flex; gap: var(--size-fluid-2); padding-top: var(--size-3); border-top: 1px solid var(--surface-2); }
-          .showcase-stat-value { font-size: var(--font-size-4); font-weight: var(--font-weight-7); color: var(--blue-6); display: block; }
-          .showcase-stat-label { font-size: var(--font-size-0); color: var(--text-2); }
-          .showcase-metrics-bar { background: var(--gradient-8); color: var(--gray-0); padding: var(--size-fluid-2) var(--size-fluid-3); position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-4); }
-          .showcase-metrics-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-around; gap: var(--size-fluid-3); flex-wrap: wrap; }
-          .showcase-metric { display: flex; align-items: center; gap: var(--size-2); }
-          .showcase-metric-label { font-size: var(--font-size-0); opacity: 0.7; }
-          .showcase-metric-value { font-size: var(--font-size-3); font-weight: var(--font-weight-7); color: var(--green-3); }
-          .showcase-section { max-width: 1400px; margin: 0 auto; padding: var(--size-fluid-6) var(--size-fluid-3); }
-          .showcase-demo-tabs { display: flex; gap: var(--size-2); margin-bottom: var(--size-fluid-3); border-bottom: 2px solid var(--gray-2); overflow-x: auto; padding: 0; }
-          .showcase-demo-tab { padding: var(--size-3) var(--size-fluid-2); background: none; border: none; color: var(--gray-6); font-size: var(--font-size-1); font-weight: var(--font-weight-5); cursor: pointer; position: relative; white-space: nowrap; transition: all 0.2s ease; border-radius: var(--radius-2) var(--radius-2) 0 0; margin-bottom: -2px; }
-          .showcase-demo-tab:hover { color: var(--gray-9); background: var(--gray-1); }
-          .showcase-demo-tab.active { color: var(--blue-6); background: white; border: 1px solid var(--gray-2); border-bottom: 1px solid white; }
-          .showcase-demo-tab.active::after { content: ""; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px; background: var(--blue-6); }
-          .showcase-demo-content { min-height: 500px; width: 100%; }
-          .showcase-footer { background: var(--gray-11); color: var(--gray-0); padding: var(--size-fluid-4) var(--size-fluid-3); text-align: center; margin-top: var(--size-fluid-6); }
-          .showcase-footer-links { display: flex; justify-content: center; gap: var(--size-fluid-3); margin-bottom: var(--size-fluid-2); }
-          .showcase-footer-link { color: var(--gray-5); text-decoration: none; transition: color var(--animation-fade-in); }
-          .showcase-footer-link:hover { color: var(--gray-0); }
-          .showcase-cart-sidebar { position: fixed; top: 0; right: -400px; width: 400px; height: 100vh; background: var(--surface-1); box-shadow: var(--shadow-5); display: flex; flex-direction: column; z-index: 1001; transition: right var(--animation-slide-out-right); }
-          .showcase-cart-sidebar.open { right: 0; }
-          .showcase-floating-button { position: fixed; bottom: var(--size-8); right: var(--size-8); background: var(--gradient-3); color: var(--gray-0); border: none; border-radius: var(--radius-round); padding: var(--size-3) var(--size-4); font-size: var(--font-size-1); font-weight: var(--font-weight-6); cursor: pointer; box-shadow: var(--shadow-4); transition: all var(--animation-fade-in); z-index: 1000; display: flex; align-items: center; gap: var(--size-2); }
-          .showcase-floating-button:hover { transform: translateY(-2px); box-shadow: var(--shadow-5); }
-          .showcase-cart-header { padding: var(--size-fluid-3); background: var(--surface-2); border-bottom: 1px solid var(--surface-3); display: flex; justify-content: space-between; align-items: center; }
-          .showcase-cart-items { flex: 1; overflow-y: auto; padding: var(--size-3); }
-          .showcase-cart-footer { padding: var(--size-fluid-3); background: var(--surface-2); border-top: 1px solid var(--surface-3); }
-          .showcase-muted-text { padding: var(--size-8); text-align: center; color: var(--text-2); }
-          .showcase-button { padding: var(--size-2) var(--size-4); background: var(--surface-1); border: 1px solid var(--surface-3); border-radius: var(--radius-2); cursor: pointer; font-size: var(--font-size-1); font-weight: var(--font-weight-5); transition: all var(--animation-fade-in); }
-          .showcase-button:hover { background: var(--surface-2); }
-          .showcase-button-primary { background: var(--gradient-3); color: var(--gray-0); border: none; }
-          .showcase-button-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-3); }
-        `;
-        
-        const styleSheet = document.createElement('style');
-        styleSheet.textContent = showcaseStyles;
-        document.head.appendChild(styleSheet);
-      });
-    </script>
   </head>
   <body hx-ext="json-enc">
     <!-- Hero Section -->

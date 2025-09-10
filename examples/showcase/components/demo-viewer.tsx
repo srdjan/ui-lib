@@ -14,7 +14,6 @@ defineComponent("showcase-demo-viewer", {
       { id: "ecommerce", label: "E-commerce", icon: "🏪" },
       { id: "dashboard", label: "Dashboard", icon: "📊" },
       { id: "forms", label: "Forms", icon: "📝" },
-      { id: "components", label: "Components", icon: "🧩" },
       { id: "playground", label: "Playground", icon: "🚀" },
     ];
 
@@ -37,12 +36,12 @@ defineComponent("showcase-demo-viewer", {
           </p>
         </div>
 
-        <div class="showcase-demo-tabs">
+        <div class={`${showcaseClasses.showcaseDemoTabs} showcase-demo-tabs`}>
           {tabs.map((tab: any) => {
             const isActive = tab.id === activeDemo;
             const tabClass = isActive
-              ? `showcase-demo-tab active`
-              : `showcase-demo-tab`;
+              ? `${showcaseClasses.showcaseDemoTab} showcase-demo-tab active`
+              : `${showcaseClasses.showcaseDemoTab} showcase-demo-tab`;
             const clickHandler = tab.id === "playground"
               ? `loadPlayground()`
               : `loadDemo('${tab.id}')`;
@@ -59,10 +58,7 @@ defineComponent("showcase-demo-viewer", {
           })}
         </div>
 
-        <div
-          class="showcase-demo-content"
-          id="demo-content"
-        >
+        <div class={`${showcaseClasses.showcaseDemoContent} showcase-demo-content`} id="demo-content">
           {/* Content will be loaded dynamically via HTMX */}
         </div>
       </section>

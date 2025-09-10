@@ -1,12 +1,12 @@
 // Revolutionary Showcase Server for ui-lib
 import { injectStateManager, renderComponent } from "../index.ts";
+import { getRegistry } from "../lib/registry.ts";
 import { runWithRequestHeadersAsync } from "../lib/request-headers.ts";
 import { router } from "./router.ts";
 
 // Import showcase components
-import "./showcase/components.tsx";
 import "./showcase/product-catalog.tsx";
-import "./showcase/components/index.ts";
+import { showcaseStyles } from "./showcase/components/index.ts";
 
 // Import layout components
 import "../lib/layout/index.ts"; // This auto-registers all layout components including app-layout
@@ -14,9 +14,7 @@ import "../lib/layout/index.ts"; // This auto-registers all layout components in
 // Import library components for use in demos
 import "../lib/components/index.ts"; // Import Button, Input, Alert, etc.
 
-// import "./showcase/forms-preview.tsx"; // Temporarily disabled due to JSX parsing issue
-import "./showcase/components/forms-demo-fixed.tsx"; // Fixed version with proper JSX syntax
-// import "./showcase/components/library-demo.tsx"; // Temporarily disabled due to JSX parsing issue
+import "./showcase/components/forms-demo-fixed.tsx";
 import "./showcase/dashboard-preview.tsx";
 import "./showcase/generic-demo-preview.tsx";
 import "./showcase/playground-output.tsx";
@@ -38,6 +36,12 @@ async function handler(request: Request): Promise<Response> {
       const sm = injectStateManager(true);
       if (!htmlContent.includes(sm)) {
         htmlContent = htmlContent.replace("</head>", `${sm}\n</head>`);
+      }
+
+      // Inject showcase utility styles (hashed class names from css-in-ts)
+      const utilitiesTag = `<style id="showcase-utilities">\n${showcaseStyles}\n</style>`;
+      if (!htmlContent.includes("id=\"showcase-utilities\"")) {
+        htmlContent = htmlContent.replace("</head>", `${utilitiesTag}\n</head>`);
       }
 
       // Process component tags with SSR
@@ -384,12 +388,7 @@ defineComponent("${demo}-demo", {
           });
         }
 
-        if (demo === "components" || demo === "library") {
-          // Component library showcase
-          return new Response(renderComponent("showcase-library-demo", {}), {
-            headers: { "Content-Type": "text/html" },
-          });
-        }
+        // components/library preview removed in MVP cleanup
 
         // Generate preview for other demos
         return new Response(renderComponent("generic-demo-preview", { demo }), {
@@ -618,15 +617,8 @@ async function processComponentTags(
 ): Promise<string> {
   let processedHtml = html;
 
-  // Component names to process
-  const components = [
-    "showcase-hero-stats",
-    "showcase-demo-viewer",
-    "showcase-playground",
-    "product-card",
-    "product-grid",
-    "shopping-cart",
-  ];
+  // Discover registered components dynamically
+  const components = Object.keys(getRegistry());
 
   for (const componentName of components) {
     const regex = new RegExp(

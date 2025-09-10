@@ -14,12 +14,12 @@ defineComponent("showcase-cart-sidebar", {
     const total = props?.total || "$0.00";
 
     const sidebarClass = isOpen
-      ? `showcase-cart-sidebar open`
-      : `showcase-cart-sidebar`;
+      ? `${showcaseClasses.showcaseCartSidebar} showcase-cart-sidebar open`
+      : `${showcaseClasses.showcaseCartSidebar} showcase-cart-sidebar`;
 
     return (
       <div class={sidebarClass} id="shopping-cart-sidebar">
-        <div class="showcase-cart-header">
+        <div class={`${showcaseClasses.showcaseCartHeader} showcase-cart-header`}>
           <h2 style="font-size: var(--font-size-3); font-weight: var(--font-weight-6); color: var(--text-1); margin: 0;">
             🛒 Shopping Cart (<span class="cart-count">{itemCount}</span>)
           </h2>
@@ -34,13 +34,13 @@ defineComponent("showcase-cart-sidebar", {
           </button>
         </div>
 
-        <div class="showcase-cart-items">
+        <div class={`${showcaseClasses.showcaseCartItems} showcase-cart-items`}>
           <div style="color: var(--text-2); text-align: center; padding: var(--size-4);">
             Your cart is empty
           </div>
         </div>
 
-        <div class="showcase-cart-footer">
+        <div class={`${showcaseClasses.showcaseCartFooter} showcase-cart-footer`}>
           <div
             style={`display: flex; justify-content: space-between; align-items: center; 
                     font-size: var(--font-size-3); font-weight: var(--font-weight-6); 
@@ -71,7 +71,7 @@ defineComponent("showcase-cart-button", {
 
     return (
       <button
-        class="showcase-floating-button"
+        class={`${showcaseClasses.showcaseFloatingButton} showcase-floating-button`}
         onclick="document.getElementById('shopping-cart-sidebar').classList.add('open')"
       >
         🛒 Cart <span class="cart-count">{itemCount}</span>
