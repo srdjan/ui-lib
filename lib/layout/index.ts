@@ -10,7 +10,7 @@ export type {
   SidebarPosition,
 } from "./layout-types.ts";
 
-// Export layout components
+// Export layout components (app-layout is the main container)
 export { AppLayout } from "../components/app-layout.tsx";
 export { Navbar } from "./navbar.tsx";
 export { NavItem } from "./navitem.tsx";

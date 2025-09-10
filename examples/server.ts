@@ -8,8 +8,15 @@ import "./showcase/components.tsx";
 import "./showcase/product-catalog.tsx";
 import "./showcase/components/index.ts";
 
-import "./showcase/forms-preview.tsx";
-import "./showcase/components/forms-demo.tsx";
+// Import layout components
+import "../lib/layout/index.ts"; // This auto-registers all layout components including app-layout
+
+// Import library components for use in demos
+import "../lib/components/index.ts"; // Import Button, Input, Alert, etc.
+
+// import "./showcase/forms-preview.tsx"; // Temporarily disabled due to JSX parsing issue
+import "./showcase/components/forms-demo-fixed.tsx"; // Fixed version with proper JSX syntax
+// import "./showcase/components/library-demo.tsx"; // Temporarily disabled due to JSX parsing issue
 import "./showcase/dashboard-preview.tsx";
 import "./showcase/generic-demo-preview.tsx";
 import "./showcase/playground-output.tsx";
@@ -326,58 +333,6 @@ const newsletterForm = Form({
   ]
 });`,
 
-          comparison: `// Traditional React (28 lines, 3.2kb)
-function ProductCard({ name, price, inStock }) {
-  const [quantity, setQuantity] = useState(1);
-  const [loading, setLoading] = useState(false);
-
-  const handleAddToCart = async () => {
-    setLoading(true);
-    try {
-      await fetch('/api/cart/add', {
-        method: 'POST',
-        body: JSON.stringify({
-          name, price, quantity
-        })
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="card">
-      <h3>{name}</h3>
-      <p>\${price}</p>
-      <button
-        onClick={handleAddToCart}
-        disabled={!inStock || loading}
-      >
-        {loading ? 'Adding...' : 'Add to Cart'}
-      </button>
-    </div>
-  );
-}
-
-// ui-lib (10 lines, 0kb runtime!)
-defineComponent("product-card", {
-  api: {
-    addToCart: post("/api/cart/add", handler)
-  },
-  render: ({
-    name = string(""),
-    price = number(0),
-    inStock = boolean(true)
-  }, api) => (
-    <div class="card">
-      <h3>{name}</h3>
-      <p>\${price}</p>
-      <button {...api.addToCart()} disabled={!inStock}>
-        Add to Cart
-      </button>
-    </div>
-  )
-});`,
         };
 
         const code = codeExamples[demo] || `// ${demo} Example Coming Soon!
@@ -425,6 +380,13 @@ defineComponent("${demo}-demo", {
         if (demo === "forms") {
           // SSR-first: render dedicated TSX component with improved styling
           return new Response(renderComponent("showcase-forms-demo", {}), {
+            headers: { "Content-Type": "text/html" },
+          });
+        }
+
+        if (demo === "components" || demo === "library") {
+          // Component library showcase
+          return new Response(renderComponent("showcase-library-demo", {}), {
             headers: { "Content-Type": "text/html" },
           });
         }

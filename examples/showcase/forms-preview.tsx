@@ -1,5 +1,9 @@
 /** @jsx h */
-import { Alert, Button, defineComponent, h, Input } from "../../index.ts";
+import { defineComponent, h } from "../../index.ts";
+import { Button } from "../../lib/components/button/button.ts";
+import { Input } from "../../lib/components/input/input.ts";
+import { Alert } from "../../lib/components/feedback/alert.ts";
+import { renderComponentWithStyles } from "./showcase/utilities/component-renderer.ts";
 
 // Forms Preview component rendered via SSR from examples/server.ts
 // Option 2: Keep server.ts SSR string response, but generate the HTML via defineComponent
@@ -160,7 +164,8 @@ export default defineComponent("forms-preview", {
     }`,
   },
 
-  render: (_: Record<string, unknown>, __: unknown, classes: any) => (
+  render: (_: Record<string, unknown>, __: unknown, classes: any) => {
+    return (
     <div>
       <style>
         {`.htmx-indicator{${classes.htmxIndicator}} .htmx-request .htmx-indicator{${classes.htmxRequestShow}}`}
@@ -177,7 +182,7 @@ export default defineComponent("forms-preview", {
             class={classes.formVertical}
           >
             <div class={classes.grid2}>
-              {Input({
+              <div dangerouslySetInnerHTML={{__html: renderComponentWithStyles(Input({
                 type: "text",
                 name: "firstName",
                 label: "First Name",
@@ -185,8 +190,8 @@ export default defineComponent("forms-preview", {
                 required: true,
                 size: "lg",
                 variant: "filled",
-              })}
-              {Input({
+              })}} />
+              <div dangerouslySetInnerHTML={{__html: renderComponentWithStyles(Input({
                 type: "text",
                 name: "lastName",
                 label: "Last Name",
@@ -194,9 +199,9 @@ export default defineComponent("forms-preview", {
                 required: true,
                 size: "lg",
                 variant: "filled",
-              })}
+              })}} />
             </div>
-            {Input({
+            <div dangerouslySetInnerHTML={{__html: renderComponentWithStyles(Input({
               type: "email",
               name: "email",
               label: "Email Address",
@@ -205,8 +210,8 @@ export default defineComponent("forms-preview", {
               helpText: "We'll never share your email",
               size: "lg",
               variant: "filled",
-            })}
-            {Input({
+            })}} />
+            <div dangerouslySetInnerHTML={{__html: renderComponentWithStyles(Input({
               type: "password",
               name: "password",
               label: "Password",
@@ -215,26 +220,26 @@ export default defineComponent("forms-preview", {
               helpText: "At least 8 characters",
               size: "lg",
               variant: "filled",
-            })}
-            {Alert({
+            })}} />
+            <div dangerouslySetInnerHTML={{__html: renderComponentWithStyles(Alert({
               variant: "info",
               children: "All fields are validated in real-time",
-            })}
+            })}} />
             <div class={`${classes.row} ${classes.mt1}`}>
-              {Button({
+              <div dangerouslySetInnerHTML={{__html: renderComponentWithStyles(Button({
                 type: "submit",
                 variant: "primary",
                 size: "lg",
                 className: "btn btn-primary",
                 children: "Create Account",
-              })}
-              {Button({
+              })}} />
+              <div dangerouslySetInnerHTML={{__html: renderComponentWithStyles(Button({
                 type: "button",
                 variant: "outline",
                 size: "lg",
                 className: "btn",
                 children: "Cancel",
-              })}
+              })}} />
               <div id="reg-spinner" class={`htmx-indicator ${classes.ml1}`}>
                 <span class={classes.textMuted}>Processing...</span>
               </div>
@@ -253,32 +258,32 @@ export default defineComponent("forms-preview", {
             class={classes.formVertical}
           >
             <div class={classes.grid2}>
-              {Input({
+              <div dangerouslySetInnerHTML={{__html: renderComponentWithStyles(Input({
                 type: "text",
                 name: "name",
                 label: "Full Name",
                 required: true,
                 size: "lg",
                 variant: "filled",
-              })}
-              {Input({
+              })}} />
+              <div dangerouslySetInnerHTML={{__html: renderComponentWithStyles(Input({
                 type: "email",
                 name: "email",
                 label: "Email",
                 required: true,
                 size: "lg",
                 variant: "filled",
-              })}
+              })}} />
             </div>
-            {Input({
+            <div dangerouslySetInnerHTML={{__html: renderComponentWithStyles(Input({
               type: "tel",
               name: "phone",
               label: "Phone Number",
               placeholder: "(555) 123-4567",
               size: "lg",
               variant: "filled",
-            })}
-            {Input({
+            })}} />
+            <div dangerouslySetInnerHTML={{__html: renderComponentWithStyles(Input({
               type: "textarea",
               name: "message",
               label: "Message",
@@ -287,15 +292,15 @@ export default defineComponent("forms-preview", {
               required: true,
               size: "lg",
               variant: "filled",
-            })}
+            })}} />
             <div class={classes.row}>
-              {Button({
+              <div dangerouslySetInnerHTML={{__html: renderComponentWithStyles(Button({
                 type: "submit",
                 variant: "primary",
                 size: "lg",
                 className: "btn btn-primary",
                 children: "Send Message",
-              })}
+              })}} />
               <div id="contact-spinner" class={`htmx-indicator`}>
                 <span class={classes.textMuted}>Sending...</span>
               </div>
@@ -316,7 +321,7 @@ export default defineComponent("forms-preview", {
             hx-indicator="#newsletter-spinner"
             class={`${classes.row} ${classes.alignEnd}`}
           >
-            {Input({
+            <div dangerouslySetInnerHTML={{__html: renderComponentWithStyles(Input({
               type: "email",
               name: "email",
               placeholder: "Enter your email",
@@ -324,14 +329,14 @@ export default defineComponent("forms-preview", {
               className: classes.flex1,
               size: "lg",
               variant: "filled",
-            })}
-            {Button({
+            })}} />
+            <div dangerouslySetInnerHTML={{__html: renderComponentWithStyles(Button({
               type: "submit",
               variant: "primary",
               size: "lg",
               className: "btn btn-primary",
               children: "Subscribe",
-            })}
+            })}} />
             <div id="newsletter-spinner" class={`htmx-indicator`}>
               <span class={classes.textHeroMuted}>Subscribing...</span>
             </div>
@@ -354,5 +359,6 @@ export default defineComponent("forms-preview", {
         </div>
       </div>
     </div>
-  ),
+    );
+  },
 });

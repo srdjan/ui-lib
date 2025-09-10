@@ -14,8 +14,7 @@ defineComponent("showcase-demo-viewer", {
       { id: "ecommerce", label: "E-commerce", icon: "🏪" },
       { id: "dashboard", label: "Dashboard", icon: "📊" },
       { id: "forms", label: "Forms", icon: "📝" },
-      { id: "media", label: "Media Player", icon: "🎵" },
-      { id: "comparison", label: "vs React", icon: "⚖️" },
+      { id: "components", label: "Components", icon: "🧩" },
       { id: "playground", label: "Playground", icon: "🚀" },
     ];
 

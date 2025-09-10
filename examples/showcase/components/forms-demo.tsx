@@ -1,5 +1,6 @@
 /** @jsx h */
 import { defineComponent, h } from "../../../index.ts";
+import { Button, Input, Alert, getOpenPropsIntegrationStyles } from "../utilities/open-props-component-adapter.ts";
 
 /**
  * Forms Demo Component
@@ -7,8 +8,7 @@ import { defineComponent, h } from "../../../index.ts";
  * Features registration, contact, and newsletter forms with validation
  */
 defineComponent("showcase-forms-demo", {
-  render: () => {
-    return (
+  render: () => (
       <div style="max-width: 1200px; margin: 0 auto; padding: var(--size-fluid-4); display: grid; gap: var(--size-fluid-4);">
         
         {/* User Registration Form */}
@@ -22,68 +22,70 @@ defineComponent("showcase-forms-demo", {
             class="forms-form"
           >
             <div class="forms-grid-2">
-              <div class="forms-field">
-                <label for="firstName" class="forms-label">First Name *</label>
-                <input
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  placeholder="John"
-                  class="forms-input"
-                  required
-                />
-              </div>
-              <div class="forms-field">
-                <label for="lastName" class="forms-label">Last Name *</label>
-                <input
-                  type="text"
-                  id="lastName"
-                  name="lastName"
-                  placeholder="Doe"
-                  class="forms-input"
-                  required
-                />
-              </div>
+              <div dangerouslySetInnerHTML={{__html: Input({
+                type: "text",
+                id: "firstName",
+                name: "firstName",
+                label: "First Name",
+                placeholder: "John",
+                required: true,
+                variant: "filled",
+                size: "lg"
+              })}} />
+              <div dangerouslySetInnerHTML={{__html: Input({
+                type: "text",
+                id: "lastName", 
+                name: "lastName",
+                label: "Last Name",
+                placeholder: "Doe", 
+                required: true,
+                variant: "filled",
+                size: "lg"
+              }))}} />
             </div>
             
-            <div class="forms-field">
-              <label for="email" class="forms-label">Email Address *</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder="john@example.com"
-                class="forms-input"
-                required
-              />
-              <small class="forms-help">We'll never share your email</small>
-            </div>
+            <div dangerouslySetInnerHTML={{__html: Input({
+              type: "email",
+              id: "email",
+              name: "email", 
+              label: "Email Address",
+              placeholder: "john@example.com",
+              required: true,
+              helpText: "We'll never share your email",
+              variant: "filled",
+              size: "lg"
+            }))}} />
             
-            <div class="forms-field">
-              <label for="password" class="forms-label">Password *</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                placeholder="Choose a strong password"
-                class="forms-input"
-                required
-              />
-              <small class="forms-help">At least 8 characters</small>
-            </div>
+            <div dangerouslySetInnerHTML={{__html: Input({
+              type: "password",
+              id: "password",
+              name: "password",
+              label: "Password",
+              placeholder: "Choose a strong password",
+              required: true,
+              helpText: "At least 8 characters", 
+              variant: "filled",
+              size: "lg"
+            }))}} />
             
-            <div class="forms-alert">
-              <span class="forms-alert-icon">ℹ️</span>
-              All fields are validated in real-time
-            </div>
+            <div dangerouslySetInnerHTML={{__html: Alert({
+              variant: "info",
+              children: "ℹ️ All fields are validated in real-time"
+            }))}} />
             
             <div class="forms-actions">
-              <button type="submit" class="forms-btn forms-btn-primary">
-                Create Account
-              </button>
-              <button type="button" class="forms-btn forms-btn-outline">
-                Cancel
-              </button>
+              <div dangerouslySetInnerHTML={{__html: Button({
+                type: "submit",
+                variant: "primary",
+                size: "lg",
+                children: "Create Account"
+              }))}} />
+              <div dangerouslySetInnerHTML={{__html: Button({
+                type: "button", 
+                variant: "outline",
+                size: "lg",
+                children: "Cancel"
+              }))}} />
               <div id="reg-spinner" class="htmx-indicator forms-spinner">
                 Processing...
               </div>
@@ -102,55 +104,55 @@ defineComponent("showcase-forms-demo", {
             class="forms-form"
           >
             <div class="forms-grid-2">
-              <div class="forms-field">
-                <label for="contactName" class="forms-label">Full Name *</label>
-                <input
-                  type="text"
-                  id="contactName"
-                  name="name"
-                  class="forms-input"
-                  required
-                />
-              </div>
-              <div class="forms-field">
-                <label for="contactEmail" class="forms-label">Email *</label>
-                <input
-                  type="email"
-                  id="contactEmail"
-                  name="email"
-                  class="forms-input"
-                  required
-                />
-              </div>
+              <div dangerouslySetInnerHTML={{__html: Input({
+                type: "text",
+                id: "contactName",
+                name: "name",
+                label: "Full Name",
+                required: true,
+                variant: "filled",
+                size: "lg"
+              }))}} />
+              <div dangerouslySetInnerHTML={{__html: Input({
+                type: "email",
+                id: "contactEmail", 
+                name: "email",
+                label: "Email",
+                required: true,
+                variant: "filled", 
+                size: "lg"
+              }))}} />
             </div>
             
-            <div class="forms-field">
-              <label for="phone" class="forms-label">Phone Number</label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                placeholder="(555) 123-4567"
-                class="forms-input"
-              />
-            </div>
+            <div dangerouslySetInnerHTML={{__html: Input({
+              type: "tel",
+              id: "phone",
+              name: "phone",
+              label: "Phone Number",
+              placeholder: "(555) 123-4567",
+              variant: "filled",
+              size: "lg"
+            }))}} />
             
-            <div class="forms-field">
-              <label for="message" class="forms-label">Message *</label>
-              <textarea
-                id="message"
-                name="message"
-                placeholder="Tell us about your project..."
-                rows="4"
-                class="forms-textarea"
-                required
-              ></textarea>
-            </div>
+            <div dangerouslySetInnerHTML={{__html: Input({
+              type: "textarea",
+              id: "message",
+              name: "message",
+              label: "Message",
+              placeholder: "Tell us about your project...",
+              rows: 4,
+              required: true,
+              variant: "filled",
+              size: "lg"
+            }))}} />
             
             <div class="forms-actions">
-              <button type="submit" class="forms-btn forms-btn-primary">
-                Send Message
-              </button>
+              <div dangerouslySetInnerHTML={{__html: Button({
+                type: "submit",
+                variant: "primary",
+                size: "lg", 
+                children: "Send Message"
+              }))}} />
               <div id="contact-spinner" class="htmx-indicator forms-spinner">
                 Sending...
               </div>
@@ -174,17 +176,21 @@ defineComponent("showcase-forms-demo", {
             <div class="forms-field">
               <label for="newsletterEmail" class="forms-label forms-label-light">Email Address</label>
               <div class="forms-newsletter-row">
-                <input
-                  type="email"
-                  id="newsletterEmail"
-                  name="email"
-                  placeholder="Enter your email"
-                  class="forms-input forms-input-light"
-                  required
-                />
-                <button type="submit" class="forms-btn forms-btn-light">
-                  Subscribe
-                </button>
+                <div dangerouslySetInnerHTML={{__html: Input({
+                  type: "email",
+                  id: "newsletterEmail",
+                  name: "email",
+                  placeholder: "Enter your email",
+                  required: true,
+                  variant: "filled",
+                  size: "lg"
+                }))}} />
+                <div dangerouslySetInnerHTML={{__html: Button({
+                  type: "submit",
+                  variant: "primary",
+                  size: "lg",
+                  children: "Subscribe"
+                }))}} />
               </div>
             </div>
             <div id="newsletter-spinner" class="htmx-indicator forms-spinner forms-spinner-light">
@@ -205,6 +211,8 @@ defineComponent("showcase-forms-demo", {
             ⚡ Zero Config
           </div>
         </div>
+        
+        <div dangerouslySetInnerHTML={{__html: getOpenPropsIntegrationStyles()}} />
         
         <style dangerouslySetInnerHTML={{
           __html: `
@@ -410,6 +418,5 @@ defineComponent("showcase-forms-demo", {
           `
         }} />
       </div>
-    );
-  },
+  ),
 });
