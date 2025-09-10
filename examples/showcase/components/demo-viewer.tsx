@@ -14,7 +14,6 @@ defineComponent("showcase-demo-viewer", {
       { id: "ecommerce", label: "E-commerce", icon: "🏪" },
       { id: "dashboard", label: "Dashboard", icon: "📊" },
       { id: "forms", label: "Forms", icon: "📝" },
-      { id: "playground", label: "Playground", icon: "🚀" },
     ];
 
     return (
@@ -42,9 +41,7 @@ defineComponent("showcase-demo-viewer", {
             const tabClass = isActive
               ? `${showcaseClasses.showcaseDemoTab} showcase-demo-tab active`
               : `${showcaseClasses.showcaseDemoTab} showcase-demo-tab`;
-            const clickHandler = tab.id === "playground"
-              ? `loadPlayground()`
-              : `loadDemo('${tab.id}')`;
+            const clickHandler = `loadDemo('${tab.id}')`;
 
             return (
               <button

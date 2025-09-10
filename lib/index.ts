@@ -1,0 +1,68 @@
+// ui-lib - The Most Ergonomic Component Library Ever Built
+// Complete library export including all extracted functionality from showcase
+
+// Core library functionality
+export * from "./define-component.ts";
+export * from "./jsx-runtime.ts";
+export * from "./ssr.ts";
+export * from "./router.ts";
+export * from "./state-manager.ts";
+export * from "./reactive-helpers.ts";
+export * from "./actions.ts";
+
+// Component library
+export * from "./components/index.ts";
+
+// State management patterns (extracted from showcase)
+export * from "./state-patterns/index.ts";
+
+// Animation utilities (extracted from showcase)
+export * from "./animations/index.ts";
+
+// Utility functions (extracted from showcase)
+export * from "./utils/index.ts";
+
+// Core types
+export type {
+  ComponentProps,
+  RenderOptions,
+  ServerSideRenderOptions,
+} from "./types.ts";
+
+// Component types
+export type {
+  ComponentSize,
+  ComponentVariant,
+  ComponentState,
+} from "./components/types.ts";
+
+// State management types
+export type {
+  StateManager,
+  CartManager,
+  CartItem,
+  CartState,
+  ThemeManager,
+  ThemeConfig,
+  ThemeState,
+} from "./state-patterns/index.ts";
+
+// Animation types
+export type {
+  EasingFunction,
+  CounterAnimationOptions,
+} from "./animations/index.ts";
+
+// Utility types
+export type {
+  ClipboardResult,
+  ScrollOptions,
+  HTMXRequestOptions,
+} from "./utils/index.ts";
+
+// Action types
+export type {
+  ComponentAction,
+  BaseAction,
+  ChainAction,
+} from "./actions.ts";

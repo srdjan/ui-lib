@@ -477,69 +477,7 @@ export const showcaseUtilities = css({
     },
   },
 
-  // Playground patterns
-  showcasePlayground: {
-    background: "var(--surface-2)",
-    padding: "var(--size-fluid-6) var(--size-fluid-3)",
-    marginTop: "var(--size-fluid-6)",
-  },
 
-  showcasePlaygroundHeader: {
-    textAlign: "center",
-    marginBottom: "var(--size-fluid-4)",
-  },
-
-  showcasePlaygroundEditor: {
-    maxWidth: "1200px",
-    margin: "0 auto",
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "var(--size-fluid-3)",
-    height: "600px",
-    "@media": {
-      md: {
-        gridTemplateColumns: "1fr",
-        height: "auto",
-      },
-    },
-  },
-
-  showcaseEditorPanel: {
-    background: "var(--surface-1)",
-    borderRadius: "var(--radius-2)",
-    boxShadow: "var(--shadow-2)",
-    display: "flex",
-    flexDirection: "column",
-  },
-
-  showcaseEditorTextarea: {
-    flex: 1,
-    padding: "var(--size-fluid-2)",
-    border: "none",
-    fontFamily: "var(--font-mono)",
-    fontSize: "var(--font-size-0)",
-    lineHeight: "var(--font-lineheight-3)",
-    resize: "none",
-    background: "var(--gray-11)",
-    color: "var(--gray-0)",
-  },
-
-  showcaseRunButton: {
-    padding: "var(--size-3) var(--size-fluid-3)",
-    background: "var(--gradient-3)",
-    color: "var(--gray-0)",
-    border: "none",
-    borderRadius: "var(--radius-2)",
-    fontSize: "var(--font-size-1)",
-    fontWeight: "var(--font-weight-6)",
-    cursor: "pointer",
-    transition: "all var(--animation-fade-in)",
-    margin: "var(--size-fluid-2)",
-    "&:hover": {
-      transform: "translateY(-2px)",
-      boxShadow: "var(--shadow-3)",
-    },
-  },
 
   // Utility helpers
   showcaseMutedText: {

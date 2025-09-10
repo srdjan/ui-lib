@@ -17,7 +17,6 @@ import "../lib/components/index.ts"; // Import Button, Input, Alert, etc.
 import "./showcase/components/forms-demo-fixed.tsx";
 import "./showcase/dashboard-preview.tsx";
 import "./showcase/generic-demo-preview.tsx";
-import "./showcase/playground-output.tsx";
 import "./showcase/placeholder-image.tsx";
 
 const PORT = 8080;
@@ -61,13 +60,7 @@ async function handler(request: Request): Promise<Response> {
       const action = parts[3];
       const demo = parts[4];
 
-      // Special case for playground
-      if (action === "playground") {
-        const playgroundHtml = renderComponent("showcase-playground", {});
-        return new Response(playgroundHtml, {
-          headers: { "Content-Type": "text/html" },
-        });
-      }
+
 
       if (action === "code") {
         // Return code examples for demos
@@ -388,118 +381,13 @@ defineComponent("${demo}-demo", {
           });
         }
 
-        // components/library preview removed in MVP cleanup
-
         // Generate preview for other demos
         return new Response(renderComponent("generic-demo-preview", { demo }), {
           headers: { "Content-Type": "text/html" },
         });
       }
 
-      if (action === "run") {
-        // Run playground code - simplified approach
-        let code = "";
-
-        try {
-          const formData = await request.formData();
-          code = formData.get("playground-code")?.toString() || "";
-        } catch {
-          // Fallback to demo code
-          code = `defineComponent("my-component", {
-  render: ({ title = string("Hello World"), count = number(0) }, _, classes) => (
-    <div class={classes.container}>
-      <h3>{title}</h3>
-      <p>Count: {count}</p>
-    </div>
-  )
-})`;
-        }
-
-        try {
-          // Simple component extraction and rendering simulation
-          let renderedComponent = "";
-
-          // Safety check for code input
-          if (!code || typeof code !== "string") {
-            code =
-              'defineComponent("demo-component", { render: () => (<div>No code provided</div>) })';
-          }
-
-          // Extract component name from defineComponent call
-          const componentNameMatch = code.match(
-            /defineComponent\(["']([^"']+)["']/,
-          );
-          const componentName = componentNameMatch
-            ? componentNameMatch[1]
-            : "demo-component";
-
-          // More robust regex to extract JSX from render function
-          // Look for render function and capture everything inside the parentheses
-          const renderMatch = code.match(
-            /render:\s*\([^)]*\)\s*=>\s*\(([\s\S]*?)\n\s*\)/,
-          );
-
-          if (renderMatch) {
-            let jsxContent = renderMatch[1];
-
-            // Clean up the JSX and convert to HTML
-            jsxContent = jsxContent
-              .replace(/\{title\}/g, "Hello World")
-              .replace(/\{count\}/g, "42")
-              .replace(
-                /\{([^}]+)\}/g,
-                (_match, variable) =>
-                  variable.includes("enabled") ? "Yes" : `[${variable}]`,
-              )
-              .trim();
-
-            renderedComponent = jsxContent;
-          } else {
-            // Try a simpler approach - look for JSX patterns in the code
-            if (
-              code.includes("<div") || code.includes("<h3") ||
-              code.includes("<p")
-            ) {
-              // Extract and render basic JSX elements
-              renderedComponent = `
-                <div>
-                  <h3>Hello World</h3>
-                  <p>Count: 42</p>
-                </div>
-              `;
-            } else {
-              // Fallback demo component
-              renderedComponent = `
-                <div>
-                  <h3>${componentName}</h3>
-                  <p>✨ Your component is working perfectly!</p>
-                </div>
-              `;
-            }
-          }
-
-          const output = renderComponent("playground-output", {
-            name: componentName,
-            rendered: renderedComponent,
-            status: "success",
-          });
-
-          return new Response(output, {
-            headers: { "Content-Type": "text/html" },
-          });
-        } catch (error) {
-          // Error handling
-          const output = renderComponent("playground-output", {
-            rendered: "",
-            status: "error",
-            error: error instanceof Error ? error.message : String(error),
-          });
-
-          return new Response(output, {
-            headers: { "Content-Type": "text/html" },
-          });
-        }
-      }
+      
     }
 
     // API for products

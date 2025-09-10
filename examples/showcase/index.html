@@ -268,23 +268,7 @@
         htmx.process(content);
       }
 
-      function loadPlayground() {
-        // Update active tab
-        document.querySelectorAll(".showcase-demo-tab").forEach((tab) => {
-          tab.classList.remove("active");
-        });
-        document.querySelector('[data-demo="playground"]').classList
-          .add("active");
 
-        // Load playground content
-        const content = document.getElementById("demo-content");
-
-        // Get the rendered playground component from server
-        htmx.ajax("GET", "/api/showcase/playground", {
-          target: "#demo-content",
-          swap: "innerHTML",
-        });
-      }
 
       // Start animations when page loads
       document.addEventListener("DOMContentLoaded", function () {

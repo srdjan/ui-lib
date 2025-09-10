@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ui-lib Showcase - The Most Ergonomic Component Library Ever Built</title>
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+
+    <!-- HTMX for interactivity -->
+    <script src="https://unpkg.com/htmx.org@2.0.3/dist/htmx.min.js"></script>
+    <script src="https://unpkg.com/htmx-ext-json-enc@2.0.1/json-enc.js"></script>
+
+    <!-- Prism for syntax highlighting -->
+    <link href="https://unpkg.com/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet">
+    <script src="https://unpkg.com/prismjs@1.29.0/components/prism-core.min.js"></script>
+    <script src="https://unpkg.com/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+    <!-- Open Props (design tokens) -->
+    <link rel="stylesheet" href="https://unpkg.com/open-props@1.6.21" />
+    <link rel="stylesheet" href="https://unpkg.com/open-props@1.6.21/normalize.min.css" />
+
+    <style id="showcase-styles">
+      /* Base styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: var(--font-sans);
+        background: linear-gradient(135deg, var(--gray-0) 0%, var(--surface-1) 100%);
+        color: var(--text-1);
+        line-height: var(--font-lineheight-3);
+        min-height: 100vh;
+      }
+
+      /* Code highlighting */
+      pre[class*="language-"] {
+        margin: 0;
+        background: transparent;
+      }
+
+      code[class*="language-"] {
+        background: transparent;
+      }
+
+      /* Animation keyframes */
+      @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+
+      /* Demo content should not display raw text */
+      #demo-content {
+        min-height: 500px;
+      }
+
+      /* Showcase utility styles will be injected here by components */
+    </style>
+  </head>
+  <body hx-ext="json-enc">
+    <!-- Hero Section -->
+    <showcase-hero-section></showcase-hero-section>
+
+    <!-- Feature Cards -->
+    <showcase-feature-cards></showcase-feature-cards>
+
+    <!-- Metrics Bar with Animated Counters -->
+    <showcase-metrics-bar></showcase-metrics-bar>
+
+    <!-- Live Demo Section with Library Components -->
+    <showcase-demo-viewer></showcase-demo-viewer>
+
+    <!-- Forms Demo -->
+    <showcase-forms-demo></showcase-forms-demo>
+
+    <!-- Footer -->
+    <showcase-footer></showcase-footer>
+
+    <!-- Shopping Cart System -->
+    <showcase-cart-sidebar></showcase-cart-sidebar>
+
+    <!-- ui-lib JavaScript - Extracted functionality now as library -->
+    <script type="module">
+      // Import ui-lib functionality
+      import {
+        // State Management
+        createCartManagerScript,
+        createThemeManagerScript,
+        injectStateManager,
+        
+        // Demo & Code Viewing
+        DemoViewer,
+        CodeModal,
+        createCopyButtonScript,
+        
+        // Animations
+        createElementCounter,
+        animateElements,
+        formatters,
+        
+        // Utilities
+        createClipboardScript,
+        createSmoothScrollScript,
+        createHTMXScript,
+        
+        // Modal Management
+        createModalManagerScript
+      } from '/lib/index.js';
+
+      // Initialize state manager
+      const stateScript = injectStateManager();
+      document.head.insertAdjacentHTML('beforeend', stateScript);
+
+      // Initialize cart functionality
+      const cartScript = createCartManagerScript();
+      const cartScriptElement = document.createElement('script');
+      cartScriptElement.textContent = cartScript;
+      document.head.appendChild(cartScriptElement);
+
+      // Initialize code actions
+      const codeScript = createCopyButtonScript();
+      const codeScriptElement = document.createElement('script');
+      codeScriptElement.textContent = codeScript;
+      document.head.appendChild(codeScriptElement);
+
+      // Initialize utilities
+      const utilityScripts = [
+        createClipboardScript(),
+        createSmoothScrollScript(),
+        createHTMXScript(),
+        createModalManagerScript()
+      ];
+
+      utilityScripts.forEach(script => {
+        const scriptElement = document.createElement('script');
+        scriptElement.textContent = script;
+        document.head.appendChild(scriptElement);
+      });
+
+      // Initialize animated counters with library
+      document.addEventListener('DOMContentLoaded', function() {
+        // Animate metrics using library components
+        setTimeout(() => {
+          const metricsElements = [
+            { element: document.getElementById('bundle-size'), options: { from: 0, to: 0, formatter: formatters.withUnit('kb') }},
+            { element: document.getElementById('component-count'), options: { from: 0, to: 47, formatter: formatters.integer }},
+            { element: document.getElementById('render-time'), options: { from: 0, to: 3, formatter: formatters.withUnit('ms') }},
+            { element: document.getElementById('memory-usage'), options: { from: 0, to: 1.2, formatter: formatters.withUnit('MB') }},
+            { element: document.getElementById('type-coverage'), options: { from: 0, to: 100, formatter: formatters.percentage() }}
+          ];
+
+          // Filter out null elements and animate
+          const validElements = metricsElements.filter(item => item.element);
+          if (validElements.length > 0) {
+            animateElements(validElements, 100);
+          }
+        }, 100);
+      });
+    </script>
+
+    <!-- Theme Configuration -->
+    <script>
+      // Define themes for theme manager
+      const themes = [
+        {
+          name: 'light',
+          displayName: 'Light Theme',
+          isDark: false,
+          properties: {
+            'theme-mode': 'light',
+            'surface-1': '#ffffff',
+            'surface-2': '#f5f5f5',
+            'text-1': '#333333',
+            'text-2': '#666666'
+          }
+        },
+        {
+          name: 'dark',
+          displayName: 'Dark Theme', 
+          isDark: true,
+          properties: {
+            'theme-mode': 'dark',
+            'surface-1': '#1a1a1a',
+            'surface-2': '#2a2a2a',
+            'text-1': '#ffffff',
+            'text-2': '#cccccc'
+          }
+        }
+      ];
+
+      // Initialize theme manager
+      import('/lib/index.js').then(({ createThemeManagerScript }) => {
+        const themeScript = createThemeManagerScript(themes);
+        const scriptElement = document.createElement('script');
+        scriptElement.textContent = themeScript;
+        document.head.appendChild(scriptElement);
+      });
+    </script>
+  </body>
+</html>
