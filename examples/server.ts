@@ -5,7 +5,7 @@ import { router } from "./router.ts";
 
 // Import showcase components
 import "./showcase/components.tsx";
-import "./apps/ecommerce/product-catalog.tsx";
+import "./showcase/product-catalog.tsx";
 
 import "./showcase/forms-preview.tsx";
 import "./showcase/dashboard-preview.tsx";
