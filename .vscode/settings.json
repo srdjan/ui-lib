@@ -1,3 +1,90 @@
 {
-  "workbench.colorTheme": "Default Light Modern"
+  // Deno Settings
+  "deno.enable": true,
+  "deno.lint": true,
+  "deno.unstable": false,
+  "deno.importMap": "./deno.json",
+  "deno.config": "./deno.json",
+  
+  // Editor Settings
+  "editor.defaultFormatter": "denoland.vscode-deno",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  "editor.inlineSuggest.enabled": true,
+  
+  // TypeScript Settings
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.preferences.quoteStyle": "double",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "[typescript]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  
+  // File Associations
+  "files.associations": {
+    "*.ts": "typescript",
+    "*.tsx": "typescriptreact",
+    "deno.json": "jsonc",
+    "deno.jsonc": "jsonc"
+  },
+  
+  // Exclude patterns
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "coverage": true,
+    "*.lcov": true
+  },
+  
+  // Search exclude
+  "search.exclude": {
+    "**/node_modules": true,
+    "coverage": true,
+    "**/*.lcov": true,
+    "**/dist": true,
+    "**/build": true
+  },
+  
+  // Testing
+  "deno.suggest.completeFunctionCalls": true,
+  "deno.suggest.names": true,
+  "deno.suggest.paths": true,
+  "deno.suggest.autoImports": true,
+  "deno.suggest.imports.autoDiscover": true,
+  
+  // Terminal
+  "terminal.integrated.env.osx": {
+    "FIG_NEW_SESSION": "1"
+  },
+  
+  // Theme
+  "workbench.colorTheme": "Default Light Modern",
+  
+  // Custom colors for ui-lib components
+  "workbench.colorCustomizations": {
+    "editor.lineHighlightBackground": "#f0f0f0",
+    "editor.selectionBackground": "#add6ff"
+  }
 }

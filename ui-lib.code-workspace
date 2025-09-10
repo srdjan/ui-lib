@@ -1,0 +1,73 @@
+{
+  "folders": [
+    {
+      "name": "ui-lib",
+      "path": "."
+    },
+    {
+      "name": "Library",
+      "path": "./lib"
+    },
+    {
+      "name": "Components",
+      "path": "./lib/components"
+    },
+    {
+      "name": "Examples",
+      "path": "./examples"
+    },
+    {
+      "name": "Documentation",
+      "path": "./docs"
+    }
+  ],
+  "settings": {
+    // Workspace-specific settings that override user/default settings
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/coverage": true,
+      "**/.git": false  // Show git files in workspace view
+    },
+    
+    // Deno workspace settings
+    "deno.enable": true,
+    "deno.lint": true,
+    "deno.unstable": false,
+    
+    // Editor behavior
+    "editor.formatOnSave": true,
+    "editor.rulers": [80, 120],
+    "editor.wordWrap": "bounded",
+    "editor.wordWrapColumn": 120,
+    
+    // File associations for this workspace
+    "files.associations": {
+      "*.test.ts": "typescript",
+      "*.test.tsx": "typescriptreact",
+      "*.bench.ts": "typescript"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "denoland.vscode-deno",
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "usernamehw.errorlens",
+      "streetsidesoftware.code-spell-checker"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [],
+    "compounds": [
+      {
+        "name": "Full Stack Debug",
+        "configurations": ["Deno: Run Server", "Deno: Test All"]
+      }
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": []
+  }
+}
