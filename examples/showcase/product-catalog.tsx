@@ -510,13 +510,6 @@ defineComponent("product-grid", {
     classes: any,
   ) => (
     <div class={classes!.container}>
-      <div class={classes!.header}>
-        <h1 class={classes!.title}>Product Catalog</h1>
-        <p class={classes!.subtitle}>
-          Discover amazing products built with ui-lib's revolutionary components
-        </p>
-      </div>
-
       <div class={classes!.filters}>
         <div class={classes!.filterGroup}>
           <button class={`${classes!.filterBtn} ${classes!.filterBtnActive}`}>
@@ -527,15 +520,26 @@ defineComponent("product-grid", {
           <button class={classes!.filterBtn}>On Sale</button>
         </div>
 
-        <input
-          type="search"
-          class={classes!.searchBox}
-          placeholder="Search products..."
-          hx-get="/api/products/search"
-          hx-trigger="keyup changed delay:300ms"
-          hx-target="#product-grid"
-          name="q"
-        />
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <button 
+            style="padding: 0.75rem 1rem; background: linear-gradient(135deg, var(--blue-6), var(--cyan-6)); color: white; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);"
+            onclick="document.getElementById('shopping-cart-sidebar').classList.add('open')"
+            onmouseenter="this.style.transform = 'translateY(-2px)'; this.style.boxShadow = '0 4px 6px rgba(37, 99, 235, 0.3)';"
+            onmouseleave="this.style.transform = 'translateY(0)'; this.style.boxShadow = '0 2px 4px rgba(37, 99, 235, 0.2)';"
+          >
+            🛒 Cart (<span class="cart-count">0</span>)
+          </button>
+          
+          <input
+            type="search"
+            class={classes!.searchBox}
+            placeholder="Search products..."
+            hx-get="/api/products/search"
+            hx-trigger="keyup changed delay:300ms"
+            hx-target="#product-grid"
+            name="q"
+          />
+        </div>
       </div>
 
       <div

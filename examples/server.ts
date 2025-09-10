@@ -6,6 +6,7 @@ import { router } from "./router.ts";
 // Import showcase components
 import "./showcase/components.tsx";
 import "./showcase/product-catalog.tsx";
+import "./showcase/components/index.ts";
 
 import "./showcase/forms-preview.tsx";
 import "./showcase/dashboard-preview.tsx";

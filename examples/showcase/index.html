@@ -8,8 +8,7 @@
     </title>
 
     <!-- Favicons -->
-    <link rel="icon" type="image/svg+xml" href="/examples/showcase/assets/logo.svg">
-    <link rel="alternate icon" href="/favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
 
     <!-- HTMX for interactivity -->
     <script src="https://unpkg.com/htmx.org@2.0.3/dist/htmx.min.js"></script>
@@ -36,53 +35,8 @@
       href="https://unpkg.com/open-props@1.6.21/normalize.min.css"
     />
 
-    <style>
-      :root {
-        --primary: var(--blue-6);
-        --primary-dark: var(--blue-7);
-        --secondary: var(--cyan-6);
-        --success: var(--green-6);
-        --warning: var(--yellow-6);
-        --danger: var(--red-6);
-        --dark: var(--gray-10);
-        --light: var(--gray-0);
-        --gray-50: var(--gray-0);
-        --gray-100: var(--gray-1);
-        --gray-200: var(--gray-2);
-        --gray-300: var(--gray-3);
-        --gray-400: var(--gray-5);
-        --gray-500: var(--gray-6);
-        --gray-600: var(--gray-7);
-        --gray-700: var(--gray-8);
-        --gray-800: var(--gray-9);
-        --gray-900: var(--gray-10);
-
-        /* Spacing */
-        --space-xs: 0.25rem;
-        --space-sm: 0.5rem;
-        --space-md: 1rem;
-        --space-lg: 1.5rem;
-        --space-xl: 2rem;
-        --space-2xl: 3rem;
-        --space-3xl: 4rem;
-
-        /* Border radius */
-        --radius-sm: 0.25rem;
-        --radius-md: 0.375rem;
-        --radius-lg: 0.5rem;
-        --radius-xl: 0.75rem;
-        --radius-2xl: 1rem;
-        --radius-full: 9999px;
-
-        /* Shadows */
-        --shadow-sm: var(--shadow-1);
-        --shadow: var(--shadow-2);
-        --shadow-md: var(--shadow-3);
-        --shadow-lg: var(--shadow-4);
-        --shadow-xl: var(--shadow-5);
-        --shadow-2xl: var(--shadow-6);
-      }
-
+    <style id="showcase-styles">
+      /* Base styles */
       * {
         margin: 0;
         padding: 0;
@@ -90,433 +44,11 @@
       }
 
       body {
-        font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          "Helvetica Neue", Arial, sans-serif;
-        background: linear-gradient(135deg, var(--gray-50) 0%, white 100%);
-        color: var(--gray-900);
-        line-height: 1.6;
+        font-family: var(--font-sans);
+        background: linear-gradient(135deg, var(--gray-0) 0%, var(--surface-1) 100%);
+        color: var(--text-1);
+        line-height: var(--font-lineheight-3);
         min-height: 100vh;
-      }
-
-      /* Hero Section */
-      .hero {
-        background: linear-gradient(
-          135deg,
-          var(--primary) 0%,
-          var(--secondary) 100%
-        );
-        color: white;
-        padding: var(--space-3xl) var(--space-xl);
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .hero::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="turbulence" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)" opacity="0.05"/></svg>');
-        pointer-events: none;
-      }
-
-      .hero-content {
-        position: relative;
-        z-index: 1;
-        max-width: 1200px;
-        margin: 0 auto;
-      }
-
-      .hero h1 {
-        font-size: clamp(2.5rem, 5vw, 4rem);
-        font-weight: 900;
-        margin-bottom: var(--space-lg);
-        background: linear-gradient(
-          to right,
-          white,
-          rgba(255, 255, 255, 0.85)
-        );
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-      }
-
-      .hero-subtitle {
-        font-size: clamp(1.25rem, 2.5vw, 1.75rem);
-        font-weight: 300;
-        margin-bottom: var(--space-2xl);
-        opacity: 0.95;
-      }
-
-      /* Feature Cards */
-      .features {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: var(--space-xl);
-        max-width: 1200px;
-        margin: calc(-1 * var(--space-2xl)) auto var(--space-3xl);
-        padding: 0 var(--space-xl);
-        position: relative;
-        z-index: 10;
-      }
-
-      .feature-card {
-        background: white;
-        border-radius: var(--radius-xl);
-        padding: var(--space-xl);
-        box-shadow: var(--shadow-lg);
-        transition: all 0.3s ease;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .feature-card::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, var(--primary), var(--secondary));
-        transform: scaleX(0);
-        transition: transform 0.3s ease;
-      }
-
-      .feature-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-2xl);
-      }
-
-      .feature-card:hover::before {
-        transform: scaleX(1);
-      }
-
-      .feature-icon {
-        font-size: 2.5rem;
-        margin-bottom: var(--space-md);
-        display: inline-block;
-      }
-
-      .feature-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--gray-900);
-        margin-bottom: var(--space-sm);
-      }
-
-      .feature-description {
-        color: var(--gray-600);
-        margin-bottom: var(--space-lg);
-      }
-
-      .feature-stats {
-        display: flex;
-        gap: var(--space-lg);
-        padding-top: var(--space-md);
-        border-top: 1px solid var(--gray-200);
-      }
-
-      .stat {
-        flex: 1;
-        text-align: center;
-      }
-
-      .stat-value {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--primary);
-        display: block;
-      }
-
-      .stat-label {
-        font-size: 0.875rem;
-        color: var(--light);
-      }
-
-      /* Live Demo Section */
-      .demo-section {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: var(--space-3xl) var(--space-xl);
-      }
-
-      .demo-header {
-        text-align: center;
-        margin-bottom: var(--space-3xl);
-      }
-
-      .demo-header h2 {
-        font-size: clamp(2rem, 4vw, 3rem);
-        font-weight: 800;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: var(--space-md);
-      }
-
-      .demo-tabs {
-        display: flex;
-        gap: var(--space-sm);
-        margin-bottom: var(--space-xl);
-        border-bottom: 2px solid var(--gray-200);
-        overflow-x: auto;
-      }
-
-      .demo-tab {
-        padding: var(--space-md) var(--space-lg);
-        background: none;
-        border: none;
-        color: var(--gray-600);
-        font-size: 1rem;
-        font-weight: 500;
-        cursor: pointer;
-        position: relative;
-        white-space: nowrap;
-        transition: color 0.2s ease;
-      }
-
-      .demo-tab:hover {
-        color: var(--gray-900);
-      }
-
-      .demo-tab.active {
-        color: var(--primary);
-      }
-
-      .demo-tab.active::after {
-        content: "";
-        position: absolute;
-        bottom: -2px;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: var(--primary);
-      }
-
-      .demo-content {
-        min-height: 500px;
-        width: 100%;
-      }
-
-      .code-panel, .preview-panel {
-        background: white;
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-md);
-        overflow: hidden;
-      }
-
-      .panel-header {
-        padding: var(--space-md) var(--space-lg);
-        background: var(--gray-50);
-        border-bottom: 1px solid var(--gray-200);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .panel-title {
-        font-weight: 600;
-        color: var(--gray-700);
-      }
-
-      .panel-actions {
-        display: flex;
-        gap: var(--space-sm);
-      }
-
-      .panel-action {
-        padding: var(--space-xs) var(--space-sm);
-        background: white;
-        border: 1px solid var(--gray-300);
-        border-radius: var(--radius-md);
-        color: var(--gray-600);
-        font-size: 0.875rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-
-      .panel-action:hover {
-        background: var(--gray-50);
-        color: var(--gray-900);
-        border-color: var(--gray-400);
-      }
-
-      .code-content {
-        padding: var(--space-lg);
-        font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
-        font-size: 0.9rem;
-        line-height: 1.5;
-        overflow-x: auto;
-        background: var(--gray-10);
-        color: var(--gray-0);
-      }
-
-      .preview-content {
-        padding: var(--space-xl);
-        min-height: 500px;
-      }
-
-      /* Metrics Bar */
-      .metrics-bar {
-        background: linear-gradient(
-          to right,
-          var(--gray-900),
-          var(--gray-800)
-        );
-        color: white;
-        padding: var(--space-lg) var(--space-xl);
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        box-shadow: var(--shadow-xl);
-      }
-
-      .metrics-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        display: flex;
-        justify-content: space-around;
-        gap: var(--space-xl);
-        flex-wrap: wrap;
-      }
-
-      .metric {
-        display: flex;
-        align-items: center;
-        gap: var(--space-sm);
-      }
-
-      .metric-label {
-        font-size: 0.875rem;
-        opacity: 0.7;
-      }
-
-      .metric-value {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--success);
-      }
-
-      .metric-value.warning {
-        color: var(--warning);
-      }
-
-      .metric-value.danger {
-        color: var(--danger);
-      }
-
-      /* Interactive Playground */
-      .playground {
-        background: var(--gray-50);
-        padding: var(--space-3xl) var(--space-xl);
-        margin-top: var(--space-3xl);
-      }
-
-      .playground-header {
-        text-align: center;
-        margin-bottom: var(--space-2xl);
-      }
-
-      .playground-editor {
-        max-width: 1200px;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: var(--space-xl);
-        height: 600px;
-      }
-
-      @media (max-width: 968px) {
-        .playground-editor {
-          grid-template-columns: 1fr;
-          height: auto;
-        }
-      }
-
-      .editor-panel {
-        background: white;
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-md);
-        display: flex;
-        flex-direction: column;
-      }
-
-      .editor-textarea {
-        flex: 1;
-        padding: var(--space-lg);
-        border: none;
-        font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
-        font-size: 0.9rem;
-        line-height: 1.5;
-        resize: none;
-        background: var(--gray-10);
-        color: var(--gray-0);
-      }
-
-      .run-button {
-        padding: var(--space-md) var(--space-xl);
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: white;
-        border: none;
-        border-radius: var(--radius-md);
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin: var(--space-lg);
-      }
-
-      .run-button:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-lg);
-      }
-
-      /* Footer */
-      .footer {
-        background: var(--gray-900);
-        color: white;
-        padding: var(--space-2xl) var(--space-xl);
-        text-align: center;
-        margin-top: var(--space-3xl);
-      }
-
-      .footer-links {
-        display: flex;
-        justify-content: center;
-        gap: var(--space-xl);
-        margin-bottom: var(--space-lg);
-      }
-
-      .footer-link {
-        color: var(--gray-400);
-        text-decoration: none;
-        transition: color 0.2s ease;
-      }
-
-      .footer-link:hover {
-        color: white;
-      }
-
-      /* Animations */
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .animate-in {
-        animation: fadeIn 0.6s ease forwards;
       }
 
       /* Code highlighting */
@@ -529,445 +61,114 @@
         background: transparent;
       }
 
-      /* Floating Cart Button */
-      .floating-cart-btn {
-        position: fixed;
-        bottom: 2rem;
-        right: 2rem;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: white;
-        border: none;
-        border-radius: 50px;
-        padding: 1rem 1.5rem;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-        transition: all 0.3s ease;
-        z-index: 1000;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+      /* Animation keyframes */
+      @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
       }
 
-      .floating-cart-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-xl);
+      /* Warning variants for metrics */
+      .warning {
+        color: var(--yellow-6) !important;
       }
 
-      .floating-cart-btn .cart-count {
-        background: rgba(255, 255, 255, 0.2);
-        padding: 0.25rem 0.5rem;
-        border-radius: 1rem;
-        font-size: 0.875rem;
-        font-weight: 700;
-        min-width: 1.5rem;
-        text-align: center;
+      .danger {
+        color: var(--red-6) !important;
       }
 
-      /* Shopping Cart Sidebar */
-      .shopping-cart-sidebar {
-        position: fixed;
-        top: 0;
-        right: -400px;
-        width: 400px;
-        height: 100vh;
-        background: white;
-        box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
-        display: flex;
-        flex-direction: column;
-        z-index: 1001;
-        transition: right 0.3s ease;
-      }
-
-      .shopping-cart-sidebar.open {
-        right: 0;
-      }
-
-      .cart-header {
-        padding: 1.5rem;
-        background: var(--gray-50);
-        border-bottom: 1px solid var(--gray-200);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .cart-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: var(--gray-800);
-        margin: 0;
-      }
-
-      .cart-close-btn {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
-        color: var(--gray-500);
-        padding: 0.5rem;
-        border-radius: 50%;
-        transition: all 0.2s ease;
-      }
-
-      .cart-close-btn:hover {
-        background: var(--gray-200);
-        color: var(--gray-700);
-      }
-
-      .cart-items {
-        flex: 1;
-        overflow-y: auto;
-        padding: 1rem;
-      }
-
-      .cart-footer {
-        padding: 1.5rem;
-        background: var(--gray-50);
-        border-top: 1px solid var(--gray-200);
-      }
-
-      .cart-total-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 1.25rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        color: var(--gray-800);
-      }
-
-      .cart-checkout-btn {
-        width: 100%;
-        padding: 1rem;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: white;
-        border: none;
-        border-radius: 0.5rem;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      .cart-checkout-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: var(--shadow-md);
-      }
-
-      /* Modal styles and utilities */
+      /* Modal visibility - ensure modals are hidden by default */
       .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        display: none;
-        align-items: center;
-        justify-content: center;
+        display: none !important;
       }
-      .modal-content {
-        background: white;
-        border-radius: var(--radius-xl);
-        width: 90%;
-        max-width: 1000px;
-        max-height: 85vh;
-        display: flex;
-        flex-direction: column;
-        box-shadow: var(--shadow-2xl);
-        animation: slideUp 0.3s ease;
+
+      .modal-overlay.open {
+        display: flex !important;
       }
-      .modal-header {
-        padding: var(--space-lg);
-        background: var(--gray-50);
-        border-bottom: 1px solid var(--gray-200);
-        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+
+      /* Demo content should not display raw text */
+      #demo-content {
+        min-height: 500px;
       }
-      .modal-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--gray-900);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-      .modal-close-btn {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        color: var(--gray-500);
-        cursor: pointer;
-        padding: 0.25rem;
-        border-radius: 50%;
-        transition: all 0.2s ease;
-      }
-      .modal-close-btn:hover {
-        background: var(--gray-200);
-        color: var(--gray-700);
-      }
-      .modal-body {
-        flex: 1;
-        overflow: auto;
-        padding: 0;
-      }
-      .modal-footer {
-        padding: 1rem;
-        background: var(--gray-50);
-        border-top: 1px solid var(--gray-200);
-        display: flex;
-        gap: 1rem;
-        justify-content: flex-end;
-      }
-      .btn {
-        padding: 0.5rem 1rem;
-        background: white;
-        border: 1px solid var(--gray-300);
-        border-radius: var(--radius-md);
-        cursor: pointer;
-      }
-      .btn-primary {
-        background: var(--primary);
-        color: white;
-        border: none;
-      }
-      .muted-center {
-        padding: 2rem;
-        text-align: center;
-        color: var(--gray-500);
-      }
+
+      /* Showcase utility styles will be injected here by components */
     </style>
+    
+    <script>
+      // Inject showcase utility styles
+      document.addEventListener('DOMContentLoaded', function() {
+        // Manually inject showcase utility styles since they're not automatically included
+        const showcaseStyles = `
+          .showcase-hero { background: var(--gradient-19); color: var(--gray-0); padding: var(--size-fluid-6) var(--size-fluid-3); text-align: center; position: relative; overflow: hidden; min-height: 50vh; display: flex; align-items: center; justify-content: center; }
+          .showcase-hero-content { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; }
+          .showcase-hero-title { font-size: var(--font-size-fluid-3); font-weight: var(--font-weight-9); line-height: var(--font-lineheight-0); margin-bottom: var(--size-fluid-2); background: linear-gradient(to right, var(--gray-0), var(--gray-2)); background-clip: text; color: transparent; }
+          .showcase-hero-subtitle { font-size: var(--font-size-fluid-1); font-weight: var(--font-weight-3); margin-bottom: var(--size-fluid-4); opacity: 0.95; color: var(--gray-1); }
+          .showcase-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--size-fluid-3); }
+          .showcase-feature-card { background: var(--surface-1); border-radius: var(--radius-3); padding: var(--size-fluid-3); box-shadow: var(--shadow-3); transition: all var(--animation-fade-in); cursor: pointer; position: relative; overflow: hidden; }
+          .showcase-feature-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--gradient-3); transform: scaleX(0); transition: transform var(--animation-fade-in); }
+          .showcase-feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-5); }
+          .showcase-feature-card:hover::before { transform: scaleX(1); }
+          .showcase-feature-icon { font-size: 2.5rem; margin-bottom: var(--size-3); display: inline-block; }
+          .showcase-card-title { font-size: var(--font-size-4); font-weight: var(--font-weight-7); color: var(--text-1); margin-bottom: var(--size-2); }
+          .showcase-card-description { color: var(--text-2); line-height: var(--font-lineheight-3); margin-bottom: var(--size-fluid-2); }
+          .showcase-feature-stats { display: flex; gap: var(--size-fluid-2); padding-top: var(--size-3); border-top: 1px solid var(--surface-2); }
+          .showcase-stat-value { font-size: var(--font-size-4); font-weight: var(--font-weight-7); color: var(--blue-6); display: block; }
+          .showcase-stat-label { font-size: var(--font-size-0); color: var(--text-2); }
+          .showcase-metrics-bar { background: var(--gradient-8); color: var(--gray-0); padding: var(--size-fluid-2) var(--size-fluid-3); position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-4); }
+          .showcase-metrics-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-around; gap: var(--size-fluid-3); flex-wrap: wrap; }
+          .showcase-metric { display: flex; align-items: center; gap: var(--size-2); }
+          .showcase-metric-label { font-size: var(--font-size-0); opacity: 0.7; }
+          .showcase-metric-value { font-size: var(--font-size-3); font-weight: var(--font-weight-7); color: var(--green-3); }
+          .showcase-section { max-width: 1400px; margin: 0 auto; padding: var(--size-fluid-6) var(--size-fluid-3); }
+          .showcase-demo-tabs { display: flex; gap: var(--size-2); margin-bottom: var(--size-fluid-3); border-bottom: 2px solid var(--gray-2); overflow-x: auto; padding: 0; }
+          .showcase-demo-tab { padding: var(--size-3) var(--size-fluid-2); background: none; border: none; color: var(--gray-6); font-size: var(--font-size-1); font-weight: var(--font-weight-5); cursor: pointer; position: relative; white-space: nowrap; transition: all 0.2s ease; border-radius: var(--radius-2) var(--radius-2) 0 0; margin-bottom: -2px; }
+          .showcase-demo-tab:hover { color: var(--gray-9); background: var(--gray-1); }
+          .showcase-demo-tab.active { color: var(--blue-6); background: white; border: 1px solid var(--gray-2); border-bottom: 1px solid white; }
+          .showcase-demo-tab.active::after { content: ""; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px; background: var(--blue-6); }
+          .showcase-demo-content { min-height: 500px; width: 100%; }
+          .showcase-footer { background: var(--gray-11); color: var(--gray-0); padding: var(--size-fluid-4) var(--size-fluid-3); text-align: center; margin-top: var(--size-fluid-6); }
+          .showcase-footer-links { display: flex; justify-content: center; gap: var(--size-fluid-3); margin-bottom: var(--size-fluid-2); }
+          .showcase-footer-link { color: var(--gray-5); text-decoration: none; transition: color var(--animation-fade-in); }
+          .showcase-footer-link:hover { color: var(--gray-0); }
+          .showcase-cart-sidebar { position: fixed; top: 0; right: -400px; width: 400px; height: 100vh; background: var(--surface-1); box-shadow: var(--shadow-5); display: flex; flex-direction: column; z-index: 1001; transition: right var(--animation-slide-out-right); }
+          .showcase-cart-sidebar.open { right: 0; }
+          .showcase-floating-button { position: fixed; bottom: var(--size-8); right: var(--size-8); background: var(--gradient-3); color: var(--gray-0); border: none; border-radius: var(--radius-round); padding: var(--size-3) var(--size-4); font-size: var(--font-size-1); font-weight: var(--font-weight-6); cursor: pointer; box-shadow: var(--shadow-4); transition: all var(--animation-fade-in); z-index: 1000; display: flex; align-items: center; gap: var(--size-2); }
+          .showcase-floating-button:hover { transform: translateY(-2px); box-shadow: var(--shadow-5); }
+          .showcase-cart-header { padding: var(--size-fluid-3); background: var(--surface-2); border-bottom: 1px solid var(--surface-3); display: flex; justify-content: space-between; align-items: center; }
+          .showcase-cart-items { flex: 1; overflow-y: auto; padding: var(--size-3); }
+          .showcase-cart-footer { padding: var(--size-fluid-3); background: var(--surface-2); border-top: 1px solid var(--surface-3); }
+          .showcase-muted-text { padding: var(--size-8); text-align: center; color: var(--text-2); }
+          .showcase-button { padding: var(--size-2) var(--size-4); background: var(--surface-1); border: 1px solid var(--surface-3); border-radius: var(--radius-2); cursor: pointer; font-size: var(--font-size-1); font-weight: var(--font-weight-5); transition: all var(--animation-fade-in); }
+          .showcase-button:hover { background: var(--surface-2); }
+          .showcase-button-primary { background: var(--gradient-3); color: var(--gray-0); border: none; }
+          .showcase-button-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-3); }
+        `;
+        
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = showcaseStyles;
+        document.head.appendChild(styleSheet);
+      });
+    </script>
   </head>
   <body hx-ext="json-enc">
     <!-- Hero Section -->
-    <section class="hero">
-      <div class="hero-content">
-        <h1>ui-lib</h1>
-        <p class="hero-subtitle">
-          The Most Ergonomic Component Library Ever Built
-        </p>
-
-        <showcase-hero-stats></showcase-hero-stats>
-      </div>
-    </section>
+    <showcase-hero-section></showcase-hero-section>
 
     <!-- Feature Cards -->
-    <section class="features">
-      <div class="feature-card" onclick="showDemo('zero-duplication')">
-        <span class="feature-icon">✨</span>
-        <h3 class="feature-title">Zero Duplication</h3>
-        <p class="feature-description">
-          Function-style props eliminate all type duplication. Write once, use
-          everywhere with perfect type safety.
-        </p>
-        <div class="feature-stats">
-          <div class="stat">
-            <span class="stat-value">-73%</span>
-            <span class="stat-label">Less Code</span>
-          </div>
-          <div class="stat">
-            <span class="stat-value">100%</span>
-            <span class="stat-label">Type Safe</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="feature-card" onclick="showDemo('dom-native')">
-        <span class="feature-icon">🎯</span>
-        <h3 class="feature-title">DOM-Native State</h3>
-        <p class="feature-description">
-          No virtual DOM, no state sync. The DOM is your state with zero
-          overhead and perfect performance.
-        </p>
-        <div class="feature-stats">
-          <div class="stat">
-            <span class="stat-value">0kb</span>
-            <span class="stat-label">Runtime</span>
-          </div>
-          <div class="stat">
-            <span class="stat-value">10x</span>
-            <span class="stat-label">Faster</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="feature-card" onclick="showDemo('unified-api')">
-        <span class="feature-icon">🚀</span>
-        <h3 class="feature-title">Unified API</h3>
-        <p class="feature-description">
-          Define server endpoints once, get HTMX attributes automatically. Zero
-          client-server glue code.
-        </p>
-        <div class="feature-stats">
-          <div class="stat">
-            <span class="stat-value">1</span>
-            <span class="stat-label">Definition</span>
-          </div>
-          <div class="stat">
-            <span class="stat-value">∞</span>
-            <span class="stat-label">Usage</span>
-          </div>
-        </div>
-      </div>
-    </section>
+    <showcase-feature-cards></showcase-feature-cards>
 
     <!-- Metrics Bar -->
-    <div class="metrics-bar">
-      <div class="metrics-container">
-        <div class="metric">
-          <span class="metric-label">Bundle Size:</span>
-          <span class="metric-value" id="bundle-size">0kb</span>
-        </div>
-        <div class="metric">
-          <span class="metric-label">Components:</span>
-          <span class="metric-value" id="component-count">0</span>
-        </div>
-        <div class="metric">
-          <span class="metric-label">Render Time:</span>
-          <span class="metric-value" id="render-time">0ms</span>
-        </div>
-        <div class="metric">
-          <span class="metric-label">Memory:</span>
-          <span class="metric-value" id="memory-usage">0MB</span>
-        </div>
-        <div class="metric">
-          <span class="metric-label">Type Coverage:</span>
-          <span class="metric-value" id="type-coverage">100%</span>
-        </div>
-      </div>
-    </div>
+    <showcase-metrics-bar></showcase-metrics-bar>
 
     <!-- Live Demo Section -->
-    <section class="demo-section">
-      <div class="demo-header">
-        <h2>See It In Action</h2>
-        <p>Real components, real code, real performance metrics</p>
-      </div>
-
-      <div class="demo-tabs">
-        <button
-          class="demo-tab active"
-          onclick="loadDemo('ecommerce')"
-          data-demo="ecommerce"
-        >
-          🏪 E-commerce
-        </button>
-        <button
-          class="demo-tab"
-          onclick="loadDemo('dashboard')"
-          data-demo="dashboard"
-        >
-          📊 Dashboard
-        </button>
-        <button class="demo-tab" onclick="loadDemo('forms')" data-demo="forms">
-          📝 Forms
-        </button>
-        <button class="demo-tab" onclick="loadDemo('media')" data-demo="media">
-          🎵 Media Player
-        </button>
-        <button
-          class="demo-tab"
-          onclick="loadDemo('comparison')"
-          data-demo="comparison"
-        >
-          ⚖️ vs React
-        </button>
-        <button
-          class="demo-tab"
-          onclick="loadPlayground()"
-          data-demo="playground"
-        >
-          🚀 Playground
-        </button>
-      </div>
-
-      <div class="demo-content" id="demo-content">
-        <!-- Demo content loads here - initial load uses modal system -->
-      </div>
-    </section>
+    <showcase-demo-viewer></showcase-demo-viewer>
 
     <!-- Footer -->
-    <footer class="footer">
-      <div class="footer-links">
-        <a href="https://github.com/srdjans/ui-lib" class="footer-link"
-        >GitHub</a>
-        <a href="/docs" class="footer-link">Documentation</a>
-        <a href="/examples" class="footer-link">Examples</a>
-        <a href="/benchmark" class="footer-link">Benchmarks</a>
-      </div>
-      <p>&copy; 2024 ui-lib. Built with Deno + TypeScript + Love.</p>
-    </footer>
+    <showcase-footer></showcase-footer>
 
-    <!-- Shopping Cart Sidebar -->
-    <div class="shopping-cart-sidebar" id="shopping-cart-sidebar">
-      <div class="cart-header">
-        <h2 class="cart-title">
-          🛒 Shopping Cart (<span class="cart-count">0</span>)
-        </h2>
-        <button
-          class="cart-close-btn"
-          onclick="document.getElementById('shopping-cart-sidebar').classList.remove('open')"
-        >
-          ✕
-        </button>
-      </div>
+    <!-- Shopping Cart System -->
+    <showcase-cart-sidebar></showcase-cart-sidebar>
 
-      <div class="cart-items">
-        <div class="muted-center">
-          Your cart is empty
-        </div>
-      </div>
-
-      <div class="cart-footer">
-        <div class="cart-total-row">
-          <span>Total:</span>
-          <span class="cart-total">$0.00</span>
-        </div>
-        <button class="cart-checkout-btn">
-          Proceed to Checkout
-        </button>
-      </div>
-    </div>
-
-    <!-- Floating Cart Button -->
-    <button
-      class="floating-cart-btn"
-      onclick="document.getElementById('shopping-cart-sidebar').classList.add('open')"
-    >
-      🛒 Cart <span class="cart-count">0</span>
-    </button>
-
-    <div
-      id="demo-modal"
-      class="modal-overlay"
-    >
-      <div
-        class="modal-content"
-      >
-        <div
-          class="modal-header"
-        >
-          <span class="modal-title">Modal Example</span>
-          <button
-            onclick="document.getElementById('demo-modal').style.display='none'"
-            class="modal-close-btn"
-          >
-            ✕
-          </button>
-        </div>
-        <div class="modal-body">
-          <p>
-            This is a modal dialog. You can put any content here, like a form,
-            some text, or even other components.
-          </p>
-        </div>
-      </div>
-    </div>
+    <!-- Modals will be dynamically created by JavaScript when needed -->
 
     <script>
       // Global cart action function for reactive helpers
@@ -1035,7 +236,7 @@
 
       function loadDemo(demoName) {
         // Update active tab
-        document.querySelectorAll(".demo-tab").forEach((tab) => {
+        document.querySelectorAll(".showcase-demo-tab").forEach((tab) => {
           tab.classList.remove("active");
         });
         document.querySelector(`[data-demo="${demoName}"]`).classList
@@ -1049,13 +250,6 @@
         <div class="viewer" data-component="showcase-demo-viewer">
           <!-- Full-width Preview -->
           <div class="preview-panel">
-            <div class="panel-header">
-              <span class="panel-title">👁️ Live Preview</span>
-              <div class="panel-actions">
-                <button type="button" class="panel-action" onclick="refreshPreview(this)">🔄 Refresh</button>
-                <button type="button" class="panel-action" onclick="toggleFullscreen(this)">⛶ Fullscreen</button>
-              </div>
-            </div>
             <div class="preview-content" id="preview-${demoName}" hx-get="/api/showcase/preview/${demoName}" hx-trigger="load">
               Loading preview...
             </div>
@@ -1095,7 +289,7 @@
 
       function loadPlayground() {
         // Update active tab
-        document.querySelectorAll(".demo-tab").forEach((tab) => {
+        document.querySelectorAll(".showcase-demo-tab").forEach((tab) => {
           tab.classList.remove("active");
         });
         document.querySelector('[data-demo="playground"]').classList
@@ -1111,35 +305,36 @@
         });
       }
 
-      // Animate metrics on load
-      function animateMetrics() {
-        const metrics = {
-          "bundle-size": { start: 0, end: 0, unit: "kb" },
-          "component-count": { start: 0, end: 47, unit: "" },
-          "render-time": { start: 0, end: 3, unit: "ms" },
-          "memory-usage": { start: 0, end: 1.2, unit: "MB" },
-          "type-coverage": { start: 0, end: 100, unit: "%" },
-        };
-
-        Object.entries(metrics).forEach(([id, config]) => {
-          const element = document.getElementById(id);
-          let current = config.start;
-          const increment = (config.end - config.start) / 30;
-
-          const timer = setInterval(() => {
-            current += increment;
-            if (current >= config.end) {
-              current = config.end;
-              clearInterval(timer);
-            }
-            element.textContent = `${current.toFixed(1)}${config.unit}`;
-          }, 50);
-        });
-      }
-
       // Start animations when page loads
       document.addEventListener("DOMContentLoaded", function () {
-        animateMetrics();
+        // Animate metrics after a brief delay to ensure components are loaded
+        setTimeout(() => {
+          const metrics = {
+            "bundle-size": { start: 0, end: 0, unit: "kb" },
+            "component-count": { start: 0, end: 47, unit: "" },
+            "render-time": { start: 0, end: 3, unit: "ms" },
+            "memory-usage": { start: 0, end: 1.2, unit: "MB" },
+            "type-coverage": { start: 0, end: 100, unit: "%" },
+          };
+
+          Object.entries(metrics).forEach(([id, config]) => {
+            const element = document.getElementById(id);
+            if (!element) return; // Skip if element doesn't exist
+            
+            let current = config.start;
+            const increment = (config.end - config.start) / 30;
+
+            const timer = setInterval(() => {
+              current += increment;
+              if (current >= config.end) {
+                current = config.end;
+                clearInterval(timer);
+              }
+              element.textContent = `${current.toFixed(1)}${config.unit}`;
+            }, 50);
+          });
+        }, 100);
+        
         // Load initial demo with modal system
         loadDemo("ecommerce");
       });
@@ -1177,49 +372,8 @@
         setTimeout(() => btn.textContent = original, 1000);
       };
 
-      window.refreshPreview = function (btn) {
-        const previewPanel = btn.closest(".preview-panel");
-        if (!previewPanel) return;
 
-        const preview = previewPanel.querySelector(".preview-content");
-        if (
-          typeof htmx !== "undefined" && preview.hasAttribute("hx-get")
-        ) {
-          htmx.trigger(preview, "load");
-          const original = btn.textContent;
-          btn.textContent = "🔄 Refreshing...";
-          setTimeout(() => btn.textContent = original, 1000);
-        }
-      };
 
-      window.toggleFullscreen = function (btn) {
-        const panel = btn.closest(".preview-panel");
-        if (!panel) return;
-
-        if (document.fullscreenElement) {
-          document.exitFullscreen();
-          btn.textContent = "⛶ Fullscreen";
-        } else {
-          panel.requestFullscreen().then(() => {
-            btn.textContent = "🔲 Exit";
-          }).catch(() => {
-            btn.textContent = "❌ Error";
-            setTimeout(() => btn.textContent = "⛶ Fullscreen", 2000);
-          });
-        }
-      };
-
-      // Handle fullscreen change
-      document.addEventListener("fullscreenchange", function () {
-        const btn = document.querySelector(
-          '[onclick*="toggleFullscreen"]',
-        );
-        if (btn) {
-          btn.textContent = document.fullscreenElement
-            ? "🔲 Exit"
-            : "⛶ Fullscreen";
-        }
-      });
 
       // View Forms Code function
       window.viewFormsCode = function () {
