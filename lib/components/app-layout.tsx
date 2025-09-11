@@ -282,32 +282,7 @@ defineComponent("app-layout", {
       }
     };
 
-    return (
-      <div
-        class={containerClasses}
-        style={containerStyles}
-        data-layout-theme={layoutTheme}
-        data-responsive={isResponsive}
-        role="application"
-        aria-label="Application layout"
-        dangerouslySetInnerHTML={{
-          __html: children || `
-            <!-- Default content if no children provided -->
-            <header class="${classes!.headerArea}">
-              <nav role="navigation">
-                <!-- Navigation will be injected here -->
-              </nav>
-            </header>
-            <main class="${classes!.mainArea}" role="main">
-              ${getDemoContent(demo)}
-            </main>
-          `,
-        }}
-      >
-        {/* Inject state manager for theme switching */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
+    const scriptContent = `
             (function() {
               // Theme switching support
               const layout = document.currentScript.parentElement;
@@ -321,19 +296,19 @@ defineComponent("app-layout", {
                 if (hasLeft && hasRight) {
                   // default 3-column
                   layout.style.gridTemplateColumns = 'auto 1fr auto';
-                  layout.style.gridTemplateAreas = `'sidebar-left header sidebar-right' 'sidebar-left main sidebar-right' 'sidebar-left footer sidebar-right'`;
+                  layout.style.gridTemplateAreas = "'sidebar-left header sidebar-right' 'sidebar-left main sidebar-right' 'sidebar-left footer sidebar-right'";
                 } else if (hasLeft) {
                   layout.classList.add('${classes!.layoutLeftOnly}');
                   layout.style.gridTemplateColumns = 'auto 1fr';
-                  layout.style.gridTemplateAreas = `'sidebar-left header' 'sidebar-left main' 'sidebar-left footer'`;
+                  layout.style.gridTemplateAreas = "'sidebar-left header' 'sidebar-left main' 'sidebar-left footer'";
                 } else if (hasRight) {
                   layout.classList.add('${classes!.layoutRightOnly}');
                   layout.style.gridTemplateColumns = '1fr auto';
-                  layout.style.gridTemplateAreas = `'header sidebar-right' 'main sidebar-right' 'footer sidebar-right'`;
+                  layout.style.gridTemplateAreas = "'header sidebar-right' 'main sidebar-right' 'footer sidebar-right'";
                 } else {
                   layout.classList.add('${classes!.layoutMainOnly}');
                   layout.style.gridTemplateColumns = '1fr';
-                  layout.style.gridTemplateAreas = `'header' 'main' 'footer'`;
+                  layout.style.gridTemplateAreas = "'header' 'main' 'footer'";
                 }
               };
               adjustLayout();
@@ -384,12 +359,30 @@ defineComponent("app-layout", {
                 });
                 resizeObserver.observe(layout);
               }
-            })();
-          `,
-          }}
-        >
-        </script>
-      </div>
+            })();`;
+    
+    const fullHtml = (children || `
+      <!-- Default content if no children provided -->
+      <header class="${classes!.headerArea}">
+        <nav role="navigation">
+          <!-- Navigation will be injected here -->
+        </nav>
+      </header>
+      <main class="${classes!.mainArea}" role="main">
+        ${getDemoContent(demo)}
+      </main>
+    `) + `<script>${scriptContent}</script>`;
+
+    return (
+      <div
+        class={containerClasses}
+        style={containerStyles}
+        data-layout-theme={layoutTheme}
+        data-responsive={isResponsive}
+        role="application"
+        aria-label="Application layout"
+        dangerouslySetInnerHTML={{ __html: fullHtml }}
+      />
     );
   },
 });

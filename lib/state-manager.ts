@@ -383,6 +383,96 @@ window.funcwcState = {
   }
 };
 
+// Two-way binding helpers for declarative bindings
+window.uiLibBindings = {
+  /**
+   * Initialize two-way value binding for form inputs
+   */
+  initValueBinding(element, stateName) {
+    if (!element || !stateName) return;
+    
+    // Set initial value from state if it exists
+    const currentState = window.funcwcState?.getState(stateName);
+    if (currentState !== undefined) {
+      element.value = currentState;
+    }
+    
+    // Subscribe to state changes
+    window.funcwcState?.subscribe(stateName, function(newValue) {
+      if (element.value !== newValue) {
+        element.value = newValue;
+      }
+    }, element);
+    
+    // Listen for input changes and update state
+    const updateState = (e) => {
+      const newValue = e.target.value;
+      const currentValue = window.funcwcState?.getState(stateName);
+      if (newValue !== currentValue) {
+        window.funcwcState?.publish(stateName, newValue);
+      }
+    };
+    
+    // Handle different input types
+    if (element.type === 'checkbox' || element.type === 'radio') {
+      element.addEventListener('change', (e) => {
+        const newValue = element.type === 'checkbox' ? e.target.checked : e.target.value;
+        window.funcwcState?.publish(stateName, newValue);
+      });
+      
+      // Set initial checked state for checkboxes
+      if (element.type === 'checkbox' && typeof currentState === 'boolean') {
+        element.checked = currentState;
+      }
+    } else {
+      // Text inputs, selects, textareas
+      element.addEventListener('input', updateState);
+      element.addEventListener('change', updateState);
+    }
+  },
+  
+  /**
+   * Initialize all declarative bindings on an element and its children
+   */
+  initAllBindings(rootElement = document) {
+    // Initialize value bindings
+    rootElement.querySelectorAll('[data-bind-value-target]').forEach(element => {
+      const stateName = element.dataset.bindValueTarget;
+      if (stateName) {
+        this.initValueBinding(element, stateName);
+      }
+    });
+  },
+  
+  /**
+   * Cleanup bindings when an element is removed
+   */
+  cleanupBindings(element) {
+    // This is handled automatically by the state manager's cleanup system
+    // which checks if elements are still in the DOM
+  }
+};
+
+// Auto-initialize bindings on page load
+if (typeof document !== 'undefined') {
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      window.uiLibBindings?.initAllBindings();
+    });
+  } else {
+    // DOM is already ready
+    window.uiLibBindings?.initAllBindings();
+  }
+  
+  // Also initialize when new content is loaded via HTMX
+  document.addEventListener('htmx:afterSettle', (e) => {
+    if (e.target && window.uiLibBindings) {
+      window.uiLibBindings.initAllBindings(e.target);
+    }
+  });
+}
+
 // Enable debug mode in development
 if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
   window.funcwcState.configure({ debugMode: true });

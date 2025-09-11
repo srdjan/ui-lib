@@ -353,3 +353,121 @@ export const createNotification = (
   const payload = { message, type, ...(duration && { duration }) };
   return dispatchEvent("show-notification", payload);
 };
+
+/**
+ * Declarative Binding Helpers
+ * For use with data-bind-* attributes
+ */
+
+/**
+ * Generate text content binding
+ * @param stateName - State topic to bind to
+ */
+export const bindText = (stateName: string): string => 
+  `data-bind-text="${stateName}"`;
+
+/**
+ * Generate CSS class binding
+ * @param stateName - State topic to bind to
+ */
+export const bindClass = (stateName: string): string => 
+  `data-bind-class="${stateName}"`;
+
+/**
+ * Generate inline style property binding
+ * @param property - CSS property name
+ * @param stateName - State topic to bind to
+ */
+export const bindStyle = (property: string, stateName: string): string => 
+  `data-bind-style="${property}:${stateName}"`;
+
+/**
+ * Generate two-way value binding for form inputs
+ * @param stateName - State topic to bind to
+ */
+export const bindValue = (stateName: string): string => 
+  `data-bind-value="${stateName}"`;
+
+/**
+ * Generate event emission on click
+ * @param eventName - Event name to emit
+ * @param eventValue - Optional event payload (JSON string)
+ */
+export const emitOn = (eventName: string, eventValue?: string): string => {
+  const valueAttr = eventValue ? ` data-emit-value="${eventValue}"` : '';
+  return `data-emit="${eventName}"${valueAttr}`;
+};
+
+/**
+ * Generate event listener
+ * @param eventName - Event name to listen for
+ * @param handlerCode - JavaScript code to execute
+ */
+export const listenFor = (eventName: string, handlerCode: string): string => 
+  `data-listen="${eventName}:${handlerCode}"`;
+
+/**
+ * Generate conditional display binding
+ * @param stateName - State topic to bind to
+ */
+export const showIf = (stateName: string): string => 
+  `data-show-if="${stateName}"`;
+
+/**
+ * Generate conditional hiding binding
+ * @param stateName - State topic to bind to
+ */
+export const hideIf = (stateName: string): string => 
+  `data-hide-if="${stateName}"`;
+
+/**
+ * Combine multiple declarative bindings
+ * @param bindings - Array of binding strings
+ */
+export const combineBindings = (...bindings: string[]): string => 
+  bindings.filter(Boolean).join(' ');
+
+/**
+ * Create a complete declarative element with bindings
+ * @param tag - HTML tag name
+ * @param bindings - Object with binding configurations
+ * @param content - Inner content
+ */
+export const createBoundElement = (
+  tag: string,
+  bindings: {
+    text?: string;
+    class?: string;
+    style?: { property: string; state: string };
+    value?: string;
+    emit?: { event: string; value?: string };
+    listen?: { event: string; handler: string };
+    showIf?: string;
+    hideIf?: string;
+    attrs?: Record<string, string>;
+  },
+  content?: string,
+): string => {
+  const bindingAttrs: string[] = [];
+  
+  if (bindings.text) bindingAttrs.push(bindText(bindings.text));
+  if (bindings.class) bindingAttrs.push(bindClass(bindings.class));
+  if (bindings.style) bindingAttrs.push(bindStyle(bindings.style.property, bindings.style.state));
+  if (bindings.value) bindingAttrs.push(bindValue(bindings.value));
+  if (bindings.emit) bindingAttrs.push(emitOn(bindings.emit.event, bindings.emit.value));
+  if (bindings.listen) bindingAttrs.push(listenFor(bindings.listen.event, bindings.listen.handler));
+  if (bindings.showIf) bindingAttrs.push(showIf(bindings.showIf));
+  if (bindings.hideIf) bindingAttrs.push(hideIf(bindings.hideIf));
+  
+  // Add regular attributes
+  const regularAttrs = bindings.attrs 
+    ? Object.entries(bindings.attrs).map(([key, value]) => `${key}="${value}"`).join(' ')
+    : '';
+  
+  const allAttrs = [regularAttrs, ...bindingAttrs].filter(Boolean).join(' ');
+  const attrs = allAttrs ? ` ${allAttrs}` : '';
+  
+  return content !== undefined 
+    ? `<${tag}${attrs}>${content}</${tag}>`
+    : `<${tag}${attrs} />`;
+};

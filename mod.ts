@@ -55,7 +55,22 @@ export {
 } from "./lib/state-manager.ts";
 
 // DOM helpers
-export { toggleClass, toggleClasses, escapeHtml as escape } from "./lib/dom-helpers.ts";
+export { toggleClass, toggleClasses } from "./lib/dom-helpers.ts";
+export { escapeHtml as escape } from "./lib/ssr.ts";
+
+// Declarative bindings
+export {
+  bindText,
+  bindClass,
+  bindStyle,
+  bindValue,
+  emitOn,
+  listenFor,
+  showIf,
+  hideIf,
+  combineBindings,
+  createBoundElement,
+} from "./lib/reactive-helpers.ts";
 
 // Configuration
 export { configure, type FuncwcConfig } from "./lib/config.ts";

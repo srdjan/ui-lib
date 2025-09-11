@@ -19,6 +19,7 @@ import {
 
 import { applyReactiveAttrs } from "./reactive-system.ts";
 import { createPropsParser } from "./props.ts";
+import { processDeclarativeBindings, hasDeclarativeBindings } from "./declarative-bindings.ts";
 import "./jsx.d.ts"; // Import JSX types
 
 // Props transformer function type - takes raw attributes, returns whatever the user wants
@@ -233,7 +234,7 @@ export function defineComponent<TProps = Record<string, string>>(
         | string
         | undefined;
 
-      const html = generatedApi
+      let html = generatedApi
         ? (render as (
           p: TProps,
           a: GeneratedApiMap,
@@ -246,6 +247,12 @@ export function defineComponent<TProps = Record<string, string>>(
           c?: ClassMap,
           ch?: string,
         ) => string)(finalProps as TProps, undefined, classMap, children);
+      
+      // Process declarative bindings if present
+      if (hasDeclarativeBindings(html)) {
+        html = processDeclarativeBindings(html, name);
+      }
+      
       // Inject reactive attrs only if present, then add data-component
       return injectDataComponent(
         applyReactiveAttrs(html, reactive, name),

@@ -170,7 +170,7 @@ export {
 export {
   conditionalAction,
   debugReactiveState,
-  type EventTarget,
+  type ReactiveEventTarget,
   findClosestComponent,
   type ReactiveScope,
   safeExecute,
