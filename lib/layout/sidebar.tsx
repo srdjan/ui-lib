@@ -194,6 +194,8 @@ defineComponent("sidebar", {
       width = string("250px"), // Sidebar width
       collapsible = boolean(true), // Enable collapse/expand
       collapsed = boolean(false), // Initial collapsed state
+      id = string(""), // Optional id
+      oob = boolean(false), // Unused here; OOB handled by server response wrapping
     },
     _api,
     classes,
@@ -250,6 +252,7 @@ defineComponent("sidebar", {
         <aside
           class={sidebarClasses}
           style={sidebarStyles}
+          id={typeof id === 'string' && id ? id : undefined}
           role="complementary"
           aria-label={`${sidebarPosition} sidebar`}
           data-sidebar-position={sidebarPosition}

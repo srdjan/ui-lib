@@ -1,6 +1,6 @@
 /** @jsx h */
 // ui-lib NavItem Component - Individual navigation item
-import { boolean, defineComponent, type get, h, string } from "../../index.ts";
+import { boolean, defineComponent, h, string } from "../../index.ts";
 import type { NavItemProps } from "./layout-types.ts";
 
 /**
@@ -22,7 +22,39 @@ import type { NavItemProps } from "./layout-types.ts";
  * 🎯 Keyboard navigation support
  */
 defineComponent("navitem", {
-  autoProps: true,
+  autoProps: false,
+
+  // Preserve unknown attributes (e.g., hx-*) for pass-through to the anchor
+  props: (attrs: Record<string, string>) => {
+    const {
+      href = "#",
+      demo = "",
+      active = "",
+      disabled = "",
+      badge = "",
+      icon = "",
+      target = "",
+      ...rest
+    } = attrs || {};
+
+    const toBool = (v: string | undefined) => {
+      if (v === undefined) return false;
+      const s = String(v).toLowerCase();
+      if (s === "" || s === "true" || s === "1") return true;
+      return false;
+    };
+
+    return {
+      href,
+      demo,
+      active: toBool(active),
+      disabled: toBool(disabled),
+      badge,
+      icon,
+      target,
+      rest,
+    } as any;
+  },
 
   // No API needed - using direct HTMX navigation
 
@@ -144,21 +176,29 @@ defineComponent("navitem", {
 
   // Function-Style Props - Zero duplication!
   render: (
-    {
-      href = string("#"), // Navigation URL
-      active = boolean(false), // Active state
-      disabled = boolean(false), // Disabled state
-      badge = string(""), // Badge text (empty = no badge)
-      icon = string(""), // Icon (emoji or text)
-      target = string(""), // Link target (_blank, _self, etc.)
-    },
+    props: any,
     _api,
     classes: any,
     children?: string,
   ) => {
-    const itemHref = typeof href === "string" ? href : "#";
-    const isActive = typeof active === "boolean" ? active : false;
-    const isDisabled = typeof disabled === "boolean" ? disabled : false;
+    const {
+      href = "#",
+      demo = "",
+      active = false,
+      disabled = false,
+      badge = "",
+      icon = "",
+      target = "",
+      rest = {},
+    } = props || {};
+    const demoName = typeof demo === "string" ? demo : "";
+    let itemHref = typeof href === "string" ? href : "#";
+    if (demoName) {
+      // Ensure href matches the demo param for accessibility and non-HTMX fallback
+      itemHref = `/?demo=${demoName}`;
+    }
+    const isActive = !!active;
+    const isDisabled = !!disabled;
     const badgeText = typeof badge === "string" ? badge : "";
     const iconText = typeof icon === "string" ? icon : "";
     const linkTarget = typeof target === "string" ? target : "";
@@ -173,20 +213,33 @@ defineComponent("navitem", {
     const getHtmxAttrs = () => {
       if (isDisabled || (linkTarget && linkTarget !== "_self")) return {};
 
-      // Extract demo parameter from href (e.g., "/?demo=basic" -> "basic")
-      const url = new URL(itemHref, "http://localhost");
-      const demo = url.searchParams.get("demo");
-
-      if (demo && ["welcome", "basic", "reactive"].includes(demo)) {
-        return {
-          "hx-get": `/demo/${demo}`,
-          "hx-target": "#demo-content",
-          "hx-swap": "innerHTML",
-          "hx-push-url": itemHref,
-        };
+      // If user supplied explicit HTMX attributes on <navitem>, pass them through unchanged
+      const explicitHx = Object.keys(rest).some((k) => k.startsWith("hx-"));
+      if (explicitHx) {
+        return rest as Record<string, string | number | boolean>;
       }
 
-      return {};
+      // Otherwise, derive sensible defaults from demo/href
+      let demoId = demoName;
+      if (!demoId) {
+        try {
+          const url = new URL(itemHref, "http://localhost");
+          demoId = url.searchParams.get("demo") || "";
+        } catch {
+          demoId = "";
+        }
+      }
+
+      if (demoId) {
+        const attrs: Record<string, string | number | boolean> = {
+          "hx-get": `/api/showcase/preview/${demoId}`,
+          "hx-target": "#main-content",
+          "hx-push-url": `/?demo=${demoId}`,
+        };
+        return attrs;
+      }
+
+      return {} as Record<string, string | number | boolean>;
     };
 
     const htmxAttrs = getHtmxAttrs();
@@ -290,13 +343,23 @@ defineComponent("navitem", {
 
               // Auto-update active state based on current URL
               const updateActiveState = () => {
-                const currentPath = window.location.pathname;
-                const linkPath = link.getAttribute('href');
-                const isCurrentPage = currentPath === linkPath || 
-                  (linkPath !== '#' && currentPath.startsWith(linkPath));
-                
-                navItem.setAttribute('data-nav-active', isCurrentPage);
-                link.setAttribute('aria-current', isCurrentPage ? 'page' : 'false');
+                const current = new URL(window.location.href);
+                const linkUrl = new URL(link.href, window.location.origin);
+                const currentDemo = current.searchParams.get('demo') || '';
+                const linkDemo = linkUrl.searchParams.get('demo') || '';
+                // Prefer demo param if present; fallback to path match
+                let isCurrentPage = false;
+                if (linkDemo) {
+                  isCurrentPage = linkDemo === currentDemo;
+                } else {
+                  isCurrentPage = current.pathname === linkUrl.pathname && !currentDemo;
+                }
+                navItem.setAttribute('data-nav-active', String(isCurrentPage));
+                if (isCurrentPage) {
+                  link.setAttribute('aria-current', 'page');
+                } else {
+                  link.removeAttribute('aria-current');
+                }
               };
 
               // Initial check

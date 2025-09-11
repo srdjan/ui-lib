@@ -42,6 +42,31 @@ defineComponent("app-layout", {
       transition: background-color 0.3s ease, color 0.3s ease;
     }`,
 
+    // Auto layout variants based on sidebar presence
+    layoutMainOnly: `{
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "header"
+        "main"
+        "footer";
+    }`,
+
+    layoutLeftOnly: `{
+      grid-template-columns: auto 1fr;
+      grid-template-areas:
+        "sidebar-left header"
+        "sidebar-left main"
+        "sidebar-left footer";
+    }`,
+
+    layoutRightOnly: `{
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+        "header sidebar-right"
+        "main sidebar-right"
+        "footer sidebar-right";
+    }`,
+
     // Responsive grid adjustments
     containerMobile: `{
       grid-template-rows: auto 1fr;
@@ -103,9 +128,23 @@ defineComponent("app-layout", {
 
     // Theme is expressed via data attribute directly on the container
 
+    // SSR-aware initial layout selection from children (avoid initial 3-col flicker)
+    const childMarkup = children || "";
+    const hasSidebarTag = childMarkup.includes("<sidebar");
+    const hintRight = childMarkup.includes('position="right"');
+    const hintLeft = childMarkup.includes('position="left"');
+    const initialLayoutClass = !hasSidebarTag
+      ? classes!.layoutMainOnly
+      : (hintRight && !hintLeft)
+      ? classes!.layoutRightOnly
+      : (hintLeft && !hintRight)
+      ? classes!.layoutLeftOnly
+      : "";
+
     const containerClasses = [
       classes!.container,
       isResponsive ? classes!.responsive : "",
+      initialLayoutClass,
       layoutTheme !== "system"
         ? classes![
           `theme${layoutTheme.charAt(0).toUpperCase() + layoutTheme.slice(1)}`
@@ -113,11 +152,21 @@ defineComponent("app-layout", {
         : "",
     ].filter(Boolean).join(" ");
 
+    // Inline style override to guarantee correct initial grid without sidebars (prevents right-shift flicker)
+    const inlineLayoutStyle = !hasSidebarTag
+      ? "grid-template-columns: 1fr; grid-template-areas: 'header' 'main' 'footer';"
+      : (hintRight && !hintLeft)
+      ? "grid-template-columns: 1fr auto; grid-template-areas: 'header sidebar-right' 'main sidebar-right' 'footer sidebar-right';"
+      : (hintLeft && !hintRight)
+      ? "grid-template-columns: auto 1fr; grid-template-areas: 'sidebar-left header' 'sidebar-left main' 'sidebar-left footer';"
+      : "";
+
     const containerStyles = [
       containerPadding !== "0" ? `padding: ${containerPadding};` : "",
       containerMaxWidth !== "none"
         ? `max-width: ${containerMaxWidth}; margin: 0 auto;`
         : "",
+      inlineLayoutStyle,
     ].filter(Boolean).join(" ");
 
     // Generate demo-specific content
@@ -264,6 +313,35 @@ defineComponent("app-layout", {
               const layout = document.currentScript.parentElement;
               if (!layout) return;
               
+              // Sidebar-aware layout adjustment
+              const adjustLayout = () => {
+                const hasLeft = !!layout.querySelector('[data-sidebar-position="left"]');
+                const hasRight = !!layout.querySelector('[data-sidebar-position="right"]');
+                layout.classList.remove('${classes!.layoutMainOnly}', '${classes!.layoutLeftOnly}', '${classes!.layoutRightOnly}');
+                if (hasLeft && hasRight) {
+                  // default 3-column
+                  layout.style.gridTemplateColumns = 'auto 1fr auto';
+                  layout.style.gridTemplateAreas = `'sidebar-left header sidebar-right' 'sidebar-left main sidebar-right' 'sidebar-left footer sidebar-right'`;
+                } else if (hasLeft) {
+                  layout.classList.add('${classes!.layoutLeftOnly}');
+                  layout.style.gridTemplateColumns = 'auto 1fr';
+                  layout.style.gridTemplateAreas = `'sidebar-left header' 'sidebar-left main' 'sidebar-left footer'`;
+                } else if (hasRight) {
+                  layout.classList.add('${classes!.layoutRightOnly}');
+                  layout.style.gridTemplateColumns = '1fr auto';
+                  layout.style.gridTemplateAreas = `'header sidebar-right' 'main sidebar-right' 'footer sidebar-right'`;
+                } else {
+                  layout.classList.add('${classes!.layoutMainOnly}');
+                  layout.style.gridTemplateColumns = '1fr';
+                  layout.style.gridTemplateAreas = `'header' 'main' 'footer'`;
+                }
+              };
+              adjustLayout();
+
+              // Observe child list to react if sidebars are added/removed dynamically
+              const mo = new MutationObserver(adjustLayout);
+              mo.observe(layout, { childList: true, subtree: true });
+
               // Watch for theme changes via CSS custom properties
               const observer = new MutationObserver(() => {
                 const theme = layout.dataset.layoutTheme;

@@ -114,6 +114,10 @@ defineComponent("navbar", {
       align-items: center;
       gap: var(--navbar-gap, var(--size-2));
       flex: 1;
+      width: 100%;
+      max-width: var(--navbar-content-max-width, none);
+      margin: 0 auto;
+      padding: var(--navbar-content-padding, 0);
     }`,
 
     navItems: `{
@@ -192,6 +196,8 @@ defineComponent("navbar", {
       sticky = boolean(false), // Enable sticky positioning
       collapsible = boolean(true), // Enable mobile collapsible menu
       orientation = string("horizontal"), // horizontal, vertical
+      contentMaxWidth = string("none"), // constrain inner content to align with main
+      contentPadding = string("0 var(--size-4)"), // horizontal padding for inner content
     },
     _api,
     classes,
@@ -229,7 +235,7 @@ defineComponent("navbar", {
         data-navbar-style={navStyle}
         data-navbar-orientation={navOrientation}
       >
-        <div class={classes!.navContent}>
+        <div class={classes!.navContent} style={`--navbar-content-max-width: ${contentMaxWidth}; --navbar-content-padding: ${contentPadding};`}>
           {/* Mobile hamburger menu toggle */}
           {isCollapsible && (
             <button

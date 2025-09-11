@@ -387,6 +387,57 @@ defineComponent("${demo}-demo", {
         });
       }
 
+      // Layout demos with OOB sidebar swaps
+      if (action === "layout") {
+        const variant = demo; // left | right | none
+
+        const makeResponse = (side: "left" | "right") => {
+          const main = `
+            <div style="padding: 1rem;">
+              <h2>Layout Demo (${side} sidebar)</h2>
+              <p>This content sits in the main area. The ${side} sidebar is injected via HTMX OOB swap.</p>
+              <p>Resize the window to see responsive behavior. Click 'Layout Right' or 'Layout Left' to switch.</p>
+            </div>
+          `;
+          let sidebar = renderComponent("sidebar", {
+            position: side,
+            mode: "permanent",
+            width: side === "left" ? "260px" : "300px",
+          } as any);
+          // Add OOB + id to the wrapper element and ensure it occupies the correct grid area
+          const area = side === "left" ? "sidebar-left" : "sidebar-right";
+          sidebar = sidebar.replace(
+            /<div(\s|>)/,
+            `<div id=\"ui-${side}-sidebar\" hx-swap-oob=\"true\" style=\"grid-area: ${area};\" $1`,
+          );
+          const clearOther = side === "left"
+            ? `<div id="ui-right-sidebar" hx-swap-oob="true" style="display:none"></div>`
+            : `<div id="ui-left-sidebar" hx-swap-oob="true" style="display:none"></div>`;
+          return `${main}${sidebar}${clearOther}`;
+        };
+
+        if (variant === "left") {
+          return new Response(makeResponse("left"), {
+            headers: { "Content-Type": "text/html" },
+          });
+        }
+        if (variant === "right") {
+          return new Response(makeResponse("right"), {
+            headers: { "Content-Type": "text/html" },
+          });
+        }
+
+        // none: remove both sidebars
+        const clearBoth = `
+          <div id=\"ui-left-sidebar\" hx-swap-oob=\"true\" style=\"display:none\"></div>
+          <div id=\"ui-right-sidebar\" hx-swap-oob=\"true\" style=\"display:none\"></div>
+          <div style=\"padding:1rem;\">Layout reset: no sidebars.</div>
+        `;
+        return new Response(clearBoth, {
+          headers: { "Content-Type": "text/html" },
+        });
+      }
+
       
     }
 
