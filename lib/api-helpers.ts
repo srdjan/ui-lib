@@ -1,5 +1,5 @@
 // HTTP method helper functions for clean API definitions
-import type { RouteHandler } from "./router.ts";
+import type { RouteHandler, RouteHandlerFor } from "./router.ts";
 import type { ApiDefinition } from "./api-generator.ts";
 
 /**
@@ -13,8 +13,13 @@ import type { ApiDefinition } from "./api-generator.ts";
  * }
  * ```
  */
-export const get = (path: string, handler: RouteHandler): ApiDefinition =>
-  ["GET", path, handler] as const;
+export function get<Path extends string>(
+  path: Path,
+  handler: RouteHandlerFor<Path>,
+): ApiDefinition;
+export function get(path: string, handler: RouteHandler): ApiDefinition {
+  return ["GET", path, handler] as const;
+}
 
 /**
  * Create a POST route definition
@@ -26,8 +31,13 @@ export const get = (path: string, handler: RouteHandler): ApiDefinition =>
  * }
  * ```
  */
-export const post = (path: string, handler: RouteHandler): ApiDefinition =>
-  ["POST", path, handler] as const;
+export function post<Path extends string>(
+  path: Path,
+  handler: RouteHandlerFor<Path>,
+): ApiDefinition;
+export function post(path: string, handler: RouteHandler): ApiDefinition {
+  return ["POST", path, handler] as const;
+}
 
 /**
  * Create a PUT route definition
@@ -39,8 +49,13 @@ export const post = (path: string, handler: RouteHandler): ApiDefinition =>
  * }
  * ```
  */
-export const put = (path: string, handler: RouteHandler): ApiDefinition =>
-  ["PUT", path, handler] as const;
+export function put<Path extends string>(
+  path: Path,
+  handler: RouteHandlerFor<Path>,
+): ApiDefinition;
+export function put(path: string, handler: RouteHandler): ApiDefinition {
+  return ["PUT", path, handler] as const;
+}
 
 /**
  * Create a PATCH route definition
@@ -52,8 +67,13 @@ export const put = (path: string, handler: RouteHandler): ApiDefinition =>
  * }
  * ```
  */
-export const patch = (path: string, handler: RouteHandler): ApiDefinition =>
-  ["PATCH", path, handler] as const;
+export function patch<Path extends string>(
+  path: Path,
+  handler: RouteHandlerFor<Path>,
+): ApiDefinition;
+export function patch(path: string, handler: RouteHandler): ApiDefinition {
+  return ["PATCH", path, handler] as const;
+}
 
 /**
  * Create a DELETE route definition
@@ -65,8 +85,13 @@ export const patch = (path: string, handler: RouteHandler): ApiDefinition =>
  * }
  * ```
  */
-export const remove = (path: string, handler: RouteHandler): ApiDefinition =>
-  ["DELETE", path, handler] as const;
+export function remove<Path extends string>(
+  path: Path,
+  handler: RouteHandlerFor<Path>,
+): ApiDefinition;
+export function remove(path: string, handler: RouteHandler): ApiDefinition {
+  return ["DELETE", path, handler] as const;
+}
 
 // Aliases for convenience
 /**

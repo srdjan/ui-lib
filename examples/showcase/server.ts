@@ -1,23 +1,23 @@
 // Revolutionary Showcase Server for ui-lib
-import { injectStateManager, renderComponent } from "../index.ts";
-import { getRegistry } from "../lib/registry.ts";
-import { runWithRequestHeadersAsync } from "../lib/request-headers.ts";
+import { injectStateManager, renderComponent } from "../../index.ts";
+import { getRegistry } from "../../lib/registry.ts";
+import { runWithRequestHeadersAsync } from "../../lib/request-headers.ts";
 import { router } from "./router.ts";
 
 // Import showcase components
-import "./showcase/product-catalog.tsx";
-import { showcaseStyles } from "./showcase/components/index.ts";
+import "./product-catalog.tsx";
+import { showcaseStyles } from "./components/index.ts";
 
 // Import layout components
-import "../lib/layout/index.ts"; // This auto-registers all layout components including app-layout
+import "../../lib/layout/index.ts"; // This auto-registers all layout components including app-layout
 
 // Import library components for use in demos
-import "../lib/components/index.ts"; // Import Button, Input, Alert, etc.
+import "../../lib/components/index.ts"; // Import Button, Input, Alert, etc.
 
-import "./showcase/components/forms-demo-fixed.tsx";
-import "./showcase/dashboard-preview.tsx";
-import "./showcase/generic-demo-preview.tsx";
-import "./showcase/placeholder-image.tsx";
+import "./components/forms-demo-fixed.tsx";
+import "./dashboard-preview.tsx";
+import "./generic-demo-preview.tsx";
+import "./placeholder-image.tsx";
 
 const PORT = 8080;
 
@@ -28,7 +28,7 @@ async function handler(request: Request): Promise<Response> {
   try {
     // Serve the showcase index
     if (pathname === "/" || pathname === "/showcase") {
-      const indexUrl = new URL("./showcase/index.html", import.meta.url);
+      const indexUrl = new URL("./index.html", import.meta.url);
       let htmlContent = await Deno.readTextFile(indexUrl);
 
       // Inject state manager for reactivity
@@ -498,45 +498,118 @@ defineComponent("${demo}-demo", {
   }
 }
 
-// Process component tags in HTML
+// Process component tags in HTML using a simple tokenizer (handles nesting and self-closing tags)
 async function processComponentTags(
   html: string,
   props: Record<string, string> = {},
 ): Promise<string> {
   let processedHtml = html;
-
-  // Discover registered components dynamically
   const components = Object.keys(getRegistry());
 
-  for (const componentName of components) {
-    const regex = new RegExp(
-      `<${componentName}([^>]*?)(?:>([\\s\\S]*?)<\\/${componentName}>|\\/>)`,
-      "g",
-    );
+  // Multi-pass processing to handle nested different component types
+  // Guard with a reasonable max to avoid infinite loops in malformed input
+  const MAX_PASSES = 4;
+  for (let pass = 0; pass < MAX_PASSES; pass++) {
+    let changed = false;
+    let working = processedHtml;
+    for (const name of components) {
+      const replaced = replaceComponentTags(working, name, props);
+      if (replaced !== working) changed = true;
+      working = replaced;
+    }
+    processedHtml = working;
+    if (!changed) break;
+  }
 
-    let match;
-    while ((match = regex.exec(html)) !== null) {
-      const [fullMatch, attributes] = match;
+  return processedHtml;
+}
 
-      try {
-        // Parse attributes
-        const componentProps = {
-          ...parseAttributes(attributes || ""),
-          ...props,
-        };
+function replaceComponentTags(
+  src: string,
+  tagName: string,
+  inheritedProps: Record<string, string>,
+): string {
+  let out = "";
+  let idx = 0;
+  const openTag = `<${tagName}`;
+  const closeTag = `</${tagName}>`;
 
-        // Render component
-        const rendered = renderComponent(componentName, componentProps);
+  while (idx < src.length) {
+    const openIdx = src.indexOf(openTag, idx);
+    if (openIdx === -1) {
+      out += src.slice(idx);
+      break;
+    }
 
-        // Replace in HTML
-        processedHtml = processedHtml.replace(fullMatch, rendered);
-      } catch (error) {
-        console.error(`Error rendering ${componentName}:`, error);
+    // Append everything before the tag
+    out += src.slice(idx, openIdx);
+
+    // Find end of start tag '>'
+    const gtIdx = src.indexOf('>', openIdx + openTag.length);
+    if (gtIdx === -1) {
+      // Malformed tag; append rest and stop
+      out += src.slice(openIdx);
+      break;
+    }
+
+    // Extract attributes substring (between tag name and '>')
+    const startTagContent = src.slice(openIdx + 1 + tagName.length, gtIdx); // after tagName
+    const isSelfClosing = /\/\s*$/.test(startTagContent);
+    // Remove the optional trailing '/' for attribute parsing
+    const attrsRaw = startTagContent.replace(/\/\s*$/, "");
+    const attrs = parseAttributes(attrsRaw.trim());
+    const componentProps = { ...attrs, ...inheritedProps } as Record<string, string>;
+
+    if (isSelfClosing) {
+      const rendered = renderComponent(tagName, componentProps);
+      out += rendered;
+      idx = gtIdx + 1;
+      continue;
+    }
+
+    // Find matching close tag, accounting for nested same tags
+    let searchFrom = gtIdx + 1;
+    let depth = 1;
+    while (depth > 0) {
+      const nextOpen = src.indexOf(openTag, searchFrom);
+      const nextClose = src.indexOf(closeTag, searchFrom);
+
+      if (nextClose === -1) {
+        // No closing tag; treat as text
+        out += src.slice(openIdx);
+        return out;
+      }
+
+      if (nextOpen !== -1 && nextOpen < nextClose) {
+        // Another nested opening tag of the same name found before the close
+        depth++;
+        // Move searchFrom past this nested start tag end '>'
+        const nestedGt = src.indexOf('>', nextOpen + openTag.length);
+        if (nestedGt === -1) {
+          out += src.slice(openIdx);
+          return out;
+        }
+        searchFrom = nestedGt + 1;
+      } else {
+        // Found a closing tag for this component
+        depth--;
+        searchFrom = nextClose + closeTag.length;
+        if (depth === 0) {
+          const innerStart = gtIdx + 1;
+          const innerEnd = nextClose;
+          const children = src.slice(innerStart, innerEnd);
+          const rendered = renderComponent(tagName, {
+            ...componentProps,
+            children,
+          });
+          out += rendered;
+          idx = searchFrom;
+        }
       }
     }
   }
 
-  return processedHtml;
+  return out;
 }
 
 // Parse HTML attributes

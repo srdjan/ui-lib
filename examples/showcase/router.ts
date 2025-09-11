@@ -1,5 +1,5 @@
-import { Router } from "../lib/router.ts";
-import { Alert } from "../index.ts";
+import { Router } from "../../lib/router.ts";
+import { Alert } from "../../index.ts";
 
 // Create the main router instance for component APIs
 export const router = new Router();

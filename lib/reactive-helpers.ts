@@ -1,6 +1,19 @@
 // Reactive helper functions for ui-lib components
 // Supports three types of reactivity: CSS properties, Pub/Sub state, and DOM events
 
+// Global type augmentation hooks – users can declare their app-wide topics and events:
+// declare global { namespace UIlib { interface Topics { cart: CartState } interface Events { 'show-notification': { message: string } } } }
+declare global {
+  namespace UIlib {
+    // Map of pub/sub topic → payload type (augment in app code)
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface Topics {}
+    // Map of custom event name → payload type (augment in app code)
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface Events {}
+  }
+}
+
 /**
  * CSS Property Reactivity Helpers
  * For visual coordination, theming, and styling state
@@ -71,27 +84,49 @@ export const toggleCSSProperty = (
  * @param topic - Topic name for state updates
  * @param data - Data to publish (will be JSON stringified if object)
  */
-export const publishState = (topic: string, data: unknown): string => {
+// Untyped public function (stringly by design for runtime attributes)
+export function publishState(topic: string, data: unknown): string {
   const serializedData = typeof data === "string" ? data : JSON.stringify(data);
   return `window.funcwcState?.publish('${topic}', ${serializedData})`;
-};
+}
+// Typed facade – compile-time only, delegates to publishState
+export function typedPublishState<K extends keyof UIlib.Topics & string>(
+  topic: K,
+  data: UIlib.Topics[K],
+): string {
+  return publishState(topic as string, data as unknown);
+}
 
 /**
  * Generate inline JavaScript to subscribe to state updates
  * @param topic - Topic name to subscribe to
  * @param handler - JavaScript code to execute when state updates (receives 'data' parameter)
  */
-export const subscribeToState = (topic: string, handler: string): string => {
+// Untyped public function (stringly by design for runtime attributes)
+export function subscribeToState(topic: string, handler: string): string {
   return `window.funcwcState?.subscribe('${topic}', function(data) { ${handler} }, this)`;
-};
+}
+// Typed facade – compile-time only, delegates to subscribeToState
+export function typedSubscribeToState<K extends keyof UIlib.Topics & string>(
+  topic: K,
+  handler: string,
+): string {
+  return subscribeToState(topic as string, handler);
+}
 
 /**
  * Generate inline JavaScript to get current state for a topic
  * @param topic - Topic name
  */
-export const getState = (topic: string): string => {
+// Untyped public function (stringly by design for runtime attributes)
+export function getState(topic: string): string {
   return `window.funcwcState?.getState('${topic}')`;
-};
+}
+
+// Typed facade – compile-time only, delegates to getState
+export function typedGetState<K extends keyof UIlib.Topics & string>(topic: K): string {
+  return getState(topic as string);
+}
 
 /**
  * DOM Event Communication Helpers
@@ -104,11 +139,11 @@ export const getState = (topic: string): string => {
  * @param data - Event data payload (optional)
  * @param target - Where to dispatch the event ('self', 'parent', 'document')
  */
-export const dispatchEvent = (
+export function dispatchEvent(
   eventName: string,
   data?: unknown,
   target: "self" | "parent" | "document" = "document",
-): string => {
+): string {
   const targetElement = target === "self"
     ? "this"
     : target === "parent"
@@ -118,7 +153,16 @@ export const dispatchEvent = (
   const eventData = data ? `, { detail: ${JSON.stringify(data)} }` : "";
 
   return `${targetElement}.dispatchEvent(new CustomEvent('ui-lib:${eventName}'${eventData}))`;
-};
+}
+
+// Typed facade – compile-time only, delegates to dispatchEvent
+export function typedDispatchEvent<E extends keyof UIlib.Events & string>(
+  eventName: E,
+  data?: UIlib.Events[E],
+  target: "self" | "parent" | "document" = "document",
+): string {
+  return dispatchEvent(eventName as string, data as unknown, target);
+}
 
 /**
  * Build an hx-on aggregator string from a map of events → code
@@ -145,11 +189,20 @@ export const on = (events: Record<string, string>): string => {
  * @param eventName - Event name (will be prefixed with 'ui-lib:')
  * @param handler - JavaScript code to execute when event is received
  */
-export const listensFor = (eventName: string, handler: string): string => {
+// Untyped public function (stringly by design for runtime attributes)
+export function listensFor(eventName: string, handler: string): string {
   // Prefer consolidated hx-on attribute to avoid JSX parser issues with colons in names
   const safe = handler.replace(/"/g, "&quot;");
   return `hx-on="ui-lib:${eventName}: ${safe}"`;
-};
+}
+
+// Typed facade – compile-time only, delegates to listensFor
+export function typedListensFor<E extends keyof UIlib.Events & string>(
+  eventName: E,
+  handler: string,
+): string {
+  return listensFor(eventName as string, handler);
+}
 
 /**
  * Utility Helpers
@@ -239,7 +292,7 @@ export const debugReactiveState = (
  * Type Definitions for Better DX
  */
 export type ReactiveScope = "global" | "component";
-export type EventTarget = "self" | "parent" | "document";
+export type ReactiveEventTarget = "self" | "parent" | "document";
 
 /**
  * Common Reactive Patterns

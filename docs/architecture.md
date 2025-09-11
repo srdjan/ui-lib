@@ -81,6 +81,23 @@ function renderComponent(element: JSX.Element): string {
 }
 ```
 
+### SSR Component Tag Processing
+
+ui-lib servers can render custom component tags directly from HTML (e.g., `<product-grid />`).
+
+- Tokenizer-based: The showcase server uses a small tokenizer (not regex) to find tags, parse attributes, and preserve children. It handles:
+  - Self-closing tags: `<my-comp ... />`
+  - Paired tags with children: `<my-comp ...> ... </my-comp>`
+  - Proper nesting of the same component type
+- Multi-pass: The processor runs several passes (bounded) over the HTML so nested, different component types are rendered in order.
+- Attributes: Standard HTML attributes are parsed as strings; components may parse/transform them (e.g., JSON in `data-*` or using prop helpers).
+- Children: Inner HTML between opening/closing tags is passed as `children` to the component render.
+
+Guidelines:
+- Keep attributes simple strings; if you need complex props, JSON-encode them and parse in your component with `object()`/`array()` prop helpers.
+- Prefer self-closing tags for components without children to reduce markup noise.
+- Ensure component names are registered on the server before processing.
+
 ## DOM-Native State Management
 
 ### Why DOM-Native?

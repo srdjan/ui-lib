@@ -130,6 +130,63 @@ const StyledCard = defineComponent({
 });
 ```
 
+### Typing Topics and Events (optional)
+
+You can declare app-wide types for pub/sub topics and custom events for better DX. Add a small ambient declaration (e.g., `src/types/ui-lib.d.ts`):
+
+```ts
+// src/types/ui-lib.d.ts
+declare global {
+  namespace UIlib {
+    // Pub/Sub topics → payload types
+    interface Topics {
+      cart: {
+        items: { id: string; name: string; quantity: number; price: number }[];
+        count: number;
+        total: number;
+      };
+    }
+
+    // Custom event names → payload types (detail)
+    interface Events {
+      'show-notification': { message: string; type: 'info'|'success'|'error'|'warning'; duration?: number };
+    }
+  }
+}
+export {};
+```
+
+Then call the helpers as usual. For a typed experience, you can use the typed facades:
+
+```ts
+import {
+  // Optional typed facades (compile-time only)
+  typedPublishState,
+  typedSubscribeToState,
+  typedGetState,
+  typedDispatchEvent,
+  typedListensFor,
+} from 'ui-lib';
+
+// Publish with types
+typedPublishState('cart', { items: [], count: 0, total: 0 });
+
+// Subscribe with types (handler receives the declared payload)
+typedSubscribeToState('cart', `
+  const { items, count, total } = data;
+  this.querySelector('.count').textContent = String(count);
+  this.querySelector('.total').textContent = total.toFixed(2);
+`);
+
+// Dispatch typed custom event
+typedDispatchEvent('show-notification', { message: 'Saved!', type: 'success', duration: 2000 });
+
+// Listen with typed event name
+typedListensFor('show-notification', `console.log('notify', event.detail)`);
+```
+
+Note: If you prefer minimal syntax, the untyped helpers `publishState`, `subscribeToState`, `getState`, `dispatchEvent`, and `listensFor` work the same at runtime.
+
 ### Using CSS Variables
 
 Leverage CSS custom properties for theming:

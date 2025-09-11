@@ -2,13 +2,37 @@
 
 export type RouteParams = Record<string, string>;
 
+// HTTP method literals
+export type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS";
+
+// Extract ":param" segments from a path template as a union of keys
+export type PathParamKeys<Path extends string> =
+  Path extends `${string}:${infer Param}/${infer Rest}` ? (
+      Param extends `${infer Key}${string}` ? Key | PathParamKeys<Rest> : never
+    )
+  : Path extends `${string}:${infer Last}` ? (
+      Last extends `${infer Key}${string}` ? Key : never
+    )
+  : never;
+
+// Build params object type from a path template
+export type RouteParamsOf<Path extends string> =
+  [PathParamKeys<Path>] extends [never] ? {}
+  : { [K in PathParamKeys<Path>]: string };
+
+// Typed route handler for a specific path template
+export type RouteHandlerFor<Path extends string> = (
+  request: Request,
+  params: RouteParamsOf<Path>,
+) => Promise<Response> | Response;
+
 export type RouteHandler = (
   request: Request,
   params: RouteParams,
 ) => Promise<Response> | Response;
 
 export interface Route {
-  method: string;
+  method: Method | string;
   path: string;
   pattern: RegExp; // Regex to match URL and capture params
   paramNames: string[]; // Names of the params (e.g., ["id"])
@@ -34,14 +58,18 @@ export class Router {
     return { pattern, paramNames };
   }
 
-  public register(method: string, path: string, handler: RouteHandler) {
+  public register<Path extends string>(
+    method: Method | string,
+    path: Path,
+    handler: RouteHandlerFor<Path> | RouteHandler,
+  ) {
     const { pattern, paramNames } = this.createPattern(path);
     this.routes.push({
-      method: method.toUpperCase(),
+      method: (method as string).toUpperCase(),
       path,
       pattern,
       paramNames,
-      handler,
+      handler: handler as RouteHandler,
     });
   }
 

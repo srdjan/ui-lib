@@ -172,6 +172,23 @@ deno task serve
 # Open http://localhost:8080
 ```
 
+Repo layout (examples)
+
+```
+examples/
+└── showcase/
+    ├── server.ts           # Showcase server entry
+    ├── router.ts           # Showcase API endpoints (forms, etc.)
+    ├── index.html          # Showcase shell
+    ├── components/         # Showcase SSR components
+    ├── utilities/          # Shared styles/utilities for showcase
+    └── assets/             # Static assets (logo, favicon)
+```
+
+Notes
+- Public API is exported via `mod.ts` (e.g., `import { defineComponent } from 'ui-lib'`).
+- You can optionally type your pub/sub topics and custom events. See “Typing Topics and Events” in Getting Started.
+
 ## Performance
 
 - **SSR rendering**: ~0.5ms per component
@@ -182,6 +199,7 @@ deno task serve
 ## Documentation
 
 - [Getting Started](docs/getting-started.md)
+  - Typing Topics and Events (optional)
 - [Architecture](docs/architecture.md)
 - [Component API](docs/component-api.md)
 - [Examples](docs/examples.md)

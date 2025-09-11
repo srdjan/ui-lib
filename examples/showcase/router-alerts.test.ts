@@ -32,4 +32,3 @@ Deno.test("register endpoint returns success alert with name on valid input", as
   assertStringIncludes(html, "Account created successfully!");
   assertStringIncludes(html, "Jane Doe");
 });
-

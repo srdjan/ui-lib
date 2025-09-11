@@ -15,7 +15,7 @@ import {
   renderComponent,
   string,
 } from "../../index.ts";
-import { router } from "../router.ts";
+import { router } from "./router.ts";
 
 /**
  * 🏪 E-commerce Product Catalog

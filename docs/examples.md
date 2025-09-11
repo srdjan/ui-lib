@@ -2,6 +2,25 @@
 
 Real-world examples demonstrating ui-lib's capabilities.
 
+## Running the Showcase
+
+The showcase lives under `examples/showcase` and includes a small server, router, and SSR components.
+
+```bash
+deno task serve
+# Opens http://localhost:8080 and serves examples/showcase/server.ts
+```
+
+Key files:
+
+```
+examples/showcase/
+├── server.ts     # HTTP server for the showcase
+├── router.ts     # Demo API endpoints (e.g., forms)
+├── index.html    # Showcase shell
+└── components/   # SSR components used by the showcase
+```
+
 ## Basic Examples
 
 ### Hello World Component

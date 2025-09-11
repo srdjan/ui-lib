@@ -86,15 +86,21 @@ export function boolean(defaultValue?: boolean): PropHelper<boolean> {
     parse: (attrs: Record<string, string>, key: string) => {
       // Try both camelCase and kebab-case versions
       const kebabKey = camelToKebab(key);
-      const hasAttr = key in attrs || kebabKey in attrs;
+      const raw = attrs[key] ?? attrs[kebabKey];
+      const hasAttr = raw !== undefined;
       if (!hasAttr && defaultValue !== undefined) {
         return defaultValue;
       }
       if (!hasAttr && defaultValue === undefined) {
         throw new Error(`Required boolean prop '${key}' is missing`);
       }
-      // Presence-based: attribute exists = true, regardless of value
-      return hasAttr;
+      // Presence-based default, but honor explicit values when provided
+      if (raw !== undefined) {
+        const v = String(raw).toLowerCase().trim();
+        if (v === "true" || v === "1" || v === "yes") return true;
+        if (v === "false" || v === "0" || v === "no") return false;
+      }
+      return true;
     },
   };
 }
@@ -167,6 +173,39 @@ export function object<T = Record<string, unknown>>(
       } catch (_error) {
         throw new Error(`Invalid JSON object for prop '${key}': ${value}`);
       }
+    },
+  };
+}
+
+/**
+ * oneOf helper – restrict a string prop to a fixed set of values
+ * @example oneOf(["primary","secondary"], "primary")
+ */
+export function oneOf<T extends readonly string[]>(
+  options: T,
+  defaultValue?: T[number],
+): PropHelper<T[number]> {
+  const typeDesc = `oneOf(${options.map((v) => JSON.stringify(v)).join("|")})`;
+  return {
+    __propHelper: true,
+    type: typeDesc,
+    defaultValue,
+    required: defaultValue === undefined,
+    parse: (attrs: Record<string, string>, key: string) => {
+      const kebabKey = camelToKebab(key);
+      const value = (attrs[key] ?? attrs[kebabKey]) as string | undefined;
+      if (value === undefined) {
+        if (defaultValue !== undefined) return defaultValue;
+        throw new Error(`Required prop '${key}' is missing (expected ${typeDesc})`);
+      }
+      if ((options as readonly string[]).includes(value)) {
+        return value as T[number];
+      }
+      throw new Error(
+        `Invalid value for prop '${key}': ${JSON.stringify(value)}. Expected one of ${options
+          .map((v) => JSON.stringify(v))
+          .join(", ")}.`,
+      );
     },
   };
 }
