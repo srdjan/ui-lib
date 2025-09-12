@@ -1,268 +1,176 @@
-# Todo App - ui-lib Idiomatic Usage Example
+# Todo App Examples - ui-lib Showcase
 
-A complete todo application demonstrating the **idiomatic way** to use ui-lib simplified with full backend support.
+Multiple complete todo applications demonstrating different approaches to using
+ui-lib, from traditional patterns to cutting-edge ergonomic APIs.
 
 ## 🚀 Quick Start
 
 ```bash
-# Start the todo application
+# Original idiomatic ui-lib usage
 deno task serve:todo
 
-# Visit http://localhost:8080
+# Refactored with ui-lib components
+deno task serve:simple
+
+# Ergonomic API demonstration
+deno task serve:ergonomic
+
+# All servers run on http://localhost:8080
 ```
 
-## 📋 What This Demonstrates
+## 📋 Three Different Approaches
 
-### ✅ **Idiomatic Component Usage**
-- **Component composition** - TodoItem, TodoForm, TodoFilters, TodoList
-- **Props with TypeScript** - Type-safe interfaces and validation
-- **Conditional rendering** - Loading states, empty states, error states
-- **Inline styles** - Component-scoped CSS without collision
-- **Responsive design** - Mobile-first approach
+### 1️⃣ **Original Todo App** (`server.tsx`)
 
-### ✅ **Full-Stack Architecture**
-- **HTMX integration** - Seamless form submissions and updates
-- **RESTful API** - Complete CRUD operations
-- **Server-side rendering** - Components render to HTML strings
-- **Type-safe data flow** - Shared types between frontend and backend
-- **Error handling** - Validation, user feedback, graceful failures
+**Traditional ui-lib usage with manual component patterns**
 
-### ✅ **Real-World Features**  
-- **Priority levels** - High, Medium, Low with visual indicators
-- **Filtering** - All, Active, Completed todos
-- **Bulk operations** - Clear all completed todos
-- **Form validation** - Client and server-side validation
-- **Loading states** - Visual feedback during requests
+- ✅ **Component composition** - TodoItem, TodoForm, TodoFilters, TodoList
+- ✅ **Props with TypeScript** - Type-safe interfaces and validation
+- ✅ **HTMX integration** - Seamless form submissions and updates
+- ✅ **Server-side rendering** - Components render to HTML strings
+- ✅ **Manual styling** - Custom CSS classes and inline styles
+
+### 2️⃣ **Simple Todo App** (`server-simple.tsx`)
+
+**Refactored to use ui-lib component library**
+
+- ✅ **ui-lib components** - Button, Alert, Container, Badge components
+- ✅ **Consistent styling** - Design system with component variants
+- ✅ **Simple JSX functions** - Clean component patterns without complexity
+- ✅ **Type-safe props** - Full TypeScript support with proper interfaces
+- ✅ **HTMX preserved** - All interactive features maintained
+
+### 3️⃣ **Ergonomic Demo** (`demo-ergonomic.tsx`)
+
+**Cutting-edge ergonomic API with three breakthroughs**
+
+- ✨ **Function-Style Props** - Zero duplication, auto-inferred from parameters
+- ✨ **CSS-Only Format** - Auto-generated classes from pure CSS strings
+- ✨ **Unified API System** - Ready for HTMX attribute auto-generation
+- ✅ **Type safety** - Full TypeScript inference and validation
+- ✅ **Beautiful UI** - Gradient designs and responsive layouts
 
 ## 🏗️ Project Structure
 
 ```
 todo-app/
-├── components.tsx    # UI components (TodoItem, TodoForm, TodoList, etc.)
-├── api.ts           # Backend API handlers with validation
-├── server.ts        # Main server with routing and middleware
-└── README.md        # This file
+├── server.tsx              # Original idiomatic ui-lib server
+├── server-simple.tsx       # Refactored with ui-lib components
+├── demo-ergonomic.tsx      # Ergonomic API demonstration
+├── components.tsx          # Original UI components
+├── components-simple.tsx   # Refactored ui-lib components
+├── api.tsx                 # Shared backend API handlers
+└── README.md              # This documentation
 ```
 
-## 🎯 Component Patterns
+## 🎯 Key Features Across All Versions
 
-### **TodoItem - Individual Todo Component**
-```tsx
-export function TodoItem({ todo, showActions = true }: { 
-  todo: Todo; 
-  showActions?: boolean;
-}) {
-  return (
-    <div className={`todo-item ${todo.completed ? 'completed' : ''}`}>
-      {/* Checkbox with HTMX toggle */}
-      <input
-        type="checkbox"
-        checked={todo.completed}
-        hx-post={`/api/todos/${todo.id}/toggle`}
-        hx-target={`#todo-${todo.id}`}
-        hx-swap="outerHTML"
-      />
-      {/* Todo content with priority badge */}
-      <div className="todo-details">
-        <span className="todo-text">{todo.text}</span>
-        <span className="priority-badge" style={`background: ${priorityColor}`}>
-          {todo.priority}
-        </span>
-      </div>
-      {/* Inline styles scoped to component */}
-      <style>{/* Component-specific CSS */}</style>
-    </div>
-  );
-}
+### **Shared Functionality**
+
+- ✅ **Complete CRUD operations** - Create, read, update, delete todos
+- ✅ **Priority levels** - High, Medium, Low with visual indicators
+- ✅ **HTMX integration** - Seamless form submissions and updates
+- ✅ **Server-side rendering** - Fast initial page loads
+- ✅ **Type safety** - Full TypeScript support throughout
+- ✅ **Responsive design** - Works on mobile and desktop
+
+### **Progressive Enhancement**
+
+Each version builds upon the previous:
+
+1. **Original** → Manual components, custom styling
+2. **Simple** → ui-lib components, consistent design system
+3. **Ergonomic** → Zero duplication, auto-generated classes
+
+## 🚀 Getting Started
+
+### **Run Any Version**
+
+```bash
+# Original idiomatic ui-lib (default)
+deno task serve:todo
+
+# Refactored with ui-lib components
+deno task serve:simple
+
+# Ergonomic API demonstration
+deno task serve:ergonomic
 ```
 
-### **TodoForm - Add/Edit Form**
-```tsx
-export function TodoForm({ todo, actionUrl = "/api/todos" }: {
-  todo?: Todo;
-  actionUrl?: string;
-}) {
-  return (
-    <div className="todo-form">
-      <form
-        hx-post={actionUrl}
-        hx-target="#todo-list"
-        hx-swap="innerHTML"
-      >
-        {/* Type-safe input using ui-lib Input component */}
-        {renderToString(Input({
-          name: "text",
-          placeholder: "What needs to be done?",
-          required: true
-        }))}
-        
-        {/* Priority selector */}
-        <select name="priority" required>
-          <option value="low">Low Priority</option>
-          <option value="medium">Medium Priority</option>
-          <option value="high">High Priority</option>
-        </select>
-        
-        {/* Submit button using ui-lib Button component */}
-        {renderToString(Button({
-          type: "submit",
-          variant: "primary", 
-          children: "Add Todo"
-        }))}
-      </form>
-    </div>
-  );
-}
-```
+### **Explore the Code**
 
-## 🔧 API Architecture
+Each server demonstrates different ui-lib patterns:
+
+- **`server.tsx`** - Traditional component patterns with manual styling
+- **`server-simple.tsx`** - Clean refactor using ui-lib Button, Alert, Badge
+  components
+- **`demo-ergonomic.tsx`** - Cutting-edge ergonomic API with three breakthroughs
+
+### **Learn More**
+
+- 📚 [Ergonomic API Documentation](../../docs/ergonomic-api.md)
+- 🎯 [Component Library Guide](../../docs/components.md)
+- 🔧 [HTMX Integration Patterns](../../docs/htmx-integration.md)
+
+## 🔧 Shared API Architecture
+
+All three versions use the same backend API (`api.tsx`) with:
 
 ### **Type-Safe Data Models**
+
 ```tsx
 export interface Todo {
   id: string;
   text: string;
   completed: boolean;
-  createdAt: string;
+  createdAt: Date;
   priority: "low" | "medium" | "high";
-}
-
-export interface TodoFilter {
-  status: "all" | "active" | "completed";
-  priority?: "low" | "medium" | "high";
+  userId: string;
 }
 ```
 
-### **CRUD Operations with Validation**
-```tsx
-// POST /api/todos - Create new todo
-async createTodo(req: Request): Promise<Response> {
-  const formData = await req.formData();
-  const data = { /* extract form data */ };
-  
-  // Validate input
-  const validation = validateTodoData(data);
-  if (!validation.valid) {
-    return errorResponse(validation.errors.join(", "));
-  }
-  
-  // Create todo
-  const todo = db.create(data);
-  
-  // Return updated HTML for HTMX
-  return htmlResponse(TodoList({ todos: db.getAll() }));
-}
-```
+### **RESTful Endpoints**
 
-### **Smart Response Handling**
-```tsx
-// Return HTML for HTMX requests, JSON for API requests
-const acceptsHtml = req.headers.get("hx-request") || 
-                   req.headers.get("accept")?.includes("text/html");
-
-if (acceptsHtml) {
-  return htmlResponse(TodoList({ todos, filter }));
-} else {
-  return jsonResponse({ todos, filter, stats });
-}
-```
-
-## 🎨 UI Patterns
-
-### **Loading States**
-```tsx
-if (loading) {
-  return (
-    <div className="todo-list loading">
-      <div className="loading-spinner">Loading todos...</div>
-    </div>
-  );
-}
-```
-
-### **Empty States**
-```tsx
-if (todos.length === 0) {
-  return (
-    <div className="todo-list empty">
-      {renderToString(Alert({
-        variant: "info",
-        children: "No todos yet. Add one above to get started!"
-      }))}
-    </div>
-  );
-}
-```
-
-### **Error Handling**
-```tsx
-function errorResponse(message: string, status = 400) {
-  return htmlResponse(
-    Alert({ 
-      variant: "error", 
-      title: "Error",
-      children: message 
-    }),
-    status
-  );
-}
-```
-
-## 🌐 API Endpoints
-
-- `GET /` - Main todo application
-- `GET /api` - API documentation  
-- `GET /health` - Health check with stats
-
-**Todo CRUD:**
-- `GET /api/todos` - List todos (supports filtering)
-- `POST /api/todos` - Create new todo
-- `PUT /api/todos/:id` - Update todo
-- `POST /api/todos/:id/toggle` - Toggle completion
+- `GET /` - Main application
+- `GET /api` - API documentation
+- `GET /health` - Health check
+- `POST /api/todos` - Create todo
+- `PATCH /api/todos/:id/toggle` - Toggle completion
 - `DELETE /api/todos/:id` - Delete todo
-- `POST /api/todos/clear-completed` - Bulk delete completed
 
-## 💡 Key Benefits
+### **HTMX Integration**
 
-1. **Zero Hydration** - State lives in DOM, not JavaScript memory
-2. **Type Safety** - Shared types between components and API
-3. **Component Reuse** - TodoItem works in lists, forms, anywhere
-4. **Progressive Enhancement** - Works without JavaScript, enhanced with HTMX
-5. **Server-Side Rendering** - Fast initial page loads
-6. **Simple State Management** - No complex stores or reducers needed
-
-## 🔄 HTMX Integration
-
-HTMX provides seamless interactions without writing JavaScript:
+All versions use HTMX for seamless server-client communication:
 
 ```html
 <!-- Form submission updates todo list -->
 <form hx-post="/api/todos" hx-target="#todo-list">
-  
-<!-- Checkbox toggles individual todo -->
-<input hx-post="/api/todos/1/toggle" hx-target="#todo-1">
 
-<!-- Button deletes todo with confirmation -->  
-<button hx-delete="/api/todos/1" hx-confirm="Delete?">
+<!-- Toggle completion -->
+<button hx-patch="/api/todos/123/toggle" hx-target="#todo-list">
 ```
 
-## 📱 Responsive Design
+## 💡 Key Benefits
 
-Mobile-first CSS with progressive enhancement:
+### **Across All Versions**
 
-```css
-/* Mobile first */
-.todo-filters {
-  flex-direction: column;
-}
+- ✅ **Zero Hydration** - State lives in DOM, not JavaScript memory
+- ✅ **Type Safety** - Shared types between components and API
+- ✅ **Progressive Enhancement** - Works without JavaScript, enhanced with HTMX
+- ✅ **Server-Side Rendering** - Fast initial page loads
+- ✅ **Simple State Management** - No complex stores or reducers needed
 
-/* Desktop enhancement */
-@media (min-width: 640px) {
-  .todo-filters {
-    flex-direction: row;
-    justify-content: space-between;
-  }
-}
-```
+### **Version-Specific Benefits**
 
-This todo app demonstrates the **complete power** of ui-lib simplified while maintaining **extreme simplicity** in both implementation and usage.
+**Original** → Learn traditional ui-lib patterns **Simple** → Experience
+consistent design system **Ergonomic** → See the future of component development
+
+## 🎯 Choose Your Path
+
+- **New to ui-lib?** Start with `server.tsx` to learn the fundamentals
+- **Want consistency?** Try `server-simple.tsx` for design system benefits
+- **Ready for the future?** Explore `demo-ergonomic.tsx` for cutting-edge
+  patterns
+
+Each version demonstrates the **power and flexibility** of ui-lib while
+showcasing different approaches to component development.
