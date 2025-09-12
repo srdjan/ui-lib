@@ -332,7 +332,9 @@ export const todoAPI = {
 
   // GET /api/todos/stats - Get todo statistics
   async getStats(req: Request): Promise<Response> {
-    const stats = db.getStats();
+    const url = new URL(req.url);
+    const userId = url.searchParams.get("user") || db.getUsers()[0];
+    const stats = db.getStats(userId);
     return jsonResponse(stats);
   },
 };

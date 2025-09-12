@@ -4,8 +4,10 @@
 // Button components
 export * from "./button/index.ts";
 
-// Input components  
+// Input components
 export * from "./input/index.ts";
+
+// Layout components were removed as they were unused leftovers from refactoring
 
 // Feedback components
 export * from "./feedback/index.ts";
@@ -24,6 +26,6 @@ export * from "./overlay/index.ts";
 // Component types
 export type {
   ComponentSize,
-  ComponentVariant,
   ComponentState,
+  ComponentVariant,
 } from "./types.ts";
