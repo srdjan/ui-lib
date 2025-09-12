@@ -7,8 +7,20 @@
  */
 
 const SELF_CLOSING_TAGS = new Set([
-  "area", "base", "br", "col", "embed", "hr", "img", 
-  "input", "link", "meta", "param", "source", "track", "wbr"
+  "area",
+  "base",
+  "br",
+  "col",
+  "embed",
+  "hr",
+  "img",
+  "input",
+  "link",
+  "meta",
+  "param",
+  "source",
+  "track",
+  "wbr",
 ]);
 
 // Simple HTML escaping
@@ -42,7 +54,7 @@ export function h(
   // Handle HTML elements
   let attributes = "";
   let styles = "";
-  
+
   for (const [key, value] of Object.entries(props)) {
     if (key === "children" || value == null || value === false) continue;
 
@@ -71,16 +83,34 @@ export function h(
     return `${openTag}${props.dangerouslySetInnerHTML.__html}</${tag}>`;
   }
 
-  // Process children
+  // Process children (preserve already-rendered HTML strings)
   const childrenHtml = children
     .flat(Infinity)
-    .filter(child => child != null && typeof child !== "boolean")
-    .map(child => {
+    .filter((child) => child != null && typeof child !== "boolean")
+    .map((child) => {
+      if (typeof child === "number") return String(child);
       if (typeof child === "string") {
-        return escape(child);
-      }
-      if (typeof child === "number") {
-        return String(child);
+        // Detect if the string looks like already-rendered HTML
+        const tagMatch = child.match(/^<([a-zA-Z][a-zA-Z0-9-]*)/);
+        const tagName = tagMatch ? tagMatch[1] : "";
+        const looksLikeHtml = child.startsWith("<") && child.endsWith(">");
+        const isSelfClosing = /^<[a-zA-Z][^>]*\/>$/.test(child);
+        const isKnownSelfClosing = SELF_CLOSING_TAGS.has(tagName) &&
+          /^<[a-zA-Z][^>]*>$/.test(child);
+        const isNormalElement = /^<[a-zA-Z][^>]*>[\s\S]*<\/[a-zA-Z][^>]*>$/
+          .test(
+            child,
+          );
+        const isScriptTag = /^<script\b[^>]*>[\s\S]*<\/script>$/.test(child);
+
+        if (
+          looksLikeHtml &&
+          (isSelfClosing || isKnownSelfClosing || isNormalElement ||
+            isScriptTag)
+        ) {
+          return child; // Already-rendered HTML (including explicit <script> tags)
+        }
+        return escape(child); // Plain text content
       }
       return String(child); // Assume already processed JSX
     })
@@ -114,14 +144,19 @@ export const state = {
    */
   set(key: string, value: any): void {
     if (typeof document === "undefined") return;
-    
+
     // Store in document root for SSR consistency
-    document.documentElement.setAttribute(`data-state-${key}`, JSON.stringify(value));
-    
+    document.documentElement.setAttribute(
+      `data-state-${key}`,
+      JSON.stringify(value),
+    );
+
     // Dispatch custom event for reactive updates
-    document.dispatchEvent(new CustomEvent(`state:${key}`, { 
-      detail: { value } 
-    }));
+    document.dispatchEvent(
+      new CustomEvent(`state:${key}`, {
+        detail: { value },
+      }),
+    );
   },
 
   /**
@@ -129,10 +164,10 @@ export const state = {
    */
   get(key: string): any {
     if (typeof document === "undefined") return undefined;
-    
+
     const attr = document.documentElement.getAttribute(`data-state-${key}`);
     if (attr === null) return undefined;
-    
+
     try {
       return JSON.parse(attr);
     } catch {
@@ -145,12 +180,13 @@ export const state = {
    */
   subscribe(key: string, callback: (value: any) => void): () => void {
     if (typeof document === "undefined") return () => {};
-    
+
     const handler = (event: CustomEvent) => callback(event.detail.value);
     document.addEventListener(`state:${key}`, handler as EventListener);
-    
+
     // Return unsubscribe function
-    return () => document.removeEventListener(`state:${key}`, handler as EventListener);
+    return () =>
+      document.removeEventListener(`state:${key}`, handler as EventListener);
   },
 
   /**
@@ -183,7 +219,10 @@ export const state = {
       const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
           mutation.removedNodes.forEach((node) => {
-            if (node === input || (node instanceof Element && node.contains(input))) {
+            if (
+              node === input ||
+              (node instanceof Element && node.contains(input))
+            ) {
               unsubscribe();
               input.removeEventListener("input", updateState);
               input.removeEventListener("change", updateState);
@@ -194,7 +233,7 @@ export const state = {
       });
       observer.observe(document.body, { childList: true, subtree: true });
     }
-  }
+  },
 };
 
 /**
@@ -204,15 +243,17 @@ export function initStateBindings(root: Element = document.body): void {
   if (typeof document === "undefined") return;
 
   // Bind inputs with data-bind attribute
-  root.querySelectorAll<HTMLInputElement>("input[data-bind]").forEach(input => {
-    const key = input.getAttribute("data-bind");
-    if (key) {
-      state.bindInput(input, key);
-    }
-  });
+  root.querySelectorAll<HTMLInputElement>("input[data-bind]").forEach(
+    (input) => {
+      const key = input.getAttribute("data-bind");
+      if (key) {
+        state.bindInput(input, key);
+      }
+    },
+  );
 
   // Update text elements with data-text-bind attribute
-  root.querySelectorAll("[data-text-bind]").forEach(element => {
+  root.querySelectorAll("[data-text-bind]").forEach((element) => {
     const key = element.getAttribute("data-text-bind");
     if (key) {
       const unsubscribe = state.subscribe(key, (value) => {

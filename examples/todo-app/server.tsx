@@ -5,7 +5,6 @@
  * Demonstrates: Full-stack components, HTMX integration, proper architecture
  */
 
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { Router, html, renderToString, Container } from "../../mod-simple.ts";
 import { TodoForm, TodoFilters, TodoList, Todo, TodoFilter } from "./components.tsx";
 import { todoAPI, todoDatabase } from "./api.tsx";
@@ -255,7 +254,7 @@ Available endpoints:
 Press Ctrl+C to stop
 `);
 
-serve(async (req) => {
+Deno.serve({ port }, async (req) => {
   // Add CORS headers for development
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -301,4 +300,4 @@ serve(async (req) => {
       </div>
     `, 500);
   }
-}, { port });
+});
