@@ -1,12 +1,13 @@
 // Todo App Components - Idiomatic ui-lib usage with JSX/TSX
 // This demonstrates proper component composition and API integration
 
-import { Button, Input, Alert } from "../../mod-simple.ts";
 import { h } from "../../lib/simple.tsx";
+import { Alert, Button, Input } from "../../mod-simple.ts";
 
 // Data types
 export interface Todo {
   id: string;
+  userId: string;
   text: string;
   completed: boolean;
   createdAt: string;
@@ -22,21 +23,24 @@ export interface TodoFilter {
  * TodoItem - Individual todo component with actions
  * Demonstrates: API integration, conditional styling, inline actions
  */
-export function TodoItem({ 
-  todo, 
-  showActions = true 
-}: { 
-  todo: Todo; 
+export function TodoItem({
+  todo,
+  showActions = true,
+}: {
+  todo: Todo;
   showActions?: boolean;
 }) {
   const priorityColors = {
     low: "#22c55e",
-    medium: "#f59e0b", 
-    high: "#ef4444"
+    medium: "#f59e0b",
+    high: "#ef4444",
   };
 
   return (
-    <div class={`todo-item ${todo.completed ? 'completed' : ''}`} id={`todo-${todo.id}`}>
+    <div
+      class={`todo-item ${todo.completed ? "completed" : ""}`}
+      id={`todo-${todo.id}`}
+    >
       <div class="todo-content">
         <input
           type="checkbox"
@@ -45,11 +49,11 @@ export function TodoItem({
           hx-target={`#todo-${todo.id}`}
           hx-swap="outerHTML"
         />
-        
+
         <div class="todo-details">
           <span class="todo-text">{todo.text}</span>
           <div class="todo-meta">
-            <span 
+            <span
               class="priority-badge"
               style={`background-color: ${priorityColors[todo.priority]}`}
             >
@@ -66,12 +70,12 @@ export function TodoItem({
         <div class="todo-actions">
           <Button
             size="sm"
-            variant="ghost" 
+            variant="ghost"
             onClick={`editTodo('${todo.id}')`}
           >
             Edit
           </Button>
-          
+
           <button
             class="delete-btn"
             hx-delete={`/api/todos/${todo.id}`}
@@ -84,7 +88,8 @@ export function TodoItem({
         </div>
       )}
 
-      <style>{`
+      <style>
+        {`
         .todo-item {
           display: flex;
           align-items: flex-start;
@@ -179,7 +184,8 @@ export function TodoItem({
           background: #fef2f2;
           border-color: #fca5a5;
         }
-      `}</style>
+      `}
+      </style>
     </div>
   );
 }
@@ -188,14 +194,16 @@ export function TodoItem({
  * TodoForm - Add/edit todo form component
  * Demonstrates: Form validation, priority selection, HTMX form submission
  */
-export function TodoForm({ 
+export function TodoForm({
   todo,
+  userId,
   actionUrl = "/api/todos",
   method = "POST",
-  onCancel
+  onCancel,
 }: {
   todo?: Todo;
-  actionUrl?: string; 
+  userId: string;
+  actionUrl?: string;
   method?: "POST" | "PUT";
   onCancel?: string;
 }) {
@@ -210,8 +218,9 @@ export function TodoForm({
         hx-swap="innerHTML"
         hx-on--after-request="this.reset()"
       >
+        <input type="hidden" name="user" value={userId} />
         {isEditing && <input type="hidden" name="id" value={todo.id} />}
-        
+
         <div class="form-group">
           <Input
             name="text"
@@ -229,7 +238,7 @@ export function TodoForm({
               Low Priority
             </option>
             <option value="medium" selected={todo?.priority === "medium"}>
-              Medium Priority  
+              Medium Priority
             </option>
             <option value="high" selected={todo?.priority === "high"}>
               High Priority
@@ -244,11 +253,11 @@ export function TodoForm({
           >
             {isEditing ? "Update Todo" : "Add Todo"}
           </Button>
-          
+
           {onCancel && (
             <Button
               type="button"
-              variant="ghost" 
+              variant="ghost"
               onClick={onCancel}
             >
               Cancel
@@ -257,7 +266,8 @@ export function TodoForm({
         </div>
       </form>
 
-      <style>{`
+      <style>
+        {`
         .todo-form {
           background: white;
           padding: 1.5rem;
@@ -295,7 +305,8 @@ export function TodoForm({
           display: flex;
           gap: 0.5rem;
         }
-      `}</style>
+      `}
+      </style>
     </div>
   );
 }
@@ -304,12 +315,14 @@ export function TodoForm({
  * TodoFilters - Filter and view controls
  * Demonstrates: Active state management, URL-based filtering
  */
-export function TodoFilters({ 
+export function TodoFilters({
   currentFilter,
-  todoCount
+  todoCount,
+  userId,
 }: {
   currentFilter: TodoFilter;
   todoCount: { total: number; active: number; completed: number };
+  userId: string;
 }) {
   return (
     <div class="todo-filters">
@@ -321,26 +334,30 @@ export function TodoFilters({
 
       <div class="filter-buttons">
         <button
-          class={`filter-btn ${currentFilter.status === 'all' ? 'active' : ''}`}
-          hx-get="/api/todos?status=all"
+          class={`filter-btn ${currentFilter.status === "all" ? "active" : ""}`}
+          hx-get={`/api/todos?status=all&user=${userId}`}
           hx-target="#todo-list"
           hx-swap="innerHTML"
         >
           All
         </button>
-        
+
         <button
-          class={`filter-btn ${currentFilter.status === 'active' ? 'active' : ''}`}
-          hx-get="/api/todos?status=active"
+          class={`filter-btn ${
+            currentFilter.status === "active" ? "active" : ""
+          }`}
+          hx-get={`/api/todos?status=active&user=${userId}`}
           hx-target="#todo-list"
           hx-swap="innerHTML"
         >
           Active
         </button>
-        
+
         <button
-          class={`filter-btn ${currentFilter.status === 'completed' ? 'active' : ''}`}
-          hx-get="/api/todos?status=completed"
+          class={`filter-btn ${
+            currentFilter.status === "completed" ? "active" : ""
+          }`}
+          hx-get={`/api/todos?status=completed&user=${userId}`}
           hx-target="#todo-list"
           hx-swap="innerHTML"
         >
@@ -349,9 +366,9 @@ export function TodoFilters({
       </div>
 
       <div class="priority-filters">
-        <select 
+        <select
           class="priority-filter"
-          hx-get="/api/todos"
+          hx-get={`/api/todos?user=${userId}`}
           hx-target="#todo-list"
           hx-swap="innerHTML"
           hx-include="[name='status']"
@@ -364,7 +381,8 @@ export function TodoFilters({
         </select>
       </div>
 
-      <style>{`
+      <style>
+        {`
         .todo-filters {
           display: flex;
           align-items: center;
@@ -437,7 +455,8 @@ export function TodoFilters({
             justify-content: center;
           }
         }
-      `}</style>
+      `}
+      </style>
     </div>
   );
 }
@@ -446,10 +465,10 @@ export function TodoFilters({
  * TodoList - Main container for todos
  * Demonstrates: Conditional rendering, empty states, list composition
  */
-export function TodoList({ 
+export function TodoList({
   todos,
   filter,
-  loading = false
+  loading = false,
 }: {
   todos: Todo[];
   filter: TodoFilter;
@@ -459,7 +478,8 @@ export function TodoList({
     return (
       <div id="todo-list" class="todo-list loading">
         <div class="loading-spinner">Loading todos...</div>
-        <style>{`
+        <style>
+          {`
           .todo-list.loading {
             display: flex;
             justify-content: center;
@@ -484,7 +504,8 @@ export function TodoList({
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
           }
-        `}</style>
+        `}
+        </style>
       </div>
     );
   }
@@ -492,10 +513,8 @@ export function TodoList({
   if (todos.length === 0) {
     return (
       <div id="todo-list" class="todo-list empty">
-        <Alert
-          variant="info"
-        >
-          {filter.status === "all" 
+        <Alert variant="info">
+          {filter.status === "all"
             ? "No todos yet. Add one above to get started!"
             : `No ${filter.status} todos found.`}
         </Alert>
@@ -505,9 +524,10 @@ export function TodoList({
 
   return (
     <div id="todo-list" class="todo-list">
-      {todos.map(todo => <TodoItem todo={todo} />)}
-      
-      <style>{`
+      {todos.map((todo) => <TodoItem todo={todo} />)}
+
+      <style>
+        {`
         .todo-list {
           min-height: 200px;
         }
@@ -518,7 +538,8 @@ export function TodoList({
           align-items: center;
           padding: 2rem;
         }
-      `}</style>
+      `}
+      </style>
     </div>
   );
 }

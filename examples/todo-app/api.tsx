@@ -7,16 +7,22 @@ import { Todo, TodoFilter, TodoItem, TodoList } from "./components.tsx";
 // In-memory database (in real app, use Deno KV or PostgreSQL)
 class TodoDatabase {
   private todos = new Map<string, Todo>();
+  private users: string[] = ["alice", "bob", "charlie"];
 
   constructor() {
     // Seed with some initial data
     this.seed();
   }
 
+  getUsers(): string[] {
+    return [...this.users];
+  }
+
   private seed() {
     const sampleTodos: Todo[] = [
       {
         id: "1",
+        userId: "alice",
         text: "Build an awesome todo app with ui-lib",
         completed: false,
         createdAt: new Date().toISOString(),
@@ -24,6 +30,7 @@ class TodoDatabase {
       },
       {
         id: "2",
+        userId: "alice",
         text: "Learn HTMX for seamless interactions",
         completed: true,
         createdAt: new Date(Date.now() - 86400000).toISOString(),
@@ -31,6 +38,7 @@ class TodoDatabase {
       },
       {
         id: "3",
+        userId: "bob",
         text: "Deploy to production",
         completed: false,
         createdAt: new Date().toISOString(),
@@ -41,10 +49,12 @@ class TodoDatabase {
     sampleTodos.forEach((todo) => this.todos.set(todo.id, todo));
   }
 
-  getAll(): Todo[] {
-    return Array.from(this.todos.values()).sort((a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+  getAll(userId: string): Todo[] {
+    return Array.from(this.todos.values())
+      .filter((t) => t.userId === userId)
+      .sort((a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
   }
 
   getById(id: string): Todo | undefined {
@@ -75,8 +85,8 @@ class TodoDatabase {
     return this.todos.delete(id);
   }
 
-  filter(filter: TodoFilter): Todo[] {
-    let todos = this.getAll();
+  filter(filter: TodoFilter, userId: string): Todo[] {
+    let todos = this.getAll(userId);
 
     // Filter by completion status
     if (filter.status === "active") {
@@ -93,8 +103,8 @@ class TodoDatabase {
     return todos;
   }
 
-  getStats() {
-    const all = this.getAll();
+  getStats(userId: string) {
+    const all = this.getAll(userId);
     return {
       total: all.length,
       active: all.filter((t) => !t.completed).length,
@@ -164,14 +174,15 @@ export const todoAPI = {
   // GET /api/todos - List todos with filtering
   async listTodos(req: Request): Promise<Response> {
     const url = new URL(req.url);
-    const status = url.searchParams.get("status") as TodoFilter["status"] ||
+    const userId = url.searchParams.get("user") || db.getUsers()[0];
+    const status = (url.searchParams.get("status") as TodoFilter["status"]) ||
       "all";
     const priority =
-      url.searchParams.get("priority") as TodoFilter["priority"] || undefined;
+      (url.searchParams.get("priority") as TodoFilter["priority"]) || undefined;
 
     const filter: TodoFilter = { status, priority };
-    const todos = db.filter(filter);
-    const stats = db.getStats();
+    const todos = db.filter(filter, userId);
+    const stats = db.getStats(userId);
 
     // Return HTML for HTMX requests
     const acceptsHtml = req.headers.get("hx-request") ||
@@ -184,13 +195,14 @@ export const todoAPI = {
     }
 
     // Return JSON for API requests
-    return jsonResponse({ todos, filter, stats });
+    return jsonResponse({ userId, todos, filter, stats });
   },
 
   // POST /api/todos - Create new todo
   async createTodo(req: Request): Promise<Response> {
     try {
       const formData = await req.formData();
+      const userId = (formData.get("user") as string) || db.getUsers()[0];
       const data = {
         text: formData.get("text") as string,
         priority: formData.get("priority") as "low" | "medium" | "high",
@@ -203,13 +215,14 @@ export const todoAPI = {
       }
 
       const todo = db.create({
+        userId,
         text: data.text.trim(),
         priority: data.priority,
         completed: false,
       });
 
       // Return updated todo list for HTMX
-      const todos = db.getAll();
+      const todos = db.getAll(userId);
       const filter: TodoFilter = { status: "all" };
 
       return htmlResponse(
@@ -225,6 +238,8 @@ export const todoAPI = {
   async updateTodo(req: Request, params: { id: string }): Promise<Response> {
     try {
       const formData = await req.formData();
+      const userId = (formData.get("user") as string) ||
+        db.getById(params.id)?.userId || db.getUsers()[0];
       const data = {
         text: formData.get("text") as string,
         priority: formData.get("priority") as "low" | "medium" | "high",
@@ -245,7 +260,7 @@ export const todoAPI = {
       }
 
       // Return updated todo list
-      const todos = db.getAll();
+      const todos = db.getAll(userId);
       const filter: TodoFilter = { status: "all" };
 
       return htmlResponse(
@@ -295,7 +310,9 @@ export const todoAPI = {
 
   // POST /api/todos/clear-completed - Bulk delete completed todos
   async clearCompleted(req: Request): Promise<Response> {
-    const completed = db.filter({ status: "completed" });
+    const url = new URL(req.url);
+    const userId = url.searchParams.get("user") || db.getUsers()[0];
+    const completed = db.filter({ status: "completed" }, userId);
     let deletedCount = 0;
 
     completed.forEach((todo) => {
@@ -305,7 +322,7 @@ export const todoAPI = {
     });
 
     // Return updated todo list
-    const todos = db.getAll();
+    const todos = db.getAll(userId);
     const filter: TodoFilter = { status: "all" };
 
     return htmlResponse(
