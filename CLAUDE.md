@@ -4,136 +4,142 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is **ui-lib**: an ultra-lightweight, type-safe SSR component library with DOM-native state management and hybrid reactivity. It uses Deno, TypeScript, and a functional programming approach with zero runtime overhead.
+**ui-lib** is an ultra-lightweight, type-safe SSR component library with DOM-native state management and hybrid reactivity. Built with Deno and TypeScript using functional programming patterns for zero runtime overhead.
 
-## Key Architecture Concepts
+## Architecture & Core Concepts
 
 ### Component System
-- Components defined via `defineComponent()` with name, styles, render function, and optional reactivity
-- **Function-style props** using prop helpers (`string()`, `number()`, `boolean()`, `array()`, `object()`, `oneOf()`)
-- CSS-in-TS system generates collision-free class names from typed CSS properties
-- SSR-first design - components render to HTML strings server-side
+- Components defined via `defineComponent()` with typed configuration
+- Function-style props using helpers: `string()`, `number()`, `boolean()`, `array()`, `object()`, `oneOf()`
+- CSS-in-TS system generates collision-free class names
+- SSR-first - components render to HTML strings server-side
 
 ### DOM-Native State Management
-- **State lives in the DOM**, not JavaScript memory - stored in:
-  - CSS classes for boolean states
-  - Data attributes for structured data
-  - Element content for display values
-  - CSS custom properties for theme values
-- No hydration needed - state is already in the HTML
+State lives in the DOM itself, not JavaScript memory:
+- CSS classes for boolean states
+- Data attributes for structured data
+- Element content for display values
+- CSS custom properties for theme values
+- No hydration required - state is already in the HTML
 
-### Three-Tier Reactivity System
-1. **CSS Property Reactivity** - Instant visual updates via CSS custom properties (no JS needed)
+### Three-Tier Reactivity
+1. **CSS Property Reactivity** - Instant visual updates via CSS custom properties (no JS)
 2. **Pub/Sub State Manager** - Cross-component communication via lightweight message bus
 3. **DOM Event Communication** - Component-to-component messaging via custom events
 
 ### SSR Component Tag Processing
-The showcase server can render custom component tags directly from HTML:
-- Uses tokenizer (not regex) to find and parse component tags
-- Handles self-closing (`<my-comp />`) and paired tags with children
+- Tokenizer-based processor (not regex) for custom component tags in HTML
+- Handles self-closing and paired tags with children
 - Multi-pass processing for nested components
 - Attributes passed as strings, parsed by components using prop helpers
 
-## Common Development Commands
+## Development Commands
 
 ```bash
-# Type checking
-deno task check
+# Core development
+deno task check              # Type check all TypeScript files
+deno task test               # Run all tests
+deno test path/to/file.test.ts  # Run specific test file
+deno test --filter "pattern"     # Run tests matching pattern
+deno task coverage           # Run tests with coverage report
+deno task fmt                # Format code
+deno task fmt:check          # Check formatting without changes
+deno task lint               # Lint code
 
-# Run all tests
-deno task test
+# Server & examples
+deno task serve              # Start example server (http://localhost:8080)
+deno task start              # Type check, then start server
 
-# Run a specific test file
-deno test path/to/file.test.ts
-
-# Run tests matching a pattern
-deno test --filter "component name"
-
-# Run tests with coverage
-deno task coverage
-
-# Format code
-deno task fmt
-
-# Lint code
-deno task lint
-
-# Start showcase server (examples)
-deno task serve
-# or
-deno task start  # runs check first, then serve
-
-# Audit CSS usage
-deno task audit:css
-
-# Run benchmarks
-deno task bench
-
-# Build documentation
-deno task docs
-
-# Release preparation (full validation)
-deno task release:prep
+# Additional tools (via VS Code tasks or direct execution)
+deno run --allow-read scripts/audit_css.ts    # Audit CSS usage
+deno bench bench/ssr.bench.ts                 # Run performance benchmarks
+deno run --allow-run --allow-read --allow-env scripts/release.ts  # Release preparation
 ```
 
 ## Project Structure
 
 ```
 ui-lib/
-├── mod.ts                 # Main public API exports
-├── lib/                   # Core library code
-│   ├── define-component.ts    # Component definition system
-│   ├── jsx-runtime.ts         # JSX/TSX support
-│   ├── prop-helpers.ts        # Type-safe prop helpers
-│   ├── css-in-ts.ts           # CSS-in-TS system
-│   ├── router.ts              # SSR routing
-│   ├── reactive-helpers.ts    # Reactivity utilities
-│   ├── state-manager.ts       # Pub/sub state system
-│   └── components/            # 50+ built-in components
+├── mod.ts                      # Main public API exports
+├── lib/
+│   ├── define-component.ts     # Component definition system
+│   ├── jsx-runtime.ts          # JSX/TSX support & h() function
+│   ├── prop-helpers.ts         # Type-safe prop validation helpers
+│   ├── css-in-ts.ts           # CSS-in-TS system with typed properties
+│   ├── router.ts              # SSR routing with type-safe params
+│   ├── reactive-helpers.ts    # Reactivity utilities & bindings
+│   ├── state-manager.ts       # Pub/sub state management
+│   ├── component-state.ts     # Component rendering & state
+│   ├── registry.ts            # Component registry system
+│   ├── ssr.ts                 # SSR utilities & HTML escaping
+│   ├── styles-parser.ts       # Unified styles parsing
+│   ├── reactive-system.ts     # Reactive attributes injection
+│   ├── props.ts               # Props parsing system
+│   ├── result.ts              # Result<T,E> type for error handling
+│   └── components/            # Built-in component library
+│       ├── button/            # Button components
+│       ├── input/             # Form input components
+│       ├── feedback/          # Alert, Badge, Progress, Toast
+│       ├── data-display/      # Data visualization components
+│       ├── media/             # Media handling components
+│       └── overlay/           # Modal, Drawer, Popover, Tooltip
 ├── examples/
-│   └── showcase/          # Live component showcase
-│       ├── server.ts          # Showcase server entry
-│       ├── router.ts          # API endpoints
-│       └── components/        # Showcase-specific components
-└── docs/                  # Documentation
+│   └── todo-app/              # Example todo application
+│       ├── server.tsx         # Server entry point
+│       ├── components.tsx     # Todo app components
+│       └── api.tsx           # API routes & handlers
+├── scripts/
+│   ├── audit_css.ts          # CSS usage auditing tool
+│   └── release.ts            # Release automation script
+├── bench/
+│   └── ssr.bench.ts          # SSR performance benchmarks
+└── docs/                      # Documentation
+    ├── architecture.md
+    ├── component-api.md
+    ├── getting-started.md
+    └── examples.md
 ```
 
-## Development Patterns
+## Component Development Patterns
 
-### Creating Components
-
-Always use `defineComponent()` with function-style props for type safety:
-
+### Basic Component Definition
 ```tsx
 import { defineComponent, string, number, boolean, h } from "./mod.ts";
 
-const MyComponent = defineComponent({
-  name: "my-component",
+defineComponent("my-component", {
   styles: {
     padding: "1rem",
     backgroundColor: "white"
   },
-  render: (
-    title = string("Default Title"),
-    count = number(0),
-    active = boolean(false)
-  ) => (
+  render: (props: { title: string; count: number; active: boolean }) => (
     <div class="my-component">
-      <h2>{title}</h2>
-      <span>Count: {count}</span>
-      {active && <span>Active!</span>}
+      <h2>{props.title}</h2>
+      <span>Count: {props.count}</span>
+      {props.active && <span>Active!</span>}
     </div>
   )
 });
 ```
 
-### Adding Reactivity
-
-Components can specify reactive behaviors:
-
+### Component with Prop Helpers
 ```tsx
-defineComponent({
-  name: "reactive-component",
+defineComponent("counter", {
+  props: (attrs) => ({
+    count: parseInt(attrs.count || "0"),
+    step: parseInt(attrs.step || "1"),
+    active: "active" in attrs
+  }),
+  render: (props) => (
+    <div class={props.active ? "active" : ""}>
+      Count: {props.count}
+    </div>
+  )
+});
+```
+
+### Component with Reactivity
+```tsx
+defineComponent("reactive-component", {
   reactive: {
     css: { "--theme": "data-theme" },          // CSS property binding
     state: { "cart-count": "data-count" },     // Pub/sub state
@@ -143,64 +149,64 @@ defineComponent({
 });
 ```
 
-### Testing Components
-
-Write tests using Deno's built-in test runner:
-
+### Component with API Integration
 ```tsx
-import { assertEquals } from "https://deno.land/std/assert/mod.ts";
-import { renderToString } from "./lib/render.ts";
-
-Deno.test("Component renders correctly", () => {
-  const result = renderToString(<MyComponent title="Test" />);
-  assertEquals(result.includes("Test"), true);
+defineComponent("todo-item", {
+  props: (attrs) => ({
+    id: attrs.id,
+    text: attrs.text,
+    done: "done" in attrs
+  }),
+  api: {
+    toggle: ["PATCH", "/api/todos/:id/toggle", handler],
+    remove: ["DELETE", "/api/todos/:id", handler]
+  },
+  render: (props, api) => (
+    <div>
+      <span>{props.text}</span>
+      <button {...api.toggle(props.id)}>Toggle</button>
+      <button {...api.remove(props.id)}>×</button>
+    </div>
+  )
 });
 ```
 
-## Important Conventions
+## Code Style & Conventions
 
-### Code Style
-- **Functional programming**: No classes, no inheritance, pure functions preferred
-- **Immutable data**: Use `readonly` for public APIs
-- **Type-first**: Model with types, make illegal states unrepresentable
-- **Top-down**: Define high-level logic first, then implementation details
+### Functional Programming
+- No classes or inheritance - use pure functions and composition
+- Prefer immutable data with `readonly` for public APIs
+- Model domain with algebraic data types (discriminated unions)
+- Use `Result<T,E>` for error handling in core logic (no throws)
+- Practice encapsulation at module boundaries
+
+### TypeScript
+- Strict mode with all safety flags enabled
+- Type-first development - make illegal states unrepresentable
+- Use type aliases over interfaces except for generics
+- Leverage discriminated unions for exhaustive pattern matching
 
 ### File Organization
 - Component files use `.tsx` extension
 - Test files use `.test.ts` or `.test.tsx` suffix
-- Keep related functionality in the same module
-- Export only necessary public APIs
+- Keep related functionality in same module
+- Export only necessary public APIs via `mod.ts`
 
-### Error Handling
-- Use `Result<T,E>` types in core logic (no throws)
-- Validate props at component boundaries
-- Escape all user input for XSS protection
+### Testing
+- Unit tests for pure functions and helpers
+- Component tests for rendering with various props
+- Integration tests for component interactions
+- Benchmark tests for performance monitoring
+- Use Deno's built-in test runner and assertions
 
-### Performance
-- Components render in ~0.5ms server-side
+## Performance Guidelines
+
+- SSR rendering target: ~0.5ms per component
+- Zero client-side framework runtime
+- Optional client enhancements < 10KB
 - Use streaming responses for large pages
-- Leverage three-level caching (JSX, Component, HTTP)
-- Keep optional client enhancements under 10KB
-
-## Showcase Server
-
-The showcase server demonstrates all components and patterns:
-
-- Entry: `examples/showcase/server.ts`
-- Router: `examples/showcase/router.ts` (handles API endpoints)
-- Custom components in `examples/showcase/components/`
-- Serves on `http://localhost:8080` when running `deno task serve`
-
-The showcase uses a tokenizer-based SSR component tag processor that can render custom component tags directly from HTML templates.
-
-## Testing Strategy
-
-1. **Unit tests**: Test pure render functions and helpers
-2. **Component tests**: Test component rendering with various props
-3. **Integration tests**: Test component interactions and reactivity
-4. **Benchmark tests**: Monitor rendering performance
-
-Run tests frequently during development. The test suite is fast and comprehensive.
+- Three-level caching: JSX, Component, HTTP
+- Leverage DOM-native state to avoid hydration
 
 ## Common Patterns
 
@@ -227,10 +233,29 @@ router.get("/api/users", getUsersHandler);
 router.post("/api/users", createUserHandler);
 ```
 
+### Response Helpers
+```tsx
+import { html, json, text, error } from "./lib/response.ts";
+
+// Return HTML response
+return html("<h1>Hello</h1>");
+
+// Return JSON response
+return json({ status: "ok" });
+```
+
 ## Debugging Tips
 
 - Use `deno task check` to catch type errors early
-- Inspect DOM directly in DevTools (state is visible)
-- Check generated CSS class names with `deno task audit:css`
-- Use `--filter` flag with tests to run specific tests
+- Inspect DOM directly in DevTools - state is visible in attributes/classes
 - Enable debug output with `DEBUG=true` environment variable
+- Use `--filter` flag with tests to run specific tests
+- Check generated CSS class names for style debugging
+
+## Important Notes
+
+- State management philosophy: State belongs in the DOM, not JavaScript memory
+- Progressive enhancement over hydration
+- Server-first design, not client-first with SSR bolted on
+- All user input must be escaped for XSS protection
+- Components should be pure functions when possible

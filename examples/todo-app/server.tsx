@@ -9,13 +9,9 @@
 
 import { h } from "../../lib/simple.tsx";
 import { html, Router } from "../../mod-simple.ts";
-import { todoAPI, todoDatabase } from "./api.tsx";
-import {
-  type TodoFilter,
-  TodoFilters,
-  TodoForm,
-  TodoList,
-} from "./components.tsx";
+import { todoAPI, todoDatabase } from "./api/index.ts";
+import { TodoFilters, TodoForm, TodoList } from "./components/index.ts";
+import type { TodoFilter } from "./api/types.ts";
 
 const router = new Router();
 

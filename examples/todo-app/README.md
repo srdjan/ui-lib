@@ -1,176 +1,170 @@
-# Todo App Examples - ui-lib Showcase
+# Todo App Example
 
-Multiple complete todo applications demonstrating different approaches to using
-ui-lib, from traditional patterns to cutting-edge ergonomic APIs.
+A full-featured todo application demonstrating ui-lib's capabilities with **properly organized components** and functional programming patterns.
 
 ## 🚀 Quick Start
 
 ```bash
-# Original idiomatic ui-lib usage
-deno task serve:todo
+# Start the development server
+deno task serve
 
-# Refactored with ui-lib components
-deno task serve:simple
+# Or with type checking first
+deno task start
 
-# Ergonomic API demonstration
-deno task serve:ergonomic
-
-# All servers run on http://localhost:8080
+# Server runs on http://localhost:8080
 ```
 
-## 📋 Three Different Approaches
-
-### 1️⃣ **Original Todo App** (`server.tsx`)
-
-**Traditional ui-lib usage with manual component patterns**
-
-- ✅ **Component composition** - TodoItem, TodoForm, TodoFilters, TodoList
-- ✅ **Props with TypeScript** - Type-safe interfaces and validation
-- ✅ **HTMX integration** - Seamless form submissions and updates
-- ✅ **Server-side rendering** - Components render to HTML strings
-- ✅ **Manual styling** - Custom CSS classes and inline styles
-
-### 2️⃣ **Simple Todo App** (`server-simple.tsx`)
-
-**Refactored to use ui-lib component library**
-
-- ✅ **ui-lib components** - Button, Alert, Container, Badge components
-- ✅ **Consistent styling** - Design system with component variants
-- ✅ **Simple JSX functions** - Clean component patterns without complexity
-- ✅ **Type-safe props** - Full TypeScript support with proper interfaces
-- ✅ **HTMX preserved** - All interactive features maintained
-
-### 3️⃣ **Ergonomic Demo** (`demo-ergonomic.tsx`)
-
-**Cutting-edge ergonomic API with three breakthroughs**
-
-- ✨ **Function-Style Props** - Zero duplication, auto-inferred from parameters
-- ✨ **CSS-Only Format** - Auto-generated classes from pure CSS strings
-- ✨ **Unified API System** - Ready for HTMX attribute auto-generation
-- ✅ **Type safety** - Full TypeScript inference and validation
-- ✅ **Beautiful UI** - Gradient designs and responsive layouts
-
-## 🏗️ Project Structure
+## 🏗️ New Structure
 
 ```
 todo-app/
-├── server.tsx              # Original idiomatic ui-lib server
-├── server-simple.tsx       # Refactored with ui-lib components
-├── demo-ergonomic.tsx      # Ergonomic API demonstration
-├── components.tsx          # Original UI components
-├── components-simple.tsx   # Refactored ui-lib components
-├── api.tsx                 # Shared backend API handlers
-└── README.md              # This documentation
+├── components/          # UI Components (one file per component)
+│   ├── TodoItem.tsx    # Individual todo item with actions
+│   ├── TodoForm.tsx    # Add/edit todo form
+│   ├── TodoList.tsx    # Todo list container
+│   ├── TodoFilters.tsx # Filter controls
+│   └── index.ts        # Component exports
+│
+├── api/                # Backend logic
+│   ├── types.ts       # Shared type definitions
+│   ├── repository.ts  # Data layer with functional error handling
+│   ├── handlers.ts    # Request handlers
+│   └── index.ts       # API exports
+│
+├── utils/             # Utilities
+│   └── result.ts      # Result type for error handling
+│
+├── server.tsx         # Main server with routing
+├── server-simple.tsx  # Alternative server implementation
+├── components.tsx     # Legacy monolithic components (to be removed)
+├── api.tsx           # Legacy API (to be removed)
+└── README.md         # This documentation
 ```
 
-## 🎯 Key Features Across All Versions
+## ✨ Key Features
 
-### **Shared Functionality**
+- **Component-based architecture** - Each component in its own file for better organization
+- **Functional programming** - Pure functions, immutable data, Result types for error handling
+- **Type-safe** - Full TypeScript with strict typing throughout
+- **SSR-first** - Server-side rendering with HTMX enhancements
+- **DOM-native state** - State lives in the DOM, not JavaScript memory
+- **Zero runtime** - No client-side framework needed
 
-- ✅ **Complete CRUD operations** - Create, read, update, delete todos
-- ✅ **Priority levels** - High, Medium, Low with visual indicators
-- ✅ **HTMX integration** - Seamless form submissions and updates
-- ✅ **Server-side rendering** - Fast initial page loads
-- ✅ **Type safety** - Full TypeScript support throughout
-- ✅ **Responsive design** - Works on mobile and desktop
+## 📦 Component Details
 
-### **Progressive Enhancement**
+### TodoItem (`components/TodoItem.tsx`)
+- Displays individual todo with priority badge
+- Checkbox for completion toggle
+- Edit and delete actions
+- HTMX-powered interactions
+- Self-contained styles
 
-Each version builds upon the previous:
+### TodoForm (`components/TodoForm.tsx`)
+- Add new todos with text and priority
+- Edit existing todos
+- Form validation
+- Auto-reset after submission
+- Clean form layout
 
-1. **Original** → Manual components, custom styling
-2. **Simple** → ui-lib components, consistent design system
-3. **Ergonomic** → Zero duplication, auto-generated classes
+### TodoList (`components/TodoList.tsx`)
+- Container for todo items
+- Loading state with spinner
+- Empty state messaging
+- Conditional rendering based on filter
 
-## 🚀 Getting Started
+### TodoFilters (`components/TodoFilters.tsx`)
+- Status filters (All, Active, Completed)
+- Priority filtering dropdown
+- Statistics display
+- URL-based filtering with HTMX
+- Responsive layout
 
-### **Run Any Version**
+## 🔧 API Architecture
 
-```bash
-# Original idiomatic ui-lib (default)
-deno task serve:todo
+### Types (`api/types.ts`)
+Core data models and type definitions:
 
-# Refactored with ui-lib components
-deno task serve:simple
-
-# Ergonomic API demonstration
-deno task serve:ergonomic
-```
-
-### **Explore the Code**
-
-Each server demonstrates different ui-lib patterns:
-
-- **`server.tsx`** - Traditional component patterns with manual styling
-- **`server-simple.tsx`** - Clean refactor using ui-lib Button, Alert, Badge
-  components
-- **`demo-ergonomic.tsx`** - Cutting-edge ergonomic API with three breakthroughs
-
-### **Learn More**
-
-- 📚 [Ergonomic API Documentation](../../docs/ergonomic-api.md)
-- 🎯 [Component Library Guide](../../docs/components.md)
-- 🔧 [HTMX Integration Patterns](../../docs/htmx-integration.md)
-
-## 🔧 Shared API Architecture
-
-All three versions use the same backend API (`api.tsx`) with:
-
-### **Type-Safe Data Models**
-
-```tsx
+```typescript
 export interface Todo {
   id: string;
+  userId: string;
   text: string;
   completed: boolean;
-  createdAt: Date;
+  createdAt: string;
   priority: "low" | "medium" | "high";
-  userId: string;
 }
 ```
 
-### **RESTful Endpoints**
+### Repository (`api/repository.ts`)
+- Functional data layer with Result types
+- In-memory storage (easily replaceable with database)
+- Pure validation functions
+- No throwing errors - all errors as values
 
-- `GET /` - Main application
-- `GET /api` - API documentation
-- `GET /health` - Health check
-- `POST /api/todos` - Create todo
-- `PATCH /api/todos/:id/toggle` - Toggle completion
+### Handlers (`api/handlers.ts`)
+- HTTP request handlers
+- Content negotiation (HTML for HTMX, JSON for API)
+- Error response formatting
+- Functional composition of operations
+
+- `GET /api/todos` - List todos with filtering
+- `POST /api/todos` - Create new todo
+- `PUT /api/todos/:id` - Update todo
+- `POST /api/todos/:id/toggle` - Toggle completion
 - `DELETE /api/todos/:id` - Delete todo
+- `POST /api/todos/clear-completed` - Bulk delete
+- `GET /api/todos/stats` - Get statistics
 
-### **HTMX Integration**
+## 🎯 Key Patterns
 
-All versions use HTMX for seamless server-client communication:
+### Functional Error Handling
+```typescript
+type Result<T, E> = Ok<T> | Err<E>;
 
+// Usage
+const result = todoRepository.create(todoData);
+if (!result.ok) {
+  return handleDatabaseError(result.error);
+}
+```
+
+### Component Separation
+- Each component is self-contained with its own styles
+- Props are typed interfaces
+- Components are pure functions
+- No side effects in render functions
+
+### HTMX Integration
 ```html
 <!-- Form submission updates todo list -->
 <form hx-post="/api/todos" hx-target="#todo-list">
 
 <!-- Toggle completion -->
-<button hx-patch="/api/todos/123/toggle" hx-target="#todo-list">
+<input type="checkbox" hx-post="/api/todos/123/toggle">
+
+<!-- Delete with confirmation -->
+<button hx-delete="/api/todos/123" hx-confirm="Are you sure?">
 ```
 
-## 💡 Key Benefits
+## 🚀 Customization
 
-### **Across All Versions**
+### Adding New Features
+1. Create new component in `components/`
+2. Add types to `api/types.ts`
+3. Implement repository methods
+4. Add API handlers
+5. Wire up routes in `server.tsx`
 
-- ✅ **Zero Hydration** - State lives in DOM, not JavaScript memory
-- ✅ **Type Safety** - Shared types between components and API
-- ✅ **Progressive Enhancement** - Works without JavaScript, enhanced with HTMX
-- ✅ **Server-Side Rendering** - Fast initial page loads
-- ✅ **Simple State Management** - No complex stores or reducers needed
+### Styling
+- Each component includes its own styles
+- Use ui-lib's CSS-in-TS system for type-safe styles
+- Leverage CSS custom properties for theming
 
-### **Version-Specific Benefits**
+## 💡 Benefits of This Structure
 
-**Original** → Learn traditional ui-lib patterns **Simple** → Experience
-consistent design system **Ergonomic** → See the future of component development
-
-## 🎯 Choose Your Path
-
-- **New to ui-lib?** Start with `server.tsx` to learn the fundamentals
-- **Want consistency?** Try `server-simple.tsx` for design system benefits
-- **Ready for the future?** Explore `demo-ergonomic.tsx` for cutting-edge
-  patterns
-
-Each version demonstrates the **power and flexibility** of ui-lib while
-showcasing different approaches to component development.
+1. **Maintainability** - Easy to find and modify components
+2. **Testability** - Each component/function can be tested in isolation
+3. **Reusability** - Components can be imported individually
+4. **Type Safety** - Full TypeScript coverage with strict types
+5. **Performance** - SSR with zero client runtime
+6. **Learning** - Clear patterns for building ui-lib applications
