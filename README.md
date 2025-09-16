@@ -112,6 +112,26 @@ const Page = () => (
 );
 ```
 
+### HTMX Ergonomics
+
+```tsx
+import { del, generateClientHx, hx, patch } from "ui-lib";
+
+const api = {
+  toggle: patch("/api/todos/:id/toggle", toggleHandler),
+  remove: del("/api/todos/:id", deleteHandler),
+};
+
+const actions = generateClientHx(api, { target: "#todo-list" });
+
+const todoButton = `<button ${
+  actions.toggle("42", { optimistic: true }, hx({ indicator: "#spinner" }))
+}>Toggle</button>`;
+```
+
+Generate HTMX attributes from a single source of truth and opt into common
+enhancements with the `hx(...)` decorator.
+
 ## Three-Tier Reactivity
 
 ### Tier 1: CSS Property Reactivity

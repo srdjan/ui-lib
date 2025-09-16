@@ -1,21 +1,28 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with
+code in this repository.
 
 ## Repository Overview
 
-**ui-lib** is an ultra-lightweight, type-safe SSR component library with DOM-native state management and hybrid reactivity. Built with Deno and TypeScript using functional programming patterns for zero runtime overhead.
+**ui-lib** is an ultra-lightweight, type-safe SSR component library with
+DOM-native state management and hybrid reactivity. Built with Deno and
+TypeScript using functional programming patterns for zero runtime overhead.
 
 ## Architecture & Core Concepts
 
 ### Component System
+
 - Components defined via `defineComponent()` with typed configuration
-- Function-style props using helpers: `string()`, `number()`, `boolean()`, `array()`, `object()`, `oneOf()`
+- Function-style props using helpers: `string()`, `number()`, `boolean()`,
+  `array()`, `object()`, `oneOf()`
 - CSS-in-TS system generates collision-free class names
 - SSR-first - components render to HTML strings server-side
 
 ### DOM-Native State Management
+
 State lives in the DOM itself, not JavaScript memory:
+
 - CSS classes for boolean states
 - Data attributes for structured data
 - Element content for display values
@@ -23,11 +30,16 @@ State lives in the DOM itself, not JavaScript memory:
 - No hydration required - state is already in the HTML
 
 ### Three-Tier Reactivity
-1. **CSS Property Reactivity** - Instant visual updates via CSS custom properties (no JS)
-2. **Pub/Sub State Manager** - Cross-component communication via lightweight message bus
-3. **DOM Event Communication** - Component-to-component messaging via custom events
+
+1. **CSS Property Reactivity** - Instant visual updates via CSS custom
+   properties (no JS)
+2. **Pub/Sub State Manager** - Cross-component communication via lightweight
+   message bus
+3. **DOM Event Communication** - Component-to-component messaging via custom
+   events
 
 ### SSR Component Tag Processing
+
 - Tokenizer-based processor (not regex) for custom component tags in HTML
 - Handles self-closing and paired tags with children
 - Multi-pass processing for nested components
@@ -86,8 +98,7 @@ ui-lib/
 ├── examples/
 │   └── todo-app/              # Example todo application
 │       ├── server.tsx         # Server entry point
-│       ├── components.tsx     # Todo app components
-│       └── api.tsx           # API routes & handlers
+│       └── README.md         # Example documentation
 ├── scripts/
 │   ├── audit_css.ts          # CSS usage auditing tool
 │   └── release.ts            # Release automation script
@@ -103,13 +114,14 @@ ui-lib/
 ## Component Development Patterns
 
 ### Basic Component Definition
+
 ```tsx
-import { defineComponent, string, number, boolean, h } from "./mod.ts";
+import { boolean, defineComponent, h, number, string } from "./mod.ts";
 
 defineComponent("my-component", {
   styles: {
     padding: "1rem",
-    backgroundColor: "white"
+    backgroundColor: "white",
   },
   render: (props: { title: string; count: number; active: boolean }) => (
     <div class="my-component">
@@ -117,49 +129,52 @@ defineComponent("my-component", {
       <span>Count: {props.count}</span>
       {props.active && <span>Active!</span>}
     </div>
-  )
+  ),
 });
 ```
 
 ### Component with Prop Helpers
+
 ```tsx
 defineComponent("counter", {
   props: (attrs) => ({
     count: parseInt(attrs.count || "0"),
     step: parseInt(attrs.step || "1"),
-    active: "active" in attrs
+    active: "active" in attrs,
   }),
   render: (props) => (
     <div class={props.active ? "active" : ""}>
       Count: {props.count}
     </div>
-  )
+  ),
 });
 ```
 
 ### Component with Reactivity
+
 ```tsx
 defineComponent("reactive-component", {
   reactive: {
-    css: { "--theme": "data-theme" },          // CSS property binding
-    state: { "cart-count": "data-count" },     // Pub/sub state
-    on: { "user:login": "handleLogin" }        // Event listeners
+    css: { "--theme": "data-theme" }, // CSS property binding
+    state: { "cart-count": "data-count" }, // Pub/sub state
+    on: { "user:login": "handleLogin" }, // Event listeners
   },
-  render: () => <div>...</div>
+  render: () => <div>...</div>,
 });
 ```
 
 ### Component with API Integration
+
 ```tsx
 defineComponent("todo-item", {
   props: (attrs) => ({
     id: attrs.id,
     text: attrs.text,
-    done: "done" in attrs
+    done: "done" in attrs,
   }),
   api: {
     toggle: ["PATCH", "/api/todos/:id/toggle", handler],
-    remove: ["DELETE", "/api/todos/:id", handler]
+    remove: ["DELETE", "/api/todos/:id", handler],
   },
   render: (props, api) => (
     <div>
@@ -167,13 +182,14 @@ defineComponent("todo-item", {
       <button {...api.toggle(props.id)}>Toggle</button>
       <button {...api.remove(props.id)}>×</button>
     </div>
-  )
+  ),
 });
 ```
 
 ## Code Style & Conventions
 
 ### Functional Programming
+
 - No classes or inheritance - use pure functions and composition
 - Prefer immutable data with `readonly` for public APIs
 - Model domain with algebraic data types (discriminated unions)
@@ -181,18 +197,21 @@ defineComponent("todo-item", {
 - Practice encapsulation at module boundaries
 
 ### TypeScript
+
 - Strict mode with all safety flags enabled
 - Type-first development - make illegal states unrepresentable
 - Use type aliases over interfaces except for generics
 - Leverage discriminated unions for exhaustive pattern matching
 
 ### File Organization
+
 - Component files use `.tsx` extension
 - Test files use `.test.ts` or `.test.tsx` suffix
 - Keep related functionality in same module
 - Export only necessary public APIs via `mod.ts`
 
 ### Testing
+
 - Unit tests for pure functions and helpers
 - Component tests for rendering with various props
 - Integration tests for component interactions
@@ -211,13 +230,15 @@ defineComponent("todo-item", {
 ## Common Patterns
 
 ### Using Built-in Components
+
 ```tsx
-import { Button, Card, Alert } from "./lib/components/index.ts";
+import { Alert, Button, Card } from "./lib/components/index.ts";
 ```
 
 ### Composing Styles
+
 ```tsx
-import { css, composeStyles } from "./lib/css-in-ts.ts";
+import { composeStyles, css } from "./lib/css-in-ts.ts";
 
 const baseStyles = css({ padding: "1rem" });
 const themeStyles = css({ backgroundColor: "white" });
@@ -225,6 +246,7 @@ const combined = composeStyles(baseStyles, themeStyles);
 ```
 
 ### Setting Up Routes
+
 ```tsx
 import { Router } from "./lib/router.ts";
 
@@ -234,8 +256,9 @@ router.post("/api/users", createUserHandler);
 ```
 
 ### Response Helpers
+
 ```tsx
-import { html, json, text, error } from "./lib/response.ts";
+import { error, html, json, text } from "./lib/response.ts";
 
 // Return HTML response
 return html("<h1>Hello</h1>");

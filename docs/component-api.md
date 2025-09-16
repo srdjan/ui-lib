@@ -14,13 +14,13 @@ defineComponent(config: ComponentConfig): Component
 
 #### Parameters
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `name` | `string` | Unique component identifier |
-| `styles` | `StyleObject \| string` | Component styles (CSS-in-TS or CSS string) |
-| `render` | `Function` | Render function returning HTML string |
-| `reactive` | `ReactiveConfig` | Optional reactivity configuration |
-| `api` | `ApiMap` | Optional API endpoint definitions |
+| Property   | Type                    | Description                                |
+| ---------- | ----------------------- | ------------------------------------------ |
+| `name`     | `string`                | Unique component identifier                |
+| `styles`   | `StyleObject \| string` | Component styles (CSS-in-TS or CSS string) |
+| `render`   | `Function`              | Render function returning HTML string      |
+| `reactive` | `ReactiveConfig`        | Optional reactivity configuration          |
+| `api`      | `ApiMap`                | Optional API endpoint definitions          |
 
 #### Example
 
@@ -29,14 +29,14 @@ const MyComponent = defineComponent({
   name: "my-component",
   styles: {
     padding: "1rem",
-    backgroundColor: "white"
+    backgroundColor: "white",
   },
   render: ({ title, content }) => (
     <div class="my-component">
       <h2>{title}</h2>
       <p>{content}</p>
     </div>
-  )
+  ),
 });
 ```
 
@@ -50,8 +50,8 @@ Type-safe prop helpers with default values and validation.
 const Component = defineComponent({
   render: (
     name = string("Default"),
-    title = string()  // Optional string
-  ) => <div>...</div>
+    title = string(), // Optional string
+  ) => <div>...</div>,
 });
 ```
 
@@ -61,8 +61,8 @@ const Component = defineComponent({
 const Component = defineComponent({
   render: (
     count = number(0),
-    max = number(100)
-  ) => <div>...</div>
+    max = number(100),
+  ) => <div>...</div>,
 });
 ```
 
@@ -72,8 +72,8 @@ const Component = defineComponent({
 const Component = defineComponent({
   render: (
     isActive = boolean(false),
-    showDetails = boolean(true)
-  ) => <div>...</div>
+    showDetails = boolean(true),
+  ) => <div>...</div>,
 });
 ```
 
@@ -83,8 +83,8 @@ const Component = defineComponent({
 const Component = defineComponent({
   render: (
     items = array<string>([]),
-    tags = array<{id: number, name: string}>([])
-  ) => <div>...</div>
+    tags = array<{ id: number; name: string }>([]),
+  ) => <div>...</div>,
 });
 ```
 
@@ -94,8 +94,8 @@ const Component = defineComponent({
 const Component = defineComponent({
   render: (
     config = object<Config>({ theme: "light" }),
-    user = object<User>()
-  ) => <div>...</div>
+    user = object<User>(),
+  ) => <div>...</div>,
 });
 ```
 
@@ -115,11 +115,11 @@ const styles = css({
   padding: "2rem",
   backgroundColor: "var(--bg-color)",
   "&:hover": {
-    backgroundColor: "var(--bg-hover)"
+    backgroundColor: "var(--bg-hover)",
   },
   "@media (max-width: 768px)": {
-    padding: "1rem"
-  }
+    padding: "1rem",
+  },
 });
 ```
 
@@ -143,13 +143,13 @@ const theme = createTheme({
   colors: {
     primary: "#007bff",
     secondary: "#6c757d",
-    success: "#28a745"
+    success: "#28a745",
   },
   spacing: {
     sm: "0.5rem",
     md: "1rem",
-    lg: "2rem"
-  }
+    lg: "2rem",
+  },
 });
 ```
 
@@ -159,12 +159,12 @@ const theme = createTheme({
 
 ```typescript
 interface ReactiveConfig {
-  css?: Record<string, string>;    // CSS property bindings
-  state?: Record<string, string>;  // State bindings
-  on?: Record<string, string>;     // Event listeners
-  mount?: string;                  // Mount script
-  unmount?: string;                // Unmount script
-  inject?: boolean;                // Auto-inject state manager
+  css?: Record<string, string>; // CSS property bindings
+  state?: Record<string, string>; // State bindings
+  on?: Record<string, string>; // Event listeners
+  mount?: string; // Mount script
+  unmount?: string; // Unmount script
+  inject?: boolean; // Auto-inject state manager
 }
 ```
 
@@ -177,14 +177,14 @@ const ThemeComponent = defineComponent({
   reactive: {
     css: {
       "--theme-color": "data-theme-color",
-      "--font-size": "data-font-size"
-    }
+      "--font-size": "data-font-size",
+    },
   },
   render: () => (
     <div data-theme-color="#007bff" data-font-size="16px">
       Content with reactive styles
     </div>
-  )
+  ),
 });
 ```
 
@@ -197,15 +197,15 @@ const StatefulComponent = defineComponent({
   reactive: {
     state: {
       "user-name": "data-name",
-      "user-role": "data-role"
-    }
+      "user-role": "data-role",
+    },
   },
   render: () => (
     <div data-name="" data-role="">
       User: <span class="name"></span>
       Role: <span class="role"></span>
     </div>
-  )
+  ),
 });
 ```
 
@@ -218,12 +218,10 @@ const EventComponent = defineComponent({
   reactive: {
     on: {
       "app:notify": "showNotification",
-      "user:login": "handleLogin"
-    }
+      "user:login": "handleLogin",
+    },
   },
-  render: () => (
-    <div id="notifications"></div>
-  )
+  render: () => <div id="notifications"></div>,
 });
 ```
 
@@ -489,10 +487,10 @@ const attrs = dataAttrs({ userId: 123, role: "admin" });
 Spreads attributes as HTML attribute string.
 
 ```typescript
-const attrs = spreadAttrs({ 
-  id: "my-id", 
+const attrs = spreadAttrs({
+  id: "my-id",
   class: "my-class",
-  disabled: true 
+  disabled: true,
 });
 // Result: 'id="my-id" class="my-class" disabled'
 ```
@@ -509,9 +507,9 @@ const CachedComponent = defineComponent({
     // Expensive render logic
     return `...`;
   }, {
-    ttl: 60000,  // Time to live in ms
-    key: (props) => props.id  // Cache key function
-  })
+    ttl: 60000, // Time to live in ms
+    key: (props) => props.id, // Cache key function
+  }),
 });
 ```
 
@@ -523,7 +521,7 @@ Advanced caching system.
 const cache = new PerformanceCache({
   maxSize: 100,
   ttl: 300000,
-  strategy: "lru"  // or "lfu", "fifo"
+  strategy: "lru", // or "lfu", "fifo"
 });
 
 cache.set("key", value);
@@ -566,7 +564,7 @@ import { propValidator } from "ui-lib/dev-tools";
 
 const validator = propValidator({
   title: { type: "string", required: true },
-  count: { type: "number", min: 0, max: 100 }
+  count: { type: "number", min: 0, max: 100 },
 });
 
 validator.validate(props);
@@ -597,7 +595,7 @@ Creates custom state manager configuration.
 const script = createStateManagerScript({
   debug: true,
   throttle: 100,
-  features: ["css", "state", "events"]
+  features: ["css", "state", "events"],
 });
 ```
 
@@ -606,7 +604,7 @@ const script = createStateManagerScript({
 ### HTTP Method Helpers
 
 ```typescript
-import { get, post, put, patch, del } from "ui-lib";
+import { del, get, patch, post, put } from "ui-lib";
 
 // Define API endpoints
 const api = {
@@ -614,24 +612,51 @@ const api = {
   createUser: post("/api/users"),
   updateUser: put("/api/users/:id"),
   patchUser: patch("/api/users/:id"),
-  deleteUser: del("/api/users/:id")
+  deleteUser: del("/api/users/:id"),
 };
 ```
 
 ### generateClientApi
 
-Generates client API from definitions.
+Generates HTMX-ready attribute maps from definitions.
 
 ```typescript
-const client = generateClientApi(api, {
-  baseURL: "https://api.example.com",
-  headers: {
-    "Authorization": "Bearer token"
-  }
-});
+const api = {
+  toggle: patch("/api/todos/:id/toggle", toggleTodo),
+  remove: del("/api/todos/:id", deleteTodo),
+};
 
-// Use the client
-const user = await client.getUser({ id: "123" });
+const client = generateClientApi(api);
+
+// Spread onto elements
+const attrs = client.toggle("42", { optimistic: true });
+/*
+{
+  "hx-patch": "/api/todos/42/toggle",
+  "hx-vals": "{\"optimistic\":true}",
+  "hx-headers": "{\"Accept\":\"text/html; charset=utf-8\"}",
+  "hx-target": "#main",
+  "hx-swap": "innerHTML"
+}
+*/
+```
+
+### generateClientHx & hx
+
+Wraps `generateClientApi` so attributes are rendered as a single string and can
+be decorated with common HTMX options.
+
+```typescript
+const actions = generateClientHx(api, { target: "#main" });
+
+// Embed in templates or JSX string output
+const toggleAttrs = actions.toggle(
+  "42",
+  { optimistic: true },
+  hx({ indicator: "#spinner", swap: "outerHTML" }),
+);
+
+const buttonHtml = `<button ${toggleAttrs}>Toggle</button>`;
 ```
 
 ## TypeScript Types
@@ -640,23 +665,23 @@ const user = await client.getUser({ id: "123" });
 
 ```typescript
 type Component<P = any> = (props: P) => string;
-type ComponentConfig = { /* ... */ };
+type ComponentConfig = {/* ... */};
 type PropsSpec<T> = (attrs: Record<string, string>) => T;
 ```
 
 ### Style Types
 
 ```typescript
-type CSSProperties = { /* CSS properties */ };
+type CSSProperties = {/* CSS properties */};
 type StyleObject = CSSProperties | string;
-type UnifiedStyles = { /* ... */ };
+type UnifiedStyles = {/* ... */};
 ```
 
 ### Reactive Types
 
 ```typescript
-type ReactiveConfig = { /* ... */ };
-type StateManager = { /* ... */ };
+type ReactiveConfig = {/* ... */};
+type StateManager = {/* ... */};
 type EventTarget = Element | Document | Window;
 ```
 
@@ -670,9 +695,9 @@ const Component = defineComponent({
   props: (attrs) => ({
     title: attrs.title || "Default",
     count: parseInt(attrs.count || "0"),
-    items: JSON.parse(attrs.items || "[]")
+    items: JSON.parse(attrs.items || "[]"),
   }),
-  render: (props) => <div>...</div>
+  render: (props) => <div>...</div>,
 });
 ```
 
@@ -680,8 +705,9 @@ const Component = defineComponent({
 
 ```tsx
 // Higher-order component
-const withTheme = (Component) => (props) => 
-  <Component {...props} theme={getCurrentTheme()} />;
+const withTheme = (Component) => (props) => (
+  <Component {...props} theme={getCurrentTheme()} />
+);
 
 // Component composition
 const EnhancedButton = withTheme(Button);
@@ -699,8 +725,8 @@ const CustomReactive = defineComponent({
     `,
     unmount: `
       this.removeEventListener('click');
-    `
+    `,
   },
-  render: () => <div>Click me</div>
+  render: () => <div>Click me</div>,
 });
 ```

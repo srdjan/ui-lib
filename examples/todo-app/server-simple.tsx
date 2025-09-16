@@ -9,7 +9,7 @@
 
 import { h } from "../../lib/simple.tsx";
 import { Alert, Button, Router } from "../../mod-simple.ts";
-import { todoAPI, todoDatabase } from "./api.tsx";
+import { todoAPI, todoDatabase } from "./api/index.ts";
 
 // Import refactored components
 import type { TodoFilter } from "./components-simple.tsx";

@@ -1,6 +1,7 @@
 # Todo App Example
 
-A full-featured todo application demonstrating ui-lib's capabilities with **properly organized components** and functional programming patterns.
+A full-featured todo application demonstrating ui-lib's capabilities with
+**properly organized components** and functional programming patterns.
 
 ## 🚀 Quick Start
 
@@ -10,6 +11,9 @@ deno task serve
 
 # Or with type checking first
 deno task start
+
+# Bundle the client state helper when serving SSR output
+deno task bundle:state
 
 # Server runs on http://localhost:8080
 ```
@@ -36,15 +40,15 @@ todo-app/
 │
 ├── server.tsx         # Main server with routing
 ├── server-simple.tsx  # Alternative server implementation
-├── components.tsx     # Legacy monolithic components (to be removed)
-├── api.tsx           # Legacy API (to be removed)
 └── README.md         # This documentation
 ```
 
 ## ✨ Key Features
 
-- **Component-based architecture** - Each component in its own file for better organization
-- **Functional programming** - Pure functions, immutable data, Result types for error handling
+- **Component-based architecture** - Each component in its own file for better
+  organization
+- **Functional programming** - Pure functions, immutable data, Result types for
+  error handling
 - **Type-safe** - Full TypeScript with strict typing throughout
 - **SSR-first** - Server-side rendering with HTMX enhancements
 - **DOM-native state** - State lives in the DOM, not JavaScript memory
@@ -53,13 +57,15 @@ todo-app/
 ## 📦 Component Details
 
 ### TodoItem (`components/TodoItem.tsx`)
+
 - Displays individual todo with priority badge
 - Checkbox for completion toggle
 - Edit and delete actions
-- HTMX-powered interactions
+- HTMX-powered interactions with `generateClientApi` helpers
 - Self-contained styles
 
 ### TodoForm (`components/TodoForm.tsx`)
+
 - Add new todos with text and priority
 - Edit existing todos
 - Form validation
@@ -67,12 +73,14 @@ todo-app/
 - Clean form layout
 
 ### TodoList (`components/TodoList.tsx`)
+
 - Container for todo items
 - Loading state with spinner
 - Empty state messaging
 - Conditional rendering based on filter
 
 ### TodoFilters (`components/TodoFilters.tsx`)
+
 - Status filters (All, Active, Completed)
 - Priority filtering dropdown
 - Statistics display
@@ -82,6 +90,7 @@ todo-app/
 ## 🔧 API Architecture
 
 ### Types (`api/types.ts`)
+
 Core data models and type definitions:
 
 ```typescript
@@ -96,12 +105,14 @@ export interface Todo {
 ```
 
 ### Repository (`api/repository.ts`)
+
 - Functional data layer with Result types
 - In-memory storage (easily replaceable with database)
 - Pure validation functions
 - No throwing errors - all errors as values
 
 ### Handlers (`api/handlers.ts`)
+
 - HTTP request handlers
 - Content negotiation (HTML for HTMX, JSON for API)
 - Error response formatting
@@ -118,6 +129,7 @@ export interface Todo {
 ## 🎯 Key Patterns
 
 ### Functional Error Handling
+
 ```typescript
 type Result<T, E> = Ok<T> | Err<E>;
 
@@ -129,12 +141,14 @@ if (!result.ok) {
 ```
 
 ### Component Separation
+
 - Each component is self-contained with its own styles
 - Props are typed interfaces
 - Components are pure functions
 - No side effects in render functions
 
 ### HTMX Integration
+
 ```html
 <!-- Form submission updates todo list -->
 <form hx-post="/api/todos" hx-target="#todo-list">
@@ -149,6 +163,7 @@ if (!result.ok) {
 ## 🚀 Customization
 
 ### Adding New Features
+
 1. Create new component in `components/`
 2. Add types to `api/types.ts`
 3. Implement repository methods
@@ -156,6 +171,7 @@ if (!result.ok) {
 5. Wire up routes in `server.tsx`
 
 ### Styling
+
 - Each component includes its own styles
 - Use ui-lib's CSS-in-TS system for type-safe styles
 - Leverage CSS custom properties for theming

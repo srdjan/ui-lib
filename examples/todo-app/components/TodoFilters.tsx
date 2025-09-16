@@ -8,9 +8,15 @@ import type { TodoFilter, TodoStats } from "../api/types.ts";
 
 defineComponent("todo-filters", {
   props: (attrs) => ({
-    currentFilter: JSON.parse(attrs.currentFilter) as TodoFilter,
-    todoCount: JSON.parse(attrs.todoCount) as TodoStats,
-    userId: attrs.userId || ""
+    currentFilter: safeParse<TodoFilter>(attrs.currentFilter, {
+      status: "all",
+    }),
+    todoCount: safeParse<TodoStats>(attrs.todoCount, {
+      total: 0,
+      active: 0,
+      completed: 0,
+    }),
+    userId: attrs.userId ?? "",
   }),
   styles: `
     .todo-filters {
@@ -98,7 +104,9 @@ defineComponent("todo-filters", {
         <div class="filter-buttons">
           <button
             type="button"
-            class={`filter-btn ${currentFilter.status === "all" ? "active" : ""}`}
+            class={`filter-btn ${
+              currentFilter.status === "all" ? "active" : ""
+            }`}
             hx-get={`/api/todos?status=all&user=${userId}`}
             hx-target="#todo-list"
             hx-swap="innerHTML"
@@ -148,8 +156,17 @@ defineComponent("todo-filters", {
         </div>
       </div>
     );
-  }
+  },
 });
+
+function safeParse<T>(value: string | undefined, fallback: T): T {
+  if (!value) return fallback;
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return fallback;
+  }
+}
 
 // Export JSX function for backwards compatibility and direct use
 export function TodoFilters({
@@ -162,7 +179,7 @@ export function TodoFilters({
   userId: string;
 }) {
   return (
-    <todo-filters 
+    <todo-filters
       currentFilter={JSON.stringify(currentFilter)}
       todoCount={JSON.stringify(todoCount)}
       userId={userId}
