@@ -31,7 +31,8 @@
     "lint": "deno lint",
     "coverage": "rm -rf coverage coverage.lcov && deno test --coverage=coverage && deno coverage coverage --lcov --exclude='(jsx-runtime|define-component)\\.ts$' --output=coverage.lcov",
     "serve": "deno run --allow-net --allow-read --allow-env examples/todo-app/server.tsx",
-    "start": "deno task check && deno task serve"
+    "start": "deno task check && deno task serve",
+    "bundle:state": "deno run --allow-read --allow-write scripts/bundle_state.ts"
   },
 
   "compilerOptions": {

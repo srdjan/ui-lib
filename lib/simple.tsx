@@ -1,6 +1,8 @@
 // Simplified ui-lib Core - JSX components without registry complexity
 // Direct imports, simple JSX functions, minimal overhead
 
+import { escape } from "./escape.ts";
+
 /**
  * Minimal JSX runtime for server-side rendering
  * Converts JSX directly to HTML strings without virtual DOM or hydration
@@ -23,15 +25,7 @@ const SELF_CLOSING_TAGS = new Set([
   "wbr",
 ]);
 
-// Simple HTML escaping
-export function escape(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
+export { escape };
 
 // Fragment for JSX
 export function Fragment({ children }: { children?: unknown[] }): string {
@@ -53,13 +47,20 @@ export function h(
 
   // Handle HTML elements
   let attributes = "";
-  let styles = "";
 
   for (const [key, value] of Object.entries(props)) {
     if (key === "children" || value == null || value === false) continue;
 
-    if (key === "className") {
-      attributes += ` class="${escape(String(value))}"`;
+    if (key === "class" || key === "className") {
+      const className = normalizeClass(value);
+      if (className) {
+        attributes += ` class="${escape(className)}"`;
+      }
+    } else if (key === "style") {
+      const style = normalizeStyle(value);
+      if (style) {
+        attributes += ` style="${escape(style)}"`;
+      }
     } else if (key === "htmlFor") {
       attributes += ` for="${escape(String(value))}"`;
     } else if (key === "dangerouslySetInnerHTML" && value?.__html) {
@@ -117,6 +118,42 @@ export function h(
     .join("");
 
   return `${openTag}${childrenHtml}</${tag}>`;
+}
+
+function normalizeClass(value: unknown): string {
+  if (value == null || value === false) return "";
+  if (typeof value === "string") return value.trim();
+  if (typeof value === "number") return String(value);
+  if (Array.isArray(value)) {
+    return value
+      .flat(Infinity)
+      .map((item) => normalizeClass(item))
+      .filter((item) => item.length > 0)
+      .join(" ");
+  }
+  if (typeof value === "object") {
+    return Object.entries(value as Record<string, unknown>)
+      .filter(([, enabled]) => Boolean(enabled))
+      .map(([key]) => key)
+      .join(" ");
+  }
+  return "";
+}
+
+function normalizeStyle(value: unknown): string {
+  if (value == null || value === false) return "";
+  if (typeof value === "string") return value.trim();
+  if (typeof value !== "object") return String(value);
+
+  return Object.entries(value as Record<string, unknown>)
+    .filter(([, v]) => v !== undefined && v !== null && v !== "")
+    .map(([key, v]) => `${toKebabCase(key)}: ${String(v)}`)
+    .join("; ");
+}
+
+function toKebabCase(value: string): string {
+  return value.replace(/([a-z0-9])([A-Z])/g, "$1-$2").replace(/_/g, "-")
+    .toLowerCase();
 }
 
 /**

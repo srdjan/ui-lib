@@ -38,6 +38,9 @@ cd ui-lib
 deno task check  # Type check
 deno task test   # Run tests
 deno task serve  # Start dev server
+deno task bundle:state  # Emit dist/ui-lib-state.js for browser progressive enhancement
+
+> Need help choosing between `mod.ts`, `mod-simple.ts`, and `mod-ergonomic.ts`? The README now includes an entry point matrix to guide you.
 ```
 
 ## Your First Component
@@ -53,14 +56,14 @@ const Greeting = defineComponent({
     padding: "2rem",
     backgroundColor: "#f0f0f0",
     borderRadius: "8px",
-    textAlign: "center"
+    textAlign: "center",
   },
   render: ({ name = "World" }) => (
     <div class="greeting">
       <h1>Hello, {name}!</h1>
       <p>Welcome to ui-lib</p>
     </div>
-  )
+  ),
 });
 
 // Use the component
@@ -73,7 +76,7 @@ console.log(html);
 ui-lib provides type-safe prop helpers that eliminate boilerplate:
 
 ```tsx
-import { defineComponent, string, number, boolean, array, h } from "ui-lib";
+import { array, boolean, defineComponent, h, number, string } from "ui-lib";
 
 const TodoList = defineComponent({
   name: "todo-list",
@@ -81,26 +84,24 @@ const TodoList = defineComponent({
     title = string("My Todos"),
     items = array<string>([]),
     showCompleted = boolean(true),
-    maxItems = number(10)
+    maxItems = number(10),
   ) => (
     <div class="todo-list">
       <h2>{title}</h2>
       <ul>
-        {items.slice(0, maxItems).map(item => 
-          <li>{item}</li>
-        )}
+        {items.slice(0, maxItems).map((item) => <li>{item}</li>)}
       </ul>
       {showCompleted && <p>Showing completed items</p>}
     </div>
-  )
+  ),
 });
 
 // Type-safe usage
-<TodoList 
+<TodoList
   title="Shopping List"
   items={["Milk", "Bread", "Eggs"]}
   maxItems={5}
-/>
+/>;
 ```
 
 ## Styling Components
@@ -110,7 +111,7 @@ const TodoList = defineComponent({
 Define styles directly in TypeScript with full type safety:
 
 ```tsx
-import { defineComponent, css, h } from "ui-lib";
+import { css, defineComponent, h } from "ui-lib";
 
 const StyledCard = defineComponent({
   name: "styled-card",
@@ -121,18 +122,17 @@ const StyledCard = defineComponent({
     boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
     transition: "transform 0.2s",
     "&:hover": {
-      transform: "translateY(-2px)"
-    }
+      transform: "translateY(-2px)",
+    },
   }),
-  render: ({ children }) => (
-    <div class="styled-card">{children}</div>
-  )
+  render: ({ children }) => <div class="styled-card">{children}</div>,
 });
 ```
 
 ### Typing Topics and Events (optional)
 
-You can declare app-wide types for pub/sub topics and custom events for better DX. Add a small ambient declaration (e.g., `src/types/ui-lib.d.ts`):
+You can declare app-wide types for pub/sub topics and custom events for better
+DX. Add a small ambient declaration (e.g., `src/types/ui-lib.d.ts`):
 
 ```ts
 // src/types/ui-lib.d.ts
@@ -149,43 +149,57 @@ declare global {
 
     // Custom event names → payload types (detail)
     interface Events {
-      'show-notification': { message: string; type: 'info'|'success'|'error'|'warning'; duration?: number };
+      "show-notification": {
+        message: string;
+        type: "info" | "success" | "error" | "warning";
+        duration?: number;
+      };
     }
   }
 }
 export {};
 ```
 
-Then call the helpers as usual. For a typed experience, you can use the typed facades:
+Then call the helpers as usual. For a typed experience, you can use the typed
+facades:
 
 ```ts
 import {
+  typedDispatchEvent,
+  typedGetState,
+  typedListensFor,
   // Optional typed facades (compile-time only)
   typedPublishState,
   typedSubscribeToState,
-  typedGetState,
-  typedDispatchEvent,
-  typedListensFor,
-} from 'ui-lib';
+} from "ui-lib";
 
 // Publish with types
-typedPublishState('cart', { items: [], count: 0, total: 0 });
+typedPublishState("cart", { items: [], count: 0, total: 0 });
 
 // Subscribe with types (handler receives the declared payload)
-typedSubscribeToState('cart', `
+typedSubscribeToState(
+  "cart",
+  `
   const { items, count, total } = data;
   this.querySelector('.count').textContent = String(count);
   this.querySelector('.total').textContent = total.toFixed(2);
-`);
+`,
+);
 
 // Dispatch typed custom event
-typedDispatchEvent('show-notification', { message: 'Saved!', type: 'success', duration: 2000 });
+typedDispatchEvent("show-notification", {
+  message: "Saved!",
+  type: "success",
+  duration: 2000,
+});
 
 // Listen with typed event name
-typedListensFor('show-notification', `console.log('notify', event.detail)`);
+typedListensFor("show-notification", `console.log('notify', event.detail)`);
 ```
 
-Note: If you prefer minimal syntax, the untyped helpers `publishState`, `subscribeToState`, `getState`, `dispatchEvent`, and `listensFor` work the same at runtime.
+Note: If you prefer minimal syntax, the untyped helpers `publishState`,
+`subscribeToState`, `getState`, `dispatchEvent`, and `listensFor` work the same
+at runtime.
 
 ### Using CSS Variables
 
@@ -199,11 +213,9 @@ const ThemedButton = defineComponent({
     color: "var(--text-color, white)",
     padding: "0.5rem 1rem",
     border: "none",
-    borderRadius: "var(--border-radius, 4px)"
+    borderRadius: "var(--border-radius, 4px)",
   },
-  render: ({ label }) => (
-    <button class="themed-button">{label}</button>
-  )
+  render: ({ label }) => <button class="themed-button">{label}</button>,
 });
 ```
 
@@ -212,13 +224,7 @@ const ThemedButton = defineComponent({
 ui-lib comes with 50+ pre-built components:
 
 ```tsx
-import { 
-  Button, 
-  Card, 
-  Input, 
-  Alert,
-  Modal 
-} from "ui-lib/components";
+import { Alert, Button, Card, Input, Modal } from "ui-lib/components";
 
 // Create a form
 const ContactForm = () => (
@@ -228,14 +234,14 @@ const ContactForm = () => (
       placeholder="Enter your name"
       required
     />
-    
+
     <Input
       label="Email"
       type="email"
       placeholder="your@email.com"
       required
     />
-    
+
     <Button variant="primary" fullWidth>
       Submit
     </Button>
@@ -252,7 +258,7 @@ const SearchBox = defineComponent({
   name: "search-box",
   render: () => (
     <div class="search-box">
-      <input 
+      <input
         type="search"
         name="q"
         placeholder="Search..."
@@ -262,7 +268,7 @@ const SearchBox = defineComponent({
       />
       <div id="search-results"></div>
     </div>
-  )
+  ),
 });
 ```
 
@@ -273,8 +279,8 @@ const ThemeSwitch = defineComponent({
   name: "theme-switch",
   reactive: {
     css: {
-      "--theme-mode": "data-theme"
-    }
+      "--theme-mode": "data-theme",
+    },
   },
   render: () => (
     <div class="theme-switch" data-theme="light">
@@ -283,7 +289,7 @@ const ThemeSwitch = defineComponent({
         Toggle Theme
       </button>
     </div>
-  )
+  ),
 });
 ```
 
@@ -295,19 +301,23 @@ const ShoppingCart = defineComponent({
   reactive: {
     state: {
       "cart-items": "data-items",
-      "cart-total": "data-total"
+      "cart-total": "data-total",
     },
     on: {
       "cart:add": "handleAdd",
-      "cart:remove": "handleRemove"
-    }
+      "cart:remove": "handleRemove",
+    },
   },
   render: () => (
     <div class="shopping-cart" data-items="0" data-total="0">
-      <span>Items: <span class="count">0</span></span>
-      <span>Total: $<span class="total">0</span></span>
+      <span>
+        Items: <span class="count">0</span>
+      </span>
+      <span>
+        Total: $<span class="total">0</span>
+      </span>
     </div>
-  )
+  ),
 });
 ```
 
@@ -322,15 +332,15 @@ import { HomePage } from "./components/HomePage.tsx";
 
 serve(async (req) => {
   const url = new URL(req.url);
-  
+
   if (url.pathname === "/") {
     const html = await renderComponent(<HomePage />);
-    
+
     return new Response(html, {
-      headers: { "content-type": "text/html" }
+      headers: { "content-type": "text/html" },
     });
   }
-  
+
   return new Response("Not Found", { status: 404 });
 }, { port: 8000 });
 ```
@@ -340,7 +350,7 @@ serve(async (req) => {
 ```tsx
 import { serve } from "https://deno.land/std/http/server.ts";
 import { Router } from "ui-lib/router";
-import { HomePage, AboutPage, ContactPage } from "./pages/index.tsx";
+import { AboutPage, ContactPage, HomePage } from "./pages/index.tsx";
 
 const router = new Router();
 
@@ -429,13 +439,13 @@ const UserProfile = defineComponent({
 Use TypeScript and prop helpers for validation:
 
 ```tsx
-import { string, number } from "ui-lib";
+import { number, string } from "ui-lib";
 
 const ValidatedComponent = defineComponent({
   render: (
     name = string("Default").min(1).max(50),
-    age = number(0).min(0).max(120)
-  ) => <div>...</div>
+    age = number(0).min(0).max(120),
+  ) => <div>...</div>,
 });
 ```
 
@@ -451,7 +461,7 @@ const ExpensiveComponent = defineComponent({
   render: cachedRender((props) => {
     // Expensive computation
     return <div>...</div>;
-  }, { ttl: 60000 }) // Cache for 1 minute
+  }, { ttl: 60000 }), // Cache for 1 minute
 });
 ```
 

@@ -43,6 +43,12 @@ export {
   put,
   remove,
 } from "./lib/api-helpers.ts";
+export {
+  decorateAttributes,
+  generateClientHx,
+  hx,
+  type HxEnhancementOptions,
+} from "./lib/api-recipes.ts";
 
 // Core JSX runtime and utilities
 export { Fragment, h, jsx, jsxs, renderToString } from "./lib/simple.tsx";

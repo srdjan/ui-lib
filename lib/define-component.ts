@@ -19,8 +19,12 @@ import {
 
 import { applyReactiveAttrs } from "./reactive-system.ts";
 import { createPropsParser } from "./props.ts";
-import { processDeclarativeBindings, hasDeclarativeBindings } from "./declarative-bindings.ts";
+import {
+  hasDeclarativeBindings,
+  processDeclarativeBindings,
+} from "./declarative-bindings.ts";
 import "./jsx.d.ts"; // Import JSX types
+import type { Router } from "./router.ts";
 
 // Props transformer function type - takes raw attributes, returns whatever the user wants
 export type PropsTransformer<
@@ -51,7 +55,7 @@ interface ReactiveConfig {
 }
 
 export interface ComponentConfigWithApi<TProps> {
-  router?: any; // Replace with Router instance type
+  router?: Router;
   reactive?: ReactiveConfig;
   autoProps?: boolean;
   props?: PropsTransformer<Record<string, string>, TProps>;
@@ -62,7 +66,7 @@ export interface ComponentConfigWithApi<TProps> {
 }
 
 export interface ComponentConfigWithoutApi<TProps> {
-  router?: any; // Replace with Router instance type
+  router?: Router;
   reactive?: ReactiveConfig;
   autoProps?: boolean;
   props?: PropsTransformer<Record<string, string>, TProps>;
@@ -131,13 +135,18 @@ export function defineComponent<TProps = Record<string, string>>(
     classes: providedClassMap,
     api: apiMap,
     reactive,
-    autoProps = false,
+    autoProps = true,
     render,
   } = config;
 
   const { logging, dev } = getConfig();
 
-  const finalPropsTransformer = createPropsParser<TProps>({ name, ...config });
+  const finalPropsTransformer = createPropsParser<TProps>({
+    name,
+    props: propsTransformer,
+    autoProps,
+    render,
+  });
 
   // Handle unified styles or traditional string styles
   let css: string | undefined;
@@ -247,12 +256,12 @@ export function defineComponent<TProps = Record<string, string>>(
           c?: ClassMap,
           ch?: string,
         ) => string)(finalProps as TProps, undefined, classMap, children);
-      
+
       // Process declarative bindings if present
       if (hasDeclarativeBindings(html)) {
         html = processDeclarativeBindings(html, name);
       }
-      
+
       // Inject reactive attrs only if present, then add data-component
       return injectDataComponent(
         applyReactiveAttrs(html, reactive, name),
@@ -264,11 +273,46 @@ export function defineComponent<TProps = Record<string, string>>(
 
 // Injects data-component="<name>" into the first opening tag of the HTML string
 function injectDataComponent(html: string, name: string): string {
-  const firstTagMatch = html.match(/^(\s*)(<[a-zA-Z][^>]*)(>)/);
-  if (!firstTagMatch) return html;
-  const [full, whitespace, openTag, closeAngle] = firstTagMatch;
-  if (openTag.includes("data-component=")) return html; // already present
-  const enhancedTag =
-    `${whitespace}${openTag} data-component="${name}"${closeAngle}`;
-  return html.replace(full, enhancedTag);
+  const leadMatch = html.match(/^\s*/);
+  const leadingWhitespace = leadMatch ? leadMatch[0] : "";
+  const body = html.slice(leadingWhitespace.length);
+  if (!body.length) return html;
+
+  if (typeof DOMParser !== "undefined") {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(
+        `<template>${body}</template>`,
+        "text/html",
+      );
+      const template = doc.querySelector("template");
+      if (template) {
+        const fragment = template.content;
+        const firstElement = fragment.querySelector("*");
+        if (!firstElement) return html;
+        if (firstElement.hasAttribute("data-component")) {
+          return html;
+        }
+        firstElement.setAttribute("data-component", name);
+        return leadingWhitespace + template.innerHTML;
+      }
+    } catch (_err) {
+      // Fall back to legacy string manipulation below
+    }
+  }
+
+  return legacyInject(html, name);
+}
+
+function legacyInject(html: string, name: string): string {
+  const match =
+    /^(?<prefix>(?:\s*<!--[\s\S]*?-->)*\s*)(?<openTag><[a-zA-Z][^>]*)(?<close>>)/
+      .exec(
+        html,
+      );
+  if (!match?.groups) return html;
+  const { prefix, openTag, close } = match.groups as Record<string, string>;
+  if (openTag.includes("data-component=")) return html;
+  const enhancedOpenTag = `${openTag} data-component="${name}"`;
+  return `${prefix}${enhancedOpenTag}${close}${html.slice(match[0].length)}`;
 }

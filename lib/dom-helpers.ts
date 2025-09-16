@@ -4,6 +4,7 @@ import type {
   ToggleClassAction,
   ToggleClassesAction,
 } from "./actions.ts";
+import { escape } from "./escape.ts";
 
 // Type-safe DOM helper functions that return structured action objects
 // These can be used directly in JSX event handlers: onClick={toggleClass('active')}
@@ -74,14 +75,4 @@ export const dataAttrs = (data: Record<string, unknown>): string => {
     .join(" ");
 };
 
-/**
- * Escape HTML content for safe inclusion in templates
- */
-export const escape = (content: string): string => {
-  return String(content)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-};
+export { escape };

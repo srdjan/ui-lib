@@ -1,12 +1,16 @@
 # ui-lib
 
-Ultra-lightweight, type-safe SSR components with DOM-native state management and hybrid reactivity.
+Ultra-lightweight, type-safe SSR components with DOM-native state management and
+hybrid reactivity.
 
 ## Features
 
-- 🚀 **Zero Runtime Overhead** - Pure HTML/CSS output, no client-side framework needed
-- 🎯 **DOM-Native State** - State lives in CSS classes, data attributes, and element content
-- ⚡ **Hybrid Reactivity** - Three-tier system: CSS properties, pub/sub, and DOM events
+- 🚀 **Zero Runtime Overhead** - Pure HTML/CSS output, no client-side framework
+  needed
+- 🎯 **DOM-Native State** - State lives in CSS classes, data attributes, and
+  element content
+- ⚡ **Hybrid Reactivity** - Three-tier system: CSS properties, pub/sub, and DOM
+  events
 - 🔧 **Type-Safe** - Full TypeScript support with strict typing
 - 🎨 **CSS-in-TS** - Auto-generated class names from CSS properties
 - 📦 **50+ Components** - Enterprise-grade component library included
@@ -14,6 +18,17 @@ Ultra-lightweight, type-safe SSR components with DOM-native state management and
 - 🔄 **Progressive Enhancement** - Works without JS, enhanced with HTMX
 
 ## Quick Start
+
+### Choosing an Entry Point
+
+| Entry Point        | Use When                                                                                                  | Highlights                                                            |
+| ------------------ | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `mod.ts`           | You need the stable SSR-focused surface with registry-driven components.                                  | Full prop helpers, CSS-in-TS, reactive helpers, router, API bindings. |
+| `mod-simple.ts`    | You want direct JSX functions and minimal ceremony.                                                       | JSX runtime, lightweight state helpers, curated component subset.     |
+| `mod-ergonomic.ts` | You are building with the three "breakthrough" workflows (function props, unified API, CSS auto classes). | Ergonomic component factories, API helpers, dev tooling.              |
+
+> Tip: mix and match by importing from multiple entry points when prototyping,
+> then converge on one surface before release.
 
 ### Installation
 
@@ -25,6 +40,7 @@ import * as ui from "https://deno.land/x/ui_lib/mod.ts";
 git clone https://github.com/yourusername/ui-lib.git
 cd ui-lib
 deno task start
+deno task bundle:state # emits dist/ui-lib-state.js for browser hydration helpers
 ```
 
 ### Basic Usage
@@ -39,14 +55,14 @@ const Card = defineComponent({
     padding: "1rem",
     borderRadius: "0.5rem",
     backgroundColor: "white",
-    boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
   },
   render: ({ title, content }) => (
     <div class="card">
       <h2>{title}</h2>
       <p>{content}</p>
     </div>
-  )
+  ),
 });
 
 // Use it
@@ -56,37 +72,37 @@ const html = <Card title="Hello" content="World" />;
 ### With Function-Style Props
 
 ```tsx
-import { defineComponent, string, number, boolean } from "ui-lib";
+import { boolean, defineComponent, number, string } from "ui-lib";
 
 const Counter = defineComponent({
   name: "counter",
   render: (
     label = string("Count"),
     value = number(0),
-    disabled = boolean(false)
+    disabled = boolean(false),
   ) => (
     <div class="counter">
       <span>{label}: {value}</span>
       <button disabled={disabled}>Increment</button>
     </div>
-  )
+  ),
 });
 
 // Type-safe usage
-<Counter label="Items" value={5} />
+<Counter label="Items" value={5} />;
 ```
 
 ### Using Built-in Components
 
 ```tsx
-import { Button, Card, Alert } from "ui-lib/components";
+import { Alert, Button, Card } from "ui-lib/components";
 
 const Page = () => (
   <>
     <Alert type="success">
       Operation completed!
     </Alert>
-    
+
     <Card title="Welcome">
       <Button variant="primary">
         Get Started
@@ -99,52 +115,51 @@ const Page = () => (
 ## Three-Tier Reactivity
 
 ### Tier 1: CSS Property Reactivity
+
 Instant visual updates via CSS custom properties:
 
 ```tsx
 const ThemeToggle = defineComponent({
   reactive: {
     css: {
-      "--theme": "data-theme"
-    }
+      "--theme": "data-theme",
+    },
   },
-  render: () => (
-    <button onclick="toggleTheme()">Toggle Theme</button>
-  )
+  render: () => <button onclick="toggleTheme()">Toggle Theme</button>,
 });
 ```
 
 ### Tier 2: Pub/Sub State Manager
+
 Cross-component state synchronization:
 
 ```tsx
 const Cart = defineComponent({
   reactive: {
     state: {
-      "cart-count": "data-count"
-    }
+      "cart-count": "data-count",
+    },
   },
   render: () => (
     <div data-count="0">
       Cart Items: <span x-text="count">0</span>
     </div>
-  )
+  ),
 });
 ```
 
 ### Tier 3: DOM Event Communication
+
 Component-to-component messaging:
 
 ```tsx
 const Notification = defineComponent({
   reactive: {
     on: {
-      "user:login": "handleLogin"
-    }
+      "user:login": "handleLogin",
+    },
   },
-  render: () => (
-    <div id="notification"></div>
-  )
+  render: () => <div id="notification"></div>,
 });
 ```
 
@@ -186,8 +201,11 @@ examples/
 ```
 
 Notes
-- Public API is exported via `mod.ts` (e.g., `import { defineComponent } from 'ui-lib'`).
-- You can optionally type your pub/sub topics and custom events. See “Typing Topics and Events” in Getting Started.
+
+- Public API is exported via `mod.ts` (e.g.,
+  `import { defineComponent } from 'ui-lib'`).
+- You can optionally type your pub/sub topics and custom events. See “Typing
+  Topics and Events” in Getting Started.
 
 ## Performance
 
@@ -240,7 +258,8 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Contributing
 
-Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details.
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md)
+for details.
 
 ## Support
 

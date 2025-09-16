@@ -12,16 +12,16 @@ export {
   isPropHelper,
   number,
   object,
+  oneOf,
   type PropHelper,
   string,
-  oneOf,
 } from "./lib/prop-helpers.ts";
 
 // CSS-in-TS utilities
 export {
-  css,
   composeStyles,
   createTheme,
+  css,
   cssHelpers,
   type CSSProperties,
   type StyleMap,
@@ -30,27 +30,38 @@ export {
 } from "./lib/css-in-ts.ts";
 
 // Router (stable minimal)
-export { Router, type RouteHandler, type RouteParams } from "./lib/router.ts";
-export type { Method, RouteHandlerFor, RouteParamsOf, PathParamKeys } from "./lib/router.ts";
+export { type RouteHandler, type RouteParams, Router } from "./lib/router.ts";
+export type {
+  Method,
+  PathParamKeys,
+  RouteHandlerFor,
+  RouteParamsOf,
+} from "./lib/router.ts";
 
 // Reactive utilities (stable subset)
 export {
+  dispatchEvent,
+  getState,
+  hxOn,
+  listensFor,
+  on,
   publishState,
   subscribeToState,
-  getState,
-  dispatchEvent,
-  hxOn,
-  on,
-  listensFor,
 } from "./lib/reactive-helpers.ts";
+export {
+  decorateAttributes,
+  generateClientHx,
+  hx,
+  type HxEnhancementOptions,
+} from "./lib/api-recipes.ts";
 
 // Response helpers
-export { html, json, text, error } from "./lib/response.ts";
+export { error, html, json, text } from "./lib/response.ts";
 
 // State manager (injection helpers)
 export {
-  injectStateManager,
   createMinimalStateManagerScript,
+  injectStateManager,
   type StateManager,
 } from "./lib/state-manager.ts";
 
@@ -60,16 +71,16 @@ export { escapeHtml as escape } from "./lib/ssr.ts";
 
 // Declarative bindings
 export {
-  bindText,
   bindClass,
   bindStyle,
+  bindText,
   bindValue,
-  emitOn,
-  listenFor,
-  showIf,
-  hideIf,
   combineBindings,
   createBoundElement,
+  emitOn,
+  hideIf,
+  listenFor,
+  showIf,
 } from "./lib/reactive-helpers.ts";
 
 // Configuration
