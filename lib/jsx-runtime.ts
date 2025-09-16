@@ -4,6 +4,7 @@ import type { ComponentAction } from "./actions.ts";
 import { escape } from "./dom-helpers.ts";
 import { getRegistry } from "./registry.ts";
 import { renderComponent } from "./component-state.ts";
+import { normalizeClass, normalizeStyle } from "./jsx-normalize.ts";
 
 const SELF_CLOSING_TAGS = new Set([
   "area",
@@ -120,7 +121,17 @@ export function h(
       continue;
     }
 
-    if (key.startsWith("on")) {
+    if (key === "class" || key === "className") {
+      const className = normalizeClass(value);
+      if (className) {
+        attributes += ` class="${escape(className)}"`;
+      }
+    } else if (key === "style") {
+      const style = normalizeStyle(value);
+      if (style) {
+        attributes += ` style="${escape(style)}"`;
+      }
+    } else if (key.startsWith("on")) {
       let handlerString = "";
 
       if (typeof value === "string") {

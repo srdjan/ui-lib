@@ -102,3 +102,19 @@ Deno.test("JSX runtime handles children properly", () => {
   assertEquals(result.includes("<p>Child content</p>"), true);
   assertEquals(result.includes('class="wrapper"'), true);
 });
+
+Deno.test("JSX runtime normalizes className arrays and style objects", () => {
+  const html = (
+    <div
+      className={["btn", { active: true, disabled: false }, ["pill"]]}
+      style={{ backgroundColor: "red", marginTop: "4px", opacity: 0.6 }}
+    >
+      Hello
+    </div>
+  );
+
+  assertEquals(
+    html,
+    '<div class="btn active pill" style="background-color: red; margin-top: 4px; opacity: 0.6">Hello</div>',
+  );
+});

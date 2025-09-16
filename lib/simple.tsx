@@ -2,6 +2,7 @@
 // Direct imports, simple JSX functions, minimal overhead
 
 import { escape } from "./escape.ts";
+import { normalizeClass, normalizeStyle } from "./jsx-normalize.ts";
 
 /**
  * Minimal JSX runtime for server-side rendering
@@ -118,42 +119,6 @@ export function h(
     .join("");
 
   return `${openTag}${childrenHtml}</${tag}>`;
-}
-
-function normalizeClass(value: unknown): string {
-  if (value == null || value === false) return "";
-  if (typeof value === "string") return value.trim();
-  if (typeof value === "number") return String(value);
-  if (Array.isArray(value)) {
-    return value
-      .flat(Infinity)
-      .map((item) => normalizeClass(item))
-      .filter((item) => item.length > 0)
-      .join(" ");
-  }
-  if (typeof value === "object") {
-    return Object.entries(value as Record<string, unknown>)
-      .filter(([, enabled]) => Boolean(enabled))
-      .map(([key]) => key)
-      .join(" ");
-  }
-  return "";
-}
-
-function normalizeStyle(value: unknown): string {
-  if (value == null || value === false) return "";
-  if (typeof value === "string") return value.trim();
-  if (typeof value !== "object") return String(value);
-
-  return Object.entries(value as Record<string, unknown>)
-    .filter(([, v]) => v !== undefined && v !== null && v !== "")
-    .map(([key, v]) => `${toKebabCase(key)}: ${String(v)}`)
-    .join("; ");
-}
-
-function toKebabCase(value: string): string {
-  return value.replace(/([a-z0-9])([A-Z])/g, "$1-$2").replace(/_/g, "-")
-    .toLowerCase();
 }
 
 /**
