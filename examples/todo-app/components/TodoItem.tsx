@@ -104,11 +104,11 @@ defineComponent("todo-item", {
       border-color: #fca5a5;
     }
   `,
-  render: (
+  render: ({
     todo = string(""),
     showActions = boolean(true),
-  ) => {
-    const parsedTodo = parseTodo(todo);
+  }) => {
+    const parsedTodo = parseTodo(todo.toString());
     const priorityColors = {
       low: "#22c55e",
       medium: "#f59e0b",

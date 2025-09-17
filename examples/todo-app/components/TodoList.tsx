@@ -46,11 +46,11 @@ defineComponent("todo-list", {
       100% { transform: rotate(360deg); }
     }
   `,
-  render: (
+  render: ({
     todos = string("[]"),
     filter = string('{"status":"all"}'),
     loading = boolean(false),
-  ) => {
+  }) => {
     const parsedTodos = safeParseArray<Todo>(todos, []);
     const parsedFilter = safeParse<TodoFilter>(filter, { status: "all" });
 

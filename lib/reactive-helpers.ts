@@ -1,19 +1,6 @@
 // Reactive helper functions for ui-lib components
 // Supports three types of reactivity: CSS properties, Pub/Sub state, and DOM events
 
-// Global type augmentation hooks – users can declare their app-wide topics and events:
-// declare global { namespace UIlib { interface Topics { cart: CartState } interface Events { 'show-notification': { message: string } } } }
-declare global {
-  namespace UIlib {
-    // Map of pub/sub topic → payload type (augment in app code)
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
-    interface Topics {}
-    // Map of custom event name → payload type (augment in app code)
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
-    interface Events {}
-  }
-}
-
 /**
  * CSS Property Reactivity Helpers
  * For visual coordination, theming, and styling state
@@ -85,16 +72,9 @@ export const toggleCSSProperty = (
  * @param data - Data to publish (will be JSON stringified if object)
  */
 // Untyped public function (stringly by design for runtime attributes)
-export function publishState(topic: string, data: unknown): string {
+export function publishState<TData>(topic: string, data: TData): string {
   const serializedData = typeof data === "string" ? data : JSON.stringify(data);
   return `window.funcwcState?.publish('${topic}', ${serializedData})`;
-}
-// Typed facade – compile-time only, delegates to publishState
-export function typedPublishState<K extends keyof UIlib.Topics & string>(
-  topic: K,
-  data: UIlib.Topics[K],
-): string {
-  return publishState(topic as string, data as unknown);
 }
 
 /**
@@ -103,15 +83,11 @@ export function typedPublishState<K extends keyof UIlib.Topics & string>(
  * @param handler - JavaScript code to execute when state updates (receives 'data' parameter)
  */
 // Untyped public function (stringly by design for runtime attributes)
-export function subscribeToState(topic: string, handler: string): string {
-  return `window.funcwcState?.subscribe('${topic}', function(data) { ${handler} }, this)`;
-}
-// Typed facade – compile-time only, delegates to subscribeToState
-export function typedSubscribeToState<K extends keyof UIlib.Topics & string>(
-  topic: K,
+export function subscribeToState<TData>(
+  topic: string,
   handler: string,
 ): string {
-  return subscribeToState(topic as string, handler);
+  return `window.funcwcState?.subscribe('${topic}', function(data) { ${handler} }, this)`;
 }
 
 /**
@@ -119,13 +95,8 @@ export function typedSubscribeToState<K extends keyof UIlib.Topics & string>(
  * @param topic - Topic name
  */
 // Untyped public function (stringly by design for runtime attributes)
-export function getState(topic: string): string {
+export function getState<TData = unknown>(topic: string): string {
   return `window.funcwcState?.getState('${topic}')`;
-}
-
-// Typed facade – compile-time only, delegates to getState
-export function typedGetState<K extends keyof UIlib.Topics & string>(topic: K): string {
-  return getState(topic as string);
 }
 
 /**
@@ -139,9 +110,9 @@ export function typedGetState<K extends keyof UIlib.Topics & string>(topic: K): 
  * @param data - Event data payload (optional)
  * @param target - Where to dispatch the event ('self', 'parent', 'document')
  */
-export function dispatchEvent(
+export function dispatchEvent<TData>(
   eventName: string,
-  data?: unknown,
+  data?: TData,
   target: "self" | "parent" | "document" = "document",
 ): string {
   const targetElement = target === "self"
@@ -153,15 +124,6 @@ export function dispatchEvent(
   const eventData = data ? `, { detail: ${JSON.stringify(data)} }` : "";
 
   return `${targetElement}.dispatchEvent(new CustomEvent('ui-lib:${eventName}'${eventData}))`;
-}
-
-// Typed facade – compile-time only, delegates to dispatchEvent
-export function typedDispatchEvent<E extends keyof UIlib.Events & string>(
-  eventName: E,
-  data?: UIlib.Events[E],
-  target: "self" | "parent" | "document" = "document",
-): string {
-  return dispatchEvent(eventName as string, data as unknown, target);
 }
 
 /**
@@ -190,18 +152,13 @@ export const on = (events: Record<string, string>): string => {
  * @param handler - JavaScript code to execute when event is received
  */
 // Untyped public function (stringly by design for runtime attributes)
-export function listensFor(eventName: string, handler: string): string {
+export function listensFor<TData = unknown>(
+  eventName: string,
+  handler: string,
+): string {
   // Prefer consolidated hx-on attribute to avoid JSX parser issues with colons in names
   const safe = handler.replace(/"/g, "&quot;");
   return `hx-on="ui-lib:${eventName}: ${safe}"`;
-}
-
-// Typed facade – compile-time only, delegates to listensFor
-export function typedListensFor<E extends keyof UIlib.Events & string>(
-  eventName: E,
-  handler: string,
-): string {
-  return listensFor(eventName as string, handler);
 }
 
 /**
@@ -363,14 +320,14 @@ export const createNotification = (
  * Generate text content binding
  * @param stateName - State topic to bind to
  */
-export const bindText = (stateName: string): string => 
+export const bindText = (stateName: string): string =>
   `data-bind-text="${stateName}"`;
 
 /**
  * Generate CSS class binding
  * @param stateName - State topic to bind to
  */
-export const bindClass = (stateName: string): string => 
+export const bindClass = (stateName: string): string =>
   `data-bind-class="${stateName}"`;
 
 /**
@@ -378,14 +335,14 @@ export const bindClass = (stateName: string): string =>
  * @param property - CSS property name
  * @param stateName - State topic to bind to
  */
-export const bindStyle = (property: string, stateName: string): string => 
+export const bindStyle = (property: string, stateName: string): string =>
   `data-bind-style="${property}:${stateName}"`;
 
 /**
  * Generate two-way value binding for form inputs
  * @param stateName - State topic to bind to
  */
-export const bindValue = (stateName: string): string => 
+export const bindValue = (stateName: string): string =>
   `data-bind-value="${stateName}"`;
 
 /**
@@ -394,7 +351,7 @@ export const bindValue = (stateName: string): string =>
  * @param eventValue - Optional event payload (JSON string)
  */
 export const emitOn = (eventName: string, eventValue?: string): string => {
-  const valueAttr = eventValue ? ` data-emit-value="${eventValue}"` : '';
+  const valueAttr = eventValue ? ` data-emit-value="${eventValue}"` : "";
   return `data-emit="${eventName}"${valueAttr}`;
 };
 
@@ -403,29 +360,29 @@ export const emitOn = (eventName: string, eventValue?: string): string => {
  * @param eventName - Event name to listen for
  * @param handlerCode - JavaScript code to execute
  */
-export const listenFor = (eventName: string, handlerCode: string): string => 
+export const listenFor = (eventName: string, handlerCode: string): string =>
   `data-listen="${eventName}:${handlerCode}"`;
 
 /**
  * Generate conditional display binding
  * @param stateName - State topic to bind to
  */
-export const showIf = (stateName: string): string => 
+export const showIf = (stateName: string): string =>
   `data-show-if="${stateName}"`;
 
 /**
  * Generate conditional hiding binding
  * @param stateName - State topic to bind to
  */
-export const hideIf = (stateName: string): string => 
+export const hideIf = (stateName: string): string =>
   `data-hide-if="${stateName}"`;
 
 /**
  * Combine multiple declarative bindings
  * @param bindings - Array of binding strings
  */
-export const combineBindings = (...bindings: string[]): string => 
-  bindings.filter(Boolean).join(' ');
+export const combineBindings = (...bindings: string[]): string =>
+  bindings.filter(Boolean).join(" ");
 
 /**
  * Create a complete declarative element with bindings
@@ -449,25 +406,34 @@ export const createBoundElement = (
   content?: string,
 ): string => {
   const bindingAttrs: string[] = [];
-  
+
   if (bindings.text) bindingAttrs.push(bindText(bindings.text));
   if (bindings.class) bindingAttrs.push(bindClass(bindings.class));
-  if (bindings.style) bindingAttrs.push(bindStyle(bindings.style.property, bindings.style.state));
+  if (bindings.style) {
+    bindingAttrs.push(bindStyle(bindings.style.property, bindings.style.state));
+  }
   if (bindings.value) bindingAttrs.push(bindValue(bindings.value));
-  if (bindings.emit) bindingAttrs.push(emitOn(bindings.emit.event, bindings.emit.value));
-  if (bindings.listen) bindingAttrs.push(listenFor(bindings.listen.event, bindings.listen.handler));
+  if (bindings.emit) {
+    bindingAttrs.push(emitOn(bindings.emit.event, bindings.emit.value));
+  }
+  if (bindings.listen) {
+    bindingAttrs.push(
+      listenFor(bindings.listen.event, bindings.listen.handler),
+    );
+  }
   if (bindings.showIf) bindingAttrs.push(showIf(bindings.showIf));
   if (bindings.hideIf) bindingAttrs.push(hideIf(bindings.hideIf));
-  
+
   // Add regular attributes
-  const regularAttrs = bindings.attrs 
-    ? Object.entries(bindings.attrs).map(([key, value]) => `${key}="${value}"`).join(' ')
-    : '';
-  
-  const allAttrs = [regularAttrs, ...bindingAttrs].filter(Boolean).join(' ');
-  const attrs = allAttrs ? ` ${allAttrs}` : '';
-  
-  return content !== undefined 
+  const regularAttrs = bindings.attrs
+    ? Object.entries(bindings.attrs).map(([key, value]) => `${key}="${value}"`)
+      .join(" ")
+    : "";
+
+  const allAttrs = [regularAttrs, ...bindingAttrs].filter(Boolean).join(" ");
+  const attrs = allAttrs ? ` ${allAttrs}` : "";
+
+  return content !== undefined
     ? `<${tag}${attrs}>${content}</${tag}>`
     : `<${tag}${attrs} />`;
 };

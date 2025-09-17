@@ -3,14 +3,11 @@
 
 // ✨ Minimal Demo of the Three Ergonomic Breakthroughs!
 import {
-  defineErgonomicComponent,
   defineSimpleComponent,
   string,
   number,
   boolean,
   oneOf,
-  h,
-  renderToString,
 } from "../../mod-ergonomic.ts";
 
 // ✨ BREAKTHROUGH DEMO 1: Simple Component with Function-Style Props
@@ -73,7 +70,7 @@ defineSimpleComponent("demo-nav",
   ({
     brand = string("✨ ui-lib"),
     subtitle = string("Ergonomic API Demo")
-  }, api, classes = {}) => (
+  }, _api, classes = {}) => (
     `<nav class="${classes.nav || 'demo-nav'}">
        <div class="${classes.brand || 'demo-brand'}">
          ${brand}

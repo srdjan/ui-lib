@@ -131,53 +131,32 @@ const StyledCard = defineComponent({
 
 ### Typing Topics and Events (optional)
 
-You can declare app-wide types for pub/sub topics and custom events for better
-DX. Add a small ambient declaration (e.g., `src/types/ui-lib.d.ts`):
-
-```ts
-// src/types/ui-lib.d.ts
-declare global {
-  namespace UIlib {
-    // Pub/Sub topics → payload types
-    interface Topics {
-      cart: {
-        items: { id: string; name: string; quantity: number; price: number }[];
-        count: number;
-        total: number;
-      };
-    }
-
-    // Custom event names → payload types (detail)
-    interface Events {
-      "show-notification": {
-        message: string;
-        type: "info" | "success" | "error" | "warning";
-        duration?: number;
-      };
-    }
-  }
-}
-export {};
-```
-
-Then call the helpers as usual. For a typed experience, you can use the typed
-facades:
+You can type helpers per call using generics:
 
 ```ts
 import {
-  typedDispatchEvent,
-  typedGetState,
-  typedListensFor,
-  // Optional typed facades (compile-time only)
-  typedPublishState,
-  typedSubscribeToState,
+  dispatchEvent,
+  getState,
+  listensFor,
+  publishState,
+  subscribeToState,
 } from "ui-lib";
 
-// Publish with types
-typedPublishState("cart", { items: [], count: 0, total: 0 });
+type CartState = {
+  items: { id: string; name: string; quantity: number; price: number }[];
+  count: number;
+  total: number;
+};
 
-// Subscribe with types (handler receives the declared payload)
-typedSubscribeToState(
+type NotificationPayload = {
+  message: string;
+  type: "info" | "success" | "error" | "warning";
+  duration?: number;
+};
+
+publishState<CartState>("cart", { items: [], count: 0, total: 0 });
+
+subscribeToState<CartState>(
   "cart",
   `
   const { items, count, total } = data;
@@ -186,20 +165,19 @@ typedSubscribeToState(
 `,
 );
 
-// Dispatch typed custom event
-typedDispatchEvent("show-notification", {
+dispatchEvent<NotificationPayload>("show-notification", {
   message: "Saved!",
   type: "success",
   duration: 2000,
 });
 
-// Listen with typed event name
-typedListensFor("show-notification", `console.log('notify', event.detail)`);
-```
+listensFor<NotificationPayload>(
+  "show-notification",
+  `console.log('notify', event.detail)`,
+);
 
-Note: If you prefer minimal syntax, the untyped helpers `publishState`,
-`subscribeToState`, `getState`, `dispatchEvent`, and `listensFor` work the same
-at runtime.
+getState<CartState>("cart");
+```
 
 ### Using CSS Variables
 

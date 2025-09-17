@@ -81,11 +81,11 @@ defineComponent("todo-filters", {
       }
     }
   `,
-  render: (
+  render: ({
     currentFilter = string(""),
     todoCount = string(""),
     userId = string(""),
-  ) => {
+  }) => {
     const parsedFilter = safeParse<TodoFilter>(currentFilter, {
       status: "all",
     });

@@ -47,13 +47,13 @@ defineComponent("todo-form", {
       gap: 0.5rem;
     }
   `,
-  render: (
+  render: ({
     todo = string(""),
     userId = string(""),
     actionUrl = string("/api/todos"),
     method = string("POST"),
     onCancel = string(""),
-  ) => {
+  }) => {
     const parsedTodo = parseOptionalTodo(todo);
     const normalizedMethod = method === "PUT" ? "PUT" : "POST";
     const cancelHook = onCancel || undefined;
