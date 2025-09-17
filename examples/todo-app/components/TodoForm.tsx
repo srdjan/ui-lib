@@ -8,13 +8,6 @@ import { Button, Input } from "../../../mod-simple.ts";
 import type { Todo } from "../api/types.ts";
 
 defineComponent("todo-form", {
-  props: (attrs) => ({
-    todo: attrs.todo ? JSON.parse(attrs.todo) as Todo : undefined,
-    userId: attrs.userId || "",
-    actionUrl: attrs.actionUrl || "/api/todos",
-    method: attrs.method === "PUT" ? "PUT" : "POST",
-    onCancel: attrs.onCancel
-  }),
   styles: `
     .todo-form {
       background: white;
@@ -54,26 +47,37 @@ defineComponent("todo-form", {
       gap: 0.5rem;
     }
   `,
-  render: ({ todo, userId, actionUrl, method, onCancel }) => {
-    const isEditing = !!todo;
+  render: (
+    todo = string(""),
+    userId = string(""),
+    actionUrl = string("/api/todos"),
+    method = string("POST"),
+    onCancel = string(""),
+  ) => {
+    const parsedTodo = parseOptionalTodo(todo);
+    const normalizedMethod = method === "PUT" ? "PUT" : "POST";
+    const cancelHook = onCancel || undefined;
+    const isEditing = Boolean(parsedTodo);
 
     return (
       <div class="todo-form">
         <form
-          hx-post={method === "POST" ? actionUrl : undefined}
-          hx-put={method === "PUT" ? actionUrl : undefined}
+          hx-post={normalizedMethod === "POST" ? actionUrl : undefined}
+          hx-put={normalizedMethod === "PUT" ? actionUrl : undefined}
           hx-target="#todo-list"
           hx-swap="innerHTML"
           hx-on--after-request="this.reset()"
         >
           <input type="hidden" name="user" value={userId} />
-          {isEditing && <input type="hidden" name="id" value={todo.id} />}
+          {isEditing && parsedTodo && (
+            <input type="hidden" name="id" value={parsedTodo.id} />
+          )}
 
           <div class="form-group">
             <Input
               name="text"
               placeholder="What needs to be done?"
-              value={todo?.text || ""}
+              value={parsedTodo?.text || ""}
               required={true}
               className="todo-input"
             />
@@ -82,13 +86,16 @@ defineComponent("todo-form", {
           <div class="form-group">
             <select name="priority" class="priority-select" required>
               <option value="">Select priority</option>
-              <option value="low" selected={todo?.priority === "low"}>
+              <option value="low" selected={parsedTodo?.priority === "low"}>
                 Low Priority
               </option>
-              <option value="medium" selected={todo?.priority === "medium"}>
+              <option
+                value="medium"
+                selected={parsedTodo?.priority === "medium"}
+              >
                 Medium Priority
               </option>
-              <option value="high" selected={todo?.priority === "high"}>
+              <option value="high" selected={parsedTodo?.priority === "high"}>
                 High Priority
               </option>
             </select>
@@ -102,11 +109,11 @@ defineComponent("todo-form", {
               {isEditing ? "Update Todo" : "Add Todo"}
             </Button>
 
-            {onCancel && (
+            {cancelHook && (
               <Button
                 type="button"
                 variant="ghost"
-                onClick={onCancel}
+                onClick={cancelHook}
               >
                 Cancel
               </Button>
@@ -115,7 +122,7 @@ defineComponent("todo-form", {
         </form>
       </div>
     );
-  }
+  },
 });
 
 // Export JSX function for backwards compatibility and direct use
@@ -133,7 +140,7 @@ export function TodoForm({
   onCancel?: string;
 }) {
   return (
-    <todo-form 
+    <todo-form
       todo={todo ? JSON.stringify(todo) : undefined}
       userId={userId}
       actionUrl={actionUrl}
@@ -141,4 +148,14 @@ export function TodoForm({
       onCancel={onCancel}
     />
   );
+}
+
+function parseOptionalTodo(value: string): Todo | undefined {
+  if (!value) return undefined;
+  try {
+    const parsed = JSON.parse(value) as Todo;
+    return parsed;
+  } catch {
+    return undefined;
+  }
 }

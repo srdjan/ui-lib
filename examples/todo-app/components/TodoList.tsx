@@ -3,17 +3,12 @@
  * Main container for displaying todos with loading and empty states using defineComponent
  */
 
-import { defineComponent, h } from "../../../mod.ts";
+import { boolean, defineComponent, h, string } from "../../../mod.ts";
 import { Alert } from "../../../mod-simple.ts";
 import { TodoItem } from "./TodoItem.tsx";
 import type { Todo, TodoFilter } from "../api/types.ts";
 
 defineComponent("todo-list", {
-  props: (attrs) => ({
-    todos: JSON.parse(attrs.todos) as Todo[],
-    filter: JSON.parse(attrs.filter) as TodoFilter,
-    loading: attrs.loading === "true"
-  }),
   styles: `
     .todo-list {
       min-height: 200px;
@@ -51,7 +46,14 @@ defineComponent("todo-list", {
       100% { transform: rotate(360deg); }
     }
   `,
-  render: ({ todos, filter, loading }) => {
+  render: (
+    todos = string("[]"),
+    filter = string('{"status":"all"}'),
+    loading = boolean(false),
+  ) => {
+    const parsedTodos = safeParseArray<Todo>(todos, []);
+    const parsedFilter = safeParse<TodoFilter>(filter, { status: "all" });
+
     if (loading) {
       return (
         <div id="todo-list" class="todo-list loading">
@@ -60,13 +62,13 @@ defineComponent("todo-list", {
       );
     }
 
-    if (todos.length === 0) {
+    if (parsedTodos.length === 0) {
       return (
         <div id="todo-list" class="todo-list empty">
           <Alert variant="info">
-            {filter.status === "all"
+            {parsedFilter.status === "all"
               ? "No todos yet. Add one above to get started!"
-              : `No ${filter.status} todos found.`}
+              : `No ${parsedFilter.status} todos found.`}
           </Alert>
         </div>
       );
@@ -74,10 +76,10 @@ defineComponent("todo-list", {
 
     return (
       <div id="todo-list" class="todo-list">
-        {todos.map((todo) => <TodoItem todo={todo} />)}
+        {parsedTodos.map((todo) => <TodoItem todo={todo} />)}
       </div>
     );
-  }
+  },
 });
 
 // Export JSX function for backwards compatibility and direct use
@@ -91,10 +93,24 @@ export function TodoList({
   loading?: boolean;
 }) {
   return (
-    <todo-list 
+    <todo-list
       todos={JSON.stringify(todos)}
       filter={JSON.stringify(filter)}
       loading={loading ? "true" : "false"}
     />
   );
+}
+
+function safeParse<T>(value: string, fallback: T): T {
+  if (!value) return fallback;
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return fallback;
+  }
+}
+
+function safeParseArray<T>(value: string, fallback: T[]): T[] {
+  const parsed = safeParse<T[] | null>(value, null);
+  return Array.isArray(parsed) ? parsed : fallback;
 }

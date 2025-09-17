@@ -3,21 +3,10 @@
  * Filter and view controls for todo list using defineComponent
  */
 
-import { defineComponent, h } from "../../../mod.ts";
+import { defineComponent, h, string } from "../../../mod.ts";
 import type { TodoFilter, TodoStats } from "../api/types.ts";
 
 defineComponent("todo-filters", {
-  props: (attrs) => ({
-    currentFilter: safeParse<TodoFilter>(attrs.currentFilter, {
-      status: "all",
-    }),
-    todoCount: safeParse<TodoStats>(attrs.todoCount, {
-      total: 0,
-      active: 0,
-      completed: 0,
-    }),
-    userId: attrs.userId ?? "",
-  }),
   styles: `
     .todo-filters {
       display: flex;
@@ -92,20 +81,33 @@ defineComponent("todo-filters", {
       }
     }
   `,
-  render: ({ currentFilter, todoCount, userId }) => {
+  render: (
+    currentFilter = string(""),
+    todoCount = string(""),
+    userId = string(""),
+  ) => {
+    const parsedFilter = safeParse<TodoFilter>(currentFilter, {
+      status: "all",
+    });
+    const parsedStats = safeParse<TodoStats>(todoCount, {
+      total: 0,
+      active: 0,
+      completed: 0,
+    });
+
     return (
       <div class="todo-filters">
         <div class="filter-stats">
-          <span>{todoCount.active} active</span>
-          <span>{todoCount.completed} completed</span>
-          <span>{todoCount.total} total</span>
+          <span>{parsedStats.active} active</span>
+          <span>{parsedStats.completed} completed</span>
+          <span>{parsedStats.total} total</span>
         </div>
 
         <div class="filter-buttons">
           <button
             type="button"
             class={`filter-btn ${
-              currentFilter.status === "all" ? "active" : ""
+              parsedFilter.status === "all" ? "active" : ""
             }`}
             hx-get={`/api/todos?status=all&user=${userId}`}
             hx-target="#todo-list"
@@ -117,7 +119,7 @@ defineComponent("todo-filters", {
           <button
             type="button"
             class={`filter-btn ${
-              currentFilter.status === "active" ? "active" : ""
+              parsedFilter.status === "active" ? "active" : ""
             }`}
             hx-get={`/api/todos?status=active&user=${userId}`}
             hx-target="#todo-list"
@@ -129,7 +131,7 @@ defineComponent("todo-filters", {
           <button
             type="button"
             class={`filter-btn ${
-              currentFilter.status === "completed" ? "active" : ""
+              parsedFilter.status === "completed" ? "active" : ""
             }`}
             hx-get={`/api/todos?status=completed&user=${userId}`}
             hx-target="#todo-list"

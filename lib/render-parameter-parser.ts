@@ -56,7 +56,10 @@ export function parseRenderParameters(
 
   // Remove outer parentheses and get the first parameter
   const innerParamList = paramList.slice(1, -1).trim();
-  const firstParam = splitTopLevelCommas(innerParamList)[0]?.trim();
+  const params = splitTopLevelCommas(innerParamList)
+    .map((param) => param.trim())
+    .filter((param) => param.length > 0);
+  const firstParam = params[0];
 
   if (firstParam) {
     // Case 1: Destructured parameter with defaults
@@ -95,6 +98,28 @@ export function parseRenderParameters(
           return { propHelpers, hasProps: Object.keys(propHelpers).length > 0 };
         }
       }
+    }
+  }
+
+  // Case 3: Direct parameter defaults (name = string(...), count = number(...))
+  if (params.length > 0) {
+    const propHelpers: Record<string, PropHelper> = {};
+    for (const param of params) {
+      const eqIdx = param.indexOf("=");
+      if (eqIdx === -1) continue;
+
+      const identifier = param.slice(0, eqIdx).trim();
+      if (!/^[A-Za-z_$][0-9A-Za-z_$]*$/.test(identifier)) continue;
+
+      const defaultExpression = param.slice(eqIdx + 1).trim();
+      const helper = evaluateHelperExpression(defaultExpression);
+      if (helper) {
+        propHelpers[identifier] = helper;
+      }
+    }
+
+    if (Object.keys(propHelpers).length > 0) {
+      return { propHelpers, hasProps: true };
     }
   }
 
