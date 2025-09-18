@@ -54,7 +54,7 @@ async function main() {
   let failed = false;
 
   // LIB: hard error for inline style attrs and hex colors
-  let libFindings: Finding[] = [];
+  const libFindings: Finding[] = [];
   for (const f of libFiles) {
     libFindings.push(...await grep(f, attrStyle));
     libFindings.push(...await grep(f, hexColor));
@@ -70,8 +70,8 @@ async function main() {
   }
 
   // EXAMPLES: warn only
-  let exStyle: Finding[] = [];
-  let exHex: Finding[] = [];
+  const exStyle: Finding[] = [];
+  const exHex: Finding[] = [];
   for (const f of exampleFiles) {
     exStyle.push(...await grep(f, attrStyle));
     exHex.push(...await grep(f, hexColor));

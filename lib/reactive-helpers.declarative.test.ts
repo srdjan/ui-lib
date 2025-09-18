@@ -76,7 +76,7 @@ Deno.test("combineBindings - filters out empty bindings", () => {
     bindText("title"),
     "", // empty binding
     bindClass("theme"),
-    null as any, // null binding
+    null as unknown as string, // null binding
     showIf("visible")
   );
   

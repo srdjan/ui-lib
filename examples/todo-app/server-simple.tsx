@@ -15,6 +15,8 @@ import { todoAPI, todoDatabase } from "./api/index.ts";
 import type { TodoFilter } from "./components-simple.tsx";
 import { TodoFilters, TodoForm, TodoList } from "./components-simple.tsx";
 
+void h;
+
 const router = new Router();
 
 // Global styles for the todo app (simplified)
@@ -117,7 +119,7 @@ const styles = `
 /**
  * Main application page - Now using ui-lib components throughout
  */
-router.register("GET", "/", async (req: Request) => {
+router.register("GET", "/", (req: Request) => {
   const url = new URL(req.url);
   const currentUser = url.searchParams.get("user") ||
     todoDatabase.getUsers()[0];
@@ -153,6 +155,7 @@ router.register("GET", "/", async (req: Request) => {
 
       <div style="margin-top: 2rem; text-align: center;">
         <button
+          type="button"
           class="clear-completed-btn"
           hx-post={`/api/todos/clear-completed?user=${currentUser}`}
           hx-target="#todo-list"
@@ -219,7 +222,7 @@ router.register("GET", "/", async (req: Request) => {
 /**
  * HTMX content route - Returns just the main content for dynamic updates
  */
-router.register("GET", "/home", async (req: Request) => {
+router.register("GET", "/home", (req: Request) => {
   const url = new URL(req.url);
   const currentUser = url.searchParams.get("user") ||
     todoDatabase.getUsers()[0];
@@ -239,6 +242,7 @@ router.register("GET", "/home", async (req: Request) => {
 
       <div style="margin-top: 2rem; text-align: center;">
         <button
+          type="button"
           class="clear-completed-btn"
           hx-post={`/api/todos/clear-completed?user=${currentUser}`}
           hx-target="#todo-list"
@@ -260,7 +264,7 @@ router.register("GET", "/home", async (req: Request) => {
 /**
  * Users page - Now using ui-lib Button components
  */
-router.register("GET", "/users", async (req: Request) => {
+router.register("GET", "/users", (req: Request) => {
   const url = new URL(req.url);
   const currentUser = url.searchParams.get("user") ||
     todoDatabase.getUsers()[0];

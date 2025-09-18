@@ -13,6 +13,8 @@ import { todoAPI, todoDatabase } from "./api/index.ts";
 import { TodoFilters, TodoForm, TodoList } from "./components/index.ts";
 import type { TodoFilter } from "./api/types.ts";
 
+void h;
+
 const router = new Router();
 
 // Global styles for the todo app
@@ -119,7 +121,7 @@ const styles = `
 `;
 
 // Main application page
-router.register("GET", "/", async (req: Request) => {
+router.register("GET", "/", (req: Request) => {
   const url = new URL(req.url);
   const currentUser = url.searchParams.get("user") ||
     todoDatabase.getUsers()[0];
@@ -164,6 +166,7 @@ router.register("GET", "/", async (req: Request) => {
       <TodoList todos={todos} filter={filter} />
       <div style="margin-top: 2rem; text-align: center;">
         <button
+          type="button"
           class="bulk-action-btn"
           hx-post={`/api/todos/clear-completed?user=${currentUser}`}
           hx-target="#todo-list"
@@ -228,7 +231,7 @@ router.register("GET", "/", async (req: Request) => {
 });
 
 // Content routes for HTMX navigation
-router.register("GET", "/home", async (req: Request) => {
+router.register("GET", "/home", (req: Request) => {
   const url = new URL(req.url);
   const currentUser = url.searchParams.get("user") ||
     todoDatabase.getUsers()[0];
@@ -247,6 +250,7 @@ router.register("GET", "/home", async (req: Request) => {
       <TodoList todos={todos} filter={filter} />
       <div style="margin-top: 2rem; text-align: center;">
         <button
+          type="button"
           class="bulk-action-btn"
           hx-post={`/api/todos/clear-completed?user=${currentUser}`}
           hx-target="#todo-list"
@@ -265,7 +269,7 @@ router.register("GET", "/home", async (req: Request) => {
   });
 });
 
-router.register("GET", "/users", async (req: Request) => {
+router.register("GET", "/users", (req: Request) => {
   const url = new URL(req.url);
   const currentUser = url.searchParams.get("user") ||
     todoDatabase.getUsers()[0];
@@ -281,6 +285,7 @@ router.register("GET", "/users", async (req: Request) => {
               {u} {u === currentUser ? "(current)" : ""}
             </span>
             <button
+              type="button"
               class="btn btn-outline"
               hx-get={`/home?user=${u}`}
               hx-target="#content"
