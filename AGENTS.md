@@ -9,14 +9,14 @@ stay aligned with the existing structure and workflow.
   mind.
 - `lib/` houses core modules with colocated specs (`*.test.ts`,
   `*.integration.test.ts`) and component subfolders.
-- `components-simple.tsx`, `mod-simple.ts`, and `mod-ergonomic.ts` expose
+- `components-simple.tsx` and `mod-simple.ts` expose
   alternate authoring styles; update them together when APIs shift.
 - `examples/todo-app/` demonstrates full-stack usage with a Deno server; mirror
   feature changes here.
 - `docs/` offers public guides; `assets/` and `bench/ssr.bench.ts` store design
   tokens and performance scripts.
 - `lib/api-recipes.ts` wraps `generateClientApi` with HTMX helpers; stage new
-  ergonomics here first.
+  API improvements here first.
 
 ## Build, Test, and Development Commands
 

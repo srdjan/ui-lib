@@ -6,6 +6,7 @@ export type SSRRegistryEntry = {
   // narrow parameter types in their render functions without conflicts.
   render(props: unknown, api?: unknown): string;
   api?: Record<string, (...args: unknown[]) => Record<string, unknown>>;
+  apiMap?: Record<string, readonly [string, string, Function]>; // Add apiMap for minimal API
 };
 
 export type SSRRegistry = Record<string, SSRRegistryEntry>;

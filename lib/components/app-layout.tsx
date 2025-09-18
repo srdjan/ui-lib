@@ -23,7 +23,6 @@ import { boolean, defineComponent, h, string } from "../../index.ts";
  * 👥 Child content composition
  */
 defineComponent("app-layout", {
-  autoProps: true,
 
   // CSS-Only Format - Auto-generated class names!
   styles: {

@@ -40,7 +40,7 @@ deno task test   # Run tests
 deno task serve  # Start dev server
 deno task bundle:state  # Emit dist/ui-lib-state.js for browser progressive enhancement
 
-> Need help choosing between `mod.ts`, `mod-simple.ts`, and `mod-ergonomic.ts`? The README now includes an entry point matrix to guide you.
+> Need help choosing between `mod.ts` and `mod-simple.ts`? The README now includes an entry point matrix to guide you.
 ```
 
 ## Your First Component

@@ -1,6 +1,7 @@
 /** @jsx h */
 // ui-lib Navbar Component - Composable navigation container
-import { boolean, defineComponent, h, string } from "../../index.ts";
+import { defineComponent, h } from "../index.ts";
+import { string, boolean } from "../prop-helpers.ts";
 import type { NavbarProps } from "./layout-types.ts";
 
 /**
@@ -23,7 +24,6 @@ import type { NavbarProps } from "./layout-types.ts";
  * 🎭 Sticky/fixed positioning options
  */
 defineComponent("navbar", {
-  autoProps: true,
 
   // CSS-Only Format - Auto-generated class names!
   styles: {
@@ -188,7 +188,6 @@ defineComponent("navbar", {
     }`,
   },
 
-  // Function-Style Props - Zero duplication!
   render: (
     {
       position = string("top"), // top, bottom, left, right
@@ -198,18 +197,16 @@ defineComponent("navbar", {
       orientation = string("horizontal"), // horizontal, vertical
       contentMaxWidth = string("none"), // constrain inner content to align with main
       contentPadding = string("0 var(--size-4)"), // horizontal padding for inner content
+      children = string(""), // Child content
     },
     _api,
     classes,
-    children?: string,
   ) => {
     const navPosition = typeof position === "string" ? position : "top";
     const navStyle = typeof style === "string" ? style : "primary";
     const isSticky = typeof sticky === "boolean" ? sticky : false;
     const isCollapsible = typeof collapsible === "boolean" ? collapsible : true;
-    const navOrientation = typeof orientation === "string"
-      ? orientation
-      : "horizontal";
+    const navOrientation = typeof orientation === "string" ? orientation : "horizontal";
 
     const navbarClasses = [
       classes!.navbar,
@@ -235,7 +232,7 @@ defineComponent("navbar", {
         data-navbar-style={navStyle}
         data-navbar-orientation={navOrientation}
       >
-        <div class={classes!.navContent} style={`--navbar-content-max-width: ${contentMaxWidth}; --navbar-content-padding: ${contentPadding};`}>
+        <div class={classes!.navContent} style={`--navbar-content-max-width: ${typeof contentMaxWidth === "string" ? contentMaxWidth : "none"}; --navbar-content-padding: ${typeof contentPadding === "string" ? contentPadding : "0 var(--size-4)"};`}>
           {/* Mobile hamburger menu toggle */}
           {isCollapsible && (
             <button

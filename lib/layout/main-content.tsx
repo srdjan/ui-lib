@@ -22,7 +22,6 @@ import type { MainContentProps } from "./layout-types.ts";
  * 🔄 Smooth transitions and loading states
  */
 defineComponent("main-content", {
-  autoProps: true,
 
   // CSS-Only Format - Auto-generated class names!
   styles: {

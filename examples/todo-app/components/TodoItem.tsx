@@ -3,7 +3,9 @@
  * Individual todo item with actions and styling using defineComponent
  */
 
-import { boolean, defineComponent, h, string } from "../../../mod.ts";
+import { defineComponent } from "../../../lib/define-component.ts";
+import { string, boolean } from "../../../lib/prop-helpers.ts";
+import { h } from "../../../lib/jsx-runtime.ts";
 import { Button } from "../../../mod-simple.ts";
 import type { Todo } from "../api/types.ts";
 
@@ -108,7 +110,7 @@ defineComponent("todo-item", {
     todo = string(""),
     showActions = boolean(true),
   }) => {
-    const parsedTodo = parseTodo(todo.toString());
+    const parsedTodo = parseTodo(typeof todo === "string" ? todo : "");
     const priorityColors = {
       low: "#22c55e",
       medium: "#f59e0b",
@@ -147,7 +149,7 @@ defineComponent("todo-item", {
           </div>
         </div>
 
-        {showActions && (
+        {(typeof showActions === "boolean" ? showActions : true) && (
           <div class="todo-actions">
             <Button
               size="sm"

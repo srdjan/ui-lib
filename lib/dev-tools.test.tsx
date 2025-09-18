@@ -24,7 +24,7 @@ import { number, string } from "./prop-helpers.ts";
 // Test setup - create test components
 defineComponent("test-component", {
   render: ({ title = string("Test") }) => (
-    h("div", null, h("h1", null, title), h("p", null, "Test content"))
+    <div><h1>{title}</h1><p>Test content</p></div>
   ),
 });
 
@@ -34,11 +34,9 @@ defineComponent("test-component-with-styles", {
     title: `{ font-size: 1.5rem; color: #333; }`,
   },
   render: ({ count = number(0) }, _api, classes) => (
-    h(
-      "div",
-      { class: classes!.container },
-      h("h2", { class: classes!.title }, `Count: ${count}`),
-    )
+    <div class={classes!.container}>
+      <h2 class={classes!.title}>Count: {count}</h2>
+    </div>
   ),
 });
 

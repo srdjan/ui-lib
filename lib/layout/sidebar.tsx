@@ -27,7 +27,6 @@ import type { SidebarProps } from "./layout-types.ts";
  * 🔄 State management for open/closed
  */
 defineComponent("sidebar", {
-  autoProps: true,
 
   // CSS-Only Format - Auto-generated class names!
   styles: {

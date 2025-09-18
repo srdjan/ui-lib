@@ -277,9 +277,42 @@ ui-lib provides three different entry points for different use cases:
 |------------|----------|-------------|
 | `mod.ts` | Registry-based SSR with full features | Complete prop helpers, CSS-in-TS, reactive helpers, router, API bindings |
 | `mod-simple.ts` | Direct JSX functions with minimal ceremony | JSX runtime, lightweight state helpers, curated component subset |
-| `mod-ergonomic.ts` | Ergonomic workflows with breakthrough features | Function props, unified API, CSS auto classes, dev tooling |
 
 Choose based on your project needs. Mix and match during prototyping, then converge on one before release.
+
+## Component API
+
+Components are defined using a minimal configuration:
+
+```typescript
+defineComponent("my-component", {
+  reactive?: ReactiveConfig,
+  styles?: StylesInput,
+  api?: ApiMap,
+  render: (attrs: Record<string, string>, api?, classes?) => string
+});
+```
+
+**Key features:**
+- Props parsing handled explicitly in render functions using `parseProps()`
+- External router registration via `registerComponentApi()`
+- Unified styles support with auto-generated class names
+- Simplified configuration surface (4 options)
+
+**Example with prop parsing:**
+```typescript
+defineComponent("user-card", {
+  render: (attrs: Record<string, string>) => {
+    const props = parseProps(attrs, (a) => ({
+      name: a.name || "Anonymous",
+      age: parseInt(a.age || "0"),
+      active: "active" in a,
+    }));
+
+    return `<div class="${props.active ? "active" : ""}">${props.name} (${props.age})</div>`;
+  },
+});
+```
 
 ## Important Notes
 

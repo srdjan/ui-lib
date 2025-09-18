@@ -1,3 +1,4 @@
+/** @jsx h */
 import {
   assert,
   assertStringIncludes,
@@ -19,7 +20,7 @@ Deno.test("reactive.inject adds consolidated hx-on with mount/unmount", () => {
       unmount: "cleanup()",
     },
     // @ts-ignore - simple render
-    render: () => h("div", null, "Hi"),
+    render: () => <div>Hi</div>,
   });
 
   const html = renderComponent("test-reactive");
@@ -39,7 +40,7 @@ Deno.test("reactive.inject merges with existing hx-on on root", () => {
       on: { change: "a()" },
     },
     // @ts-ignore - simple render with existing hx-on
-    render: () => h("div", { "hx-on": "submit: foo()" }, "X"),
+    render: () => <div hx-on="submit: foo()">X</div>,
   });
 
   const html = renderComponent("test-reactive-merge");
@@ -59,7 +60,7 @@ Deno.test("reactive.css augments or creates component CSS", () => {
       css: { accent: "color: var(--ignored);" },
     },
     // @ts-ignore - simple render
-    render: () => h("div", null, "X"),
+    render: () => <div>X</div>,
   });
 
   const entry = registry["test-reactive-css"];

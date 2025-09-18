@@ -49,10 +49,10 @@ export type {
 } from "./lib/api-generator.ts";
 export type {
   ComponentConfig,
-  InferProps,
-  PropsSpec,
-  PropsTransformer,
 } from "./lib/define-component.ts";
+
+// Re-export minimal API helpers
+export { parseProps, registerComponentApi } from "./lib/define-component.ts";
 
 // Import JSX types to make them globally available
 import "./lib/jsx.d.ts";

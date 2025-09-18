@@ -25,7 +25,6 @@ hybrid reactivity.
 | ------------------ | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
 | `mod.ts`           | You need the stable SSR-focused surface with registry-driven components.                                  | Full prop helpers, CSS-in-TS, reactive helpers, router, API bindings. |
 | `mod-simple.ts`    | You want direct JSX functions and minimal ceremony.                                                       | JSX runtime, lightweight state helpers, curated component subset.     |
-| `mod-ergonomic.ts` | You are building with the three "breakthrough" workflows (function props, unified API, CSS auto classes). | Ergonomic component factories, API helpers, dev tooling.              |
 
 > Tip: mix and match by importing from multiple entry points when prototyping,
 > then converge on one surface before release.

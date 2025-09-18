@@ -1,54 +1,30 @@
-// Simplified defineComponent with optional props transformer
+// Minimal defineComponent API with inline prop definitions
 import {
   type ApiMap,
   generateClientApi,
   type GeneratedApiMap,
 } from "./api-generator.ts";
 import { getRegistry } from "./registry.ts";
-
-// Re-export for use in reactive components
-export type { GeneratedApiMap };
-
 import { getConfig } from "./config.ts";
-
 import {
   isUnifiedStyles,
   parseUnifiedStyles,
   type UnifiedStyles,
 } from "./styles-parser.ts";
-
-import {
-  hasDeclarativeBindings,
-  processDeclarativeBindings,
-} from "./declarative-bindings.ts";
-import "./jsx.d.ts"; // Import JSX types
-import { createPropsParser } from "./props.ts";
 import { applyReactiveAttrs } from "./reactive-system.ts";
-import type { Router } from "./router.ts";
+import { extractPropDefinitions } from "./prop-helpers.ts";
+import { parseRenderParameters } from "./render-parameter-parser.ts";
+import "./jsx.d.ts";
 
-// Props transformer function type - takes raw attributes, returns whatever the user wants
-export type PropsTransformer<
-  TRawAttrs = Record<string, string>,
-  TProps = unknown,
-> = (attrs: TRawAttrs) => TProps;
+export type { GeneratedApiMap };
 
-// Back-compat helper types (still exported)
-export type PropsSpec<TProps = unknown> =
-  | PropsTransformer<Record<string, string>, TProps>
-  | undefined;
-export type InferProps<T extends PropsSpec> = T extends
-  PropsTransformer<Record<string, string>, infer P> ? P
-  : Record<string, string>;
-
+// Minimal types
 export type ClassMap = Record<string, string>;
-export type StylesInput = string | UnifiedStyles;
-
-// Lightweight handle returned by defineComponent
+export type StylesInput = string | UnifiedStyles | Record<string, string>;
 export type DefinedComponent = { readonly name: string };
 
-// New config types: infer props directly from render parameter or optional transformer
 // Consolidated reactive configuration
-interface ReactiveConfig {
+export interface ReactiveConfig {
   on?: Record<string, string>;
   state?: Record<string, string>;
   css?: Record<string, string>;
@@ -57,81 +33,86 @@ interface ReactiveConfig {
   inject?: boolean; // default false
 }
 
-export interface ComponentConfigWithApi<TProps> {
-  router?: Router;
+// Minimal component configuration with inline props in render function
+export interface ComponentConfig<TProps = any> {
   reactive?: ReactiveConfig;
-  autoProps?: boolean;
-  props?: PropsTransformer<Record<string, string>, TProps>;
-  styles?: StylesInput; // Can be string or unified styles object
-  classes?: ClassMap; // Optional when using unified styles
-  api: ApiMap; // Required when this interface is used
-  render: (props: TProps, api: GeneratedApiMap, classes?: ClassMap) => string;
+  styles?: StylesInput;
+  api?: ApiMap;
+  render: (
+    props: TProps,
+    api?: GeneratedApiMap,
+    classes?: ClassMap
+  ) => string;
 }
 
-export interface ComponentConfigWithoutApi<TProps> {
-  router?: Router;
-  reactive?: ReactiveConfig;
-  autoProps?: boolean;
-  props?: PropsTransformer<Record<string, string>, TProps>;
-  styles?: StylesInput; // Can be string or unified styles object
-  classes?: ClassMap; // Optional when using unified styles
-  api?: never; // Not allowed when this interface is used
-  render: (props: TProps, api?: undefined, classes?: ClassMap) => string;
-}
-
-export type ComponentConfig<TProps> =
-  | ComponentConfigWithApi<TProps>
-  | ComponentConfigWithoutApi<TProps>;
-
-// Main component definition function
-export function defineComponent<TProps = Record<string, string>>(
+// New minimal defineComponent implementation with inline prop definitions
+export function defineComponent<TProps = any>(
   name: string,
-  config: ComponentConfig<TProps>,
+  config: ComponentConfig<TProps>
 ): DefinedComponent {
   const {
-    props: propsTransformer,
     styles: stylesInput,
-    classes: providedClassMap,
     api: apiMap,
     reactive,
-    autoProps = true,
     render,
   } = config;
 
-  const { logging, dev } = getConfig();
+  const globalConfig = getConfig();
+  const { logging, dev } = globalConfig;
 
-  const finalPropsTransformer = createPropsParser<TProps>({
-    name,
-    props: propsTransformer,
-    autoProps,
-    render,
-  });
+  // Auto-extract props from render function parameters
+  const { propHelpers, hasProps } = parseRenderParameters(render);
+  let propsTransformer: ((attrs: Record<string, string>) => TProps) | undefined;
 
-  // Handle unified styles or traditional string styles
+  if (hasProps) {
+    const { propsTransformer: autoTransformer } = extractPropDefinitions(
+      propHelpers,
+    );
+    propsTransformer = autoTransformer as (
+      attrs: Record<string, string>,
+    ) => TProps;
+
+    if (dev) {
+      console.log(
+        `✨ Auto-generated props for "${name}":`,
+        Object.keys(propHelpers),
+      );
+    }
+  }
+
+  // Handle styles - support both unified styles and CSS-only format
   let css: string | undefined;
   let classMap: ClassMap | undefined;
 
   if (stylesInput) {
-    if (isUnifiedStyles(stylesInput)) {
-      // New unified styles format
+    if (typeof stylesInput === "object" && !isUnifiedStyles(stylesInput)) {
+      // CSS-only format (Record<string, string>)
+      const unifiedStyles: UnifiedStyles = {};
+      for (const [key, value] of Object.entries(stylesInput)) {
+        if (typeof value === "string" && value.includes("{")) {
+          // CSS string format: "{ padding: 1rem; }"
+          const cssContent = value.trim().replace(/^\{|\}$/g, "").trim();
+          unifiedStyles[key] = { cssText: cssContent };
+        } else {
+          unifiedStyles[key] = { cssText: value };
+        }
+      }
+      const { classMap: extractedClassMap, combinedCss } = parseUnifiedStyles(
+        unifiedStyles,
+      );
+      css = combinedCss;
+      classMap = extractedClassMap;
+    } else if (isUnifiedStyles(stylesInput)) {
+      // Unified styles format
       const { classMap: extractedClassMap, combinedCss } = parseUnifiedStyles(
         stylesInput,
       );
       css = combinedCss;
       classMap = extractedClassMap;
-
-      // If user also provided separate classes, merge them (provided classes take precedence)
-      if (providedClassMap) {
-        classMap = { ...extractedClassMap, ...providedClassMap };
-      }
     } else {
       // Traditional string styles
-      css = stylesInput;
-      classMap = providedClassMap;
+      css = stylesInput as string;
     }
-  } else {
-    // No styles provided
-    classMap = providedClassMap;
   }
 
   // Enhance CSS with reactive rules if requested
@@ -149,7 +130,7 @@ export function defineComponent<TProps = Record<string, string>>(
   // Validate required configuration
   if (!render) {
     throw new Error(
-      `Component "${name}" is missing required configuration: render function must be provided.`,
+      `Component "${name}" is missing required render function.`
     );
   }
 
@@ -157,99 +138,116 @@ export function defineComponent<TProps = Record<string, string>>(
   let generatedApi: GeneratedApiMap | undefined;
   if (apiMap) {
     generatedApi = generateClientApi(apiMap);
-
-    // Register all routes with the router
-    for (const [functionName, apiDefinition] of Object.entries(apiMap)) {
-      if (!Array.isArray(apiDefinition) || apiDefinition.length !== 3) {
-        console.warn(
-          `Invalid API definition for "${functionName}". Expected format: [method, path, handler] (e.g., ["POST", "/api/todos", handler])`,
-        );
-        continue;
-      }
-
-      const [method, path, handler] = apiDefinition;
-      if (!method || !path || !handler) {
-        console.warn(
-          `Invalid API definition for "${functionName}": method, path, and handler are required`,
-        );
-        continue;
-      }
-
-      if (config.router) {
-        config.router.register(method, path, handler);
-      }
-    }
   }
 
-  // Register the component in the SSR registry with collision detection
+  // Register the component in the SSR registry
   const registry = getRegistry();
   if (registry[name]) {
     console.warn(
-      `⚠️  Component "${name}" already exists and will be overwritten!`,
+      `⚠️  Component "${name}" already exists and will be overwritten!`
     );
   }
+
   registry[name] = {
-    props: undefined, // transformer is handled manually here
+    props: undefined, // No separate props config
     css,
     api: generatedApi,
+    apiMap, // Store for external registration
     render: (rawAttrs, _unusedApi) => {
-      const finalProps = finalPropsTransformer
-        ? finalPropsTransformer(rawAttrs as Record<string, string>)
-        : (rawAttrs as unknown as TProps);
-
-      // Preserve children passed from SSR tag processor
-      const children = (rawAttrs as Record<string, unknown>)["children"] as
-        | string
-        | undefined;
-
-      let html = generatedApi
-        ? (render as (
-          p: TProps,
-          a: GeneratedApiMap,
-          c?: ClassMap,
-          ch?: string,
-        ) => string)(finalProps as TProps, generatedApi, classMap, children)
-        : (render as (
-          p: TProps,
-          a?: undefined,
-          c?: ClassMap,
-          ch?: string,
-        ) => string)(finalProps as TProps, undefined, classMap, children);
-
-      // Process declarative bindings if present
-      if (hasDeclarativeBindings(html)) {
-        html = processDeclarativeBindings(html, name);
+      // Transform props if we extracted them from render parameters
+      let finalProps: TProps;
+      if (propsTransformer) {
+        finalProps = propsTransformer(rawAttrs as Record<string, string>);
+      } else {
+        // No props transformation - pass raw attributes
+        finalProps = rawAttrs as unknown as TProps;
       }
 
-      // Inject reactive attrs only if present, then add data-component
-      return injectDataComponent(
-        applyReactiveAttrs(html, reactive, name),
-        name,
-      );
+      // Preserve children passed from SSR tag processor
+      const children = (rawAttrs as any).children || "";
+      const propsWithChildren = {
+        ...finalProps,
+        children,
+      };
+
+      let html: string;
+      if (dev) {
+        console.log(`🎨 Rendering component: ${name}`);
+      }
+
+      html = render(propsWithChildren, generatedApi, classMap);
+
+      // Apply reactive attributes if configured
+      if (reactive) {
+        const processedHtml = applyReactiveAttrs(html, reactive, name);
+        if (reactive.inject && reactive.mount) {
+          return `${processedHtml}
+<script data-component="${name}">
+(() => {
+  const el = document.currentScript.previousElementSibling;
+  if (el && typeof ${reactive.mount} === 'function') {
+    ${reactive.mount}.call(el);
+  }
+})();
+</script>`;
+        }
+        return processedHtml;
+      }
+
+      return html;
     },
   };
 
-  // Return a minimal handle for potential composition/testing use
+  if (logging) {
+    console.log(`✅ Component "${name}" registered with inline props`);
+  }
+
   return { name };
 }
 
-// Injects data-component="<name>" into the first opening tag of the HTML string
-// Simplified for Deno SSR - no DOM APIs needed, just regex-based string manipulation
-function injectDataComponent(html: string, name: string): string {
-  // Handle empty or whitespace-only HTML
-  if (!html.trim()) return html;
+// Helper to register component API routes externally
+export function registerComponentApi(
+  componentName: string,
+  router: { register: (method: string, path: string, handler: Function) => void }
+): void {
+  const registry = getRegistry();
+  const component = registry[componentName];
 
-  // Match: optional whitespace + optional comments + opening tag
-  // Simplified regex for better maintainability in Deno SSR context
-  const match = html.match(/^(\s*(?:<!--[\s\S]*?-->\s*)*)(<[a-zA-Z][^>]*)(>)/);
-  if (!match) return html;
+  if (!component?.apiMap) {
+    console.warn(`Component "${componentName}" has no API to register`);
+    return;
+  }
 
-  const [fullMatch, prefix, openTag, close] = match;
+  for (const [functionName, apiDefinition] of Object.entries(component.apiMap)) {
+    if (!Array.isArray(apiDefinition) || apiDefinition.length !== 3) {
+      console.warn(
+        `Invalid API definition for "${functionName}". Expected format: [method, path, handler]`
+      );
+      continue;
+    }
 
-  // Skip if data-component already exists
-  if (openTag.includes("data-component=")) return html;
+    const [method, path, handler] = apiDefinition;
+    if (!method || !path || !handler) {
+      console.warn(
+        `Invalid API definition for "${functionName}": method, path, and handler are required`
+      );
+      continue;
+    }
 
-  // Inject data-component attribute
-  const enhancedOpenTag = `${openTag} data-component="${name}"`;
-  return `${prefix}${enhancedOpenTag}${close}${html.slice(fullMatch.length)}`;
+    router.register(method, path, handler);
+  }
+}
+
+// Simpler component definition for direct use (like defineSimpleComponent)
+export function defineSimpleComponent(
+  name: string,
+  render: (props: any, api?: GeneratedApiMap, classes?: ClassMap) => string,
+  styles?: Record<string, string>,
+  api?: ApiMap
+): DefinedComponent {
+  return defineComponent(name, {
+    render,
+    styles,
+    api,
+  });
 }
