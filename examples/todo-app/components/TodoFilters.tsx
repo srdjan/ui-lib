@@ -86,14 +86,14 @@ defineComponent("todo-filters", {
     todoCount = string(""),
     userId = string(""),
   }) => {
-    const parsedFilter = safeParse<TodoFilter>(currentFilter, {
-      status: "all",
-    });
-    const parsedStats = safeParse<TodoStats>(todoCount, {
-      total: 0,
-      active: 0,
-      completed: 0,
-    });
+    const parsedFilter = safeParse<TodoFilter>(
+      typeof currentFilter === "string" ? currentFilter : undefined,
+      { status: "all" },
+    );
+    const parsedStats = safeParse<TodoStats>(
+      typeof todoCount === "string" ? todoCount : undefined,
+      { total: 0, active: 0, completed: 0 },
+    );
 
     return (
       <div class="todo-filters">

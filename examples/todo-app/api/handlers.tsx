@@ -6,61 +6,18 @@
  */
 
 import { h } from "../../../lib/simple.tsx";
-import { Alert, renderToString } from "../../../mod-simple.ts";
+import { renderToString } from "../../../mod-simple.ts";
 import { TodoItem, TodoList } from "../components/index.ts";
-import type {
-  CreateTodoData,
-  DatabaseError,
-  Todo,
-  TodoFilter,
-  UpdateTodoData,
-} from "./types.ts";
 import { todoRepository } from "./repository.ts";
+import {
+  errorResponse,
+  handleDatabaseError,
+  htmlResponse,
+  jsonResponse,
+} from "./response.tsx";
+import type { CreateTodoData, TodoFilter, UpdateTodoData } from "./types.ts";
 
-// Response helpers
-function jsonResponse(data: any, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
-function htmlResponse(html: string, status = 200) {
-  return new Response(html, {
-    status,
-    headers: { "Content-Type": "text/html" },
-  });
-}
-
-// Error response helpers
-const errorResponse = (message: string, status = 400): Response =>
-  htmlResponse(
-    renderToString(
-      <Alert variant="error" title="Error">
-        {message}
-      </Alert>,
-    ),
-    status,
-  );
-
-const handleDatabaseError = (error: DatabaseError): Response => {
-  switch (error.type) {
-    case "not_found":
-      return errorResponse(
-        `${error.entity} with ID ${error.id} not found`,
-        404,
-      );
-    case "validation_error":
-      return errorResponse(`${error.field}: ${error.message}`, 400);
-    case "duplicate_key":
-      return errorResponse(
-        `${error.field} '${error.value}' already exists`,
-        409,
-      );
-    default:
-      return errorResponse("An unexpected error occurred", 500);
-  }
-};
+// Moved shared response helpers to ./response.ts
 
 // API Handlers
 export const todoAPI = {
@@ -94,7 +51,7 @@ export const todoAPI = {
     if (acceptsHtml) {
       return htmlResponse(
         renderToString(
-          <TodoList todos={todosResult.value as Todo[]} filter={filter} />,
+          <TodoList todos={todosResult.value} filter={filter} />,
         ),
       );
     }
@@ -138,7 +95,7 @@ export const todoAPI = {
 
       return htmlResponse(
         renderToString(
-          <TodoList todos={todosResult.value as Todo[]} filter={filter} />,
+          <TodoList todos={todosResult.value} filter={filter} />,
         ),
       );
     } catch (error) {
@@ -177,7 +134,7 @@ export const todoAPI = {
 
       return htmlResponse(
         renderToString(
-          <TodoList todos={todosResult.value as Todo[]} filter={filter} />,
+          <TodoList todos={todosResult.value} filter={filter} />,
         ),
       );
     } catch (error) {
@@ -255,7 +212,7 @@ export const todoAPI = {
 
     return htmlResponse(
       renderToString(
-        <TodoList todos={todosResult.value as Todo[]} filter={filter} />,
+        <TodoList todos={todosResult.value} filter={filter} />,
       ),
     );
   },

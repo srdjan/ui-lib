@@ -3,10 +3,10 @@
  * Main container for displaying todos with loading and empty states using defineComponent
  */
 
-import { boolean, defineComponent, h, string } from "../../../mod.ts";
 import { Alert } from "../../../mod-simple.ts";
-import { TodoItem } from "./TodoItem.tsx";
+import { boolean, defineComponent, h, string } from "../../../mod.ts";
 import type { Todo, TodoFilter } from "../api/types.ts";
+import { TodoItem } from "./TodoItem.tsx";
 
 defineComponent("todo-list", {
   styles: `
@@ -51,8 +51,14 @@ defineComponent("todo-list", {
     filter = string('{"status":"all"}'),
     loading = boolean(false),
   }) => {
-    const parsedTodos = safeParseArray<Todo>(todos, []);
-    const parsedFilter = safeParse<TodoFilter>(filter, { status: "all" });
+    const parsedTodos = safeParseArray<Todo>(
+      typeof todos === "string" ? todos : "",
+      [],
+    );
+    const parsedFilter = safeParse<TodoFilter>(
+      typeof filter === "string" ? filter : "",
+      { status: "all" },
+    );
 
     if (loading) {
       return (
@@ -88,7 +94,7 @@ export function TodoList({
   filter,
   loading = false,
 }: {
-  todos: Todo[];
+  todos: readonly Todo[];
   filter: TodoFilter;
   loading?: boolean;
 }) {

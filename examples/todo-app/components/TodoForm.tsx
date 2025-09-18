@@ -3,8 +3,8 @@
  * Add/edit todo form with validation and HTMX submission using defineComponent
  */
 
-import { defineComponent, h, string } from "../../../mod.ts";
 import { Button, Input } from "../../../mod-simple.ts";
+import { defineComponent, h, string } from "../../../mod.ts";
 import type { Todo } from "../api/types.ts";
 
 defineComponent("todo-form", {
@@ -54,9 +54,9 @@ defineComponent("todo-form", {
     method = string("POST"),
     onCancel = string(""),
   }) => {
-    const parsedTodo = parseOptionalTodo(todo);
+    const parsedTodo = parseOptionalTodo(typeof todo === "string" ? todo : "");
     const normalizedMethod = method === "PUT" ? "PUT" : "POST";
-    const cancelHook = onCancel || undefined;
+    const cancelHook = typeof onCancel === "string" ? onCancel : undefined;
     const isEditing = Boolean(parsedTodo);
 
     return (

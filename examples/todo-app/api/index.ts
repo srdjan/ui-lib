@@ -15,9 +15,8 @@ export type {
 export {
   calculateStats,
   createInMemoryTodoRepository,
-  todoDatabase,
-  todoRepository,
   type TodoRepository,
+  todoRepository,
   validateTodoData,
   validateUpdateData,
 } from "./repository.ts";

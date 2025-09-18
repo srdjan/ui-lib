@@ -9,7 +9,7 @@
 
 import { h } from "../../lib/simple.tsx";
 import { Alert, Button, Router } from "../../mod-simple.ts";
-import { todoAPI, todoDatabase } from "./api/index.ts";
+import { todoAPI } from "./api/index.ts";
 
 // Import refactored components
 import type { TodoFilter } from "./components-simple.tsx";
@@ -18,6 +18,26 @@ import { TodoFilters, TodoForm, TodoList } from "./components-simple.tsx";
 void h;
 
 const router = new Router();
+// Data helpers using functional repository
+import { todoRepository } from "./api/index.ts";
+
+const getUsers = (): readonly string[] => {
+  const r = todoRepository.getUsers();
+  return r.ok ? r.value : [];
+};
+
+const firstUser = (url: URL): string =>
+  url.searchParams.get("user") || getUsers()[0];
+
+const getStats = (userId: string) => {
+  const r = todoRepository.getStats(userId);
+  return r.ok ? r.value : { total: 0, active: 0, completed: 0 };
+};
+
+const getTodos = (filter: TodoFilter, userId: string) => {
+  const r = todoRepository.filter(filter, userId);
+  return r.ok ? r.value : [];
+};
 
 // Global styles for the todo app (simplified)
 const styles = `
@@ -121,11 +141,10 @@ const styles = `
  */
 router.register("GET", "/", (req: Request) => {
   const url = new URL(req.url);
-  const currentUser = url.searchParams.get("user") ||
-    todoDatabase.getUsers()[0];
+  const currentUser = firstUser(url);
   const filter: TodoFilter = { status: "all" };
-  const stats = todoDatabase.getStats(currentUser);
-  const todos = todoDatabase.filter(filter, currentUser);
+  const stats = getStats(currentUser);
+  const todos = getTodos(filter, currentUser);
 
   // Navigation using simple JSX with ui-lib styling
   const nav = (
@@ -224,11 +243,10 @@ router.register("GET", "/", (req: Request) => {
  */
 router.register("GET", "/home", (req: Request) => {
   const url = new URL(req.url);
-  const currentUser = url.searchParams.get("user") ||
-    todoDatabase.getUsers()[0];
+  const currentUser = firstUser(url);
   const filter: TodoFilter = { status: "all" };
-  const stats = todoDatabase.getStats(currentUser);
-  const todos = todoDatabase.filter(filter, currentUser);
+  const stats = getStats(currentUser);
+  const todos = getTodos(filter, currentUser);
 
   const fragment = (
     <div>
@@ -266,9 +284,8 @@ router.register("GET", "/home", (req: Request) => {
  */
 router.register("GET", "/users", (req: Request) => {
   const url = new URL(req.url);
-  const currentUser = url.searchParams.get("user") ||
-    todoDatabase.getUsers()[0];
-  const users = todoDatabase.getUsers();
+  const currentUser = firstUser(url);
+  const users = getUsers();
 
   const fragment = (
     <div>
@@ -325,12 +342,12 @@ router.register("GET", "/api/todos/stats", todoAPI.getStats);
 
 // Health check endpoint
 router.register("GET", "/health", () => {
-  const currentUser = todoDatabase.getUsers()[0];
+  const currentUser = getUsers()[0];
   return new Response(
     JSON.stringify({
       status: "healthy",
       timestamp: new Date().toISOString(),
-      todos: todoDatabase.getStats(currentUser),
+      todos: getStats(currentUser),
     }),
     {
       headers: { "Content-Type": "application/json" },

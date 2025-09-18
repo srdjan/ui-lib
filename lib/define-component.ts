@@ -1,10 +1,10 @@
 // Simplified defineComponent with optional props transformer
-import { getRegistry } from "./registry.ts";
 import {
   type ApiMap,
   generateClientApi,
   type GeneratedApiMap,
 } from "./api-generator.ts";
+import { getRegistry } from "./registry.ts";
 
 // Re-export for use in reactive components
 export type { GeneratedApiMap };
@@ -17,13 +17,13 @@ import {
   type UnifiedStyles,
 } from "./styles-parser.ts";
 
-import { applyReactiveAttrs } from "./reactive-system.ts";
-import { createPropsParser } from "./props.ts";
 import {
   hasDeclarativeBindings,
   processDeclarativeBindings,
 } from "./declarative-bindings.ts";
 import "./jsx.d.ts"; // Import JSX types
+import { createPropsParser } from "./props.ts";
+import { applyReactiveAttrs } from "./reactive-system.ts";
 import type { Router } from "./router.ts";
 
 // Props transformer function type - takes raw attributes, returns whatever the user wants
@@ -80,51 +80,7 @@ export type ComponentConfig<TProps> =
   | ComponentConfigWithApi<TProps>
   | ComponentConfigWithoutApi<TProps>;
 
-/**
- * Define a component with simplified props system.
- *
- * @example
- * ```tsx
- * // Zero config - props are just strings
- * defineComponent("simple-text", {
- *   render: (props: { message: string }) => <div>{props.message}</div>
- * });
- *
- * // With transformer when parsing needed
- * defineComponent("counter", {
- *   props: (attrs) => ({
- *     count: parseInt(attrs.count || "0"),
- *     step: parseInt(attrs.step || "1"),
- *     active: "active" in attrs
- *   }),
- *   render: (props) => (
- *     <div class={props.active ? "active" : ""}>
- *       Count: {props.count}
- *     </div>
- *   )
- * });
- *
- * // With API
- * defineComponent("todo-item", {
- *   props: (attrs) => ({
- *     id: attrs.id,
- *     text: attrs.text,
- *     done: "done" in attrs
- *   }),
- *   api: {
- *     toggle: patch("/api/todos/:id/toggle", handler),
- *     remove: del("/api/todos/:id", handler)
- *   },
- *   render: (props, api) => (
- *     <div>
- *       <span>{props.text}</span>
- *       <button {...api.toggle(props.id)}>Toggle</button>
- *       <button {...api.remove(props.id)}>×</button>
- *     </div>
- *   )
- * });
- * ```
- */
+// Main component definition function
 export function defineComponent<TProps = Record<string, string>>(
   name: string,
   config: ComponentConfig<TProps>,
@@ -272,47 +228,22 @@ export function defineComponent<TProps = Record<string, string>>(
 }
 
 // Injects data-component="<name>" into the first opening tag of the HTML string
+// Simplified for Deno SSR - no DOM APIs needed, just regex-based string manipulation
 function injectDataComponent(html: string, name: string): string {
-  const leadMatch = html.match(/^\s*/);
-  const leadingWhitespace = leadMatch ? leadMatch[0] : "";
-  const body = html.slice(leadingWhitespace.length);
-  if (!body.length) return html;
+  // Handle empty or whitespace-only HTML
+  if (!html.trim()) return html;
 
-  if (typeof DOMParser !== "undefined") {
-    try {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(
-        `<template>${body}</template>`,
-        "text/html",
-      );
-      const template = doc.querySelector("template");
-      if (template) {
-        const fragment = template.content;
-        const firstElement = fragment.querySelector("*");
-        if (!firstElement) return html;
-        if (firstElement.hasAttribute("data-component")) {
-          return html;
-        }
-        firstElement.setAttribute("data-component", name);
-        return leadingWhitespace + template.innerHTML;
-      }
-    } catch (_err) {
-      // Fall back to legacy string manipulation below
-    }
-  }
+  // Match: optional whitespace + optional comments + opening tag
+  // Simplified regex for better maintainability in Deno SSR context
+  const match = html.match(/^(\s*(?:<!--[\s\S]*?-->\s*)*)(<[a-zA-Z][^>]*)(>)/);
+  if (!match) return html;
 
-  return legacyInject(html, name);
-}
+  const [fullMatch, prefix, openTag, close] = match;
 
-function legacyInject(html: string, name: string): string {
-  const match =
-    /^(?<prefix>(?:\s*<!--[\s\S]*?-->)*\s*)(?<openTag><[a-zA-Z][^>]*)(?<close>>)/
-      .exec(
-        html,
-      );
-  if (!match?.groups) return html;
-  const { prefix, openTag, close } = match.groups as Record<string, string>;
+  // Skip if data-component already exists
   if (openTag.includes("data-component=")) return html;
+
+  // Inject data-component attribute
   const enhancedOpenTag = `${openTag} data-component="${name}"`;
-  return `${prefix}${enhancedOpenTag}${close}${html.slice(match[0].length)}`;
+  return `${prefix}${enhancedOpenTag}${close}${html.slice(fullMatch.length)}`;
 }

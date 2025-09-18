@@ -3,6 +3,7 @@
  * Data layer with functional error handling
  */
 
+import { err, ok, type Result } from "../../../lib/result.ts";
 import type {
   CreateTodoData,
   DatabaseError,
@@ -11,7 +12,6 @@ import type {
   TodoStats,
   UpdateTodoData,
 } from "./types.ts";
-import { err, ok, type Result } from "../utils/result.ts";
 
 // Port interface for TodoRepository capability
 export interface TodoRepository {
@@ -222,31 +222,3 @@ export const createInMemoryTodoRepository = (): TodoRepository => {
 
 // Create singleton repository instance
 export const todoRepository = createInMemoryTodoRepository();
-
-// Backward compatibility adapter for existing code
-export const todoDatabase = {
-  getUsers: () => {
-    const result = todoRepository.getUsers();
-    return result.ok ? result.value : [];
-  },
-
-  getAll: (userId: string) => {
-    const result = todoRepository.getAll(userId);
-    return result.ok ? result.value as Todo[] : [];
-  },
-
-  getById: (id: string) => {
-    const result = todoRepository.getById(id);
-    return result.ok ? result.value : undefined;
-  },
-
-  filter: (filter: TodoFilter, userId: string) => {
-    const result = todoRepository.filter(filter, userId);
-    return result.ok ? result.value as Todo[] : [];
-  },
-
-  getStats: (userId: string) => {
-    const result = todoRepository.getStats(userId);
-    return result.ok ? result.value : { total: 0, active: 0, completed: 0 };
-  },
-};

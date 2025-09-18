@@ -35,9 +35,7 @@ todo-app/
 │   ├── handlers.ts    # Request handlers
 │   └── index.ts       # API exports
 │
-├── utils/             # Utilities
-│   └── result.ts      # Result type for error handling
-│
+
 ├── server.tsx         # Main server with routing
 ├── server-simple.tsx  # Alternative server implementation
 └── README.md         # This documentation
@@ -131,7 +129,7 @@ export interface Todo {
 ### Functional Error Handling
 
 ```typescript
-type Result<T, E> = Ok<T> | Err<E>;
+import type { Result } from "../../../lib/result.ts";
 
 // Usage
 const result = todoRepository.create(todoData);

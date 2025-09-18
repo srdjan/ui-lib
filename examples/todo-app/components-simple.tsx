@@ -194,7 +194,7 @@ export function TodoList({
   filter,
   loading = false,
 }: {
-  todos: Todo[];
+  todos: readonly Todo[];
   filter: TodoFilter;
   loading?: boolean;
 }) {
