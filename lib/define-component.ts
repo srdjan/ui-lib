@@ -43,6 +43,9 @@ export type InferProps<T extends PropsSpec> = T extends
 export type ClassMap = Record<string, string>;
 export type StylesInput = string | UnifiedStyles;
 
+// Lightweight handle returned by defineComponent
+export type DefinedComponent = { readonly name: string };
+
 // New config types: infer props directly from render parameter or optional transformer
 // Consolidated reactive configuration
 interface ReactiveConfig {
@@ -84,7 +87,7 @@ export type ComponentConfig<TProps> =
 export function defineComponent<TProps = Record<string, string>>(
   name: string,
   config: ComponentConfig<TProps>,
-): void {
+): DefinedComponent {
   const {
     props: propsTransformer,
     styles: stylesInput,
@@ -225,6 +228,9 @@ export function defineComponent<TProps = Record<string, string>>(
       );
     },
   };
+
+  // Return a minimal handle for potential composition/testing use
+  return { name };
 }
 
 // Injects data-component="<name>" into the first opening tag of the HTML string

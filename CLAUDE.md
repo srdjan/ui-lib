@@ -1,21 +1,17 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with
-code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Repository Overview
 
-**ui-lib** is an ultra-lightweight, type-safe SSR component library with
-DOM-native state management and hybrid reactivity. Built with Deno and
-TypeScript using functional programming patterns for zero runtime overhead.
+**ui-lib** is an ultra-lightweight, type-safe SSR component library with DOM-native state management and hybrid reactivity. Built with Deno and TypeScript using functional programming patterns for zero runtime overhead.
 
 ## Architecture & Core Concepts
 
 ### Component System
 
 - Components defined via `defineComponent()` with typed configuration
-- Function-style props using helpers: `string()`, `number()`, `boolean()`,
-  `array()`, `object()`, `oneOf()`
+- Function-style props using helpers: `string()`, `number()`, `boolean()`, `array()`, `object()`, `oneOf()`
 - CSS-in-TS system generates collision-free class names
 - SSR-first - components render to HTML strings server-side
 
@@ -31,12 +27,9 @@ State lives in the DOM itself, not JavaScript memory:
 
 ### Three-Tier Reactivity
 
-1. **CSS Property Reactivity** - Instant visual updates via CSS custom
-   properties (no JS)
-2. **Pub/Sub State Manager** - Cross-component communication via lightweight
-   message bus
-3. **DOM Event Communication** - Component-to-component messaging via custom
-   events
+1. **CSS Property Reactivity** - Instant visual updates via CSS custom properties (no JS)
+2. **Pub/Sub State Manager** - Cross-component communication via lightweight message bus
+3. **DOM Event Communication** - Component-to-component messaging via custom events
 
 ### SSR Component Tag Processing
 
@@ -61,6 +54,7 @@ deno task lint               # Lint code
 # Server & examples
 deno task serve              # Start example server (http://localhost:8080)
 deno task start              # Type check, then start server
+deno task bundle:state       # Bundle state manager for browser
 
 # Additional tools (via VS Code tasks or direct execution)
 deno run --allow-read scripts/audit_css.ts    # Audit CSS usage
@@ -275,6 +269,18 @@ return json({ status: "ok" });
 - Use `--filter` flag with tests to run specific tests
 - Check generated CSS class names for style debugging
 
+## Entry Points
+
+ui-lib provides three different entry points for different use cases:
+
+| Entry Point | Use Case | Key Features |
+|------------|----------|-------------|
+| `mod.ts` | Registry-based SSR with full features | Complete prop helpers, CSS-in-TS, reactive helpers, router, API bindings |
+| `mod-simple.ts` | Direct JSX functions with minimal ceremony | JSX runtime, lightweight state helpers, curated component subset |
+| `mod-ergonomic.ts` | Ergonomic workflows with breakthrough features | Function props, unified API, CSS auto classes, dev tooling |
+
+Choose based on your project needs. Mix and match during prototyping, then converge on one before release.
+
 ## Important Notes
 
 - State management philosophy: State belongs in the DOM, not JavaScript memory
@@ -282,3 +288,4 @@ return json({ status: "ok" });
 - Server-first design, not client-first with SSR bolted on
 - All user input must be escaped for XSS protection
 - Components should be pure functions when possible
+- The main public API is exported from `index.ts` (imported by all mod files)

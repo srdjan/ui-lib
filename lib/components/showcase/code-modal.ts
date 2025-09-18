@@ -30,44 +30,54 @@ export interface CodeModalProps extends ComponentProps {
 /**
  * Code modal component for displaying formatted code
  */
-export const CodeModal = defineComponent<CodeModalProps>({
-  name: "code-modal",
-  
-  render: ({ 
-    id, 
-    title = "Code", 
-    code = "", 
-    language = "javascript",
-    config = {}, 
-    class: className,
-    ...props 
-  }) => {
-    const {
-      syntaxHighlighting = true,
-      copyButton = true,
-      formatButton = false,
-      theme = "auto",
-    } = config;
+export const CodeModal = defineComponent<CodeModalProps>(
+  "code-modal",
+  {
+    render: ({
+      id,
+      title = "Code",
+      code = "",
+      language = "javascript",
+      config = {},
+      class: className,
+      ...props
+    }) => {
+      const {
+        syntaxHighlighting = true,
+        copyButton = true,
+        formatButton = false,
+        theme = "auto",
+      } = config;
 
-    const modalId = `code-modal-${id}`;
-    const codeId = `code-${id}`;
+      const modalId = `code-modal-${id}`;
+      const codeId = `code-${id}`;
 
-    return /*html*/ `
-      <div id="${modalId}" class="modal-overlay code-modal ${className ?? ""}" ${Object.entries(props).map(([k, v]) => `${k}="${v}"`).join(" ")}>
+      return /*html*/ `
+      <div id="${modalId}" class="modal-overlay code-modal ${
+        className ?? ""
+      }" ${Object.entries(props).map(([k, v]) => `${k}="${v}"`).join(" ")}>
         <div class="modal-content">
           <div class="modal-header">
             <h3 class="modal-title">${title}</h3>
             <div class="modal-actions">
-              ${formatButton ? `
+              ${
+        formatButton
+          ? `
                 <button onclick="window.uiLibCodeModal?.format('${codeId}')" class="modal-action-btn">
                   🎨 Format
                 </button>
-              ` : ""}
-              ${copyButton ? `
+              `
+          : ""
+      }
+              ${
+        copyButton
+          ? `
                 <button onclick="window.uiLibCodeModal?.copy('${codeId}')" class="modal-action-btn">
                   📋 Copy
                 </button>
-              ` : ""}
+              `
+          : ""
+      }
               <button onclick="window.uiLibCodeModal?.close('${modalId}')" class="modal-close-btn">
                 ✕
               </button>
@@ -76,7 +86,9 @@ export const CodeModal = defineComponent<CodeModalProps>({
           
           <div class="modal-body">
             <div class="code-container">
-              <pre class="code-content ${syntaxHighlighting ? `language-${language}` : ""}"><code id="${codeId}">${code || "Loading..."}</code></pre>
+              <pre class="code-content ${
+        syntaxHighlighting ? `language-${language}` : ""
+      }"><code id="${codeId}">${code || "Loading..."}</code></pre>
             </div>
           </div>
           
@@ -294,13 +306,13 @@ export const CodeModal = defineComponent<CodeModalProps>({
         }
       </style>
     `;
-  },
+    },
 
-  /**
-   * Generate client-side JavaScript for code modal functionality
-   */
-  clientScript: () => {
-    return `
+    /**
+     * Generate client-side JavaScript for code modal functionality
+     */
+    clientScript: () => {
+      return `
 // ui-lib Code Modal - Code display and interaction system
 window.uiLibCodeModal = {
   // Show modal
@@ -472,5 +484,6 @@ document.addEventListener("click", (e) => {
   }
 });
     `.trim();
-  }
-});
+    },
+  },
+);

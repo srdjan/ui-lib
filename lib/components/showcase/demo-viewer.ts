@@ -31,7 +31,7 @@ const generateTabs = (demos: readonly string[], defaultDemo?: string) => {
     .map((demo) => {
       const isActive = demo === (defaultDemo ?? demos[0]);
       const activeClass = isActive ? " active" : "";
-      
+
       return `
         <button 
           class="showcase-demo-tab${activeClass}" 
@@ -48,24 +48,31 @@ const generateTabs = (demos: readonly string[], defaultDemo?: string) => {
 /**
  * Interactive demo viewer component
  */
-export const DemoViewer = defineComponent<DemoViewerProps>({
-  name: "demo-viewer",
-  
-  render: ({ demos = [], config = {}, class: className, ...props }) => {
-    const {
-      apiBasePath = "/api/showcase",
-      defaultDemo = demos[0],
-      enableCodeModal = true,
-    } = config;
+export const DemoViewer = defineComponent<DemoViewerProps>(
+  "demo-viewer",
+  {
+    render: ({ demos = [], config = {}, class: className, ...props }) => {
+      const {
+        apiBasePath = "/api/showcase",
+        defaultDemo = demos[0],
+        enableCodeModal = true,
+      } = config;
 
-    const tabsHtml = demos.length > 0 ? generateTabs(demos, defaultDemo) : "";
+      const tabsHtml = demos.length > 0 ? generateTabs(demos, defaultDemo) : "";
 
-    return /*html*/ `
-      <div class="demo-viewer ${className ?? ""}" data-component="demo-viewer" ${Object.entries(props).map(([k, v]) => `${k}="${v}"`).join(" ")}>
-        ${tabsHtml ? `
+      return /*html*/ `
+      <div class="demo-viewer ${
+        className ?? ""
+      }" data-component="demo-viewer" ${
+        Object.entries(props).map(([k, v]) => `${k}="${v}"`).join(" ")
+      }>
+        ${
+        tabsHtml
+          ? `
           <div class="demo-tabs">
             ${tabsHtml}
-            ${demos.includes("playground") ? "" : `
+            ${
+            demos.includes("playground") ? "" : `
               <button 
                 class="showcase-demo-tab" 
                 data-demo="playground"
@@ -73,8 +80,11 @@ export const DemoViewer = defineComponent<DemoViewerProps>({
               >
                 Playground
               </button>
-            `}
-            ${enableCodeModal ? `
+            `
+          }
+            ${
+            enableCodeModal
+              ? `
               <button 
                 class="demo-action-button" 
                 onclick="window.uiLibDemoViewer?.showCodeModal()"
@@ -82,18 +92,26 @@ export const DemoViewer = defineComponent<DemoViewerProps>({
               >
                 📝 Code
               </button>
-            ` : ""}
+            `
+              : ""
+          }
           </div>
-        ` : ""}
+        `
+          : ""
+      }
         
         <div id="demo-content" class="demo-content">
-          ${defaultDemo ? `
+          ${
+        defaultDemo
+          ? `
             <div class="loading">Loading ${defaultDemo} demo...</div>
-          ` : `
+          `
+          : `
             <div class="demo-placeholder">
               <p>Select a demo to view its interactive preview</p>
             </div>
-          `}
+          `
+      }
         </div>
       </div>
 
@@ -161,19 +179,19 @@ export const DemoViewer = defineComponent<DemoViewerProps>({
         }
       </style>
     `;
-  },
+    },
 
-  /**
-   * Generate client-side JavaScript for demo functionality
-   */
-  clientScript: (config: DemoViewerConfig = {}) => {
-    const {
-      apiBasePath = "/api/showcase",
-      enableCodeModal = true,
-      syntaxHighlighting = true,
-    } = config;
+    /**
+     * Generate client-side JavaScript for demo functionality
+     */
+    clientScript: (config: DemoViewerConfig = {}) => {
+      const {
+        apiBasePath = "/api/showcase",
+        enableCodeModal = true,
+        syntaxHighlighting = true,
+      } = config;
 
-    return `
+      return `
 // ui-lib Demo Viewer - Interactive demo loading system
 window.uiLibDemoViewer = {
   currentDemo: null,
@@ -360,5 +378,6 @@ if (document.readyState === "loading") {
   }
 }
     `.trim();
-  }
-});
+    },
+  },
+);

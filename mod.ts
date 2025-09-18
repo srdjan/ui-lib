@@ -1,8 +1,9 @@
 // Public, curated API surface for ui-lib (MVP-stable)
 
 // Core component system
-export { defineComponent } from "./lib/define-component.ts";
 export { renderComponent } from "./lib/component-state.ts";
+export { defineComponent } from "./lib/define-component.ts";
+export type { DefinedComponent } from "./lib/define-component.ts";
 export { h } from "./lib/jsx-runtime.ts";
 
 // Prop helpers (stable set)
@@ -40,6 +41,12 @@ export type {
 
 // Reactive utilities (stable subset)
 export {
+  decorateAttributes,
+  generateClientHx,
+  hx,
+  type HxEnhancementOptions,
+} from "./lib/api-recipes.ts";
+export {
   dispatchEvent,
   getState,
   hxOn,
@@ -48,12 +55,6 @@ export {
   publishState,
   subscribeToState,
 } from "./lib/reactive-helpers.ts";
-export {
-  decorateAttributes,
-  generateClientHx,
-  hx,
-  type HxEnhancementOptions,
-} from "./lib/api-recipes.ts";
 
 // Response helpers
 export { error, html, json, text } from "./lib/response.ts";

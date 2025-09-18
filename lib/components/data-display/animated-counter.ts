@@ -13,10 +13,12 @@ export const easingFunctions = {
   linear: (t: number): number => t,
   easeInQuad: (t: number): number => t * t,
   easeOutQuad: (t: number): number => t * (2 - t),
-  easeInOutQuad: (t: number): number => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t,
+  easeInOutQuad: (t: number): number =>
+    t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t,
   easeInCubic: (t: number): number => t * t * t,
   easeOutCubic: (t: number): number => (--t) * t * t + 1,
-  easeInOutCubic: (t: number): number => t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1,
+  easeInOutCubic: (t: number): number =>
+    t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1,
 } as const;
 
 /**
@@ -54,32 +56,32 @@ const defaultFormatter = (value: number, decimals = 1, unit = ""): string => {
 /**
  * Animated counter component
  */
-export const AnimatedCounter = defineComponent<AnimatedCounterProps>({
-  name: "animated-counter",
-  
-  render: ({ 
-    from = 0, 
-    to, 
-    unit = "", 
-    decimals = 1,
-    animation = {},
-    class: className,
-    autoStart = true,
-    trigger = "load",
-    ...props 
-  }) => {
-    const {
-      duration = 2000,
-      delay = 0,
-      easing = "easeOutCubic",
-      steps = 60,
-      format = (value) => defaultFormatter(value, decimals, unit),
-    } = animation;
+export const AnimatedCounter = defineComponent<AnimatedCounterProps>(
+  "animated-counter",
+  {
+    render: ({
+      from = 0,
+      to,
+      unit = "",
+      decimals = 1,
+      animation = {},
+      class: className,
+      autoStart = true,
+      trigger = "load",
+      ...props
+    }) => {
+      const {
+        duration = 2000,
+        delay = 0,
+        easing = "easeOutCubic",
+        steps = 60,
+        format = (value) => defaultFormatter(value, decimals, unit),
+      } = animation;
 
-    const counterId = `counter-${Math.random().toString(36).substr(2, 9)}`;
-    const easingName = typeof easing === "string" ? easing : "custom";
+      const counterId = `counter-${Math.random().toString(36).substr(2, 9)}`;
+      const easingName = typeof easing === "string" ? easing : "custom";
 
-    return /*html*/ `
+      return /*html*/ `
       <span 
         id="${counterId}"
         class="animated-counter ${className ?? ""}" 
@@ -114,13 +116,13 @@ export const AnimatedCounter = defineComponent<AnimatedCounterProps>({
         }
       </style>
     `;
-  },
+    },
 
-  /**
-   * Generate client-side JavaScript for counter animation
-   */
-  clientScript: () => {
-    return `
+    /**
+     * Generate client-side JavaScript for counter animation
+     */
+    clientScript: () => {
+      return `
 // ui-lib Animated Counter - Number animation system
 window.uiLibAnimatedCounter = {
   // Easing functions
@@ -336,5 +338,6 @@ observer.observe(document.body, {
   subtree: true
 });
     `.trim();
-  }
-});
+    },
+  },
+);

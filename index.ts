@@ -1,8 +1,9 @@
 // Main exports for ui-lib - DOM-native SSR components library
 
 // Core component system
-export { defineComponent } from "./lib/define-component.ts";
 export { renderComponent } from "./lib/component-state.ts";
+export { defineComponent } from "./lib/define-component.ts";
+export type { DefinedComponent } from "./lib/define-component.ts";
 export { h } from "./lib/jsx-runtime.ts";
 
 // NEW: Complete component library
@@ -33,16 +34,19 @@ export {
 } from "./lib/dom-helpers.ts";
 
 // Functional programming utilities
-export type { Result } from "./lib/result.ts";
 export { err, flatMap, map, mapError, ok } from "./lib/result.ts";
+export type { Result } from "./lib/result.ts";
 
 // SSR utilities
 export { escapeHtml } from "./lib/ssr.ts";
 
 // Type definitions
 export type { ComponentAction } from "./lib/actions.ts";
-export type { ApiMap, GeneratedApiMap } from "./lib/api-generator.ts";
-export type { ApiClientOptions } from "./lib/api-generator.ts";
+export type {
+  ApiClientOptions,
+  ApiMap,
+  GeneratedApiMap,
+} from "./lib/api-generator.ts";
 export type {
   ComponentConfig,
   InferProps,
@@ -129,7 +133,10 @@ export {
 } from "./lib/composition.ts";
 
 // Re-export ButtonGroup for backward compatibility (now in components library)
-export { ButtonGroup, type ButtonGroupProps } from "./lib/components/button/index.ts";
+export {
+  ButtonGroup,
+  type ButtonGroupProps,
+} from "./lib/components/button/index.ts";
 
 // Utility TS types
 export type { PropsOf, UnwrapHelpers } from "./lib/types.ts";
@@ -170,8 +177,8 @@ export {
 export {
   conditionalAction,
   debugReactiveState,
-  type ReactiveEventTarget,
   findClosestComponent,
+  type ReactiveEventTarget,
   type ReactiveScope,
   safeExecute,
 } from "./lib/reactive-helpers.ts";
