@@ -292,9 +292,6 @@ window.uiLibCodeActions = {
   }
 };
 
-// Make global functions available for backwards compatibility
-window.copyCode = window.uiLibCodeActions.copyCode;
-window.formatCode = window.uiLibCodeActions.formatCode;
 `.trim();
 };
 

@@ -88,24 +88,6 @@ defineComponent("todo-list", {
   },
 });
 
-// Export JSX function for backwards compatibility and direct use
-export function TodoList({
-  todos,
-  filter,
-  loading = false,
-}: {
-  todos: readonly Todo[];
-  filter: TodoFilter;
-  loading?: boolean;
-}) {
-  return (
-    <todo-list
-      todos={JSON.stringify(todos)}
-      filter={JSON.stringify(filter)}
-      loading={loading ? "true" : "false"}
-    />
-  );
-}
 
 function safeParse<T>(value: string, fallback: T): T {
   if (!value) return fallback;

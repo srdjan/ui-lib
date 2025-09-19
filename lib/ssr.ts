@@ -6,7 +6,6 @@ export type RawHTML = { __raw_html: string };
 
 export const raw = (html: string): RawHTML => ({ __raw_html: html });
 
-// Re-export escape as escapeHtml for API compatibility
 export const escapeHtml = escape;
 
 export function html(

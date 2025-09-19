@@ -48,26 +48,25 @@ deno task bundle:state  # Emit dist/ui-lib-state.js for browser progressive enha
 Let's create a simple greeting component:
 
 ```tsx
-import { defineComponent, h } from "ui-lib";
+import { defineComponent, string } from "ui-lib";
 
-const Greeting = defineComponent({
-  name: "greeting",
+defineComponent("greeting", {
   styles: {
     padding: "2rem",
     backgroundColor: "#f0f0f0",
     borderRadius: "8px",
     textAlign: "center",
   },
-  render: ({ name = "World" }) => (
+  render: ({ name = string("World") }) => `
     <div class="greeting">
-      <h1>Hello, {name}!</h1>
+      <h1>Hello, ${name}!</h1>
       <p>Welcome to ui-lib</p>
     </div>
-  ),
+  `,
 });
 
 // Use the component
-const html = <Greeting name="Developer" />;
+const html = renderComponent("greeting", { name: "Developer" });
 console.log(html);
 ```
 
@@ -76,33 +75,89 @@ console.log(html);
 ui-lib provides type-safe prop helpers that eliminate boilerplate:
 
 ```tsx
-import { array, boolean, defineComponent, h, number, string } from "ui-lib";
+import { array, boolean, defineComponent, number, string } from "ui-lib";
 
-const TodoList = defineComponent({
-  name: "todo-list",
-  render: (
+defineComponent("todo-list", {
+  render: ({
     title = string("My Todos"),
     items = array<string>([]),
     showCompleted = boolean(true),
     maxItems = number(10),
-  ) => (
-    <div class="todo-list">
-      <h2>{title}</h2>
-      <ul>
-        {items.slice(0, maxItems).map((item) => <li>{item}</li>)}
-      </ul>
-      {showCompleted && <p>Showing completed items</p>}
-    </div>
-  ),
+  }) => {
+    const itemsToShow = items.slice(0, maxItems);
+    const itemsHtml = itemsToShow.map(item => `<li>${item}</li>`).join('');
+
+    return `
+      <div class="todo-list">
+        <h2>${title}</h2>
+        <ul>${itemsHtml}</ul>
+        ${showCompleted ? '<p>Showing completed items</p>' : ''}
+      </div>
+    `;
+  },
 });
 
-// Type-safe usage
-<TodoList
-  title="Shopping List"
-  items={["Milk", "Bread", "Eggs"]}
-  maxItems={5}
-/>;
+// Usage
+const html = renderComponent("todo-list", {
+  title: "Shopping List",
+  items: '["Milk", "Bread", "Eggs"]',
+  maxItems: "5"
+});
 ```
+
+## API Integration
+
+Integrate server endpoints using the `api` property with the `hx()` wrapper for complete HTMX configuration:
+
+```tsx
+import { defineComponent, hx, string } from "ui-lib";
+
+defineComponent("interactive-button", {
+  api: {
+    like: ["POST", "/api/posts/:id/like", async (req, { id }) => {
+      // Server handler for liking a post
+      return new Response("Liked!");
+    }],
+    share: ["POST", "/api/posts/:id/share", async (req, { id }) => {
+      // Server handler for sharing a post
+      return new Response("Shared!");
+    }],
+  },
+  render: ({
+    postId = string(),
+    likes = string("0")
+  }, api) => {
+    const likeAttrs = api?.like?.(postId, hx({
+      target: "#like-count",
+      swap: "innerHTML",
+      trigger: "click"
+    })) || "";
+
+    const shareAttrs = api?.share?.(postId, hx({
+      target: "#share-status",
+      swap: "innerHTML",
+      confirm: "Share this post?"
+    })) || "";
+
+    return `
+      <div class="post-actions">
+        <button ${likeAttrs}>❤️ <span id="like-count">${likes}</span></button>
+        <button ${shareAttrs}>📤 Share</button>
+        <div id="share-status"></div>
+      </div>
+    `;
+  },
+});
+```
+
+The `hx()` wrapper supports all HTMX configuration options:
+- `target`: Element to update
+- `swap`: How to replace content (innerHTML, outerHTML, etc.)
+- `confirm`: Show confirmation dialog
+- `trigger`: When to send the request
+- `indicator`: Loading indicator
+- `vals`: Additional form data
+- `headers`: Custom HTTP headers
 
 ## Styling Components
 
@@ -111,10 +166,9 @@ const TodoList = defineComponent({
 Define styles directly in TypeScript with full type safety:
 
 ```tsx
-import { css, defineComponent, h } from "ui-lib";
+import { css, defineComponent, string } from "ui-lib";
 
-const StyledCard = defineComponent({
-  name: "styled-card",
+defineComponent("styled-card", {
   styles: css({
     padding: "1.5rem",
     backgroundColor: "white",
@@ -125,7 +179,7 @@ const StyledCard = defineComponent({
       transform: "translateY(-2px)",
     },
   }),
-  render: ({ children }) => <div class="styled-card">{children}</div>,
+  render: ({ children = string() }) => `<div class="styled-card">${children}</div>`,
 });
 ```
 

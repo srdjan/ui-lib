@@ -4,10 +4,14 @@
  */
 
 import { Button, Input } from "../../../mod-simple.ts";
-import { defineComponent, h, string } from "../../../mod.ts";
+import { defineComponent, hx, string } from "../../../mod.ts";
 import type { Todo } from "../api/types.ts";
 
 defineComponent("todo-form", {
+  api: {
+    createTodo: ["POST", "/api/todos", () => new Response()],
+    updateTodo: ["PUT", "/api/todos/:id", () => new Response()],
+  },
   styles: `
     .todo-form {
       background: white;
@@ -53,102 +57,86 @@ defineComponent("todo-form", {
     actionUrl = string("/api/todos"),
     method = string("POST"),
     onCancel = string(""),
-  }) => {
+  }, api) => {
     const parsedTodo = parseOptionalTodo(typeof todo === "string" ? todo : "");
     const normalizedMethod = method === "PUT" ? "PUT" : "POST";
     const cancelHook = typeof onCancel === "string" ? onCancel : undefined;
     const isEditing = Boolean(parsedTodo);
 
-    return (
+    // Generate HTMX attributes for form submission
+    const formAttrs = isEditing && parsedTodo
+      ? api?.updateTodo?.(parsedTodo.id, hx({
+          target: "#todo-list",
+          swap: "innerHTML",
+          trigger: "submit"
+        })) || ""
+      : api?.createTodo?.(hx({
+          target: "#todo-list",
+          swap: "innerHTML",
+          trigger: "submit"
+        })) || "";
+
+    return `
       <div class="todo-form">
         <form
-          hx-post={normalizedMethod === "POST" ? actionUrl : undefined}
-          hx-put={normalizedMethod === "PUT" ? actionUrl : undefined}
-          hx-target="#todo-list"
-          hx-swap="innerHTML"
-          hx-on--after-request="this.reset()"
+          ${formAttrs}
+          onsubmit="setTimeout(() => this.reset(), 100)"
         >
-          <input type="hidden" name="user" value={userId} />
-          {isEditing && parsedTodo && (
-            <input type="hidden" name="id" value={parsedTodo.id} />
-          )}
+          <input type="hidden" name="user" value="${userId}" />
+          ${isEditing && parsedTodo ? `<input type="hidden" name="id" value="${parsedTodo.id}" />` : ""}
 
           <div class="form-group">
-            <Input
+            <input
               name="text"
+              class="todo-input"
               placeholder="What needs to be done?"
-              value={parsedTodo?.text || ""}
-              required={true}
-              className="todo-input"
+              value="${parsedTodo?.text || ""}"
+              required
+              style="width: 100%; padding: 12px; font-size: 16px; border: 1px solid #d1d5db; border-radius: 6px;"
             />
           </div>
 
           <div class="form-group">
             <select name="priority" class="priority-select" required>
               <option value="">Select priority</option>
-              <option value="low" selected={parsedTodo?.priority === "low"}>
+              <option value="low" ${parsedTodo?.priority === "low" ? "selected" : ""}>
                 Low Priority
               </option>
-              <option
-                value="medium"
-                selected={parsedTodo?.priority === "medium"}
-              >
+              <option value="medium" ${parsedTodo?.priority === "medium" ? "selected" : ""}>
                 Medium Priority
               </option>
-              <option value="high" selected={parsedTodo?.priority === "high"}>
+              <option value="high" ${parsedTodo?.priority === "high" ? "selected" : ""}>
                 High Priority
               </option>
             </select>
           </div>
 
           <div class="form-actions">
-            <Button
+            <button
               type="submit"
-              variant="primary"
+              class="btn btn-primary"
+              style="padding: 0.75rem 1.5rem; background: #3b82f6; color: white; border: none; border-radius: 6px; font-weight: 500; cursor: pointer;"
             >
-              {isEditing ? "Update Todo" : "Add Todo"}
-            </Button>
+              ${isEditing ? "Update Todo" : "Add Todo"}
+            </button>
 
-            {cancelHook && (
-              <Button
+            ${cancelHook ? `
+              <button
                 type="button"
-                variant="ghost"
-                onClick={cancelHook}
+                class="btn btn-ghost"
+                onclick="${cancelHook}"
+                style="padding: 0.75rem 1.5rem; background: transparent; color: #6b7280; border: 1px solid #d1d5db; border-radius: 6px; font-weight: 500; cursor: pointer;"
               >
                 Cancel
-              </Button>
-            )}
+              </button>
+            ` : ""}
           </div>
         </form>
       </div>
-    );
+    `;
   },
 });
 
-// Export JSX function for backwards compatibility and direct use
-export function TodoForm({
-  todo,
-  userId,
-  actionUrl = "/api/todos",
-  method = "POST",
-  onCancel,
-}: {
-  todo?: Todo;
-  userId: string;
-  actionUrl?: string;
-  method?: "POST" | "PUT";
-  onCancel?: string;
-}) {
-  return (
-    <todo-form
-      todo={todo ? JSON.stringify(todo) : undefined}
-      userId={userId}
-      actionUrl={actionUrl}
-      method={method}
-      onCancel={onCancel}
-    />
-  );
-}
 
 function parseOptionalTodo(value: string): Todo | undefined {
   if (!value) return undefined;

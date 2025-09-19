@@ -307,11 +307,3 @@ export function extractTypedValues<T extends Record<string, unknown>>(
   return result;
 }
 
-// Re-export for backward compatibility with enhanced features
-export {
-  typedArray as array2,
-  typedBoolean as boolean2,
-  typedNumber as number2,
-  typedObject as object2,
-  typedString as string2,
-};

@@ -3,13 +3,17 @@
  * Individual todo item with actions and styling using defineComponent
  */
 
-import { defineComponent } from "../../../lib/define-component.ts";
+import { defineComponent, hx } from "../../../mod.ts";
 import { string, boolean } from "../../../lib/prop-helpers.ts";
 import { h } from "../../../lib/jsx-runtime.ts";
 import { Button } from "../../../mod-simple.ts";
 import type { Todo } from "../api/types.ts";
 
 defineComponent("todo-item", {
+  api: {
+    toggleTodo: ["POST", "/api/todos/:id/toggle", () => new Response()],
+    deleteTodo: ["DELETE", "/api/todos/:id", () => new Response()],
+  },
   styles: `
     .todo-item {
       display: flex;
@@ -109,7 +113,7 @@ defineComponent("todo-item", {
   render: ({
     todo = string(""),
     showActions = boolean(true),
-  }) => {
+  }, api) => {
     const parsedTodo = parseTodo(typeof todo === "string" ? todo : "");
     const priorityColors = {
       low: "#22c55e",
@@ -117,76 +121,67 @@ defineComponent("todo-item", {
       high: "#ef4444",
     };
 
-    return (
-      <div
-        class={`todo-item ${parsedTodo.completed ? "completed" : ""}`}
-        id={`todo-${parsedTodo.id}`}
-      >
+    // Generate HTMX attributes for actions
+    const toggleAttrs = api?.toggleTodo?.(parsedTodo.id, hx({
+      target: `#todo-${parsedTodo.id}`,
+      swap: "outerHTML"
+    })) || "";
+
+    const deleteAttrs = api?.deleteTodo?.(parsedTodo.id, hx({
+      target: `#todo-${parsedTodo.id}`,
+      swap: "outerHTML",
+      confirm: "Are you sure you want to delete this todo?"
+    })) || "";
+
+    return `
+      <div class="todo-item ${parsedTodo.completed ? "completed" : ""}" id="todo-${parsedTodo.id}">
         <div class="todo-content">
           <input
             type="checkbox"
-            checked={parsedTodo.completed}
-            hx-post={`/api/todos/${parsedTodo.id}/toggle`}
-            hx-target={`#todo-${parsedTodo.id}`}
-            hx-swap="outerHTML"
+            ${parsedTodo.completed ? "checked" : ""}
+            ${toggleAttrs}
           />
 
           <div class="todo-details">
-            <span class="todo-text">{parsedTodo.text}</span>
+            <span class="todo-text">${parsedTodo.text}</span>
             <div class="todo-meta">
               <span
                 class="priority-badge"
-                style={`background-color: ${
-                  priorityColors[parsedTodo.priority]
-                }`}
+                style="background-color: ${priorityColors[parsedTodo.priority]}"
               >
-                {parsedTodo.priority}
+                ${parsedTodo.priority}
               </span>
               <span class="todo-date">
-                {new Date(parsedTodo.createdAt).toLocaleDateString()}
+                ${new Date(parsedTodo.createdAt).toLocaleDateString()}
               </span>
             </div>
           </div>
         </div>
 
-        {(typeof showActions === "boolean" ? showActions : true) && (
+        ${(typeof showActions === "boolean" ? showActions : true) ? `
           <div class="todo-actions">
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={`editTodo('${parsedTodo.id}')`}
+            <button
+              type="button"
+              class="btn btn-sm btn-ghost"
+              onclick="editTodo('${parsedTodo.id}')"
             >
               Edit
-            </Button>
+            </button>
 
             <button
               type="button"
               class="delete-btn"
-              hx-delete={`/api/todos/${parsedTodo.id}`}
-              hx-target={`#todo-${parsedTodo.id}`}
-              hx-swap="outerHTML"
-              hx-confirm="Are you sure you want to delete this todo?"
+              ${deleteAttrs}
             >
               Delete
             </button>
           </div>
-        )}
+        ` : ""}
       </div>
-    );
+    `;
   },
 });
 
-// Export JSX function for backwards compatibility and direct use
-export function TodoItem(
-  { todo, showActions = true }: { todo: Todo; showActions?: boolean },
-) {
-  return (
-    <todo-item
-      todo={JSON.stringify(todo)}
-      showActions={showActions ? "true" : "false"}
-    />
-  );
-}
 
 const FALLBACK_TODO: Todo = {
   id: "todo-fallback",

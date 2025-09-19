@@ -4,19 +4,16 @@
 export * from "./cart-manager.ts";
 export * from "./theme-manager.ts";
 
-// Export common pattern types
+// Export common pattern types (only from their actual sources)
 export type {
   CartItem,
   CartState,
   CartAction,
   CartManagerConfig,
-  ThemeConfig,
-  ThemeState,
-  ThemeManagerConfig,
 } from "./cart-manager.ts";
 
 export type {
-  ThemeConfig as Theme,
+  ThemeConfig,
   ThemeState,
   ThemeManagerConfig,
 } from "./theme-manager.ts";

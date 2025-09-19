@@ -197,7 +197,7 @@ export class ThemeManager {
 
     Object.entries(properties).forEach(([property, value]) => {
       const cssProperty = property.startsWith("--") ? property : `--${property}`;
-      target.style.setProperty(cssProperty, value);
+      (target as HTMLElement).style.setProperty(cssProperty, value);
     });
   }
 
@@ -262,7 +262,7 @@ window.uiLibThemeManager = {
     
     Object.entries(theme.properties).forEach(([property, value]) => {
       const cssProperty = property.startsWith("--") ? property : "--" + property;
-      target.style.setProperty(cssProperty, value);
+      (target as HTMLElement).style.setProperty(cssProperty, value);
     });
     
     this.currentTheme = themeName;

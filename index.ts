@@ -45,14 +45,18 @@ export type { ComponentAction } from "./lib/actions.ts";
 export type {
   ApiClientOptions,
   ApiMap,
-  GeneratedApiMap,
 } from "./lib/api-generator.ts";
+export type {
+  HxActionMap,
+  HxEnhancementOptions,
+} from "./lib/api-recipes.ts";
 export type {
   ComponentConfig,
 } from "./lib/define-component.ts";
 
-// Re-export minimal API helpers
-export { parseProps, registerComponentApi } from "./lib/define-component.ts";
+// Re-export minimal API helpers and enhanced HX functions
+export { registerComponentApi } from "./lib/define-component.ts";
+export { generateClientHx, hx } from "./lib/api-recipes.ts";
 
 // Import JSX types to make them globally available
 import "./lib/jsx.d.ts";
@@ -89,13 +93,7 @@ export {
 
 // Enhanced prop helpers (Phase 1)
 export {
-  array2,
-  boolean2,
   isTypedPropHelper,
-  number2,
-  object2,
-  // Compatibility exports
-  string2,
   typedArray,
   typedBoolean,
   typedNumber,
@@ -132,11 +130,6 @@ export {
   type NavItem,
 } from "./lib/composition.ts";
 
-// Re-export ButtonGroup for backward compatibility (now in components library)
-export {
-  ButtonGroup,
-  type ButtonGroupProps,
-} from "./lib/components/button/index.ts";
 
 // Utility TS types
 export type { PropsOf, UnwrapHelpers } from "./lib/types.ts";

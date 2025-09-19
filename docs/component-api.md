@@ -25,8 +25,7 @@ defineComponent(config: ComponentConfig): Component
 #### Example
 
 ```tsx
-const MyComponent = defineComponent({
-  name: "my-component",
+const MyComponent = defineComponent("my-component", {
   styles: {
     padding: "1rem",
     backgroundColor: "white",
@@ -40,6 +39,57 @@ const MyComponent = defineComponent({
 });
 ```
 
+#### API Property
+
+The `api` property allows you to define server endpoints that automatically generate HTMX attributes.
+All HTMX functionality is encapsulated within the API property using the `hx()` wrapper:
+
+```tsx
+import { defineComponent, hx, string } from "ui-lib";
+
+defineComponent("user-card", {
+  api: {
+    updateUser: ["PUT", "/api/users/:id", updateHandler],
+    deleteUser: ["DELETE", "/api/users/:id", deleteHandler],
+  },
+  render: ({ id = string(), name = string() }, api) => {
+    const updateAttrs = api?.updateUser?.(id, hx({
+      target: "#user-list",
+      swap: "outerHTML"
+    })) || "";
+
+    const deleteAttrs = api?.deleteUser?.(id, hx({
+      target: "#user-list",
+      swap: "outerHTML",
+      confirm: "Are you sure you want to delete this user?"
+    })) || "";
+
+    return `
+      <div class="user-card" id="user-${id}">
+        <h3>${name}</h3>
+        <button ${updateAttrs}>Edit</button>
+        <button ${deleteAttrs}>Delete</button>
+      </div>
+    `;
+  },
+});
+```
+
+**API Definition Format**: `[method, path, handler]`
+- `method`: HTTP method (GET, POST, PUT, PATCH, DELETE)
+- `path`: URL path with optional parameters (`:id`)
+- `handler`: Server-side request handler function
+
+**hx() Wrapper Options**:
+- `target`: Element to update with response
+- `swap`: How to swap content (innerHTML, outerHTML, etc.)
+- `confirm`: Confirmation message before request
+- `trigger`: When to trigger the request
+- `indicator`: Loading indicator element
+- `vals`: Additional values to send
+- `headers`: Custom headers
+- `include`: Form elements to include
+
 ### Prop Helpers
 
 Type-safe prop helpers with default values and validation.
@@ -47,55 +97,55 @@ Type-safe prop helpers with default values and validation.
 #### string(defaultValue?: string)
 
 ```tsx
-const Component = defineComponent({
-  render: (
+defineComponent("my-component", {
+  render: ({
     name = string("Default"),
     title = string(), // Optional string
-  ) => <div>...</div>,
+  }) => <div>...</div>,
 });
 ```
 
 #### number(defaultValue?: number)
 
 ```tsx
-const Component = defineComponent({
-  render: (
+defineComponent("counter", {
+  render: ({
     count = number(0),
     max = number(100),
-  ) => <div>...</div>,
+  }) => <div>...</div>,
 });
 ```
 
 #### boolean(defaultValue?: boolean)
 
 ```tsx
-const Component = defineComponent({
-  render: (
+defineComponent("toggle", {
+  render: ({
     isActive = boolean(false),
     showDetails = boolean(true),
-  ) => <div>...</div>,
+  }) => <div>...</div>,
 });
 ```
 
 #### array<T>(defaultValue?: T[])
 
 ```tsx
-const Component = defineComponent({
-  render: (
+defineComponent("list", {
+  render: ({
     items = array<string>([]),
     tags = array<{ id: number; name: string }>([]),
-  ) => <div>...</div>,
+  }) => <div>...</div>,
 });
 ```
 
 #### object<T>(defaultValue?: T)
 
 ```tsx
-const Component = defineComponent({
-  render: (
+defineComponent("settings", {
+  render: ({
     config = object<Config>({ theme: "light" }),
     user = object<User>(),
-  ) => <div>...</div>,
+  }) => <div>...</div>,
 });
 ```
 
@@ -643,21 +693,49 @@ const attrs = client.toggle("42", { optimistic: true });
 
 ### generateClientHx & hx
 
-Wraps `generateClientApi` so attributes are rendered as a single string and can
-be decorated with common HTMX options.
+The `generateClientHx` function is used internally by `defineComponent` to create enhanced
+API functions that return formatted HTMX attribute strings. The `hx()` wrapper allows
+you to configure all HTMX behavior declaratively.
 
 ```typescript
+import { generateClientHx, hx } from "ui-lib";
+
+// API definitions
+const api = {
+  toggle: ["PATCH", "/api/todos/:id/toggle", handler],
+  delete: ["DELETE", "/api/todos/:id", handler],
+};
+
+// Generate enhanced client functions
 const actions = generateClientHx(api, { target: "#main" });
 
-// Embed in templates or JSX string output
+// Use in templates with hx() configuration
 const toggleAttrs = actions.toggle(
-  "42",
-  { optimistic: true },
-  hx({ indicator: "#spinner", swap: "outerHTML" }),
+  "42", // path parameter
+  { optimistic: true }, // payload data
+  hx({ // HTMX configuration
+    indicator: "#spinner",
+    swap: "outerHTML",
+    confirm: "Are you sure?",
+    trigger: "click"
+  })
 );
 
+// Inject into HTML templates
 const buttonHtml = `<button ${toggleAttrs}>Toggle</button>`;
 ```
+
+**hx() Options**:
+- `target`: Element selector to update
+- `swap`: Content swap method (innerHTML, outerHTML, etc.)
+- `confirm`: Confirmation dialog message
+- `trigger`: Event that triggers the request
+- `indicator`: Loading indicator element
+- `disable`: Disable element during request
+- `vals`: Additional form values
+- `headers`: Custom request headers
+- `include`: Additional form elements to include
+- `pushUrl`: Update browser URL
 
 ## TypeScript Types
 

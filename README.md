@@ -45,18 +45,20 @@ deno task bundle:state # emits dist/ui-lib-state.js for browser hydration helper
 ### Basic Usage
 
 ```tsx
-import { defineComponent, h } from "ui-lib";
+import { defineComponent, h, renderComponent, string } from "ui-lib";
 
 // Define a component
-const Card = defineComponent({
-  name: "card",
+defineComponent("card", {
   styles: {
     padding: "1rem",
     borderRadius: "0.5rem",
     backgroundColor: "white",
     boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
   },
-  render: ({ title, content }) => (
+  render: ({
+    title = string("Title"),
+    content = string("Content")
+  }) => (
     <div class="card">
       <h2>{title}</h2>
       <p>{content}</p>
@@ -65,21 +67,20 @@ const Card = defineComponent({
 });
 
 // Use it
-const html = <Card title="Hello" content="World" />;
+const html = renderComponent("card", { title: "Hello", content: "World" });
 ```
 
 ### With Function-Style Props
 
 ```tsx
-import { boolean, defineComponent, number, string } from "ui-lib";
+import { boolean, defineComponent, h, number, renderComponent, string } from "ui-lib";
 
-const Counter = defineComponent({
-  name: "counter",
-  render: (
+defineComponent("counter", {
+  render: ({
     label = string("Count"),
     value = number(0),
     disabled = boolean(false),
-  ) => (
+  }) => (
     <div class="counter">
       <span>{label}: {value}</span>
       <button disabled={disabled}>Increment</button>
@@ -88,7 +89,7 @@ const Counter = defineComponent({
 });
 
 // Type-safe usage
-<Counter label="Items" value={5} />;
+const html = renderComponent("counter", { label: "Items", value: "5" });
 ```
 
 ### Using Built-in Components
@@ -111,25 +112,52 @@ const Page = () => (
 );
 ```
 
-### HTMX Ergonomics
+### API Integration
 
 ```tsx
-import { del, generateClientHx, hx, patch } from "ui-lib";
+import { defineComponent, hx, string } from "ui-lib";
 
-const api = {
-  toggle: patch("/api/todos/:id/toggle", toggleHandler),
-  remove: del("/api/todos/:id", deleteHandler),
-};
+defineComponent("todo-item", {
+  api: {
+    toggle: ["PATCH", "/api/todos/:id/toggle", async (req, { id }) => {
+      // Server handler implementation
+      return new Response("OK");
+    }],
+    remove: ["DELETE", "/api/todos/:id", async (req, { id }) => {
+      // Server handler implementation
+      return new Response("OK");
+    }],
+  },
+  render: ({
+    id = string(),
+    text = string(),
+    done = string("false")
+  }, api) => {
+    const toggleAttrs = api?.toggle?.(id, hx({
+      target: "#todo-list",
+      swap: "outerHTML"
+    })) || "";
 
-const actions = generateClientHx(api, { target: "#todo-list" });
+    const removeAttrs = api?.remove?.(id, hx({
+      target: "#todo-list",
+      swap: "outerHTML",
+      confirm: "Are you sure?"
+    })) || "";
 
-const todoButton = `<button ${
-  actions.toggle("42", { optimistic: true }, hx({ indicator: "#spinner" }))
-}>Toggle</button>`;
+    return `
+      <div class="todo-item" id="todo-${id}">
+        <span class="${done === "true" ? "done" : ""}">${text}</span>
+        <button ${toggleAttrs}>Toggle</button>
+        <button ${removeAttrs}>Delete</button>
+      </div>
+    `;
+  },
+});
 ```
 
-Generate HTMX attributes from a single source of truth and opt into common
-enhancements with the `hx(...)` decorator.
+The `api` property automatically generates HTMX attributes for your endpoints.
+Use the `hx()` wrapper to configure target, swap behavior, confirmations, and
+other HTMX options. All HTMX functionality is encapsulated within the API property.
 
 ## Three-Tier Reactivity
 
@@ -138,13 +166,13 @@ enhancements with the `hx(...)` decorator.
 Instant visual updates via CSS custom properties:
 
 ```tsx
-const ThemeToggle = defineComponent({
+defineComponent("theme-toggle", {
   reactive: {
     css: {
       "--theme": "data-theme",
     },
   },
-  render: () => <button onclick="toggleTheme()">Toggle Theme</button>,
+  render: () => `<button onclick="toggleTheme()">Toggle Theme</button>`,
 });
 ```
 
@@ -153,17 +181,17 @@ const ThemeToggle = defineComponent({
 Cross-component state synchronization:
 
 ```tsx
-const Cart = defineComponent({
+defineComponent("cart", {
   reactive: {
     state: {
       "cart-count": "data-count",
     },
   },
-  render: () => (
+  render: () => `
     <div data-count="0">
       Cart Items: <span x-text="count">0</span>
     </div>
-  ),
+  `,
 });
 ```
 
@@ -172,13 +200,13 @@ const Cart = defineComponent({
 Component-to-component messaging:
 
 ```tsx
-const Notification = defineComponent({
+defineComponent("notification", {
   reactive: {
     on: {
       "user:login": "handleLogin",
     },
   },
-  render: () => <div id="notification"></div>,
+  render: () => `<div id="notification"></div>`,
 });
 ```
 

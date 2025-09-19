@@ -5,7 +5,7 @@ export type SSRRegistryEntry = {
   // Method syntax gives bivariant parameter checking, allowing consumers to
   // narrow parameter types in their render functions without conflicts.
   render(props: unknown, api?: unknown): string;
-  api?: Record<string, (...args: unknown[]) => Record<string, unknown>>;
+  api?: Record<string, (...args: unknown[]) => string>;
   apiMap?: Record<string, readonly [string, string, Function]>; // Add apiMap for minimal API
 };
 

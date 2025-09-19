@@ -196,25 +196,3 @@ Deno.test("camelCase to kebab-case conversion works correctly", () => {
   assertEquals(value2, "value2");
 });
 
-Deno.test("typed helpers maintain backward compatibility", async () => {
-  // Import using compatibility exports
-  const { string2, number2, boolean2, array2, object2 } = await import(
-    "./prop-helpers-v2.ts"
-  );
-
-  // Test that they work the same way
-  const s = string2("test");
-  assertEquals(s.defaultValue, "test");
-
-  const n = number2(42);
-  assertEquals(n.defaultValue, 42);
-
-  const b = boolean2(true);
-  assertEquals(b.defaultValue, true);
-
-  const a = array2([1, 2, 3]);
-  assertEquals(a.defaultValue, [1, 2, 3]);
-
-  const o = object2({ key: "value" });
-  assertEquals(o.defaultValue, { key: "value" });
-});

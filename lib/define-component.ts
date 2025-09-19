@@ -1,9 +1,11 @@
 // Minimal defineComponent API with inline prop definitions
 import {
   type ApiMap,
-  generateClientApi,
-  type GeneratedApiMap,
 } from "./api-generator.ts";
+import {
+  generateClientHx,
+  type HxActionMap,
+} from "./api-recipes.ts";
 import { getRegistry } from "./registry.ts";
 import { getConfig } from "./config.ts";
 import {
@@ -16,7 +18,7 @@ import { extractPropDefinitions } from "./prop-helpers.ts";
 import { parseRenderParameters } from "./render-parameter-parser.ts";
 import "./jsx.d.ts";
 
-export type { GeneratedApiMap };
+export type { HxActionMap };
 
 // Minimal types
 export type ClassMap = Record<string, string>;
@@ -40,7 +42,7 @@ export interface ComponentConfig<TProps = any> {
   api?: ApiMap;
   render: (
     props: TProps,
-    api?: GeneratedApiMap,
+    api?: HxActionMap<any>,
     classes?: ClassMap
   ) => string;
 }
@@ -93,7 +95,7 @@ export function defineComponent<TProps = any>(
           // CSS string format: "{ padding: 1rem; }"
           const cssContent = value.trim().replace(/^\{|\}$/g, "").trim();
           unifiedStyles[key] = { cssText: cssContent };
-        } else {
+        } else if (typeof value === "string") {
           unifiedStyles[key] = { cssText: value };
         }
       }
@@ -134,10 +136,10 @@ export function defineComponent<TProps = any>(
     );
   }
 
-  // Generate API client functions if provided
-  let generatedApi: GeneratedApiMap | undefined;
+  // Generate API client functions if provided (using enhanced hx version)
+  let generatedApi: HxActionMap<any> | undefined;
   if (apiMap) {
-    generatedApi = generateClientApi(apiMap);
+    generatedApi = generateClientHx(apiMap);
   }
 
   // Register the component in the SSR registry
@@ -241,7 +243,7 @@ export function registerComponentApi(
 // Simpler component definition for direct use (like defineSimpleComponent)
 export function defineSimpleComponent(
   name: string,
-  render: (props: any, api?: GeneratedApiMap, classes?: ClassMap) => string,
+  render: (props: any, api?: HxActionMap<any>, classes?: ClassMap) => string,
   styles?: Record<string, string>,
   api?: ApiMap
 ): DefinedComponent {

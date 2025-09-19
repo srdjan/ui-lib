@@ -3,10 +3,16 @@
  * Filter and view controls for todo list using defineComponent
  */
 
-import { defineComponent, h, string } from "../../../mod.ts";
+import { defineComponent, hx, string } from "../../../mod.ts";
 import type { TodoFilter, TodoStats } from "../api/types.ts";
 
 defineComponent("todo-filters", {
+  api: {
+    filterAll: ["GET", "/api/todos", () => new Response()],
+    filterActive: ["GET", "/api/todos", () => new Response()],
+    filterCompleted: ["GET", "/api/todos", () => new Response()],
+    filterByPriority: ["GET", "/api/todos", () => new Response()],
+  },
   styles: `
     .todo-filters {
       display: flex;
@@ -85,7 +91,7 @@ defineComponent("todo-filters", {
     currentFilter = string(""),
     todoCount = string(""),
     userId = string(""),
-  }) => {
+  }, api) => {
     const parsedFilter = safeParse<TodoFilter>(
       typeof currentFilter === "string" ? currentFilter : undefined,
       { status: "all" },
@@ -95,47 +101,61 @@ defineComponent("todo-filters", {
       { total: 0, active: 0, completed: 0 },
     );
 
-    return (
+    // Generate HTMX attributes for filter actions
+    const filterAllAttrs = api?.filterAll?.(hx({
+      target: "#todo-list",
+      swap: "innerHTML",
+      vals: { status: "all", user: userId }
+    })) || "";
+
+    const filterActiveAttrs = api?.filterActive?.(hx({
+      target: "#todo-list",
+      swap: "innerHTML",
+      vals: { status: "active", user: userId }
+    })) || "";
+
+    const filterCompletedAttrs = api?.filterCompleted?.(hx({
+      target: "#todo-list",
+      swap: "innerHTML",
+      vals: { status: "completed", user: userId }
+    })) || "";
+
+    const priorityFilterAttrs = api?.filterByPriority?.(hx({
+      target: "#todo-list",
+      swap: "innerHTML",
+      include: "[name='status']",
+      trigger: "change"
+    })) || "";
+
+    return `
       <div class="todo-filters">
         <div class="filter-stats">
-          <span>{parsedStats.active} active</span>
-          <span>{parsedStats.completed} completed</span>
-          <span>{parsedStats.total} total</span>
+          <span>${parsedStats.active} active</span>
+          <span>${parsedStats.completed} completed</span>
+          <span>${parsedStats.total} total</span>
         </div>
 
         <div class="filter-buttons">
           <button
             type="button"
-            class={`filter-btn ${
-              parsedFilter.status === "all" ? "active" : ""
-            }`}
-            hx-get={`/api/todos?status=all&user=${userId}`}
-            hx-target="#todo-list"
-            hx-swap="innerHTML"
+            class="filter-btn ${parsedFilter.status === "all" ? "active" : ""}"
+            ${filterAllAttrs}
           >
             All
           </button>
 
           <button
             type="button"
-            class={`filter-btn ${
-              parsedFilter.status === "active" ? "active" : ""
-            }`}
-            hx-get={`/api/todos?status=active&user=${userId}`}
-            hx-target="#todo-list"
-            hx-swap="innerHTML"
+            class="filter-btn ${parsedFilter.status === "active" ? "active" : ""}"
+            ${filterActiveAttrs}
           >
             Active
           </button>
 
           <button
             type="button"
-            class={`filter-btn ${
-              parsedFilter.status === "completed" ? "active" : ""
-            }`}
-            hx-get={`/api/todos?status=completed&user=${userId}`}
-            hx-target="#todo-list"
-            hx-swap="innerHTML"
+            class="filter-btn ${parsedFilter.status === "completed" ? "active" : ""}"
+            ${filterCompletedAttrs}
           >
             Completed
           </button>
@@ -144,11 +164,8 @@ defineComponent("todo-filters", {
         <div class="priority-filters">
           <select
             class="priority-filter"
-            hx-get={`/api/todos?user=${userId}`}
-            hx-target="#todo-list"
-            hx-swap="innerHTML"
-            hx-include="[name='status']"
             name="priority"
+            ${priorityFilterAttrs}
           >
             <option value="">All priorities</option>
             <option value="high">High priority</option>
@@ -157,7 +174,7 @@ defineComponent("todo-filters", {
           </select>
         </div>
       </div>
-    );
+    `;
   },
 });
 
@@ -170,21 +187,3 @@ function safeParse<T>(value: string | undefined, fallback: T): T {
   }
 }
 
-// Export JSX function for backwards compatibility and direct use
-export function TodoFilters({
-  currentFilter,
-  todoCount,
-  userId,
-}: {
-  currentFilter: TodoFilter;
-  todoCount: TodoStats;
-  userId: string;
-}) {
-  return (
-    <todo-filters
-      currentFilter={JSON.stringify(currentFilter)}
-      todoCount={JSON.stringify(todoCount)}
-      userId={userId}
-    />
-  );
-}

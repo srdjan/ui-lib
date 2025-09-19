@@ -8,12 +8,10 @@ export * from "./htmx-integration.ts";
 // Export utility types
 export type {
   ClipboardResult,
-  ScrollOptions,
-  HTMXRequestOptions,
 } from "./clipboard.ts";
 
 export type {
-  ScrollOptions as SmoothScrollOptions,
+  ScrollOptions,
 } from "./smooth-scroll.ts";
 
 export type {

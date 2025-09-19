@@ -14,7 +14,11 @@ export * from "./actions.ts";
 export * from "./components/index.ts";
 
 // State management patterns (extracted from showcase)
-export * from "./state-patterns/index.ts";
+// Export specific items to avoid conflicts
+export {
+  CartManager,
+  ThemeManager,
+} from "./state-patterns/index.ts";
 
 // Animation utilities (extracted from showcase)
 export * from "./animations/index.ts";
@@ -22,12 +26,8 @@ export * from "./animations/index.ts";
 // Utility functions (extracted from showcase)
 export * from "./utils/index.ts";
 
-// Core types
-export type {
-  ComponentProps,
-  RenderOptions,
-  ServerSideRenderOptions,
-} from "./types.ts";
+// Core types - only export what exists
+export type { PropsOf, UnwrapHelpers } from "./types.ts";
 
 // Component types
 export type {
@@ -38,12 +38,8 @@ export type {
 
 // State management types
 export type {
-  StateManager,
-  CartManager,
   CartItem,
   CartState,
-  ThemeManager,
-  ThemeConfig,
   ThemeState,
 } from "./state-patterns/index.ts";
 
@@ -56,8 +52,6 @@ export type {
 // Utility types
 export type {
   ClipboardResult,
-  ScrollOptions,
-  HTMXRequestOptions,
 } from "./utils/index.ts";
 
 // Action types

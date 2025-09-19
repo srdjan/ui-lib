@@ -11,7 +11,7 @@ export type ComponentVariant =
   | "warning"
   | "error"
   | "info"
-  // Extended to allow component-specific variants to remain compatible with BaseComponentProps
+  // Extended to allow component-specific variants
   | "destructive"
   | "subtle"
   | "solid"
