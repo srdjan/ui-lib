@@ -3,24 +3,10 @@
  * Individual todo item with actions and styling using defineComponent
  */
 
-import { defineComponent, hx, renderComponent } from "../../../mod.ts";
-import { string, boolean } from "../../../lib/prop-helpers.ts";
+import { defineComponent, renderComponent, string, boolean } from "../../../mod.ts";
 import { h } from "../../../lib/jsx-runtime.ts";
 import { Button } from "../../../mod-simple.ts";
 import type { Todo } from "../api/types.ts";
-
-// Helper to parse HTMX attribute strings into JSX props
-function parseHtmxAttrs(attrString: string): Record<string, string> {
-  const attrs: Record<string, string> = {};
-  if (!attrString) return attrs;
-
-  // Simple regex to parse key="value" pairs
-  const matches = attrString.matchAll(/([\w-]+)=["']([^"']*)["']/g);
-  for (const match of matches) {
-    attrs[match[1]] = match[2];
-  }
-  return attrs;
-}
 
 defineComponent("todo-item", {
   api: {
@@ -134,17 +120,7 @@ defineComponent("todo-item", {
       high: "#ef4444",
     };
 
-    // Generate HTMX attributes for actions
-    const toggleAttrs = api?.toggleTodo?.(parsedTodo.id, hx({
-      target: `#todo-${parsedTodo.id}`,
-      swap: "outerHTML"
-    })) || "";
-
-    const deleteAttrs = api?.deleteTodo?.(parsedTodo.id, hx({
-      target: `#todo-${parsedTodo.id}`,
-      swap: "outerHTML",
-      confirm: "Are you sure you want to delete this todo?"
-    })) || "";
+    // No manual HTMX generation needed - onAction will handle it automatically!
 
     return (
       <div
@@ -155,7 +131,7 @@ defineComponent("todo-item", {
           <input
             type="checkbox"
             checked={parsedTodo.completed}
-            {...parseHtmxAttrs(toggleAttrs)}
+            onAction={`api.toggleTodo('${parsedTodo.id}')`}
           />
 
           <div class="todo-details">
@@ -187,7 +163,7 @@ defineComponent("todo-item", {
             <button
               type="button"
               class="delete-btn"
-              {...parseHtmxAttrs(deleteAttrs)}
+              onAction={`api.deleteTodo('${parsedTodo.id}')`}
             >
               Delete
             </button>

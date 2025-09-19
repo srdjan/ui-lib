@@ -4,7 +4,8 @@
  */
 
 import { Button, Input } from "../../../mod-simple.ts";
-import { defineComponent, hx, renderComponent, string } from "../../../mod.ts";
+import { defineComponent, renderComponent, string } from "../../../mod.ts";
+import { h } from "../../../lib/jsx-runtime.ts";
 import type { Todo } from "../api/types.ts";
 
 defineComponent("todo-form", {
@@ -63,23 +64,15 @@ defineComponent("todo-form", {
     const cancelHook = typeof onCancel === "string" ? onCancel : undefined;
     const isEditing = Boolean(parsedTodo);
 
-    // Generate HTMX attributes for form submission
-    const formAttrs = isEditing && parsedTodo
-      ? api?.updateTodo?.(parsedTodo.id, hx({
-          target: "#todo-list",
-          swap: "innerHTML",
-          trigger: "submit"
-        })) || ""
-      : api?.createTodo?.(hx({
-          target: "#todo-list",
-          swap: "innerHTML",
-          trigger: "submit"
-        })) || "";
+    // No manual HTMX generation needed - onAction will handle it automatically!
+    const formAction = isEditing && parsedTodo
+      ? `api.updateTodo('${parsedTodo.id}')`
+      : `api.createTodo()`;
 
     return `
       <div class="todo-form">
         <form
-          ${formAttrs}
+          onAction="${formAction}"
           onsubmit="setTimeout(() => this.reset(), 100)"
         >
           <input type="hidden" name="user" value="${userId}" />

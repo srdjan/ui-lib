@@ -138,21 +138,17 @@ Deno.test("renderComponent passes API creators to render function", () => {
   clearRegistry();
 
   const apiCreators = {
-    increment: () => ({ "hx-post": "/api/increment" }),
-    decrement: () => ({ "hx-post": "/api/decrement" }),
+    increment: () => `hx-post="/api/increment"`,
+    decrement: () => `hx-post="/api/decrement"`,
   };
 
   registerTestComponent("api-counter", {
     api: apiCreators,
     render: (
       _props: unknown,
-      api: Record<string, (...args: unknown[]) => Record<string, unknown>>,
+      api: Record<string, (...args: unknown[]) => string>,
     ) => {
-      const incAttrs = api?.increment
-        ? Object.entries(api.increment()).map(([k, v]) => `${k}="${v}"`).join(
-          " ",
-        )
-        : "";
+      const incAttrs = api?.increment ? api.increment() : "";
       return `<button ${incAttrs}>+</button>`;
     },
   });
@@ -176,7 +172,7 @@ Deno.test("renderComponent handles complex component with all features", () => {
   };
 
   const apiCreators = {
-    save: () => ({ "hx-post": "/api/save" }),
+    save: () => `hx-post="/api/save"`,
   };
 
   registerTestComponent("complex-widget", {
@@ -185,12 +181,10 @@ Deno.test("renderComponent handles complex component with all features", () => {
     api: apiCreators,
     render: (
       props: unknown,
-      api: Record<string, (...args: unknown[]) => Record<string, unknown>>,
+      api: Record<string, (...args: unknown[]) => string>,
     ) => {
       const p = props as { title: unknown; count: unknown };
-      const saveAttrs = api?.save
-        ? Object.entries(api.save()).map(([k, v]) => `${k}="${v}"`).join(" ")
-        : "";
+      const saveAttrs = api?.save ? api.save() : "";
       return `<div class="widget">
         <h3>${p.title}</h3>
         <p>Count: ${p.count}</p>

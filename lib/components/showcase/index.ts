@@ -9,18 +9,18 @@ export * from "./code-actions.ts";
 export type {
   DemoViewerConfig,
   DemoViewerProps,
-  CodeModalConfig,
-  CodeModalProps,
-  CodeActionConfig,
-  CodeActionResult,
 } from "./demo-viewer.ts";
 
 export type {
+  CodeModalConfig,
+  CodeModalProps,
   CodeModalConfig as ModalConfig,
   CodeModalProps as ModalProps,
 } from "./code-modal.ts";
 
 export type {
+  CodeActionConfig,
+  CodeActionResult,
   CodeActionConfig as ActionConfig,
   CodeActionResult as ActionResult,
 } from "./code-actions.ts";

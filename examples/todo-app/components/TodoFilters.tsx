@@ -3,7 +3,7 @@
  * Filter and view controls for todo list using defineComponent
  */
 
-import { defineComponent, hx, renderComponent, string } from "../../../mod.ts";
+import { defineComponent, renderComponent, string } from "../../../mod.ts";
 import type { TodoFilter, TodoStats } from "../api/types.ts";
 
 defineComponent("todo-filters", {
@@ -101,31 +101,11 @@ defineComponent("todo-filters", {
       { total: 0, active: 0, completed: 0 },
     );
 
-    // Generate HTMX attributes for filter actions
-    const filterAllAttrs = api?.filterAll?.(hx({
-      target: "#todo-list",
-      swap: "innerHTML",
-      vals: { status: "all", user: userId }
-    })) || "";
-
-    const filterActiveAttrs = api?.filterActive?.(hx({
-      target: "#todo-list",
-      swap: "innerHTML",
-      vals: { status: "active", user: userId }
-    })) || "";
-
-    const filterCompletedAttrs = api?.filterCompleted?.(hx({
-      target: "#todo-list",
-      swap: "innerHTML",
-      vals: { status: "completed", user: userId }
-    })) || "";
-
-    const priorityFilterAttrs = api?.filterByPriority?.(hx({
-      target: "#todo-list",
-      swap: "innerHTML",
-      include: "[name='status']",
-      trigger: "change"
-    })) || "";
+    // No manual HTMX generation needed - onAction will handle it automatically!
+    const filterAllAction = `api.filterAll()`;
+    const filterActiveAction = `api.filterActive()`;
+    const filterCompletedAction = `api.filterCompleted()`;
+    const priorityFilterAction = `api.filterByPriority()`;
 
     return `
       <div class="todo-filters">
@@ -139,7 +119,7 @@ defineComponent("todo-filters", {
           <button
             type="button"
             class="filter-btn ${parsedFilter.status === "all" ? "active" : ""}"
-            ${filterAllAttrs}
+            onAction="${filterAllAction}"
           >
             All
           </button>
@@ -147,7 +127,7 @@ defineComponent("todo-filters", {
           <button
             type="button"
             class="filter-btn ${parsedFilter.status === "active" ? "active" : ""}"
-            ${filterActiveAttrs}
+            onAction="${filterActiveAction}"
           >
             Active
           </button>
@@ -155,7 +135,7 @@ defineComponent("todo-filters", {
           <button
             type="button"
             class="filter-btn ${parsedFilter.status === "completed" ? "active" : ""}"
-            ${filterCompletedAttrs}
+            onAction="${filterCompletedAction}"
           >
             Completed
           </button>
@@ -165,7 +145,7 @@ defineComponent("todo-filters", {
           <select
             class="priority-filter"
             name="priority"
-            ${priorityFilterAttrs}
+            onAction="${priorityFilterAction}"
           >
             <option value="">All priorities</option>
             <option value="high">High priority</option>

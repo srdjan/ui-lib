@@ -1,6 +1,7 @@
 // Server-side component rendering for DOM-native components
 import { getRegistry } from "./registry.ts";
 import { shouldInjectStyle } from "./style-registry.ts";
+import { setRenderContext, clearRenderContext } from "./jsx-runtime.ts";
 
 // Generate a unique component instance ID
 export function generateComponentId(componentName: string): string {
@@ -33,8 +34,21 @@ export function renderComponent(
     apiCreators = entry.api;
   }
 
-  // Simple render with props and optional API
-  const markup = entry.render(rawProps, apiCreators);
+  // Set up rendering context for JSX runtime onAction support
+  const componentId = generateComponentId(componentName);
+  setRenderContext({
+    apiMap: apiCreators,
+    componentId,
+  });
+
+  let markup = "";
+  try {
+    // Simple render with props and optional API
+    markup = entry.render(rawProps, apiCreators);
+  } finally {
+    // Always clear the context, even if rendering throws
+    clearRenderContext();
+  }
 
   let cssTag = "";
   if (entry.css) {

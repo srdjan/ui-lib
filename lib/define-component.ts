@@ -40,6 +40,7 @@ export interface ComponentConfig<TProps = any> {
   reactive?: ReactiveConfig;
   styles?: StylesInput;
   api?: ApiMap;
+  clientScript?: (config?: any) => string;
   render: (
     props: TProps,
     api?: HxActionMap<any>,

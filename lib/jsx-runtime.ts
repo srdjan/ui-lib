@@ -5,6 +5,7 @@ import { escape } from "./dom-helpers.ts";
 import { getRegistry } from "./registry.ts";
 import { renderComponent } from "./component-state.ts";
 import { normalizeClass, normalizeStyle } from "./jsx-normalize.ts";
+import type { HxActionMap } from "./api-recipes.ts";
 
 const SELF_CLOSING_TAGS = new Set([
   "area",
@@ -22,6 +23,30 @@ const SELF_CLOSING_TAGS = new Set([
   "track",
   "wbr",
 ]);
+
+// Component rendering context for API integration
+interface RenderContext {
+  apiMap?: HxActionMap<any>;
+  componentId?: string;
+}
+
+// Global context stack for nested component rendering
+let contextStack: RenderContext[] = [];
+
+// Set current component context (used by component-state.ts)
+export function setRenderContext(context: RenderContext) {
+  contextStack.push(context);
+}
+
+// Clear current component context
+export function clearRenderContext() {
+  contextStack.pop();
+}
+
+// Get current component context
+function getCurrentContext(): RenderContext | undefined {
+  return contextStack[contextStack.length - 1];
+}
 
 // Type-safe event handler that can accept ComponentAction directly
 type EventHandler = ComponentAction | string;
@@ -131,6 +156,13 @@ export function h(
       if (style) {
         attributes += ` style="${escape(style)}"`;
       }
+    } else if (key === "onAction") {
+      // Special handling for onAction - convert to HTMX attributes
+      if (typeof value === "string") {
+        // Parse the action string to extract HTMX attributes
+        const htmxAttrs = parseActionToHtmx(value);
+        attributes += htmxAttrs;
+      }
     } else if (key.startsWith("on")) {
       let handlerString = "";
 
@@ -214,5 +246,42 @@ function renderActionToString(action: ComponentAction): string {
       return action.actions.map(renderActionToString).join(";");
     default:
       return "";
+  }
+}
+
+// Helper function to parse action strings and convert to HTMX attributes
+function parseActionToHtmx(actionString: string): string {
+  const context = getCurrentContext();
+
+  if (!context?.apiMap) {
+    // No API context available, return empty (graceful degradation)
+    return "";
+  }
+
+  // Parse action calls like "api.methodName(arg1, arg2)"
+  const actionMatch = actionString.match(/api\.(\w+)\(([^)]*)\)/);
+  if (!actionMatch) {
+    // Not a valid API action format
+    return "";
+  }
+
+  const [, methodName, argsString] = actionMatch;
+  const apiMethod = context.apiMap[methodName];
+
+  if (!apiMethod) {
+    // Method not found in API map
+    return "";
+  }
+
+  // Extract arguments - simple parsing for now
+  const args = argsString.split(',').map(arg => arg.trim().replace(/['"]/g, ''));
+
+  try {
+    // Call the API method to generate HTMX attributes
+    const htmxString = apiMethod(...args);
+    return ` ${htmxString}`;
+  } catch (error) {
+    console.warn(`Failed to generate HTMX for action ${actionString}:`, error);
+    return "";
   }
 }
