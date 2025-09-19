@@ -210,7 +210,7 @@ export function defineComponent<TProps = any>(
 // Helper to register component API routes externally
 export function registerComponentApi(
   componentName: string,
-  router: { register: (method: string, path: string, handler: Function) => void }
+  router: { register: (method: string, path: string, handler: (req: Request, params?: Record<string, string>) => Promise<Response> | Response) => void }
 ): void {
   const registry = getRegistry();
   const component = registry[componentName];
@@ -236,7 +236,7 @@ export function registerComponentApi(
       continue;
     }
 
-    router.register(method, path, handler);
+    router.register(method, path, handler as (req: Request, params?: Record<string, string>) => Promise<Response> | Response);
   }
 }
 

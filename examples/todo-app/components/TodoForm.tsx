@@ -4,7 +4,7 @@
  */
 
 import { Button, Input } from "../../../mod-simple.ts";
-import { defineComponent, hx, string } from "../../../mod.ts";
+import { defineComponent, hx, renderComponent, string } from "../../../mod.ts";
 import type { Todo } from "../api/types.ts";
 
 defineComponent("todo-form", {
@@ -136,6 +136,29 @@ defineComponent("todo-form", {
     `;
   },
 });
+
+// Export JSX component for direct use
+export const TodoForm = ({
+  todo,
+  userId,
+  actionUrl = "/api/todos",
+  method = "POST",
+  onCancel
+}: {
+  todo?: string;
+  userId: string;
+  actionUrl?: string;
+  method?: string;
+  onCancel?: string;
+}) => {
+  return renderComponent("todo-form", {
+    todo: todo || "",
+    userId,
+    actionUrl,
+    method,
+    onCancel: onCancel || ""
+  });
+};
 
 
 function parseOptionalTodo(value: string): Todo | undefined {

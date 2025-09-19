@@ -9,13 +9,20 @@
 
 import { h } from "../../lib/simple.tsx";
 import { html, Router } from "../../mod-simple.ts";
+import { renderComponent, registerComponentApi } from "../../mod.ts";
 import { todoAPI } from "./api/index.ts";
 import type { TodoFilter } from "./api/types.ts";
-import { TodoFilters, TodoForm, TodoList } from "./components/index.ts";
+// Import to register components
+import "./components/index.ts";
 
 void h;
 
 const router = new Router();
+
+// Register component APIs with the router
+registerComponentApi("todo-item", router);
+registerComponentApi("todo-form", router);
+registerComponentApi("todo-filters", router);
 
 // Data helpers using functional repository
 import { todoRepository } from "./api/index.ts";
@@ -177,13 +184,22 @@ router.register("GET", "/", (req: Request) => {
 
   const content = (
     <div>
-      <TodoForm userId={currentUser} />
-      <TodoFilters
-        currentFilter={filter}
-        todoCount={stats}
-        userId={currentUser}
-      />
-      <TodoList todos={todos} filter={filter} />
+      <div dangerouslySetInnerHTML={{
+        __html: renderComponent("todo-form", { userId: currentUser })
+      }} />
+      <div dangerouslySetInnerHTML={{
+        __html: renderComponent("todo-filters", {
+          currentFilter: JSON.stringify(filter),
+          todoCount: JSON.stringify(stats),
+          userId: currentUser
+        })
+      }} />
+      <div dangerouslySetInnerHTML={{
+        __html: renderComponent("todo-list", {
+          todos: JSON.stringify(todos),
+          filter: JSON.stringify(filter)
+        })
+      }} />
       <div style="margin-top: 2rem; text-align: center;">
         <button
           type="button"
@@ -260,13 +276,22 @@ router.register("GET", "/home", (req: Request) => {
 
   const fragment = (
     <div>
-      <TodoForm userId={currentUser} />
-      <TodoFilters
-        currentFilter={filter}
-        todoCount={stats}
-        userId={currentUser}
-      />
-      <TodoList todos={todos} filter={filter} />
+      <div dangerouslySetInnerHTML={{
+        __html: renderComponent("todo-form", { userId: currentUser })
+      }} />
+      <div dangerouslySetInnerHTML={{
+        __html: renderComponent("todo-filters", {
+          currentFilter: JSON.stringify(filter),
+          todoCount: JSON.stringify(stats),
+          userId: currentUser
+        })
+      }} />
+      <div dangerouslySetInnerHTML={{
+        __html: renderComponent("todo-list", {
+          todos: JSON.stringify(todos),
+          filter: JSON.stringify(filter)
+        })
+      }} />
       <div style="margin-top: 2rem; text-align: center;">
         <button
           type="button"

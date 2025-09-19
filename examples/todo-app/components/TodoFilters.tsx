@@ -3,7 +3,7 @@
  * Filter and view controls for todo list using defineComponent
  */
 
-import { defineComponent, hx, string } from "../../../mod.ts";
+import { defineComponent, hx, renderComponent, string } from "../../../mod.ts";
 import type { TodoFilter, TodoStats } from "../api/types.ts";
 
 defineComponent("todo-filters", {
@@ -177,6 +177,26 @@ defineComponent("todo-filters", {
     `;
   },
 });
+
+// Export JSX component for direct use
+export const TodoFilters = ({
+  currentFilter,
+  todoCount,
+  userId
+}: {
+  currentFilter: string | object;
+  todoCount: string | object;
+  userId: string;
+}) => {
+  const filterStr = typeof currentFilter === "string" ? currentFilter : JSON.stringify(currentFilter);
+  const countStr = typeof todoCount === "string" ? todoCount : JSON.stringify(todoCount);
+
+  return renderComponent("todo-filters", {
+    currentFilter: filterStr,
+    todoCount: countStr,
+    userId
+  });
+};
 
 function safeParse<T>(value: string | undefined, fallback: T): T {
   if (!value) return fallback;
