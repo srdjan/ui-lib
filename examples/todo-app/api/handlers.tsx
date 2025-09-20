@@ -5,7 +5,7 @@
  * Request handlers for todo operations
  */
 
-import { TodoItem, TodoList } from "../components/index.ts";
+import { Item } from "../../../lib/components/data-display/item.ts";
 import { getRepository } from "./repository-factory.ts";
 import {
   errorResponse,
@@ -14,6 +14,44 @@ import {
   jsonResponse,
 } from "./response.tsx";
 import type { CreateTodoData, TodoFilter, UpdateTodoData } from "./types.ts";
+
+// Helper functions to convert todos to generic components
+function todoToItem(todo: any): string {
+  return Item({
+    id: todo.id,
+    title: todo.text,
+    completed: todo.completed,
+    priority: todo.priority,
+    timestamp: new Date(todo.createdAt).toLocaleDateString(),
+    badges: [{ text: todo.priority, variant: getPriorityVariant(todo.priority) }],
+    icon: `<input type="checkbox" ${todo.completed ? 'checked' : ''} />`,
+    actions: [
+      { text: "Edit", action: `editTodo('${todo.id}')` },
+      { text: "Delete", variant: "danger", action: `deleteTodo('${todo.id}')` },
+    ],
+  });
+}
+
+function getPriorityVariant(priority: string): string {
+  switch (priority) {
+    case "high": return "danger";
+    case "medium": return "warning";
+    case "low": return "success";
+    default: return "neutral";
+  }
+}
+
+function todosToList(todos: readonly any[]): string {
+  if (todos.length === 0) {
+    return `<div style="text-align: center; padding: 2rem; color: #6b7280;">
+      <p>No todos found. Add some todos to get started!</p>
+    </div>`;
+  }
+
+  return `<div style="display: flex; flex-direction: column; gap: 1rem;">
+    ${todos.map(todoToItem).join("")}
+  </div>`;
+}
 
 // Moved shared response helpers to ./response.ts
 
@@ -50,7 +88,7 @@ export const todoAPI = {
 
     if (acceptsHtml) {
       return htmlResponse(
-        TodoList({ todos: todosResult.value, filter }),
+        todosToList(todosResult.value),
       );
     }
 
@@ -67,17 +105,31 @@ export const todoAPI = {
   async createTodo(req: Request): Promise<Response> {
     try {
       const repository = getRepository();
-      const jsonData = await req.json();
+
+      // Handle both JSON and form data
+      let data: any;
+      const contentType = req.headers.get("content-type") || "";
+
+      if (contentType.includes("application/json")) {
+        data = await req.json();
+      } else if (contentType.includes("application/x-www-form-urlencoded")) {
+        const formData = await req.formData();
+        data = Object.fromEntries(formData.entries());
+      } else {
+        // Try form data as fallback
+        const formData = await req.formData();
+        data = Object.fromEntries(formData.entries());
+      }
 
       // Get users and default to first user
       const usersResult = await repository.getUsers();
       if (!usersResult.ok) return handleDatabaseError(usersResult.error);
 
-      const userId = jsonData.user || usersResult.value[0];
+      const userId = data.user || usersResult.value[0];
       const todoData: CreateTodoData = {
         userId,
-        text: jsonData.text || "",
-        priority: jsonData.priority || "medium",
+        text: data.text || "",
+        priority: data.priority || "medium",
         completed: false,
       };
 
@@ -92,7 +144,7 @@ export const todoAPI = {
       const filter: TodoFilter = { status: "all" };
 
       return htmlResponse(
-        TodoList({ todos: todosResult.value, filter }),
+        todosToList(todosResult.value),
       );
     } catch (error) {
       console.error("Error creating todo:", error);
@@ -130,7 +182,7 @@ export const todoAPI = {
       const filter: TodoFilter = { status: "all" };
 
       return htmlResponse(
-        TodoList({ todos: todosResult.value, filter }),
+        todosToList(todosResult.value),
       );
     } catch (error) {
       console.error("Error updating todo:", error);
@@ -158,7 +210,7 @@ export const todoAPI = {
 
     // Return just the updated todo item
     return htmlResponse(
-      TodoItem({ todo: updateResult.value }),
+      todoToItem(updateResult.value),
     );
   },
 
@@ -190,12 +242,7 @@ export const todoAPI = {
     if (!statsResult.ok) return handleDatabaseError(statsResult.error);
 
     return htmlResponse(
-      TodoList({
-        todos: JSON.stringify(todosResult.value),
-        todoCount: JSON.stringify(statsResult.value),
-        currentFilter: JSON.stringify(filter),
-        userId,
-      })
+      todosToList(todosResult.value)
     );
   },
 
@@ -234,7 +281,7 @@ export const todoAPI = {
     const filter: TodoFilter = { status: "all" };
 
     return htmlResponse(
-      TodoList({ todos: todosResult.value, filter }),
+      todosToList(todosResult.value),
     );
   },
 
