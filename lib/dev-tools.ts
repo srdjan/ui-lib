@@ -2,7 +2,6 @@
 // Provides component inspection, performance monitoring, and debugging aids
 
 import { getRegistry } from "./registry.ts";
-import type { ComponentConfig as _ComponentConfig } from "./define-component.ts";
 
 /**
  * Development mode configuration
@@ -34,10 +33,23 @@ export interface ComponentRenderInfo {
 }
 
 /**
- * Global dev tools state
+ * Dev tools state type
  */
-class DevToolsState {
-  private config: DevConfig = {
+type DevToolsState = {
+  readonly config: DevConfig;
+  readonly renderStats: ReadonlyMap<string, ComponentRenderInfo>;
+  readonly renderHistory: readonly {
+    readonly component: string;
+    readonly timestamp: Date;
+    readonly duration: number;
+  }[];
+};
+
+/**
+ * Default dev tools state
+ */
+const createDefaultDevToolsState = (): DevToolsState => ({
+  config: {
     enabled: false,
     componentInspection: false,
     performanceMonitoring: false,
@@ -45,215 +57,319 @@ class DevToolsState {
     accessibilityWarnings: false,
     renderTracking: false,
     verbose: false,
+  },
+  renderStats: new Map(),
+  renderHistory: [],
+});
+
+/**
+ * Pure state update functions
+ */
+const updateConfig = (
+  state: DevToolsState,
+  configUpdate: Partial<DevConfig>,
+): DevToolsState => ({
+  ...state,
+  config: { ...state.config, ...configUpdate },
+});
+
+const getConfig = (state: DevToolsState): DevConfig => ({ ...state.config });
+
+const extractApiEndpoints = (html: string): string[] => {
+  const endpoints: string[] = [];
+  const hxAttributes = [
+    "hx-get",
+    "hx-post",
+    "hx-put",
+    "hx-patch",
+    "hx-delete",
+  ];
+
+  hxAttributes.forEach((attr) => {
+    const regex = new RegExp(`${attr}="([^"]+)"`, "g");
+    let match;
+    while ((match = regex.exec(html)) !== null) {
+      endpoints.push(`${attr.replace("hx-", "").toUpperCase()} ${match[1]}`);
+    }
+  });
+
+  return [...new Set(endpoints)];
+};
+
+const trackRender = (
+  state: DevToolsState,
+  componentName: string,
+  renderTime: number,
+  propsReceived: Record<string, unknown>,
+  propsProcessed: Record<string, unknown>,
+  htmlOutput: string,
+  warnings: string[] = [],
+): DevToolsState => {
+  if (!state.config.enabled || !state.config.renderTracking) return state;
+
+  const existing = state.renderStats.get(componentName);
+  const info: ComponentRenderInfo = {
+    name: componentName,
+    renderTime,
+    propsReceived: { ...propsReceived },
+    propsProcessed: { ...propsProcessed },
+    cssGenerated: htmlOutput.includes("<style>"),
+    apiEndpoints: extractApiEndpoints(htmlOutput),
+    htmlSize: htmlOutput.length,
+    renderCount: (existing?.renderCount || 0) + 1,
+    lastRendered: new Date(),
+    warnings,
   };
 
-  private renderStats = new Map<string, ComponentRenderInfo>();
-  private renderHistory: {
-    component: string;
-    timestamp: Date;
-    duration: number;
-  }[] = [];
+  const newRenderStats = new Map(state.renderStats);
+  newRenderStats.set(componentName, info);
 
-  configure(config: Partial<DevConfig>): void {
-    this.config = { ...this.config, ...config };
+  let newRenderHistory = state.renderHistory;
+  if (state.config.performanceMonitoring) {
+    const historyEntry = {
+      component: componentName,
+      timestamp: new Date(),
+      duration: renderTime,
+    };
 
-    if (this.config.enabled && typeof window !== "undefined") {
-      this.injectDevToolsScript();
+    newRenderHistory = [...state.renderHistory, historyEntry];
+
+    // Keep last 1000 renders
+    if (newRenderHistory.length > 1000) {
+      newRenderHistory = newRenderHistory.slice(-1000);
     }
   }
 
-  getConfig(): DevConfig {
-    return { ...this.config };
+  // Side effects (logging) - kept separate from state updates
+  if (state.config.verbose) {
+    console.log(
+      `🔧 [DevTools] Rendered ${componentName} in ${renderTime.toFixed(2)}ms`,
+      info,
+    );
   }
 
+  if (warnings.length > 0 && state.config.verbose) {
+    console.warn(`⚠️ [DevTools] Warnings for ${componentName}:`, warnings);
+  }
+
+  return {
+    ...state,
+    renderStats: newRenderStats,
+    renderHistory: newRenderHistory,
+  };
+};
+
+const getComponentStats = (
+  state: DevToolsState,
+  componentName?: string,
+): ComponentRenderInfo[] => {
+  if (componentName) {
+    const stats = state.renderStats.get(componentName);
+    return stats ? [stats] : [];
+  }
+  return Array.from(state.renderStats.values());
+};
+
+const getRenderHistory = (
+  state: DevToolsState,
+): readonly {
+  readonly component: string;
+  readonly timestamp: Date;
+  readonly duration: number;
+}[] => [...state.renderHistory];
+
+const getPerformanceReport = (
+  state: DevToolsState,
+): {
+  totalRenders: number;
+  averageRenderTime: number;
+  slowestComponent: { name: string; time: number } | null;
+  fastestComponent: { name: string; time: number } | null;
+  componentsWithWarnings: string[];
+} => {
+  const stats = Array.from(state.renderStats.values());
+  const totalRenders = stats.reduce((sum, stat) => sum + stat.renderCount, 0);
+  const averageRenderTime = stats.length > 0
+    ? stats.reduce((sum, stat) => sum + stat.renderTime, 0) / stats.length
+    : 0;
+
+  let slowest: { name: string; time: number } | null = null;
+  let fastest: { name: string; time: number } | null = null;
+  const componentsWithWarnings: string[] = [];
+
+  stats.forEach((stat) => {
+    if (!slowest || stat.renderTime > slowest.time) {
+      slowest = { name: stat.name, time: stat.renderTime };
+    }
+    if (!fastest || stat.renderTime < fastest.time) {
+      fastest = { name: stat.name, time: stat.renderTime };
+    }
+    if (stat.warnings.length > 0) {
+      componentsWithWarnings.push(stat.name);
+    }
+  });
+
+  return {
+    totalRenders,
+    averageRenderTime,
+    slowestComponent: slowest,
+    fastestComponent: fastest,
+    componentsWithWarnings,
+  };
+};
+
+const clearStats = (state: DevToolsState): DevToolsState => ({
+  ...state,
+  renderStats: new Map(),
+  renderHistory: [],
+});
+
+const injectDevToolsScript = (state: DevToolsState): void => {
+  if (typeof document === "undefined") return;
+
+  // Avoid double injection
+  if (document.getElementById("ui-lib-devtools")) return;
+
+  const script = document.createElement("script");
+  script.id = "ui-lib-devtools";
+  script.innerHTML = `
+    window.__UI_LIB_DEVTOOLS__ = {
+      getStats: () => (${
+    JSON.stringify(Array.from(state.renderStats.entries()))
+  }),
+      getConfig: () => (${JSON.stringify(state.config)}),
+      inspect: (componentName) => {
+        const components = document.querySelectorAll(\`[data-component="\${componentName}"]\`);
+        console.log(\`Found \${components.length} instances of \${componentName}\`, components);
+        components.forEach((el, i) => {
+          console.log(\`Instance \${i + 1}:\`, el);
+          console.log('Props:', el.dataset);
+          console.log('Computed styles:', getComputedStyle(el));
+        });
+      },
+      highlight: (componentName) => {
+        document.querySelectorAll('[data-ui-lib-highlight]').forEach(el => {
+          el.removeAttribute('data-ui-lib-highlight');
+          el.style.outline = '';
+        });
+
+        const components = document.querySelectorAll(\`[data-component="\${componentName}"]\`);
+        components.forEach(el => {
+          el.setAttribute('data-ui-lib-highlight', '');
+          el.style.outline = '2px solid var(--danger)';
+        });
+      },
+      clearHighlights: () => {
+        document.querySelectorAll('[data-ui-lib-highlight]').forEach(el => {
+          el.removeAttribute('data-ui-lib-highlight');
+          el.style.outline = '';
+        });
+      }
+    };
+
+    console.log('🛠️ ui-lib DevTools loaded! Try:');
+    console.log('  __UI_LIB_DEVTOOLS__.inspect("component-name")');
+    console.log('  __UI_LIB_DEVTOOLS__.highlight("component-name")');
+    console.log('  __UI_LIB_DEVTOOLS__.getStats()');
+  `;
+
+  document.head.appendChild(script);
+};
+
+// Functional DevTools interface
+export interface IDevTools {
+  configure(config: Partial<DevConfig>): void;
+  getConfig(): DevConfig;
   trackRender(
-    _componentName: string,
+    componentName: string,
     renderTime: number,
     propsReceived: Record<string, unknown>,
     propsProcessed: Record<string, unknown>,
     htmlOutput: string,
-    warnings: string[] = [],
-  ): void {
-    if (!this.config.enabled || !this.config.renderTracking) return;
-
-    const existing = this.renderStats.get(_componentName);
-    const info: ComponentRenderInfo = {
-      name: _componentName,
-      renderTime,
-      propsReceived: { ...propsReceived },
-      propsProcessed: { ...propsProcessed },
-      cssGenerated: htmlOutput.includes("<style>"),
-      apiEndpoints: this.extractApiEndpoints(htmlOutput),
-      htmlSize: htmlOutput.length,
-      renderCount: (existing?.renderCount || 0) + 1,
-      lastRendered: new Date(),
-      warnings,
-    };
-
-    this.renderStats.set(_componentName, info);
-
-    if (this.config.performanceMonitoring) {
-      this.renderHistory.push({
-        component: _componentName,
-        timestamp: new Date(),
-        duration: renderTime,
-      });
-
-      // Keep last 1000 renders
-      if (this.renderHistory.length > 1000) {
-        this.renderHistory.shift();
-      }
-    }
-
-    if (this.config.verbose) {
-      console.log(
-        `🔧 [DevTools] Rendered ${_componentName} in ${
-          renderTime.toFixed(2)
-        }ms`,
-        info,
-      );
-    }
-
-    if (warnings.length > 0 && this.config.verbose) {
-      console.warn(`⚠️ [DevTools] Warnings for ${_componentName}:`, warnings);
-    }
-  }
-
-  getComponentStats(componentName?: string): ComponentRenderInfo[] {
-    if (componentName) {
-      const stats = this.renderStats.get(componentName);
-      return stats ? [stats] : [];
-    }
-    return Array.from(this.renderStats.values());
-  }
-
-  getRenderHistory(): {
-    component: string;
-    timestamp: Date;
-    duration: number;
-  }[] {
-    return [...this.renderHistory];
-  }
-
+    warnings?: string[],
+  ): void;
+  getComponentStats(componentName?: string): ComponentRenderInfo[];
+  getRenderHistory(): readonly {
+    readonly component: string;
+    readonly timestamp: Date;
+    readonly duration: number;
+  }[];
   getPerformanceReport(): {
     totalRenders: number;
     averageRenderTime: number;
     slowestComponent: { name: string; time: number } | null;
     fastestComponent: { name: string; time: number } | null;
     componentsWithWarnings: string[];
-  } {
-    const stats = Array.from(this.renderStats.values());
-    const totalRenders = stats.reduce((sum, stat) => sum + stat.renderCount, 0);
-    const averageRenderTime = stats.length > 0
-      ? stats.reduce((sum, stat) => sum + stat.renderTime, 0) / stats.length
-      : 0;
-
-    let slowest: { name: string; time: number } | null = null;
-    let fastest: { name: string; time: number } | null = null;
-    const componentsWithWarnings: string[] = [];
-
-    stats.forEach((stat) => {
-      if (!slowest || stat.renderTime > slowest.time) {
-        slowest = { name: stat.name, time: stat.renderTime };
-      }
-      if (!fastest || stat.renderTime < fastest.time) {
-        fastest = { name: stat.name, time: stat.renderTime };
-      }
-      if (stat.warnings.length > 0) {
-        componentsWithWarnings.push(stat.name);
-      }
-    });
-
-    return {
-      totalRenders,
-      averageRenderTime,
-      slowestComponent: slowest,
-      fastestComponent: fastest,
-      componentsWithWarnings,
-    };
-  }
-
-  clearStats(): void {
-    this.renderStats.clear();
-    this.renderHistory.length = 0;
-  }
-
-  private extractApiEndpoints(html: string): string[] {
-    const endpoints: string[] = [];
-    const hxAttributes = [
-      "hx-get",
-      "hx-post",
-      "hx-put",
-      "hx-patch",
-      "hx-delete",
-    ];
-
-    hxAttributes.forEach((attr) => {
-      const regex = new RegExp(`${attr}="([^"]+)"`, "g");
-      let match;
-      while ((match = regex.exec(html)) !== null) {
-        endpoints.push(`${attr.replace("hx-", "").toUpperCase()} ${match[1]}`);
-      }
-    });
-
-    return [...new Set(endpoints)];
-  }
-
-  private injectDevToolsScript(): void {
-    if (typeof document === "undefined") return;
-
-    // Avoid double injection
-    if (document.getElementById("ui-lib-devtools")) return;
-
-    const script = document.createElement("script");
-    script.id = "ui-lib-devtools";
-    script.innerHTML = `
-      window.__UI_LIB_DEVTOOLS__ = {
-        getStats: () => (${
-      JSON.stringify(Array.from(this.renderStats.entries()))
-    }),
-        getConfig: () => (${JSON.stringify(this.config)}),
-        inspect: (componentName) => {
-          const components = document.querySelectorAll(\`[data-component="\${componentName}"]\`);
-          console.log(\`Found \${components.length} instances of \${componentName}\`, components);
-          components.forEach((el, i) => {
-            console.log(\`Instance \${i + 1}:\`, el);
-            console.log('Props:', el.dataset);
-            console.log('Computed styles:', getComputedStyle(el));
-          });
-        },
-        highlight: (componentName) => {
-          document.querySelectorAll('[data-ui-lib-highlight]').forEach(el => {
-            el.removeAttribute('data-ui-lib-highlight');
-            el.style.outline = '';
-          });
-          
-          const components = document.querySelectorAll(\`[data-component="\${componentName}"]\`);
-          components.forEach(el => {
-            el.setAttribute('data-ui-lib-highlight', '');
-            el.style.outline = '2px solid var(--danger)';
-          });
-        },
-        clearHighlights: () => {
-          document.querySelectorAll('[data-ui-lib-highlight]').forEach(el => {
-            el.removeAttribute('data-ui-lib-highlight');
-            el.style.outline = '';
-          });
-        }
-      };
-      
-      console.log('🛠️ ui-lib DevTools loaded! Try:');
-      console.log('  __UI_LIB_DEVTOOLS__.inspect("component-name")');
-      console.log('  __UI_LIB_DEVTOOLS__.highlight("component-name")');
-      console.log('  __UI_LIB_DEVTOOLS__.getStats()');
-    `;
-
-    document.head.appendChild(script);
-  }
+  };
+  clearStats(): void;
 }
 
-// Global dev tools instance
-const devTools = new DevToolsState();
+// Functional DevTools implementation
+export const createDevTools = (): IDevTools => {
+  let state = createDefaultDevToolsState();
+
+  return {
+    configure(configUpdate: Partial<DevConfig>): void {
+      state = updateConfig(state, configUpdate);
+
+      if (state.config.enabled && typeof window !== "undefined") {
+        injectDevToolsScript(state);
+      }
+    },
+
+    getConfig(): DevConfig {
+      return getConfig(state);
+    },
+
+    trackRender(
+      componentName: string,
+      renderTime: number,
+      propsReceived: Record<string, unknown>,
+      propsProcessed: Record<string, unknown>,
+      htmlOutput: string,
+      warnings: string[] = [],
+    ): void {
+      state = trackRender(
+        state,
+        componentName,
+        renderTime,
+        propsReceived,
+        propsProcessed,
+        htmlOutput,
+        warnings,
+      );
+    },
+
+    getComponentStats(componentName?: string): ComponentRenderInfo[] {
+      return getComponentStats(state, componentName);
+    },
+
+    getRenderHistory(): readonly {
+      readonly component: string;
+      readonly timestamp: Date;
+      readonly duration: number;
+    }[] {
+      return getRenderHistory(state);
+    },
+
+    getPerformanceReport(): {
+      totalRenders: number;
+      averageRenderTime: number;
+      slowestComponent: { name: string; time: number } | null;
+      fastestComponent: { name: string; time: number } | null;
+      componentsWithWarnings: string[];
+    } {
+      return getPerformanceReport(state);
+    },
+
+    clearStats(): void {
+      state = clearStats(state);
+    },
+  };
+};
+
+// Global dev tools instance using functional implementation
+const devTools = createDevTools();
 
 /**
  * Configure development tools
@@ -273,7 +389,7 @@ export function getDevConfig(): DevConfig {
  * Track a component render for debugging
  */
 export function trackComponentRender(
-  _componentName: string,
+  componentName: string,
   renderTime: number,
   propsReceived: Record<string, unknown>,
   propsProcessed: Record<string, unknown>,
@@ -281,7 +397,7 @@ export function trackComponentRender(
   warnings: string[] = [],
 ): void {
   devTools.trackRender(
-    _componentName,
+    componentName,
     renderTime,
     propsReceived,
     propsProcessed,

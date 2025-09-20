@@ -1,9 +1,6 @@
 // Modal Manager - Programmatic modal creation and management
 // Extracted from showcase inline JavaScript for broader reuse
 
-import { defineComponent } from "../../define-component.ts";
-import type { ComponentProps } from "../../types.ts";
-
 /**
  * Modal configuration
  */
@@ -49,12 +46,429 @@ export interface ModalEventListeners {
 }
 
 /**
- * Modal manager class for programmatic modal creation
+ * Modal manager state type
  */
+type ModalManagerState = {
+  readonly modals: ReadonlyMap<string, HTMLElement>;
+  readonly zIndexBase: number;
+};
+
+/**
+ * Create default modal manager state
+ */
+const createDefaultModalManagerState = (): ModalManagerState => ({
+  modals: new Map(),
+  zIndexBase: 1000,
+});
+
+/**
+ * Pure helper functions
+ */
+
+const triggerEvent = (modal: HTMLElement, eventType: string): void => {
+  const event = new CustomEvent(`modal:${eventType}`, {
+    detail: { modalId: modal.id },
+    bubbles: true,
+  });
+  modal.dispatchEvent(event);
+};
+
+const trapFocus = (modal: HTMLElement): void => {
+  const focusableElements = modal.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+  );
+
+  if (focusableElements.length === 0) return;
+
+  const firstElement = focusableElements[0] as HTMLElement;
+  const lastElement =
+    focusableElements[focusableElements.length - 1] as HTMLElement;
+
+  // Focus first element
+  firstElement.focus();
+
+  // Handle tab key
+  const handleTab = (e: KeyboardEvent) => {
+    if (e.key === "Tab") {
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    }
+  };
+
+  modal.addEventListener("keydown", handleTab);
+};
+
+const setupEventListeners = (
+  modal: HTMLElement,
+  listeners: ModalEventListeners,
+): void => {
+  if (listeners.onShow) {
+    modal.addEventListener("modal:show", listeners.onShow);
+  }
+  if (listeners.onShown) {
+    modal.addEventListener("modal:shown", listeners.onShown);
+  }
+  if (listeners.onHide) {
+    modal.addEventListener("modal:hide", listeners.onHide);
+  }
+  if (listeners.onHidden) {
+    modal.addEventListener("modal:hidden", listeners.onHidden);
+  }
+};
+
+const setupCloseHandlers = (modal: HTMLElement, config: ModalConfig): void => {
+  if (!config.closable) return;
+
+  // Close on backdrop click
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      hideModal(modal.id);
+    }
+  });
+
+  // Close on escape key
+  const handleEscape = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      hideModal(modal.id);
+    }
+  };
+
+  document.addEventListener("keydown", handleEscape);
+
+  // Store handler for cleanup
+  (modal as any).__escapeHandler = handleEscape;
+};
+
+const showModal = (
+  state: ModalManagerState,
+  modalId: string,
+): ModalManagerState => {
+  const modal = state.modals.get(modalId);
+  if (!modal) {
+    console.warn(`Modal ${modalId} not found`);
+    return state;
+  }
+
+  // Trigger show event
+  triggerEvent(modal, "show");
+
+  // Add classes and show
+  modal.classList.add("open");
+  modal.style.display = "flex";
+
+  // Focus trap
+  trapFocus(modal);
+
+  // Trigger shown event after animation
+  setTimeout(() => {
+    triggerEvent(modal, "shown");
+  }, 300);
+
+  return state;
+};
+
+const hideModal = (modalId: string): void => {
+  // This is a side effect function that directly manipulates DOM
+  // In a pure functional approach, this would be handled differently
+  const modal = document.getElementById(modalId);
+  if (!modal) {
+    console.warn(`Modal ${modalId} not found`);
+    return;
+  }
+
+  // Trigger hide event
+  triggerEvent(modal, "hide");
+
+  // Remove classes and hide
+  modal.classList.remove("open");
+
+  // Trigger hidden event after animation
+  setTimeout(() => {
+    modal.style.display = "none";
+    triggerEvent(modal, "hidden");
+  }, 300);
+};
+
+const createModalElement = (
+  config: ModalConfig,
+  content: ModalContent,
+  zIndex: number,
+): HTMLElement => {
+  const {
+    id,
+    title,
+    size = "md",
+    closable = true,
+    className = "",
+  } = config;
+
+  const modal = document.createElement("div");
+  modal.id = id;
+  modal.className = `modal-overlay ${className}`;
+  modal.style.zIndex = String(config.zIndex ?? zIndex);
+
+  const sizeClass = `modal-${size}`;
+  const actionsHtml = content.actions
+    ? content.actions.map((action) => createActionButton(action, id)).join("")
+    : "";
+
+  modal.innerHTML = `
+    <div class="modal-dialog ${sizeClass}">
+      <div class="modal-content">
+        ${
+    title
+      ? `
+          <div class="modal-header">
+            <h5 class="modal-title">${title}</h5>
+            ${
+        closable
+          ? '<button type="button" class="modal-close" aria-label="Close">&times;</button>'
+          : ""
+      }
+          </div>
+        `
+      : ""
+  }
+        <div class="modal-body">
+          ${
+    content.header
+      ? `<div class="modal-content-header">${content.header}</div>`
+      : ""
+  }
+          <div class="modal-content-body">${content.body}</div>
+          ${
+    content.footer
+      ? `<div class="modal-content-footer">${content.footer}</div>`
+      : ""
+  }
+        </div>
+        ${actionsHtml ? `<div class="modal-footer">${actionsHtml}</div>` : ""}
+      </div>
+    </div>
+  `;
+
+  return modal;
+};
+
+const createActionButton = (action: ModalAction, modalId: string): string => {
+  const variant = action.variant || "secondary";
+  const disabled = action.disabled ? "disabled" : "";
+
+  return `
+    <button
+      type="button"
+      class="btn btn-${variant}"
+      data-action="${action.action}"
+      data-modal-id="${modalId}"
+      ${disabled}
+    >
+      ${action.label}
+    </button>
+  `;
+};
+
+const destroyModal = (
+  state: ModalManagerState,
+  modalId: string,
+): ModalManagerState => {
+  const modal = state.modals.get(modalId);
+  if (!modal) return state;
+
+  hideModal(modalId);
+
+  setTimeout(() => {
+    if (modal.parentNode) {
+      modal.parentNode.removeChild(modal);
+    }
+
+    // Clean up escape handler
+    const escapeHandler = (modal as any).__escapeHandler;
+    if (escapeHandler) {
+      document.removeEventListener("keydown", escapeHandler);
+    }
+  }, 300);
+
+  const newModals = new Map(state.modals);
+  newModals.delete(modalId);
+
+  return {
+    ...state,
+    modals: newModals,
+  };
+};
+
+const createModal = (
+  state: ModalManagerState,
+  config: ModalConfig,
+  content: ModalContent,
+  listeners?: ModalEventListeners,
+): { modal: HTMLElement; newState: ModalManagerState } => {
+  const modal = createModalElement(config, content, state.zIndexBase);
+
+  // Add to DOM
+  document.body.appendChild(modal);
+
+  // Setup event listeners
+  if (listeners) {
+    setupEventListeners(modal, listeners);
+  }
+
+  // Setup close handlers
+  setupCloseHandlers(modal, config);
+
+  const newModals = new Map(state.modals);
+  newModals.set(config.id, modal);
+
+  const newState: ModalManagerState = {
+    ...state,
+    modals: newModals,
+    zIndexBase: state.zIndexBase + 1,
+  };
+
+  // Show modal
+  showModal(newState, config.id);
+
+  return { modal, newState };
+};
+
+const updateModalContent = (
+  state: ModalManagerState,
+  modalId: string,
+  content: Partial<ModalContent>,
+): ModalManagerState => {
+  const modal = state.modals.get(modalId);
+  if (!modal) return state;
+
+  if (content.header) {
+    const headerEl = modal.querySelector(".modal-content-header");
+    if (headerEl) {
+      headerEl.innerHTML = content.header;
+    }
+  }
+
+  if (content.body) {
+    const bodyEl = modal.querySelector(".modal-content-body");
+    if (bodyEl) {
+      bodyEl.innerHTML = content.body;
+    }
+  }
+
+  if (content.footer) {
+    const footerEl = modal.querySelector(".modal-content-footer");
+    if (footerEl) {
+      footerEl.innerHTML = content.footer;
+    }
+  }
+
+  return state;
+};
+
+const isModalOpen = (state: ModalManagerState, modalId: string): boolean => {
+  const modal = state.modals.get(modalId);
+  return modal?.classList.contains("open") ?? false;
+};
+
+const closeAllModals = (state: ModalManagerState): ModalManagerState => {
+  Array.from(state.modals.keys()).forEach((id) => hideModal(id));
+  return state;
+};
+
+// Functional ModalManager interface
+export interface IModalManager {
+  create(
+    config: ModalConfig,
+    content: ModalContent,
+    listeners?: ModalEventListeners,
+  ): HTMLElement;
+  show(modalId: string): void;
+  hide(modalId: string): void;
+  destroy(modalId: string): void;
+  updateContent(modalId: string, content: Partial<ModalContent>): void;
+  getModal(modalId: string): HTMLElement | undefined;
+  isOpen(modalId: string): boolean;
+  closeAll(): void;
+}
+
+// Functional ModalManager implementation
+export const createModalManager = (): IModalManager => {
+  let state = createDefaultModalManagerState();
+
+  return {
+    create(
+      config: ModalConfig,
+      content: ModalContent,
+      listeners?: ModalEventListeners,
+    ): HTMLElement {
+      const { modal, newState } = createModal(
+        state,
+        config,
+        content,
+        listeners,
+      );
+      state = newState;
+      return modal;
+    },
+
+    show(modalId: string): void {
+      state = showModal(state, modalId);
+    },
+
+    hide(modalId: string): void {
+      hideModal(modalId);
+    },
+
+    destroy(modalId: string): void {
+      state = destroyModal(state, modalId);
+    },
+
+    updateContent(modalId: string, content: Partial<ModalContent>): void {
+      state = updateModalContent(state, modalId, content);
+    },
+
+    getModal(modalId: string): HTMLElement | undefined {
+      return state.modals.get(modalId);
+    },
+
+    isOpen(modalId: string): boolean {
+      return isModalOpen(state, modalId);
+    },
+
+    closeAll(): void {
+      state = closeAllModals(state);
+    },
+  };
+};
+
+// Global modal manager instance
+let globalModalManager: IModalManager | null = null;
+
+/**
+ * Get or create global modal manager instance
+ */
+export const getModalManager = (): IModalManager => {
+  if (!globalModalManager) {
+    globalModalManager = createModalManager();
+  }
+  return globalModalManager;
+};
+
+// Backward compatibility - ModalManager class that uses functional implementation
 export class ModalManager {
   private static instance: ModalManager;
-  private modals = new Map<string, HTMLElement>();
-  private zIndexBase = 1000;
+  private manager: IModalManager;
+
+  constructor() {
+    this.manager = createModalManager();
+  }
 
   static getInstance(): ModalManager {
     if (!ModalManager.instance) {
@@ -63,478 +477,151 @@ export class ModalManager {
     return ModalManager.instance;
   }
 
-  /**
-   * Create and show a modal
-   */
   create(
     config: ModalConfig,
     content: ModalContent,
     listeners?: ModalEventListeners,
   ): HTMLElement {
-    const modal = this.createModalElement(config, content);
-    
-    // Add to DOM
-    document.body.appendChild(modal);
-    this.modals.set(config.id, modal);
-
-    // Setup event listeners
-    if (listeners) {
-      this.setupEventListeners(modal, listeners);
-    }
-
-    // Setup close handlers
-    this.setupCloseHandlers(modal, config);
-
-    // Show modal
-    this.show(config.id);
-
-    return modal;
+    return this.manager.create(config, content, listeners);
   }
 
-  /**
-   * Show existing modal
-   */
   show(modalId: string): void {
-    const modal = this.modals.get(modalId);
-    if (!modal) {
-      console.warn(`Modal ${modalId} not found`);
-      return;
-    }
-
-    // Trigger show event
-    this.triggerEvent(modal, "show");
-
-    // Add classes and show
-    modal.classList.add("open");
-    modal.style.display = "flex";
-    
-    // Focus trap
-    this.trapFocus(modal);
-
-    // Trigger shown event after animation
-    setTimeout(() => {
-      this.triggerEvent(modal, "shown");
-    }, 300);
+    this.manager.show(modalId);
   }
 
-  /**
-   * Hide modal
-   */
   hide(modalId: string): void {
-    const modal = this.modals.get(modalId);
-    if (!modal) return;
-
-    // Trigger hide event
-    this.triggerEvent(modal, "hide");
-
-    // Remove classes and hide
-    modal.classList.remove("open");
-    
-    // Wait for animation before hiding
-    setTimeout(() => {
-      modal.style.display = "none";
-      this.triggerEvent(modal, "hidden");
-    }, 300);
+    this.manager.hide(modalId);
   }
 
-  /**
-   * Destroy modal
-   */
   destroy(modalId: string): void {
-    const modal = this.modals.get(modalId);
-    if (!modal) return;
-
-    this.hide(modalId);
-    
-    setTimeout(() => {
-      if (modal.parentNode) {
-        modal.parentNode.removeChild(modal);
-      }
-      this.modals.delete(modalId);
-    }, 300);
+    this.manager.destroy(modalId);
   }
 
-  /**
-   * Update modal content
-   */
   updateContent(modalId: string, content: Partial<ModalContent>): void {
-    const modal = this.modals.get(modalId);
-    if (!modal) return;
-
-    if (content.header) {
-      const headerEl = modal.querySelector(".modal-title");
-      if (headerEl) {
-        headerEl.innerHTML = content.header;
-      }
-    }
-
-    if (content.body) {
-      const bodyEl = modal.querySelector(".modal-body");
-      if (bodyEl) {
-        bodyEl.innerHTML = content.body;
-      }
-    }
-
-    if (content.footer) {
-      const footerEl = modal.querySelector(".modal-footer");
-      if (footerEl) {
-        footerEl.innerHTML = content.footer;
-      }
-    }
+    this.manager.updateContent(modalId, content);
   }
 
-  /**
-   * Get modal element
-   */
   getModal(modalId: string): HTMLElement | undefined {
-    return this.modals.get(modalId);
+    return this.manager.getModal(modalId);
   }
 
-  /**
-   * Check if modal is open
-   */
   isOpen(modalId: string): boolean {
-    const modal = this.modals.get(modalId);
-    return modal?.classList.contains("open") ?? false;
+    return this.manager.isOpen(modalId);
   }
 
-  /**
-   * Close all modals
-   */
   closeAll(): void {
-    Array.from(this.modals.keys()).forEach(id => this.hide(id));
-  }
-
-  private createModalElement(config: ModalConfig, content: ModalContent): HTMLElement {
-    const {
-      id,
-      title,
-      size = "md",
-      closable = true,
-      className = "",
-      zIndex,
-    } = config;
-
-    const modal = document.createElement("div");
-    modal.id = id;
-    modal.className = `modal-overlay ${className}`;
-    modal.style.zIndex = String(zIndex ?? this.zIndexBase++);
-
-    const sizeClass = `modal-${size}`;
-    const actionsHtml = content.actions
-      ? content.actions.map(action => this.createActionButton(action, id)).join("")
-      : "";
-
-    modal.innerHTML = `
-      <div class="modal-content ${sizeClass}">
-        ${title || closable ? `
-          <div class="modal-header">
-            ${title ? `<h3 class="modal-title">${title}</h3>` : ""}
-            ${closable ? `
-              <button class="modal-close-btn" data-modal-close="${id}">✕</button>
-            ` : ""}
-          </div>
-        ` : ""}
-        
-        <div class="modal-body">
-          ${content.body}
-        </div>
-        
-        ${content.footer || actionsHtml ? `
-          <div class="modal-footer">
-            ${content.footer || ""}
-            ${actionsHtml}
-          </div>
-        ` : ""}
-      </div>
-    `;
-
-    // Add styles if not already present
-    if (!document.querySelector("#ui-lib-modal-styles")) {
-      this.injectStyles();
-    }
-
-    return modal;
-  }
-
-  private createActionButton(action: ModalAction, modalId: string): string {
-    const {
-      label,
-      action: actionHandler,
-      variant = "secondary",
-      dismiss = false,
-    } = action;
-
-    const clickHandler = typeof actionHandler === "string" 
-      ? actionHandler
-      : `window.uiLibModalManager.handleAction('${modalId}', ${this.registerActionHandler(actionHandler)})`;
-
-    const dismissHandler = dismiss ? `; window.uiLibModalManager.hide('${modalId}')` : "";
-
-    return `
-      <button 
-        class="btn btn-${variant}" 
-        onclick="${clickHandler}${dismissHandler}"
-      >
-        ${label}
-      </button>
-    `;
-  }
-
-  private actionHandlers = new Map<number, () => void>();
-  private actionHandlerId = 0;
-
-  private registerActionHandler(handler: () => void): number {
-    const id = this.actionHandlerId++;
-    this.actionHandlers.set(id, handler);
-    return id;
-  }
-
-  handleAction(modalId: string, handlerId: number): void {
-    const handler = this.actionHandlers.get(handlerId);
-    if (handler) {
-      handler();
-      this.actionHandlers.delete(handlerId);
-    }
-  }
-
-  private setupEventListeners(modal: HTMLElement, listeners: ModalEventListeners): void {
-    Object.entries(listeners).forEach(([event, handler]) => {
-      if (handler) {
-        modal.addEventListener(`modal:${event.replace("on", "").toLowerCase()}`, () => {
-          handler(modal);
-        });
-      }
-    });
-  }
-
-  private setupCloseHandlers(modal: HTMLElement, config: ModalConfig): void {
-    // Close button handler
-    const closeBtn = modal.querySelector("[data-modal-close]");
-    if (closeBtn) {
-      closeBtn.addEventListener("click", () => this.hide(config.id));
-    }
-
-    // Backdrop click handler
-    if (config.backdrop !== "static") {
-      modal.addEventListener("click", (e) => {
-        if (e.target === modal) {
-          this.hide(config.id);
-        }
-      });
-    }
-
-    // Keyboard handler
-    if (config.keyboard !== false) {
-      const handleKeyboard = (e: KeyboardEvent) => {
-        if (e.key === "Escape" && this.isOpen(config.id)) {
-          this.hide(config.id);
-          document.removeEventListener("keydown", handleKeyboard);
-        }
-      };
-      document.addEventListener("keydown", handleKeyboard);
-    }
-  }
-
-  private triggerEvent(modal: HTMLElement, eventType: string): void {
-    const event = new CustomEvent(`modal:${eventType}`, {
-      bubbles: true,
-      cancelable: true,
-    });
-    modal.dispatchEvent(event);
-  }
-
-  private trapFocus(modal: HTMLElement): void {
-    const focusableElements = modal.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-    
-    if (focusableElements.length === 0) return;
-    
-    const firstFocusable = focusableElements[0] as HTMLElement;
-    const lastFocusable = focusableElements[focusableElements.length - 1] as HTMLElement;
-    
-    firstFocusable.focus();
-    
-    const handleTab = (e: KeyboardEvent) => {
-      if (e.key !== "Tab") return;
-      
-      if (e.shiftKey) {
-        if (document.activeElement === firstFocusable) {
-          e.preventDefault();
-          lastFocusable.focus();
-        }
-      } else {
-        if (document.activeElement === lastFocusable) {
-          e.preventDefault();
-          firstFocusable.focus();
-        }
-      }
-    };
-    
-    modal.addEventListener("keydown", handleTab);
-  }
-
-  private injectStyles(): void {
-    const styles = document.createElement("style");
-    styles.id = "ui-lib-modal-styles";
-    styles.textContent = `
-      .modal-overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        align-items: center;
-        justify-content: center;
-        backdrop-filter: blur(4px);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-      }
-
-      .modal-overlay.open {
-        display: flex !important;
-        opacity: 1;
-      }
-
-      .modal-content {
-        background: var(--surface-1, #ffffff);
-        border-radius: var(--radius-3, 8px);
-        display: flex;
-        flex-direction: column;
-        box-shadow: var(--shadow-6, 0 25px 50px -12px rgba(0, 0, 0, 0.25));
-        transform: translateY(-20px) scale(0.95);
-        transition: transform 0.3s ease;
-        max-height: 90vh;
-        overflow: hidden;
-      }
-
-      .modal-overlay.open .modal-content {
-        transform: translateY(0) scale(1);
-      }
-
-      .modal-sm { width: 300px; }
-      .modal-md { width: 500px; }
-      .modal-lg { width: 800px; }
-      .modal-xl { width: 1200px; }
-      .modal-full { width: 95vw; height: 90vh; }
-
-      .modal-header {
-        padding: var(--size-4, 16px);
-        background: var(--surface-2, #f5f5f5);
-        border-bottom: 1px solid var(--surface-3, #e0e0e0);
-        border-radius: var(--radius-3, 8px) var(--radius-3, 8px) 0 0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .modal-title {
-        font-size: var(--font-size-3, 18px);
-        font-weight: var(--font-weight-6, 600);
-        margin: 0;
-        color: var(--text-1, #333);
-      }
-
-      .modal-close-btn {
-        background: none;
-        border: none;
-        font-size: var(--font-size-4, 20px);
-        cursor: pointer;
-        color: var(--text-2, #666);
-        padding: var(--size-1, 4px);
-        line-height: 1;
-      }
-
-      .modal-close-btn:hover {
-        color: var(--text-1, #333);
-      }
-
-      .modal-body {
-        flex: 1;
-        overflow: auto;
-        padding: var(--size-4, 16px);
-      }
-
-      .modal-footer {
-        padding: var(--size-3, 12px) var(--size-4, 16px);
-        background: var(--surface-2, #f5f5f5);
-        border-top: 1px solid var(--surface-3, #e0e0e0);
-        display: flex;
-        gap: var(--size-2, 8px);
-        justify-content: flex-end;
-        align-items: center;
-      }
-
-      .btn {
-        padding: var(--size-2, 8px) var(--size-3, 12px);
-        background: var(--surface-1, #ffffff);
-        border: 1px solid var(--surface-3, #e0e0e0);
-        border-radius: var(--radius-2, 4px);
-        cursor: pointer;
-        font-size: var(--font-size-1, 14px);
-        font-weight: var(--font-weight-5, 500);
-        transition: all 0.2s ease;
-      }
-
-      .btn:hover {
-        background: var(--surface-2, #f5f5f5);
-      }
-
-      .btn-primary {
-        background: var(--blue-6, #0066cc);
-        color: var(--gray-0, #ffffff);
-        border-color: var(--blue-6, #0066cc);
-      }
-
-      .btn-primary:hover {
-        background: var(--blue-7, #0052a3);
-      }
-
-      .btn-danger {
-        background: var(--red-6, #dc2626);
-        color: var(--gray-0, #ffffff);
-        border-color: var(--red-6, #dc2626);
-      }
-
-      .btn-danger:hover {
-        background: var(--red-7, #b91c1c);
-      }
-
-      @media (max-width: 768px) {
-        .modal-sm, .modal-md, .modal-lg, .modal-xl {
-          width: 95vw;
-        }
-      }
-    `;
-    
-    document.head.appendChild(styles);
+    this.manager.closeAll();
   }
 }
 
-/**
- * Create modal manager script for client-side use
- */
-export const createModalManagerScript = (): string => {
-  return `
-// ui-lib Modal Manager - Programmatic modal creation and management
-window.uiLibModalManager = ${ModalManager.toString().replace(/class ModalManager/, 'new (class')}.getInstance()};
+// Utility functions for modal styling
+const injectModalStyles = (): void => {
+  if (document.querySelector("#ui-lib-modal-styles")) return;
 
-// Convenience functions
-window.createModal = function(config, content, listeners) {
-  return window.uiLibModalManager.create(config, content, listeners);
+  const styles = document.createElement("style");
+  styles.id = "ui-lib-modal-styles";
+  styles.textContent = `
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-dialog {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow: auto;
+    }
+
+    .modal-sm { width: 300px; }
+    .modal-md { width: 500px; }
+    .modal-lg { width: 800px; }
+    .modal-xl { width: 1140px; }
+    .modal-full { width: 100vw; height: 100vh; border-radius: 0; }
+
+    .modal-header {
+      padding: 1rem;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0;
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-body {
+      padding: 1rem;
+    }
+
+    .modal-footer {
+      padding: 1rem;
+      border-top: 1px solid #e9ecef;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+
+    .btn-primary {
+      background: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+      border-color: #6c757d;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+      border-color: #dc3545;
+    }
+  `;
+
+  document.head.appendChild(styles);
 };
 
-window.showModal = function(modalId) {
-  window.uiLibModalManager.show(modalId);
-};
-
-window.hideModal = function(modalId) {
-  window.uiLibModalManager.hide(modalId);
-};
-
-window.destroyModal = function(modalId) {
-  window.uiLibModalManager.destroy(modalId);
-};
-`.trim();
-};
+// Initialize styles when module loads
+if (typeof document !== "undefined") {
+  injectModalStyles();
+}

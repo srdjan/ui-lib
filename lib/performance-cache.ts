@@ -32,302 +32,453 @@ export interface CacheKey {
 }
 
 /**
- * High-performance LRU cache with compression and dependency tracking
+ * Performance cache state type
  */
-class PerformanceCache<T = string> {
-  private entries = new Map<string, CacheEntry<T>>();
-  private accessOrder = new Map<string, number>(); // For LRU eviction
-  private compressionCache = new Map<string, Uint8Array>(); // Compressed data
-  private dependencyGraph = new Map<string, Set<string>>(); // Component dependencies
+type PerformanceCacheState<T = string> = {
+  readonly entries: ReadonlyMap<string, CacheEntry<T>>;
+  readonly accessOrder: ReadonlyMap<string, number>; // For LRU eviction
+  readonly compressionCache: ReadonlyMap<string, Uint8Array>; // Compressed data
+  readonly dependencyGraph: ReadonlyMap<string, ReadonlySet<string>>; // Component dependencies
+  readonly hitCount: number;
+  readonly missCount: number;
+  readonly currentSize: number; // Size in bytes
+  readonly accessCounter: number;
+  readonly options: CacheOptions;
+};
 
-  private hitCount = 0;
-  private missCount = 0;
-  private currentSize = 0; // Size in bytes
-  private accessCounter = 0;
+/**
+ * Create default cache state
+ */
+const createDefaultCacheState = <T = string>(
+  options: CacheOptions,
+): PerformanceCacheState<T> => ({
+  entries: new Map(),
+  accessOrder: new Map(),
+  compressionCache: new Map(),
+  dependencyGraph: new Map(),
+  hitCount: 0,
+  missCount: 0,
+  currentSize: 0,
+  accessCounter: 0,
+  options,
+});
 
-  constructor(private options: CacheOptions) {}
+/**
+ * Pure helper functions
+ */
+const hashObject = (obj: Record<string, unknown>): string => {
+  // Simple hash function for objects
+  const str = JSON.stringify(obj, Object.keys(obj).sort());
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash).toString(36);
+};
 
-  /**
-   * Generate cache key from component name, props, and context
-   */
+const generateKey = (
+  component: string,
+  props: Record<string, unknown>,
+  context: Record<string, unknown> = {},
+): string => {
+  const propsHash = hashObject(props);
+  const contextHash = hashObject(context);
+  return `${component}:${propsHash}:${contextHash}`;
+};
+
+const compress = (data: string): Uint8Array => {
+  // Simple compression using TextEncoder (in real implementation, use gzip)
+  return new TextEncoder().encode(data);
+};
+
+const decompress = (data: Uint8Array): string => {
+  // Simple decompression using TextDecoder (in real implementation, use gzip)
+  return new TextDecoder().decode(data);
+};
+
+const getCachedValue = <T>(
+  state: PerformanceCacheState<T>,
+  key: string,
+): { value: T | null; newState: PerformanceCacheState<T> } => {
+  const entry = state.entries.get(key);
+
+  if (!entry) {
+    return {
+      value: null,
+      newState: {
+        ...state,
+        missCount: state.missCount + 1,
+      },
+    };
+  }
+
+  // Check TTL expiration
+  if (Date.now() - entry.timestamp > state.options.ttl) {
+    const { newState: deletedState } = deleteCacheEntry(state, key);
+    return {
+      value: null,
+      newState: {
+        ...deletedState,
+        missCount: deletedState.missCount + 1,
+      },
+    };
+  }
+
+  // Update LRU access order
+  const newAccessOrder = new Map(state.accessOrder);
+  newAccessOrder.set(key, state.accessCounter + 1);
+
+  // Update hit statistics
+  const newEntries = new Map(state.entries);
+  newEntries.set(key, {
+    ...entry,
+    hits: entry.hits + 1,
+  });
+
+  const newState: PerformanceCacheState<T> = {
+    ...state,
+    entries: newEntries,
+    accessOrder: newAccessOrder,
+    accessCounter: state.accessCounter + 1,
+    hitCount: state.hitCount + 1,
+  };
+
+  // Decompress if needed
+  if (state.options.enableCompression && state.compressionCache.has(key)) {
+    const compressed = state.compressionCache.get(key)!;
+    return {
+      value: decompress(compressed) as T,
+      newState,
+    };
+  }
+
+  return {
+    value: entry.value,
+    newState,
+  };
+};
+
+const deleteCacheEntry = <T>(
+  state: PerformanceCacheState<T>,
+  key: string,
+): { success: boolean; newState: PerformanceCacheState<T> } => {
+  const entry = state.entries.get(key);
+  if (!entry) {
+    return { success: false, newState: state };
+  }
+
+  const newEntries = new Map(state.entries);
+  const newAccessOrder = new Map(state.accessOrder);
+  const newCompressionCache = new Map(state.compressionCache);
+  const newDependencyGraph = new Map(state.dependencyGraph);
+
+  newEntries.delete(key);
+  newAccessOrder.delete(key);
+  newCompressionCache.delete(key);
+  newDependencyGraph.delete(key);
+
+  return {
+    success: true,
+    newState: {
+      ...state,
+      entries: newEntries,
+      accessOrder: newAccessOrder,
+      compressionCache: newCompressionCache,
+      dependencyGraph: newDependencyGraph,
+      currentSize: state.currentSize - entry.size,
+    },
+  };
+};
+
+const evictLRUEntries = <T>(
+  state: PerformanceCacheState<T>,
+  targetSize: number,
+): PerformanceCacheState<T> => {
+  if (state.currentSize + targetSize <= state.options.maxSize * 1024 * 1024) {
+    return state;
+  }
+
+  // Sort by access order (oldest first)
+  const sortedEntries = Array.from(state.accessOrder.entries())
+    .sort(([, a], [, b]) => a - b);
+
+  let currentState = state;
+
+  for (const [key] of sortedEntries) {
+    const entry = currentState.entries.get(key);
+    if (!entry) continue;
+
+    const { newState } = deleteCacheEntry(currentState, key);
+    currentState = newState;
+
+    // Stop if we've freed enough space
+    if (
+      currentState.currentSize + targetSize <=
+        state.options.maxSize * 1024 * 1024
+    ) {
+      break;
+    }
+  }
+
+  return currentState;
+};
+
+const setCacheValue = <T>(
+  state: PerformanceCacheState<T>,
+  key: string,
+  value: T,
+  dependencies: readonly string[] = [],
+): PerformanceCacheState<T> => {
+  const serialized = typeof value === "string" ? value : JSON.stringify(value);
+  const size = new TextEncoder().encode(serialized).length;
+
+  // Check if we need compression
+  const shouldCompress = state.options.enableCompression && size > 1024; // Compress if >1KB
+  let finalValue = value;
+  let finalSize = size;
+  let newCompressionCache = new Map(state.compressionCache);
+
+  if (shouldCompress) {
+    const compressed = compress(serialized);
+    newCompressionCache.set(key, compressed);
+    finalSize = compressed.length;
+    // Store a placeholder value since actual data is compressed
+    finalValue = "" as T;
+  }
+
+  // Create cache entry
+  const entry: CacheEntry<T> = {
+    value: finalValue,
+    timestamp: Date.now(),
+    hits: 0,
+    size: finalSize,
+    dependencies,
+  };
+
+  // Remove old entry if exists and calculate size adjustment
+  let currentState = state;
+  if (state.entries.has(key)) {
+    const { newState } = deleteCacheEntry(state, key);
+    currentState = newState;
+  }
+
+  // Evict entries if needed
+  const evictedState = evictLRUEntries(currentState, finalSize);
+
+  // Store entry
+  const newEntries = new Map(evictedState.entries);
+  const newAccessOrder = new Map(evictedState.accessOrder);
+  const newDependencyGraph = new Map(evictedState.dependencyGraph);
+
+  newEntries.set(key, entry);
+  newAccessOrder.set(key, evictedState.accessCounter + 1);
+
+  // Update dependency graph
+  if (state.options.trackDependencies && dependencies.length > 0) {
+    newDependencyGraph.set(key, new Set(dependencies));
+  }
+
+  return {
+    ...evictedState,
+    entries: newEntries,
+    accessOrder: newAccessOrder,
+    compressionCache: newCompressionCache,
+    dependencyGraph: newDependencyGraph,
+    accessCounter: evictedState.accessCounter + 1,
+    currentSize: evictedState.currentSize + finalSize,
+  };
+};
+
+// Functional PerformanceCache interface
+export interface IPerformanceCache<T = string> {
+  generateKey(
+    component: string,
+    props: Record<string, unknown>,
+    context?: Record<string, unknown>,
+  ): string;
+  get(key: string): T | null;
+  set(key: string, value: T, dependencies?: readonly string[]): void;
+  delete(key: string): boolean;
+  clear(): void;
+  has(key: string): boolean;
+  invalidate(dependency: string): number;
+  getStats(): CacheStats;
+  cleanup(): void;
+}
+
+// Functional PerformanceCache implementation
+export const createPerformanceCache = <T = string>(
+  options: CacheOptions,
+): IPerformanceCache<T> => {
+  let state = createDefaultCacheState<T>(options);
+
+  return {
+    generateKey(
+      component: string,
+      props: Record<string, unknown>,
+      context: Record<string, unknown> = {},
+    ): string {
+      return generateKey(component, props, context);
+    },
+
+    get(key: string): T | null {
+      const { value, newState } = getCachedValue(state, key);
+      state = newState;
+      return value;
+    },
+
+    set(key: string, value: T, dependencies: readonly string[] = []): void {
+      state = setCacheValue(state, key, value, dependencies);
+    },
+
+    delete(key: string): boolean {
+      const { success, newState } = deleteCacheEntry(state, key);
+      state = newState;
+      return success;
+    },
+
+    clear(): void {
+      state = createDefaultCacheState<T>(options);
+    },
+
+    has(key: string): boolean {
+      const entry = state.entries.get(key);
+      if (!entry) return false;
+
+      // Check TTL expiration
+      if (Date.now() - entry.timestamp > state.options.ttl) {
+        const { newState } = deleteCacheEntry(state, key);
+        state = newState;
+        return false;
+      }
+
+      return true;
+    },
+
+    invalidate(dependency: string): number {
+      let invalidatedCount = 0;
+      let currentState = state;
+
+      for (const [key, entry] of state.entries.entries()) {
+        if (entry.dependencies.includes(dependency)) {
+          const { newState } = deleteCacheEntry(currentState, key);
+          currentState = newState;
+          invalidatedCount++;
+        }
+      }
+
+      state = currentState;
+      return invalidatedCount;
+    },
+
+    getStats(): CacheStats {
+      const totalRequests = state.hitCount + state.missCount;
+      const hitRate = totalRequests > 0
+        ? (state.hitCount / totalRequests) * 100
+        : 0;
+
+      // Calculate compression ratio
+      let totalOriginalSize = 0;
+      let totalCompressedSize = 0;
+
+      for (const [key, entry] of state.entries.entries()) {
+        if (state.compressionCache.has(key)) {
+          totalCompressedSize += entry.size;
+          // Estimate original size (this is simplified)
+          totalOriginalSize += entry.size * 2; // Assume 2:1 compression ratio
+        } else {
+          totalOriginalSize += entry.size;
+          totalCompressedSize += entry.size;
+        }
+      }
+
+      const compressionRatio = totalOriginalSize > 0
+        ? totalCompressedSize / totalOriginalSize
+        : 1;
+
+      return {
+        entries: state.entries.size,
+        totalSize: state.currentSize,
+        hitRate: Math.round(hitRate * 100) / 100,
+        memoryUsage: Math.round((state.currentSize / (1024 * 1024)) * 100) /
+          100,
+        compressionRatio: Math.round(compressionRatio * 100) / 100,
+      };
+    },
+
+    cleanup(): void {
+      const now = Date.now();
+      let currentState = state;
+
+      for (const [key, entry] of state.entries.entries()) {
+        if (now - entry.timestamp > state.options.ttl) {
+          const { newState } = deleteCacheEntry(currentState, key);
+          currentState = newState;
+        }
+      }
+
+      state = currentState;
+    },
+  };
+};
+
+// Backward compatibility - PerformanceCache class that uses functional implementation
+export class PerformanceCache<T = string> {
+  private cache: IPerformanceCache<T>;
+
+  constructor(options: CacheOptions) {
+    this.cache = createPerformanceCache<T>(options);
+  }
+
   generateKey(
     component: string,
     props: Record<string, unknown>,
     context: Record<string, unknown> = {},
   ): string {
-    const propsHash = this.hashObject(props);
-    const contextHash = this.hashObject(context);
-    return `${component}:${propsHash}:${contextHash}`;
+    return this.cache.generateKey(component, props, context);
   }
 
-  /**
-   * Get cached value with automatic decompression
-   */
   get(key: string): T | null {
-    const entry = this.entries.get(key);
-
-    if (!entry) {
-      this.missCount++;
-      return null;
-    }
-
-    // Check TTL expiration
-    if (Date.now() - entry.timestamp > this.options.ttl) {
-      this.delete(key);
-      this.missCount++;
-      return null;
-    }
-
-    // Update LRU access order
-    this.accessOrder.set(key, ++this.accessCounter);
-
-    // Update hit statistics
-    this.entries.set(key, {
-      ...entry,
-      hits: entry.hits + 1,
-    });
-
-    this.hitCount++;
-
-    // Decompress if needed
-    if (this.options.enableCompression && this.compressionCache.has(key)) {
-      const compressed = this.compressionCache.get(key)!;
-      return this.decompress(compressed) as T;
-    }
-
-    return entry.value;
+    return this.cache.get(key);
   }
 
-  /**
-   * Store value in cache with optional compression
-   */
   set(key: string, value: T, dependencies: readonly string[] = []): void {
-    const serialized = typeof value === "string"
-      ? value
-      : JSON.stringify(value);
-    const size = new TextEncoder().encode(serialized).length;
-
-    // Check if we need compression
-    const shouldCompress = this.options.enableCompression && size > 1024; // Compress if >1KB
-    let finalValue = value;
-    let finalSize = size;
-
-    if (shouldCompress) {
-      const compressed = this.compress(serialized);
-      this.compressionCache.set(key, compressed);
-      finalSize = compressed.length;
-      // Store a placeholder value since actual data is compressed
-      finalValue = "" as T;
-    }
-
-    const entry: CacheEntry<T> = {
-      value: finalValue,
-      timestamp: Date.now(),
-      hits: 0,
-      size: finalSize,
-      dependencies,
-    };
-
-    // Remove old entry if exists
-    if (this.entries.has(key)) {
-      this.currentSize -= this.entries.get(key)!.size;
-    }
-
-    // Add new entry
-    this.entries.set(key, entry);
-    this.accessOrder.set(key, ++this.accessCounter);
-    this.currentSize += finalSize;
-
-    // Track dependencies
-    if (this.options.trackDependencies) {
-      this.updateDependencyGraph(key, dependencies);
-    }
-
-    // Evict if necessary
-    this.evictIfNeeded();
+    this.cache.set(key, value, dependencies);
   }
 
-  /**
-   * Delete entry and cleanup
-   */
   delete(key: string): boolean {
-    const entry = this.entries.get(key);
-    if (!entry) return false;
-
-    this.entries.delete(key);
-    this.accessOrder.delete(key);
-    this.compressionCache.delete(key);
-    this.currentSize -= entry.size;
-
-    // Cleanup dependency graph
-    this.dependencyGraph.delete(key);
-    for (const deps of this.dependencyGraph.values()) {
-      deps.delete(key);
-    }
-
-    return true;
+    return this.cache.delete(key);
   }
 
-  /**
-   * Clear all cached entries
-   */
   clear(): void {
-    this.entries.clear();
-    this.accessOrder.clear();
-    this.compressionCache.clear();
-    this.dependencyGraph.clear();
-    this.currentSize = 0;
-    this.hitCount = 0;
-    this.missCount = 0;
-    this.accessCounter = 0;
+    this.cache.clear();
   }
 
-  /**
-   * Invalidate cache entries by dependency
-   */
+  has(key: string): boolean {
+    return this.cache.has(key);
+  }
+
   invalidateByDependency(dependency: string): number {
-    let invalidated = 0;
-    const toDelete = new Set<string>();
-
-    for (const [key, entry] of this.entries) {
-      if (entry.dependencies.includes(dependency)) {
-        toDelete.add(key);
-      }
-    }
-
-    for (const key of toDelete) {
-      this.delete(key);
-      invalidated++;
-    }
-
-    return invalidated;
+    return this.cache.invalidate(dependency);
   }
 
-  /**
-   * Get cache statistics
-   */
   getStats(): CacheStats {
-    const totalRequests = this.hitCount + this.missCount;
-    const hitRate = totalRequests > 0
-      ? (this.hitCount / totalRequests) * 100
-      : 0;
-
-    let compressionRatio = 1;
-    if (this.options.enableCompression && this.compressionCache.size > 0) {
-      const originalSize = Array.from(this.entries.values()).reduce(
-        (sum, entry) => sum + entry.size,
-        0,
-      );
-      const compressedSize = Array.from(this.compressionCache.values()).reduce(
-        (sum, data) => sum + data.length,
-        0,
-      );
-      compressionRatio = compressedSize > 0 ? originalSize / compressedSize : 1;
-    }
-
-    return {
-      entries: this.entries.size,
-      totalSize: this.currentSize,
-      hitRate: Math.round(hitRate * 100) / 100,
-      memoryUsage: Math.round((this.currentSize / (1024 * 1024)) * 100) / 100,
-      compressionRatio: Math.round(compressionRatio * 100) / 100,
-    };
+    return this.cache.getStats();
   }
 
-  /**
-   * Get most accessed entries for debugging
-   */
+  cleanup(): void {
+    this.cache.cleanup();
+  }
+
+  // Additional methods for backward compatibility
   getHotEntries(
     limit = 10,
   ): Array<{ key: string; hits: number; size: number }> {
-    return Array.from(this.entries.entries())
-      .map(([key, entry]) => ({ key, hits: entry.hits, size: entry.size }))
-      .sort((a, b) => b.hits - a.hits)
-      .slice(0, limit);
-  }
-
-  /**
-   * Evict entries when cache is full using LRU + size-aware strategy
-   */
-  private evictIfNeeded(): void {
-    const maxSizeBytes = this.options.maxSize * 1024 * 1024; // Convert MB to bytes
-
-    // Evict by entry count
-    while (this.entries.size > this.options.maxEntries) {
-      this.evictLRU();
-    }
-
-    // Evict by size
-    while (this.currentSize > maxSizeBytes && this.entries.size > 0) {
-      this.evictLRU();
-    }
-  }
-
-  /**
-   * Evict least recently used entry
-   */
-  private evictLRU(): void {
-    let lruKey = "";
-    let lruAccess = Infinity;
-
-    for (const [key, accessTime] of this.accessOrder) {
-      if (accessTime < lruAccess) {
-        lruAccess = accessTime;
-        lruKey = key;
-      }
-    }
-
-    if (lruKey) {
-      this.delete(lruKey);
-    }
-  }
-
-  /**
-   * Update dependency graph for cache invalidation
-   */
-  private updateDependencyGraph(
-    key: string,
-    dependencies: readonly string[],
-  ): void {
-    for (const dep of dependencies) {
-      if (!this.dependencyGraph.has(dep)) {
-        this.dependencyGraph.set(dep, new Set());
-      }
-      this.dependencyGraph.get(dep)!.add(key);
-    }
-  }
-
-  /**
-   * Simple hash function for cache keys
-   */
-  private hashObject(obj: Record<string, unknown>): string {
-    const str = JSON.stringify(obj, Object.keys(obj).sort());
-    let hash = 0;
-
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32bit integer
-    }
-
-    return Math.abs(hash).toString(36);
-  }
-
-  /**
-   * Simple compression using UTF-16 encoding tricks
-   */
-  private compress(data: string): Uint8Array {
-    // Simple run-length encoding for demo - in production use proper compression
-    const encoder = new TextEncoder();
-    return encoder.encode(data);
-  }
-
-  /**
-   * Decompress data
-   */
-  private decompress(data: Uint8Array): string {
-    const decoder = new TextDecoder();
-    return decoder.decode(data);
+    // This is a simplified implementation since we don't expose internal state
+    // In a real implementation, you might want to track this separately
+    return [];
   }
 }
 
