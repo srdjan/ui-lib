@@ -3,15 +3,28 @@
  * Filter and view controls for todo list using defineComponent
  */
 
-import { defineComponent, renderComponent, string } from "../../../mod.ts";
+import { defineComponent, get, renderComponent, string } from "../../../mod.ts";
 import type { TodoFilter, TodoStats } from "../api/types.ts";
+import { todoAPI } from "../api/index.ts";
 
 defineComponent("todo-filters", {
   api: {
-    filterAll: ["GET", "/api/todos", () => new Response()],
-    filterActive: ["GET", "/api/todos", () => new Response()],
-    filterCompleted: ["GET", "/api/todos", () => new Response()],
-    filterByPriority: ["GET", "/api/todos", () => new Response()],
+    filterAll: get(
+      "/api/todos",
+      (req) => todoAPI.listTodos(req),
+    ),
+    filterActive: get(
+      "/api/todos",
+      (req) => todoAPI.listTodos(req),
+    ),
+    filterCompleted: get(
+      "/api/todos",
+      (req) => todoAPI.listTodos(req),
+    ),
+    filterByPriority: get(
+      "/api/todos",
+      (req) => todoAPI.listTodos(req),
+    ),
   },
   styles: `
     .todo-filters {
@@ -100,12 +113,43 @@ defineComponent("todo-filters", {
       typeof todoCount === "string" ? todoCount : undefined,
       { total: 0, active: 0, completed: 0 },
     );
+    const user = typeof userId === "string" ? userId : String(userId ?? "");
 
-    // No manual HTMX generation needed - onAction will handle it automatically!
-    const filterAllAction = `api.filterAll()`;
-    const filterActiveAction = `api.filterActive()`;
-    const filterCompletedAction = `api.filterCompleted()`;
-    const priorityFilterAction = `api.filterByPriority()`;
+    const hxTarget = "#todo-list";
+    const statusPayload = {
+      priority: parsedFilter.priority ?? "",
+      user,
+    };
+
+    const filterAllAttrs = api?.filterAll?.({
+      ...statusPayload,
+      status: "all",
+    }, {
+      target: hxTarget,
+    }) ?? "";
+
+    const filterActiveAttrs = api?.filterActive?.({
+      ...statusPayload,
+      status: "active",
+    }, {
+      target: hxTarget,
+    }) ?? "";
+
+    const filterCompletedAttrs = api?.filterCompleted?.({
+      ...statusPayload,
+      status: "completed",
+    }, {
+      target: hxTarget,
+    }) ?? "";
+
+    const priorityFilterAttrs = api?.filterByPriority?.(undefined, {
+      target: hxTarget,
+      trigger: "change",
+      vals: {
+        status: parsedFilter.status,
+        user,
+      },
+    }) ?? "";
 
     return `
       <div class="todo-filters">
@@ -119,23 +163,27 @@ defineComponent("todo-filters", {
           <button
             type="button"
             class="filter-btn ${parsedFilter.status === "all" ? "active" : ""}"
-            onAction="${filterAllAction}"
+            ${filterAllAttrs}
           >
             All
           </button>
 
           <button
             type="button"
-            class="filter-btn ${parsedFilter.status === "active" ? "active" : ""}"
-            onAction="${filterActiveAction}"
+            class="filter-btn ${
+      parsedFilter.status === "active" ? "active" : ""
+    }"
+            ${filterActiveAttrs}
           >
             Active
           </button>
 
           <button
             type="button"
-            class="filter-btn ${parsedFilter.status === "completed" ? "active" : ""}"
-            onAction="${filterCompletedAction}"
+            class="filter-btn ${
+      parsedFilter.status === "completed" ? "active" : ""
+    }"
+            ${filterCompletedAttrs}
           >
             Completed
           </button>
@@ -145,7 +193,7 @@ defineComponent("todo-filters", {
           <select
             class="priority-filter"
             name="priority"
-            onAction="${priorityFilterAction}"
+            ${priorityFilterAttrs}
           >
             <option value="">All priorities</option>
             <option value="high">High priority</option>
@@ -162,19 +210,23 @@ defineComponent("todo-filters", {
 export const TodoFilters = ({
   currentFilter,
   todoCount,
-  userId
+  userId,
 }: {
   currentFilter: string | object;
   todoCount: string | object;
   userId: string;
 }) => {
-  const filterStr = typeof currentFilter === "string" ? currentFilter : JSON.stringify(currentFilter);
-  const countStr = typeof todoCount === "string" ? todoCount : JSON.stringify(todoCount);
+  const filterStr = typeof currentFilter === "string"
+    ? currentFilter
+    : JSON.stringify(currentFilter);
+  const countStr = typeof todoCount === "string"
+    ? todoCount
+    : JSON.stringify(todoCount);
 
   return renderComponent("todo-filters", {
     currentFilter: filterStr,
     todoCount: countStr,
-    userId
+    userId,
   });
 };
 
@@ -186,4 +238,3 @@ function safeParse<T>(value: string | undefined, fallback: T): T {
     return fallback;
   }
 }
-

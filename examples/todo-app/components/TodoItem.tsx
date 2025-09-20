@@ -3,16 +3,17 @@
  * Individual todo item with actions and styling using defineComponent
  */
 
-import { defineComponent, renderComponent, string, boolean } from "../../../mod.ts";
 import { h } from "../../../lib/jsx-runtime.ts";
 import { Button } from "../../../mod-simple.ts";
+import {
+  boolean,
+  defineComponent,
+  renderComponent,
+  string,
+} from "../../../mod.ts";
 import type { Todo } from "../api/types.ts";
 
 defineComponent("todo-item", {
-  api: {
-    toggleTodo: ["POST", "/api/todos/:id/toggle", () => new Response()],
-    deleteTodo: ["DELETE", "/api/todos/:id", () => new Response()],
-  },
   styles: `
     .todo-item {
       display: flex;
@@ -131,7 +132,10 @@ defineComponent("todo-item", {
           <input
             type="checkbox"
             checked={parsedTodo.completed}
-            onAction={`api.toggleTodo('${parsedTodo.id}')`}
+            hx-post={`/api/todos/${parsedTodo.id}/toggle`}
+            hx-target={`#todo-${parsedTodo.id}`}
+            hx-swap="outerHTML"
+            hx-ext="json-enc"
           />
 
           <div class="todo-details">
@@ -139,7 +143,9 @@ defineComponent("todo-item", {
             <div class="todo-meta">
               <span
                 class="priority-badge"
-                style={`background-color: ${priorityColors[parsedTodo.priority]}`}
+                style={`background-color: ${
+                  priorityColors[parsedTodo.priority]
+                }`}
               >
                 {parsedTodo.priority}
               </span>
@@ -163,7 +169,11 @@ defineComponent("todo-item", {
             <button
               type="button"
               class="delete-btn"
-              onAction={`api.deleteTodo('${parsedTodo.id}')`}
+              hx-delete={`/api/todos/${parsedTodo.id}`}
+              hx-target={`#todo-${parsedTodo.id}`}
+              hx-swap="outerHTML"
+              hx-ext="json-enc"
+              hx-confirm="Are you sure you want to delete this todo?"
             >
               Delete
             </button>
@@ -175,7 +185,9 @@ defineComponent("todo-item", {
 });
 
 // Export JSX component for direct use
-export const TodoItem = ({ todo, showActions = "true" }: { todo: Todo | string; showActions?: string }) => {
+export const TodoItem = (
+  { todo, showActions = "true" }: { todo: Todo | string; showActions?: string },
+) => {
   const todoStr = typeof todo === "string" ? todo : JSON.stringify(todo);
   return renderComponent("todo-item", { todo: todoStr, showActions });
 };

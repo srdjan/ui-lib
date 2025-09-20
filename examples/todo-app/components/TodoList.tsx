@@ -4,7 +4,12 @@
  */
 
 import { Alert } from "../../../mod-simple.ts";
-import { boolean, defineComponent, renderComponent, string } from "../../../mod.ts";
+import {
+  boolean,
+  defineComponent,
+  renderComponent,
+  string,
+} from "../../../mod.ts";
 import { h } from "../../../lib/jsx-runtime.ts";
 import type { Todo, TodoFilter } from "../api/types.ts";
 import "./TodoItem.tsx"; // Import to register the component
@@ -50,7 +55,8 @@ defineComponent("todo-list", {
   render: (attrs: Record<string, string>) => {
     const todos = attrs.todos || "[]";
     const filter = attrs.filter || '{"status":"all"}';
-    const loading = "loading" in attrs;
+    const loadingAttr = attrs.loading;
+    const loading = loadingAttr === "true" || loadingAttr === "1";
 
     const parsedTodos = safeParseArray<Todo>(todos, []);
     const parsedFilter = safeParse<TodoFilter>(filter, { status: "all" });
@@ -91,22 +97,28 @@ defineComponent("todo-list", {
 export const TodoList = ({
   todos,
   filter,
-  loading = false
+  loading = false,
 }: {
   todos: string | readonly Todo[] | Todo[];
   filter: string | object;
   loading?: boolean;
 }) => {
   const todosStr = typeof todos === "string" ? todos : JSON.stringify(todos);
-  const filterStr = typeof filter === "string" ? filter : JSON.stringify(filter);
+  const filterStr = typeof filter === "string"
+    ? filter
+    : JSON.stringify(filter);
 
-  return renderComponent("todo-list", {
+  const props: Record<string, string> = {
     todos: todosStr,
     filter: filterStr,
-    loading: loading ? "true" : "false"
-  });
-};
+  };
 
+  if (loading) {
+    props.loading = "true";
+  }
+
+  return renderComponent("todo-list", props);
+};
 
 function safeParse<T>(value: string, fallback: T): T {
   if (!value) return fallback;

@@ -5,8 +5,6 @@
  * Request handlers for todo operations
  */
 
-import { h } from "../../../lib/simple.tsx";
-import { renderToString } from "../../../mod-simple.ts";
 import { TodoItem, TodoList } from "../components/index.ts";
 import { todoRepository } from "./repository.ts";
 import {
@@ -50,9 +48,7 @@ export const todoAPI = {
 
     if (acceptsHtml) {
       return htmlResponse(
-        renderToString(
-          <TodoList todos={todosResult.value} filter={filter} />,
-        ),
+        TodoList({ todos: todosResult.value, filter }),
       );
     }
 
@@ -68,18 +64,17 @@ export const todoAPI = {
   // POST /api/todos - Create new todo
   async createTodo(req: Request): Promise<Response> {
     try {
-      const formData = await req.formData();
+      const jsonData = await req.json();
 
       // Get users and default to first user
       const usersResult = todoRepository.getUsers();
       if (!usersResult.ok) return handleDatabaseError(usersResult.error);
 
-      const userId = (formData.get("user") as string) || usersResult.value[0];
+      const userId = jsonData.user || usersResult.value[0];
       const todoData: CreateTodoData = {
         userId,
-        text: (formData.get("text") as string) || "",
-        priority: (formData.get("priority") as "low" | "medium" | "high") ||
-          "medium",
+        text: jsonData.text || "",
+        priority: jsonData.priority || "medium",
         completed: false,
       };
 
@@ -94,9 +89,7 @@ export const todoAPI = {
       const filter: TodoFilter = { status: "all" };
 
       return htmlResponse(
-        renderToString(
-          <TodoList todos={todosResult.value} filter={filter} />,
-        ),
+        TodoList({ todos: todosResult.value, filter }),
       );
     } catch (error) {
       console.error("Error creating todo:", error);
@@ -107,7 +100,7 @@ export const todoAPI = {
   // PUT /api/todos/:id - Update todo
   async updateTodo(req: Request, params: { id: string }): Promise<Response> {
     try {
-      const formData = await req.formData();
+      const jsonData = await req.json();
 
       // Get existing todo to determine userId
       const todoResult = todoRepository.getById(params.id);
@@ -118,8 +111,8 @@ export const todoAPI = {
       }
 
       const updateData: UpdateTodoData = {
-        text: (formData.get("text") as string)?.trim(),
-        priority: formData.get("priority") as "low" | "medium" | "high",
+        text: jsonData.text?.trim(),
+        priority: jsonData.priority,
       };
 
       // Update todo using functional repository
@@ -133,9 +126,7 @@ export const todoAPI = {
       const filter: TodoFilter = { status: "all" };
 
       return htmlResponse(
-        renderToString(
-          <TodoList todos={todosResult.value} filter={filter} />,
-        ),
+        TodoList({ todos: todosResult.value, filter }),
       );
     } catch (error) {
       console.error("Error updating todo:", error);
@@ -161,7 +152,7 @@ export const todoAPI = {
 
     // Return just the updated todo item
     return htmlResponse(
-      renderToString(<TodoItem todo={updateResult.value} />),
+      TodoItem({ todo: updateResult.value }),
     );
   },
 
@@ -211,9 +202,7 @@ export const todoAPI = {
     const filter: TodoFilter = { status: "all" };
 
     return htmlResponse(
-      renderToString(
-        <TodoList todos={todosResult.value} filter={filter} />,
-      ),
+      TodoList({ todos: todosResult.value, filter }),
     );
   },
 

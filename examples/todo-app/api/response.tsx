@@ -1,6 +1,6 @@
 /** @jsx h */
 import { h } from "../../../lib/simple.tsx";
-import { renderToString, Alert } from "../../../mod-simple.ts";
+import { Alert, renderToString } from "../../../mod-simple.ts";
 import type { DatabaseError } from "./types.ts";
 
 export function jsonResponse(data: any, status = 200): Response {
@@ -10,8 +10,12 @@ export function jsonResponse(data: any, status = 200): Response {
   });
 }
 
-export function htmlResponse(html: string, status = 200): Response {
-  return new Response(html, {
+export function htmlResponse(
+  html: string | JSX.Element,
+  status = 200,
+): Response {
+  const htmlString = typeof html === "string" ? html : String(html);
+  return new Response(htmlString, {
     status,
     headers: { "Content-Type": "text/html" },
   });
@@ -30,13 +34,18 @@ export const errorResponse = (message: string, status = 400): Response =>
 export const handleDatabaseError = (error: DatabaseError): Response => {
   switch (error.type) {
     case "not_found":
-      return errorResponse(`${error.entity} with ID ${error.id} not found`, 404);
+      return errorResponse(
+        `${error.entity} with ID ${error.id} not found`,
+        404,
+      );
     case "validation_error":
       return errorResponse(`${error.field}: ${error.message}`, 400);
     case "duplicate_key":
-      return errorResponse(`${error.field} '${error.value}' already exists`, 409);
+      return errorResponse(
+        `${error.field} '${error.value}' already exists`,
+        409,
+      );
     default:
       return errorResponse("An unexpected error occurred", 500);
   }
 };
-

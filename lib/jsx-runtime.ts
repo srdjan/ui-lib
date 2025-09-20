@@ -1,7 +1,7 @@
 // JSX Runtime: Direct-to-String Renderer with Type-Safe Event Handling and ui-lib Component Support
 
 import type { ComponentAction } from "./actions.ts";
-import { escape } from "./dom-helpers.ts";
+import { escape, spreadAttrs } from "./dom-helpers.ts";
 import { getRegistry } from "./registry.ts";
 import { renderComponent } from "./component-state.ts";
 import { normalizeClass, normalizeStyle } from "./jsx-normalize.ts";
@@ -157,11 +157,9 @@ export function h(
         attributes += ` style="${escape(style)}"`;
       }
     } else if (key === "onAction") {
-      // Special handling for onAction - convert to HTMX attributes
-      if (typeof value === "string") {
-        // Parse the action string to extract HTMX attributes
-        const htmxAttrs = parseActionToHtmx(value);
-        attributes += htmxAttrs;
+      const htmxAttrs = renderOnAction(value);
+      if (htmxAttrs) {
+        attributes += ` ${htmxAttrs}`;
       }
     } else if (key.startsWith("on")) {
       let handlerString = "";
@@ -250,38 +248,216 @@ function renderActionToString(action: ComponentAction): string {
 }
 
 // Helper function to parse action strings and convert to HTMX attributes
-function parseActionToHtmx(actionString: string): string {
+function renderOnAction(value: unknown): string {
+  const resolved = resolveOnAction(value);
+  return resolved ?? "";
+}
+
+type OnActionDescriptor = {
+  api?: string;
+  method?: string;
+  action?: string;
+  args?: unknown[];
+  attributes?: Record<string, unknown>;
+};
+
+function resolveOnAction(value: unknown): string | undefined {
+  if (value == null) return undefined;
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) return undefined;
+    if (trimmed.startsWith("api.")) {
+      return resolveActionExpression(trimmed);
+    }
+    if (
+      /\bhx-/.test(trimmed) || trimmed.startsWith("data-") ||
+      trimmed.startsWith("aria-")
+    ) {
+      return trimmed;
+    }
+    return undefined;
+  }
+
+  if (Array.isArray(value)) {
+    const [methodName, ...args] = value;
+    if (typeof methodName === "string") {
+      return invokeApiMethod(methodName, args);
+    }
+    return undefined;
+  }
+
+  if (typeof value === "object") {
+    if (isActionDescriptor(value)) {
+      const descriptor = value as OnActionDescriptor;
+      if (descriptor.attributes) {
+        return spreadAttrs(descriptor.attributes);
+      }
+      const methodName = descriptor.api || descriptor.method ||
+        descriptor.action;
+      if (typeof methodName === "string") {
+        return invokeApiMethod(methodName, descriptor.args ?? []);
+      }
+    } else if (isAttributeRecord(value)) {
+      return spreadAttrs(value as Record<string, unknown>);
+    }
+  }
+
+  return undefined;
+}
+
+function resolveActionExpression(expression: string): string | undefined {
+  const match = expression.match(/^api\.(\w+)\((.*)\)$/);
+  if (!match) return undefined;
+
+  const [, methodName, rawArgs] = match;
+  const args = parseArgumentList(rawArgs);
+  return invokeApiMethod(methodName, args);
+}
+
+function invokeApiMethod(
+  methodName: string,
+  args: unknown[],
+): string | undefined {
   const context = getCurrentContext();
-
-  if (!context?.apiMap) {
-    // No API context available, return empty (graceful degradation)
-    return "";
-  }
-
-  // Parse action calls like "api.methodName(arg1, arg2)"
-  const actionMatch = actionString.match(/api\.(\w+)\(([^)]*)\)/);
-  if (!actionMatch) {
-    // Not a valid API action format
-    return "";
-  }
-
-  const [, methodName, argsString] = actionMatch;
-  const apiMethod = context.apiMap[methodName];
+  const apiMethod = context?.apiMap?.[methodName];
 
   if (!apiMethod) {
-    // Method not found in API map
-    return "";
+    console.warn(
+      `ui-lib: onAction method "${methodName}" not found in API map`,
+    );
+    return undefined;
   }
-
-  // Extract arguments - simple parsing for now
-  const args = argsString.split(',').map(arg => arg.trim().replace(/['"]/g, ''));
 
   try {
-    // Call the API method to generate HTMX attributes
-    const htmxString = apiMethod(...args);
-    return ` ${htmxString}`;
+    const result = apiMethod(...args);
+    if (typeof result === "string") return result.trim();
+    if (result && typeof result === "object") {
+      return spreadAttrs(result as Record<string, unknown>);
+    }
   } catch (error) {
-    console.warn(`Failed to generate HTMX for action ${actionString}:`, error);
-    return "";
+    console.warn(
+      `ui-lib: failed to invoke onAction method "${methodName}"`,
+      error,
+    );
   }
+  return undefined;
+}
+
+function isActionDescriptor(value: object): value is OnActionDescriptor {
+  return "api" in value || "method" in value || "action" in value ||
+    "attributes" in value;
+}
+
+function isAttributeRecord(value: object): boolean {
+  return Object.keys(value).every((key) => /^[a-z0-9:-]+$/i.test(key));
+}
+
+function parseArgumentList(argsString: string): unknown[] {
+  const trimmed = argsString.trim();
+  if (!trimmed) return [];
+
+  const segments = splitArguments(trimmed);
+  return segments.map(deserializeArgument);
+}
+
+function splitArguments(source: string): string[] {
+  const segments: string[] = [];
+  let current = "";
+  let depthParen = 0;
+  let depthBrace = 0;
+  let depthBracket = 0;
+  let inSingle = false;
+  let inDouble = false;
+  let inTemplate = false;
+  let escaped = false;
+
+  for (let i = 0; i < source.length; i++) {
+    const char = source[i];
+
+    if (escaped) {
+      current += char;
+      escaped = false;
+      continue;
+    }
+
+    if (char === "\\" && (inSingle || inDouble || inTemplate)) {
+      current += char;
+      escaped = true;
+      continue;
+    }
+
+    if (char === "'" && !inDouble && !inTemplate) {
+      inSingle = !inSingle;
+      current += char;
+      continue;
+    }
+
+    if (char === '"' && !inSingle && !inTemplate) {
+      inDouble = !inDouble;
+      current += char;
+      continue;
+    }
+
+    if (char === "`" && !inSingle && !inDouble) {
+      inTemplate = !inTemplate;
+      current += char;
+      continue;
+    }
+
+    if (!inSingle && !inDouble && !inTemplate) {
+      if (char === "(") depthParen++;
+      if (char === ")") depthParen--;
+      if (char === "{") depthBrace++;
+      if (char === "}") depthBrace--;
+      if (char === "[") depthBracket++;
+      if (char === "]") depthBracket--;
+
+      if (
+        char === "," && depthParen === 0 && depthBrace === 0 &&
+        depthBracket === 0
+      ) {
+        segments.push(current.trim());
+        current = "";
+        continue;
+      }
+    }
+
+    current += char;
+  }
+
+  if (current.trim().length > 0) {
+    segments.push(current.trim());
+  }
+
+  return segments.filter((segment) => segment.length > 0);
+}
+
+function deserializeArgument(raw: string): unknown {
+  const value = raw.trim();
+  if (!value) return undefined;
+
+  if (
+    (value.startsWith("'") && value.endsWith("'")) ||
+    (value.startsWith('"') && value.endsWith('"'))
+  ) {
+    return unescapeQuoted(value.slice(1, -1), value[0]);
+  }
+
+  if (value === "true" || value === "false") {
+    return value === "true";
+  }
+
+  if (value === "null") return null;
+  if (value === "undefined") return undefined;
+
+  const num = Number(value);
+  if (!Number.isNaN(num)) return num;
+
+  return value;
+}
+
+function unescapeQuoted(value: string, quote: string): string {
+  const pattern = quote === '"' ? /\\"/g : /\\'/g;
+  return value.replace(/\\\\/g, "\\").replace(pattern, quote);
 }

@@ -118,3 +118,87 @@ Deno.test("JSX runtime normalizes className arrays and style objects", () => {
     '<div class="btn active pill" style="background-color: red; margin-top: 4px; opacity: 0.6">Hello</div>',
   );
 });
+
+Deno.test("onAction resolves legacy api strings", () => {
+  resetRegistry();
+
+  defineComponent("action-legacy", {
+    api: {
+      toggle: ["POST", "/api/items/:id/toggle", () => new Response("ok")],
+    },
+    render: (_props, _api) => {
+      return h(
+        "button",
+        {
+          onAction: "api.toggle('123')",
+        },
+        "Toggle",
+      );
+    },
+  });
+
+  const html = renderComponent("action-legacy");
+  assertEquals(html.includes('hx-post="/api/items/123/toggle"'), true);
+  assertEquals(html.includes("hx-target"), true);
+});
+
+Deno.test("onAction supports descriptor arrays", () => {
+  resetRegistry();
+
+  defineComponent("action-array", {
+    api: {
+      filter: ["GET", "/api/items", () => new Response("ok")],
+    },
+    render: (_props, _api) => {
+      return h(
+        "button",
+        {
+          onAction: ["filter", { status: "active" }],
+        },
+        "Filter",
+      );
+    },
+  });
+
+  const html = renderComponent("action-array");
+  assertEquals(html.includes('hx-get="/api/items"'), true);
+  assertEquals(html.includes("hx-headers"), true);
+});
+
+Deno.test("onAction accepts attribute maps and object descriptors", () => {
+  resetRegistry();
+
+  defineComponent("action-object", {
+    api: {
+      remove: ["DELETE", "/api/items/:id", () => new Response("ok")],
+    },
+    render: (_props, _api) => {
+      return [
+        h(
+          "button",
+          {
+            onAction: {
+              api: "remove",
+              args: ["abc"],
+            },
+          },
+          "Descriptor",
+        ),
+        h(
+          "button",
+          {
+            onAction: {
+              "hx-delete": "/api/items/abc",
+              "hx-target": "#row-abc",
+            },
+          },
+          "Attributes",
+        ),
+      ].join("");
+    },
+  });
+
+  const html = renderComponent("action-object");
+  assertEquals(html.includes('hx-delete="/api/items/abc"'), true);
+  assertEquals(html.includes('hx-target="#row-abc"'), true);
+});

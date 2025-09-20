@@ -9,9 +9,10 @@
 
 import { h } from "../../lib/simple.tsx";
 import { html, Router } from "../../mod-simple.ts";
-import { renderComponent, registerComponentApi } from "../../mod.ts";
+import { registerComponentApi, renderComponent } from "../../mod.ts";
 import { todoAPI } from "./api/index.ts";
 import type { TodoFilter } from "./api/types.ts";
+
 // Import to register components
 import "./components/index.ts";
 
@@ -184,22 +185,28 @@ router.register("GET", "/", (req: Request) => {
 
   const content = (
     <div>
-      <div dangerouslySetInnerHTML={{
-        __html: renderComponent("todo-form", { userId: currentUser })
-      }} />
-      <div dangerouslySetInnerHTML={{
-        __html: renderComponent("todo-filters", {
-          currentFilter: JSON.stringify(filter),
-          todoCount: JSON.stringify(stats),
-          userId: currentUser
-        })
-      }} />
-      <div dangerouslySetInnerHTML={{
-        __html: renderComponent("todo-list", {
-          todos: JSON.stringify(todos),
-          filter: JSON.stringify(filter)
-        })
-      }} />
+      <div
+        dangerouslySetInnerHTML={{
+          __html: renderComponent("todo-form", { userId: currentUser }),
+        }}
+      />
+      <div
+        dangerouslySetInnerHTML={{
+          __html: renderComponent("todo-filters", {
+            currentFilter: JSON.stringify(filter),
+            todoCount: JSON.stringify(stats),
+            userId: currentUser,
+          }),
+        }}
+      />
+      <div
+        dangerouslySetInnerHTML={{
+          __html: renderComponent("todo-list", {
+            todos: JSON.stringify(todos),
+            filter: JSON.stringify(filter),
+          }),
+        }}
+      />
       <div style="margin-top: 2rem; text-align: center;">
         <button
           type="button"
@@ -225,6 +232,8 @@ router.register("GET", "/", (req: Request) => {
         <title>Todo App - ui-lib Example</title>
         <style>{styles}</style>
         <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+        <script src="https://unpkg.com/htmx.org@1.9.10/dist/ext/json-enc.js">
+        </script>
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -276,22 +285,28 @@ router.register("GET", "/home", (req: Request) => {
 
   const fragment = (
     <div>
-      <div dangerouslySetInnerHTML={{
-        __html: renderComponent("todo-form", { userId: currentUser })
-      }} />
-      <div dangerouslySetInnerHTML={{
-        __html: renderComponent("todo-filters", {
-          currentFilter: JSON.stringify(filter),
-          todoCount: JSON.stringify(stats),
-          userId: currentUser
-        })
-      }} />
-      <div dangerouslySetInnerHTML={{
-        __html: renderComponent("todo-list", {
-          todos: JSON.stringify(todos),
-          filter: JSON.stringify(filter)
-        })
-      }} />
+      <div
+        dangerouslySetInnerHTML={{
+          __html: renderComponent("todo-form", { userId: currentUser }),
+        }}
+      />
+      <div
+        dangerouslySetInnerHTML={{
+          __html: renderComponent("todo-filters", {
+            currentFilter: JSON.stringify(filter),
+            todoCount: JSON.stringify(stats),
+            userId: currentUser,
+          }),
+        }}
+      />
+      <div
+        dangerouslySetInnerHTML={{
+          __html: renderComponent("todo-list", {
+            todos: JSON.stringify(todos),
+            filter: JSON.stringify(filter),
+          }),
+        }}
+      />
       <div style="margin-top: 2rem; text-align: center;">
         <button
           type="button"
@@ -478,9 +493,12 @@ Deno.serve({ port }, async (req) => {
   }
 
   try {
+    console.log(`${req.method} ${req.url}`);
     const match = router.match(req);
     if (match) {
+      console.log("Route matched:", match);
       const response = await match.handler(req, match.params);
+      console.log("Response status:", response.status);
 
       // Add CORS headers to response
       Object.entries(corsHeaders).forEach(([key, value]) => {

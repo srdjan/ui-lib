@@ -2,9 +2,23 @@
 
 // Core component system
 export { renderComponent } from "./lib/component-state.ts";
-export { defineComponent, registerComponentApi } from "./lib/define-component.ts";
+export {
+  defineComponent,
+  registerComponentApi,
+} from "./lib/define-component.ts";
 export type { DefinedComponent } from "./lib/define-component.ts";
 export { h } from "./lib/jsx-runtime.ts";
+
+// HTTP method helpers (curated subset)
+export {
+  create,
+  del,
+  get,
+  patch,
+  post,
+  put,
+  remove,
+} from "./lib/api-helpers.ts";
 
 // Prop helpers (stable set)
 export {

@@ -3,16 +3,10 @@
  * Add/edit todo form with validation and HTMX submission using defineComponent
  */
 
-import { Button, Input } from "../../../mod-simple.ts";
 import { defineComponent, renderComponent, string } from "../../../mod.ts";
-import { h } from "../../../lib/jsx-runtime.ts";
 import type { Todo } from "../api/types.ts";
 
 defineComponent("todo-form", {
-  api: {
-    createTodo: ["POST", "/api/todos", () => new Response()],
-    updateTodo: ["PUT", "/api/todos/:id", () => new Response()],
-  },
   styles: `
     .todo-form {
       background: white;
@@ -58,25 +52,33 @@ defineComponent("todo-form", {
     actionUrl = string("/api/todos"),
     method = string("POST"),
     onCancel = string(""),
-  }, api) => {
+  }, _api) => {
     const parsedTodo = parseOptionalTodo(typeof todo === "string" ? todo : "");
     const normalizedMethod = method === "PUT" ? "PUT" : "POST";
     const cancelHook = typeof onCancel === "string" ? onCancel : undefined;
     const isEditing = Boolean(parsedTodo);
 
-    // No manual HTMX generation needed - onAction will handle it automatically!
-    const formAction = isEditing && parsedTodo
-      ? `api.updateTodo('${parsedTodo.id}')`
-      : `api.createTodo()`;
+    // Manual HTMX wiring with predictable swap target for list refresh
+    const hxTarget = "#todo-list";
+    const createAttrs =
+      `hx-post="/api/todos" hx-target="${hxTarget}" hx-swap="outerHTML" hx-ext="json-enc"`;
+    const updateAttrs = parsedTodo
+      ? `hx-put="/api/todos/${parsedTodo.id}" hx-target="${hxTarget}" hx-swap="outerHTML" hx-ext="json-enc"`
+      : createAttrs;
+    const formAttrs = isEditing && parsedTodo ? updateAttrs : createAttrs;
 
     return `
       <div class="todo-form">
         <form
-          onAction="${formAction}"
+          ${formAttrs}
           onsubmit="setTimeout(() => this.reset(), 100)"
         >
           <input type="hidden" name="user" value="${userId}" />
-          ${isEditing && parsedTodo ? `<input type="hidden" name="id" value="${parsedTodo.id}" />` : ""}
+          ${
+      isEditing && parsedTodo
+        ? `<input type="hidden" name="id" value="${parsedTodo.id}" />`
+        : ""
+    }
 
           <div class="form-group">
             <input
@@ -92,13 +94,19 @@ defineComponent("todo-form", {
           <div class="form-group">
             <select name="priority" class="priority-select" required>
               <option value="">Select priority</option>
-              <option value="low" ${parsedTodo?.priority === "low" ? "selected" : ""}>
+              <option value="low" ${
+      parsedTodo?.priority === "low" ? "selected" : ""
+    }>
                 Low Priority
               </option>
-              <option value="medium" ${parsedTodo?.priority === "medium" ? "selected" : ""}>
+              <option value="medium" ${
+      parsedTodo?.priority === "medium" ? "selected" : ""
+    }>
                 Medium Priority
               </option>
-              <option value="high" ${parsedTodo?.priority === "high" ? "selected" : ""}>
+              <option value="high" ${
+      parsedTodo?.priority === "high" ? "selected" : ""
+    }>
                 High Priority
               </option>
             </select>
@@ -113,7 +121,9 @@ defineComponent("todo-form", {
               ${isEditing ? "Update Todo" : "Add Todo"}
             </button>
 
-            ${cancelHook ? `
+            ${
+      cancelHook
+        ? `
               <button
                 type="button"
                 class="btn btn-ghost"
@@ -122,7 +132,9 @@ defineComponent("todo-form", {
               >
                 Cancel
               </button>
-            ` : ""}
+            `
+        : ""
+    }
           </div>
         </form>
       </div>
@@ -136,7 +148,7 @@ export const TodoForm = ({
   userId,
   actionUrl = "/api/todos",
   method = "POST",
-  onCancel
+  onCancel,
 }: {
   todo?: string;
   userId: string;
@@ -149,10 +161,9 @@ export const TodoForm = ({
     userId,
     actionUrl,
     method,
-    onCancel: onCancel || ""
+    onCancel: onCancel || "",
   });
 };
-
 
 function parseOptionalTodo(value: string): Todo | undefined {
   if (!value) return undefined;
