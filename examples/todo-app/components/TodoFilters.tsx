@@ -7,23 +7,14 @@ import { defineComponent, get, renderComponent, string } from "../../../mod.ts";
 import { todoAPI } from "../api/index.ts";
 import type { TodoFilter, TodoStats } from "../api/types.ts";
 
+const LIST_TARGET = "#todo-list";
+const PRIORITY_FIELD_ID = "todo-priority";
+
 defineComponent("todo-filters", {
   api: {
-    filterAll: get(
-      "/api/todos/filter/all",
-      (req) => todoAPI.listAll(req),
-    ),
-    filterActive: get(
-      "/api/todos/filter/active",
-      (req) => todoAPI.listActive(req),
-    ),
-    filterCompleted: get(
-      "/api/todos/filter/completed",
-      (req) => todoAPI.listCompleted(req),
-    ),
-    filterByPriority: get(
-      "/api/todos/filter/priority",
-      (req) => todoAPI.listByPriority(req),
+    filterTodos: get(
+      "/api/todos",
+      (req) => todoAPI.listTodos(req),
     ),
   },
   styles: `
@@ -115,41 +106,45 @@ defineComponent("todo-filters", {
     );
     const user = typeof userId === "string" ? userId : String(userId ?? "");
 
-    const hxTarget = "#todo-list";
-    const statusPayload = {
-      priority: parsedFilter.priority ?? "",
-      user,
+    const buildFilterAttrs = (status: TodoFilter["status"]) => {
+      if (api?.filterTodos) {
+        return api.filterTodos({
+          status,
+          priority: parsedFilter.priority ?? "",
+          user,
+        }, {
+          target: LIST_TARGET,
+          attributes: {
+            "hx-select": LIST_TARGET,
+          },
+        }) ?? "";
+      }
+
+      const params = new URLSearchParams({
+        status,
+        priority: parsedFilter.priority ?? "",
+        user,
+      });
+      return `hx-get="/api/todos?${params}" hx-target="${LIST_TARGET}" hx-select="${LIST_TARGET}"`;
     };
 
-    const filterAllAttrs = api?.filterAll?.({
-      ...statusPayload,
-      status: "all",
-    }, {
-      target: hxTarget,
-    }) ?? "";
+    const filterAllAttrs = buildFilterAttrs("all");
+    const filterActiveAttrs = buildFilterAttrs("active");
+    const filterCompletedAttrs = buildFilterAttrs("completed");
 
-    const filterActiveAttrs = api?.filterActive?.({
-      ...statusPayload,
-      status: "active",
+    const priorityFilterAttrs = api?.filterTodos?.({
+      status: parsedFilter.status,
+      priority: parsedFilter.priority ?? "",
+      user,
     }, {
-      target: hxTarget,
-    }) ?? "";
-
-    const filterCompletedAttrs = api?.filterCompleted?.({
-      ...statusPayload,
-      status: "completed",
-    }, {
-      target: hxTarget,
-    }) ?? "";
-
-    const priorityFilterAttrs = api?.filterByPriority?.(undefined, {
-      target: hxTarget,
+      target: LIST_TARGET,
       trigger: "change",
-      vals: {
-        status: parsedFilter.status,
-        user,
+      attributes: {
+        "hx-select": LIST_TARGET,
+        "hx-include": `#${PRIORITY_FIELD_ID}`,
       },
-    }) ?? "";
+    }) ??
+      `hx-get="/api/todos?status=${parsedFilter.status}&user=${user}" hx-trigger="change" hx-target="${LIST_TARGET}" hx-select="${LIST_TARGET}" hx-include="#${PRIORITY_FIELD_ID}"`;
 
     return `
       <div class="todo-filters">
@@ -191,6 +186,7 @@ defineComponent("todo-filters", {
 
         <div class="priority-filters">
           <select
+            id="${PRIORITY_FIELD_ID}"
             class="priority-filter"
             name="priority"
             ${priorityFilterAttrs}

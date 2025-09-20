@@ -8,12 +8,40 @@ import { Button } from "../../../mod-simple.ts";
 import {
   boolean,
   defineComponent,
+  del,
+  post,
   renderComponent,
   string,
 } from "../../../mod.ts";
+import { todoAPI } from "../api/index.ts";
 import type { Todo } from "../api/types.ts";
 
+const swapAttrsFor = (id: string) => ({
+  "hx-target": `#todo-${id}`,
+  "hx-swap": "outerHTML",
+});
+
 defineComponent("todo-item", {
+  api: {
+    toggleTodo: post(
+      "/api/todos/:id/toggle",
+      (req, params) => {
+        const id = (params as Record<string, string>).id ??
+          (params as Record<string, string>)["i"];
+        if (!id) throw new Error("Missing todo id in route params");
+        return todoAPI.toggleTodo(req, { id });
+      },
+    ),
+    deleteTodo: del(
+      "/api/todos/:id",
+      (req, params) => {
+        const id = (params as Record<string, string>).id ??
+          (params as Record<string, string>)["i"];
+        if (!id) throw new Error("Missing todo id in route params");
+        return todoAPI.deleteTodo(req, { id });
+      },
+    ),
+  },
   styles: `
     .todo-item {
       display: flex;
@@ -121,7 +149,34 @@ defineComponent("todo-item", {
       high: "#ef4444",
     };
 
-    // No manual HTMX generation needed - onAction will handle it automatically!
+    const fallbackSwap = swapAttrsFor(parsedTodo.id);
+
+    const toggleAction = api
+      ? {
+        api: "toggleTodo",
+        args: [parsedTodo.id],
+        attributes: fallbackSwap,
+      }
+      : `hx-post="/api/todos/${parsedTodo.id}/toggle" hx-target="${
+        fallbackSwap["hx-target"]
+      }" hx-swap="${fallbackSwap["hx-swap"]}"`;
+
+    const deleteAttributes = {
+      ...fallbackSwap,
+      "hx-confirm": "Are you sure you want to delete this todo?",
+    };
+
+    const deleteAction = api
+      ? {
+        api: "deleteTodo",
+        args: [parsedTodo.id],
+        attributes: deleteAttributes,
+      }
+      : `hx-delete="/api/todos/${parsedTodo.id}" hx-target="${
+        deleteAttributes["hx-target"]
+      }" hx-swap="${deleteAttributes["hx-swap"]}" hx-confirm="${
+        deleteAttributes["hx-confirm"]
+      }"`;
 
     return (
       <div
@@ -132,10 +187,7 @@ defineComponent("todo-item", {
           <input
             type="checkbox"
             checked={parsedTodo.completed}
-            hx-post={`/api/todos/${parsedTodo.id}/toggle`}
-            hx-target={`#todo-${parsedTodo.id}`}
-            hx-swap="outerHTML"
-            hx-ext="json-enc"
+            onAction={toggleAction}
           />
 
           <div class="todo-details">
@@ -169,11 +221,7 @@ defineComponent("todo-item", {
             <button
               type="button"
               class="delete-btn"
-              hx-delete={`/api/todos/${parsedTodo.id}`}
-              hx-target={`#todo-${parsedTodo.id}`}
-              hx-swap="outerHTML"
-              hx-ext="json-enc"
-              hx-confirm="Are you sure you want to delete this todo?"
+              onAction={deleteAction}
             >
               Delete
             </button>

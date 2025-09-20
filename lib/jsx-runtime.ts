@@ -350,7 +350,19 @@ function isActionDescriptor(value: object): value is OnActionDescriptor {
 }
 
 function isAttributeRecord(value: object): boolean {
-  return Object.keys(value).every((key) => /^[a-z0-9:-]+$/i.test(key));
+  const keys = Object.keys(value);
+  if (keys.length === 0) return false;
+  let hasAttributePrefix = false;
+  for (const key of keys) {
+    if (!/^[a-z0-9:-]+$/i.test(key)) return false;
+    if (
+      key.startsWith("hx-") || key.startsWith("data-") ||
+      key.startsWith("aria-")
+    ) {
+      hasAttributePrefix = true;
+    }
+  }
+  return hasAttributePrefix;
 }
 
 function parseArgumentList(argsString: string): unknown[] {

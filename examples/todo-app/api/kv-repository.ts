@@ -1,3 +1,4 @@
+/// <reference lib="deno.unstable" />
 /**
  * Deno KV Todo Repository
  * Persistent data layer using Deno KV with functional error handling
@@ -37,6 +38,9 @@ const createKvError = (operation: string, message: string): DatabaseError => ({
   operation,
   message,
 });
+
+const errorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error);
 
 const createSerializationError = (
   message: string,
@@ -136,7 +140,7 @@ export const seedKvDatabase = async (
     return err(
       createKvError(
         "seedDatabase",
-        `Failed to seed database: ${error.message}`,
+        `Failed to seed database: ${errorMessage(error)}`,
       ),
     );
   }
@@ -158,7 +162,7 @@ export const createKvTodoRepository = async (): Promise<
   } catch (error) {
     return err({
       type: "kv_connection_error",
-      message: `Failed to open KV database: ${error.message}`,
+      message: `Failed to open KV database: ${errorMessage(error)}`,
     });
   }
 
@@ -181,7 +185,7 @@ export const createKvTodoRepository = async (): Promise<
       return err(
         createKvError(
           "getAllTodosForUser",
-          `Failed to list todos: ${error.message}`,
+          `Failed to list todos: ${errorMessage(error)}`,
         ),
       );
     }
@@ -201,7 +205,10 @@ export const createKvTodoRepository = async (): Promise<
       return ok(stats);
     } catch (error) {
       return err(
-        createKvError("updateStats", `Failed to cache stats: ${error.message}`),
+        createKvError(
+          "updateStats",
+          `Failed to cache stats: ${errorMessage(error)}`,
+        ),
       );
     }
   };
@@ -233,7 +240,10 @@ export const createKvTodoRepository = async (): Promise<
         return ok(null);
       } catch (error) {
         return err(
-          createKvError("getById", `Failed to get todo: ${error.message}`),
+          createKvError(
+            "getById",
+            `Failed to get todo: ${errorMessage(error)}`,
+          ),
         );
       }
     },
@@ -270,7 +280,10 @@ export const createKvTodoRepository = async (): Promise<
         return ok(todo);
       } catch (error) {
         return err(
-          createKvError("create", `Failed to create todo: ${error.message}`),
+          createKvError(
+            "create",
+            `Failed to create todo: ${errorMessage(error)}`,
+          ),
         );
       }
     },
@@ -309,7 +322,10 @@ export const createKvTodoRepository = async (): Promise<
         return ok(updatedTodo);
       } catch (error) {
         return err(
-          createKvError("update", `Failed to update todo: ${error.message}`),
+          createKvError(
+            "update",
+            `Failed to update todo: ${errorMessage(error)}`,
+          ),
         );
       }
     },
@@ -343,7 +359,10 @@ export const createKvTodoRepository = async (): Promise<
         return ok(true);
       } catch (error) {
         return err(
-          createKvError("delete", `Failed to delete todo: ${error.message}`),
+          createKvError(
+            "delete",
+            `Failed to delete todo: ${errorMessage(error)}`,
+          ),
         );
       }
     },
@@ -371,7 +390,10 @@ export const createKvTodoRepository = async (): Promise<
         return await updateStats(userId);
       } catch (error) {
         return err(
-          createKvError("getStats", `Failed to get stats: ${error.message}`),
+          createKvError(
+            "getStats",
+            `Failed to get stats: ${errorMessage(error)}`,
+          ),
         );
       }
     },

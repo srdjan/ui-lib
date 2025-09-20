@@ -69,6 +69,7 @@ todo-app/
 - Form validation
 - Auto-reset after submission
 - Clean form layout
+- Submits via HTMX JSON (`json-enc`) so handlers receive structured payloads
 
 ### TodoList (`components/TodoList.tsx`)
 
@@ -108,6 +109,7 @@ export interface Todo {
 - In-memory storage (easily replaceable with database)
 - Pure validation functions
 - No throwing errors - all errors as values
+- Handlers expect HTMX JSON bodies (`Content-Type: application/json`); see `handlers.test.ts` for examples
 
 ### Handlers (`api/handlers.ts`)
 

@@ -63,37 +63,6 @@ export const todoAPI = {
     });
   },
 
-  // GET /api/todos - List all todos
-  async listAll(req: Request): Promise<Response> {
-    const url = new URL(req.url);
-    url.searchParams.set("status", "all");
-    const modifiedReq = new Request(url.toString(), req);
-    return this.listTodos(modifiedReq);
-  },
-
-  // GET /api/todos - List active todos
-  async listActive(req: Request): Promise<Response> {
-    const url = new URL(req.url);
-    url.searchParams.set("status", "active");
-    const modifiedReq = new Request(url.toString(), req);
-    return this.listTodos(modifiedReq);
-  },
-
-  // GET /api/todos - List completed todos
-  async listCompleted(req: Request): Promise<Response> {
-    const url = new URL(req.url);
-    url.searchParams.set("status", "completed");
-    const modifiedReq = new Request(url.toString(), req);
-    return this.listTodos(modifiedReq);
-  },
-
-  // GET /api/todos - List todos by priority
-  async listByPriority(req: Request): Promise<Response> {
-    // This handler can accept priority from query params or use a default
-    // The existing listTodos already handles priority filtering
-    return this.listTodos(req);
-  },
-
   // POST /api/todos - Create new todo
   async createTodo(req: Request): Promise<Response> {
     try {

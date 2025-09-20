@@ -3,10 +3,34 @@
  * Add/edit todo form with validation and HTMX submission using defineComponent
  */
 
-import { defineComponent, renderComponent, string } from "../../../mod.ts";
+import {
+  defineComponent,
+  post,
+  put,
+  renderComponent,
+  string,
+} from "../../../mod.ts";
+import { todoAPI } from "../api/index.ts";
 import type { Todo } from "../api/types.ts";
 
+const LIST_TARGET = "#todo-list";
+
 defineComponent("todo-form", {
+  api: {
+    createTodo: post(
+      "/api/todos",
+      (req) => todoAPI.createTodo(req),
+    ),
+    updateTodo: put(
+      "/api/todos/:id",
+      (req, params) => {
+        const id = (params as Record<string, string>).id ??
+          (params as Record<string, string>)["i"];
+        if (!id) throw new Error("Missing todo id in route params");
+        return todoAPI.updateTodo(req, { id });
+      },
+    ),
+  },
   styles: `
     .todo-form {
       background: white;
@@ -52,18 +76,19 @@ defineComponent("todo-form", {
     actionUrl = string("/api/todos"),
     method = string("POST"),
     onCancel = string(""),
-  }, _api) => {
+  }, api) => {
     const parsedTodo = parseOptionalTodo(typeof todo === "string" ? todo : "");
     const normalizedMethod = method === "PUT" ? "PUT" : "POST";
     const cancelHook = typeof onCancel === "string" ? onCancel : undefined;
     const isEditing = Boolean(parsedTodo);
 
-    // Manual HTMX wiring with predictable swap target for list refresh
-    const hxTarget = "#todo-list";
-    const createAttrs =
-      `hx-post="/api/todos" hx-target="${hxTarget}" hx-swap="outerHTML" hx-ext="json-enc"`;
+    // HTMX wiring aligned with shared list target configuration
+    const baseOptions = { target: LIST_TARGET, swap: "outerHTML" } as const;
+    const createAttrs = api?.createTodo?.(undefined, baseOptions) ??
+      `hx-post="/api/todos" hx-target="${LIST_TARGET}" hx-swap="outerHTML"`;
     const updateAttrs = parsedTodo
-      ? `hx-put="/api/todos/${parsedTodo.id}" hx-target="${hxTarget}" hx-swap="outerHTML" hx-ext="json-enc"`
+      ? api?.updateTodo?.(parsedTodo.id, undefined, baseOptions) ??
+        `hx-put="/api/todos/${parsedTodo.id}" hx-target="${LIST_TARGET}" hx-swap="outerHTML"`
       : createAttrs;
     const formAttrs = isEditing && parsedTodo ? updateAttrs : createAttrs;
 
@@ -71,6 +96,7 @@ defineComponent("todo-form", {
       <div class="todo-form">
         <form
           ${formAttrs}
+          hx-select="${LIST_TARGET}"
           onsubmit="setTimeout(() => this.reset(), 100)"
         >
           <input type="hidden" name="user" value="${userId}" />

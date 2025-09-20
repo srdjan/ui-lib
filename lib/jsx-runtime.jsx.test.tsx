@@ -202,3 +202,22 @@ Deno.test("onAction accepts attribute maps and object descriptors", () => {
   assertEquals(html.includes('hx-delete="/api/items/abc"'), true);
   assertEquals(html.includes('hx-target="#row-abc"'), true);
 });
+
+Deno.test("onAction ignores plain objects without attribute prefixes", () => {
+  resetRegistry();
+
+  defineComponent("action-plain", {
+    render: () => {
+      return h(
+        "button",
+        {
+          onAction: { foo: "bar" },
+        },
+        "Plain",
+      );
+    },
+  });
+
+  const html = renderComponent("action-plain");
+  assertEquals(html.includes('foo="bar"'), false);
+});
