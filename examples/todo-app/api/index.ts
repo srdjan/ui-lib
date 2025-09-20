@@ -16,9 +16,17 @@ export {
   calculateStats,
   createInMemoryTodoRepository,
   type TodoRepository,
-  todoRepository,
   validateTodoData,
   validateUpdateData,
 } from "./repository.ts";
+
+export { createKvTodoRepository, seedKvDatabase } from "./kv-repository.ts";
+
+export {
+  ensureRepository,
+  getRepository,
+  getRepositoryType,
+  initializeRepository,
+} from "./repository-factory.ts";
 
 export { todoAPI } from "./handlers.tsx";

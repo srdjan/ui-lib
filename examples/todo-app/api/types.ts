@@ -52,4 +52,18 @@ export type DatabaseError =
     readonly type: "duplicate_key";
     readonly field: string;
     readonly value: string;
+  }
+  | {
+    readonly type: "kv_connection_error";
+    readonly message: string;
+  }
+  | {
+    readonly type: "kv_serialization_error";
+    readonly message: string;
+    readonly data?: unknown;
+  }
+  | {
+    readonly type: "kv_operation_error";
+    readonly operation: string;
+    readonly message: string;
   };

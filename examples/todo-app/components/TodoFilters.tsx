@@ -4,26 +4,26 @@
  */
 
 import { defineComponent, get, renderComponent, string } from "../../../mod.ts";
-import type { TodoFilter, TodoStats } from "../api/types.ts";
 import { todoAPI } from "../api/index.ts";
+import type { TodoFilter, TodoStats } from "../api/types.ts";
 
 defineComponent("todo-filters", {
   api: {
     filterAll: get(
-      "/api/todos",
-      (req) => todoAPI.listTodos(req),
+      "/api/todos/filter/all",
+      (req) => todoAPI.listAll(req),
     ),
     filterActive: get(
-      "/api/todos",
-      (req) => todoAPI.listTodos(req),
+      "/api/todos/filter/active",
+      (req) => todoAPI.listActive(req),
     ),
     filterCompleted: get(
-      "/api/todos",
-      (req) => todoAPI.listTodos(req),
+      "/api/todos/filter/completed",
+      (req) => todoAPI.listCompleted(req),
     ),
     filterByPriority: get(
-      "/api/todos",
-      (req) => todoAPI.listTodos(req),
+      "/api/todos/filter/priority",
+      (req) => todoAPI.listByPriority(req),
     ),
   },
   styles: `

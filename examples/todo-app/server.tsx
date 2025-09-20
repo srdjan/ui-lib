@@ -20,29 +20,60 @@ void h;
 
 const router = new Router();
 
+// Initialize repository
+console.log("Initializing repository...");
+const repositoryResult = await ensureRepository();
+if (!repositoryResult.ok) {
+  console.error("Failed to initialize repository:", repositoryResult.error);
+  Deno.exit(1);
+}
+console.log("Repository initialized successfully");
+
 // Register component APIs with the router
 registerComponentApi("todo-item", router);
 registerComponentApi("todo-form", router);
-registerComponentApi("todo-filters", router);
+
+// Manual registration of todo-filters API routes (workaround for registerComponentApi bug)
+import { getRegistry } from "../../lib/registry.ts";
+const registry = getRegistry();
+const todoFiltersComponent = registry["todo-filters"];
+if (todoFiltersComponent?.apiMap) {
+  console.log("Manually registering todo-filters API routes...");
+  for (
+    const [functionName, apiDefinition] of Object.entries(
+      todoFiltersComponent.apiMap,
+    )
+  ) {
+    if (Array.isArray(apiDefinition) && apiDefinition.length === 3) {
+      const [method, path, handler] = apiDefinition;
+      router.register(method, path, handler as any);
+    }
+  }
+}
 
 // Data helpers using functional repository
-import { todoRepository } from "./api/index.ts";
+import { ensureRepository, getRepository } from "./api/index.ts";
 
-const getUsers = (): readonly string[] => {
-  const r = todoRepository.getUsers();
+const getUsers = async (): Promise<readonly string[]> => {
+  const repository = getRepository();
+  const r = await repository.getUsers();
   return r.ok ? r.value : [];
 };
 
-const firstUser = (url: URL): string =>
-  url.searchParams.get("user") || getUsers()[0];
+const firstUser = async (url: URL): Promise<string> => {
+  const users = await getUsers();
+  return url.searchParams.get("user") || users[0];
+};
 
-const getStats = (userId: string) => {
-  const r = todoRepository.getStats(userId);
+const getStats = async (userId: string) => {
+  const repository = getRepository();
+  const r = await repository.getStats(userId);
   return r.ok ? r.value : { total: 0, active: 0, completed: 0 };
 };
 
-const getTodos = (filter: TodoFilter, userId: string) => {
-  const r = todoRepository.filter(filter, userId);
+const getTodos = async (filter: TodoFilter, userId: string) => {
+  const repository = getRepository();
+  const r = await repository.filter(filter, userId);
   return r.ok ? r.value : [];
 };
 
@@ -150,12 +181,12 @@ const styles = `
 `;
 
 // Main application page
-router.register("GET", "/", (req: Request) => {
+router.register("GET", "/", async (req: Request) => {
   const url = new URL(req.url);
-  const currentUser = firstUser(url);
+  const currentUser = await firstUser(url);
   const filter: TodoFilter = { status: "all" };
-  const stats = getStats(currentUser);
-  const todos = getTodos(filter, currentUser);
+  const stats = await getStats(currentUser);
+  const todos = await getTodos(filter, currentUser);
 
   const nav = (
     <div class="top-nav">
@@ -364,7 +395,7 @@ router.register("GET", "/users", (req: Request) => {
 });
 
 // API Routes - Full CRUD operations
-router.register("GET", "/api/todos", todoAPI.listTodos);
+// Note: GET /api/todos is handled by todo-filters component API
 router.register("POST", "/api/todos", todoAPI.createTodo);
 router.register(
   "PUT",
@@ -388,13 +419,15 @@ router.register("POST", "/api/todos/clear-completed", todoAPI.clearCompleted);
 router.register("GET", "/api/todos/stats", todoAPI.getStats);
 
 // Health check endpoint
-router.register("GET", "/health", () => {
-  const currentUser = getUsers()[0];
+router.register("GET", "/health", async () => {
+  const users = await getUsers();
+  const currentUser = users[0];
+  const stats = await getStats(currentUser);
   return new Response(
     JSON.stringify({
       status: "healthy",
       timestamp: new Date().toISOString(),
-      todos: getStats(currentUser),
+      todos: stats,
     }),
     {
       headers: { "Content-Type": "application/json" },

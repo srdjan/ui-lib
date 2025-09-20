@@ -15,20 +15,40 @@ import type {
 
 // Port interface for TodoRepository capability
 export interface TodoRepository {
-  readonly getUsers: () => Result<readonly string[], DatabaseError>;
-  readonly getAll: (userId: string) => Result<readonly Todo[], DatabaseError>;
-  readonly getById: (id: string) => Result<Todo | null, DatabaseError>;
-  readonly create: (todoData: CreateTodoData) => Result<Todo, DatabaseError>;
+  readonly getUsers: () =>
+    | Result<readonly string[], DatabaseError>
+    | Promise<Result<readonly string[], DatabaseError>>;
+  readonly getAll: (
+    userId: string,
+  ) =>
+    | Result<readonly Todo[], DatabaseError>
+    | Promise<Result<readonly Todo[], DatabaseError>>;
+  readonly getById: (
+    id: string,
+  ) =>
+    | Result<Todo | null, DatabaseError>
+    | Promise<Result<Todo | null, DatabaseError>>;
+  readonly create: (
+    todoData: CreateTodoData,
+  ) => Result<Todo, DatabaseError> | Promise<Result<Todo, DatabaseError>>;
   readonly update: (
     id: string,
     updates: UpdateTodoData,
-  ) => Result<Todo, DatabaseError>;
-  readonly delete: (id: string) => Result<boolean, DatabaseError>;
+  ) => Result<Todo, DatabaseError> | Promise<Result<Todo, DatabaseError>>;
+  readonly delete: (
+    id: string,
+  ) => Result<boolean, DatabaseError> | Promise<Result<boolean, DatabaseError>>;
   readonly filter: (
     filter: TodoFilter,
     userId: string,
-  ) => Result<readonly Todo[], DatabaseError>;
-  readonly getStats: (userId: string) => Result<TodoStats, DatabaseError>;
+  ) =>
+    | Result<readonly Todo[], DatabaseError>
+    | Promise<Result<readonly Todo[], DatabaseError>>;
+  readonly getStats: (
+    userId: string,
+  ) =>
+    | Result<TodoStats, DatabaseError>
+    | Promise<Result<TodoStats, DatabaseError>>;
 }
 
 // Pure validation functions

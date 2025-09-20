@@ -19,15 +19,27 @@ void h;
 
 const router = new Router();
 // Data helpers using functional repository
-import { todoRepository } from "./api/index.ts";
+import { ensureRepository, getRepository } from "./api/index.ts";
 
-const getUsers = (): readonly string[] => {
-  const r = todoRepository.getUsers();
+// Initialize repository
+console.log("Initializing repository...");
+const repositoryResult = await ensureRepository();
+if (!repositoryResult.ok) {
+  console.error("Failed to initialize repository:", repositoryResult.error);
+  Deno.exit(1);
+}
+console.log("Repository initialized successfully");
+
+const getUsers = async (): Promise<readonly string[]> => {
+  const repository = getRepository();
+  const r = await repository.getUsers();
   return r.ok ? r.value : [];
 };
 
-const firstUser = (url: URL): string =>
-  url.searchParams.get("user") || getUsers()[0];
+const firstUser = async (url: URL): Promise<string> => {
+  const users = await getUsers();
+  return url.searchParams.get("user") || users[0];
+};
 
 const getStats = (userId: string) => {
   const r = todoRepository.getStats(userId);
