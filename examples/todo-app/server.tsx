@@ -7,16 +7,34 @@
  * Demonstrates building the todo app using only generic library components
  */
 
-import { h, renderToString } from "../../lib/simple.tsx";
 import { html, Router } from "../../mod-simple.ts";
 
-// Import generic library components
-import { Item } from "../../lib/components/data-display/item.ts";
+// Import component system
+import { defineComponent } from "../../lib/define-component.ts";
+import { renderComponent } from "../../lib/component-state.ts";
+// Import to register the Item component
+import "../../lib/components/data-display/item.ts";
+
+// Define ItemProps type locally (since it's not exported from the component)
+type ItemProps = {
+  id?: string;
+  title?: string;
+  description?: string;
+  icon?: string;
+  timestamp?: string;
+  badges?: Array<{ text: string; variant?: string }>;
+  actions?: Array<{ text: string; action: string; variant?: string }>;
+  variant?: "default" | "completed" | "selected" | "priority";
+  size?: "sm" | "md" | "lg";
+  priority?: "low" | "medium" | "high";
+  completed?: boolean;
+  selected?: boolean;
+};
 
 import { todoAPI } from "./api/index.ts";
 import type { Todo, TodoFilter } from "./api/types.ts";
 
-void h;
+// Using defineComponent instead of JSX
 
 const router = new Router();
 
@@ -57,7 +75,7 @@ const getTodos = async (filter: TodoFilter, userId: string) => {
 
 // Convert Todo objects to generic Item format
 function todoToItem(todo: Todo): string {
-  return Item({
+  const itemProps: ItemProps = {
     id: todo.id,
     title: todo.text,
     completed: todo.completed,
@@ -69,7 +87,8 @@ function todoToItem(todo: Todo): string {
       { text: "Edit", action: `editTodo('${todo.id}')` },
       { text: "Delete", variant: "danger", action: `deleteTodo('${todo.id}')` },
     ],
-  });
+  };
+  return renderComponent("item", itemProps);
 }
 
 function getPriorityVariant(priority: string): string {
@@ -205,6 +224,130 @@ const basicStyles = `
   }
 `;
 
+// Define TodoApp component using defineComponent
+type TodoAppProps = {
+  todos: readonly Todo[];
+  stats: { total: number; active: number; completed: number };
+};
+
+defineComponent<TodoAppProps>("todo-app", {
+  styles: basicStyles,
+  render: (props) => {
+    const { todos, stats } = props;
+
+    // Convert todos to items using the registry system
+    const todoItems = todos.map(todoToItem);
+
+    return `
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <title>Generic Components Demo - ui-lib</title>
+          <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+          <script src="https://unpkg.com/htmx.org@1.9.10/dist/ext/json-enc.js"></script>
+          <script>
+            window.editTodo = function(id) { alert('Edit UI not implemented in MVP'); };
+            window.deleteTodo = function(id) {
+              if (confirm('Are you sure you want to delete this todo?')) {
+                fetch('/api/todos/' + id, { method: 'DELETE' })
+                  .then(() => location.reload());
+              }
+            };
+          </script>
+        </head>
+        <body>
+          <div class="container">
+            <header class="header">
+              <h1 class="title">Generic Components Demo</h1>
+              <p class="subtitle">Todo App Built with Reusable Library Components</p>
+              <p class="description">
+                This demonstrates how applications can be built using only generic,
+                reusable components from the ui-lib without any app-specific components.
+              </p>
+            </header>
+
+            <div class="section">
+              <div class="form-card">
+                <h2>Add New Todo</h2>
+                <form method="POST" action="/api/todos">
+                  <div class="form-group">
+                    <label for="text">What needs to be done?</label>
+                    <input type="text" id="text" name="text" placeholder="Enter todo text..." required />
+                  </div>
+                  <div class="form-group">
+                    <label for="priority">Priority</label>
+                    <select id="priority" name="priority" required>
+                      <option value="">Select priority</option>
+                      <option value="low">Low Priority</option>
+                      <option value="medium">Medium Priority</option>
+                      <option value="high">High Priority</option>
+                    </select>
+                  </div>
+                  <button type="submit">Add Todo</button>
+                </form>
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="stats">
+                <div class="stats-grid">
+                  <div class="stat">
+                    <div class="stat-value">${stats.active}</div>
+                    <div class="stat-label">active</div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat-value">${stats.completed}</div>
+                    <div class="stat-label">completed</div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat-value">${stats.total}</div>
+                    <div class="stat-label">total</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section">
+              <h2>Your Todos (${todos.length} items)</h2>
+              ${todos.length === 0 ? `
+                <div class="form-card">
+                  <p>No todos yet. Add a todo above to get started!</p>
+                </div>
+              ` : `
+                <div class="todos-list">
+                  ${todoItems.join('')}
+                </div>
+              `}
+            </div>
+
+            <div class="section">
+              <div class="stats">
+                <h3>Component Comparison</h3>
+                <div class="stats-grid">
+                  <div class="stat">
+                    <div class="stat-value">800+</div>
+                    <div class="stat-label">App-Specific LOC</div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat-value">50</div>
+                    <div class="stat-label">Generic Component LOC</div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat-value">94%</div>
+                    <div class="stat-label">Code Reduction</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+  },
+});
+
 // Main application page
 router.register("GET", "/", async (req: Request) => {
   const url = new URL(req.url);
@@ -213,127 +356,19 @@ router.register("GET", "/", async (req: Request) => {
   const stats = await getStats(currentUser);
   const todos = await getTodos(filter, currentUser);
 
-  // Convert todos to items
-  const todoItems = todos.map(todoToItem);
+  // Use the registry system to render the TodoApp component
+  const todoAppProps: TodoAppProps = {
+    todos,
+    stats,
+  };
 
-  const page = (
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Generic Components Demo - ui-lib</title>
-        <style>{basicStyles}</style>
-        <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-        <script src="https://unpkg.com/htmx.org@1.9.10/dist/ext/json-enc.js"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-          window.editTodo = function(id) { alert('Edit UI not implemented in MVP'); };
-          window.deleteTodo = function(id) {
-            if (confirm('Are you sure you want to delete this todo?')) {
-              fetch('/api/todos/' + id, { method: 'DELETE' })
-                .then(() => location.reload());
-            }
-          };
-        `,
-          }}
-        />
-      </head>
-      <body>
-        <div className="container">
-          <header className="header">
-            <h1 className="title">Generic Components Demo</h1>
-            <p className="subtitle">Todo App Built with Reusable Library Components</p>
-            <p className="description">
-              This demonstrates how applications can be built using only generic,
-              reusable components from the ui-lib without any app-specific components.
-            </p>
-          </header>
+  const appHtml = renderComponent("todo-app", todoAppProps);
 
-          <div className="section">
-            <div className="form-card">
-              <h2>Add New Todo</h2>
-              <form method="POST" action="/api/todos">
-                <div className="form-group">
-                  <label htmlFor="text">What needs to be done?</label>
-                  <input type="text" id="text" name="text" placeholder="Enter todo text..." required />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="priority">Priority</label>
-                  <select id="priority" name="priority" required>
-                    <option value="">Select priority</option>
-                    <option value="low">Low Priority</option>
-                    <option value="medium">Medium Priority</option>
-                    <option value="high">High Priority</option>
-                  </select>
-                </div>
-                <button type="submit">Add Todo</button>
-              </form>
-            </div>
-          </div>
-
-          <div className="section">
-            <div className="stats">
-              <div className="stats-grid">
-                <div className="stat">
-                  <div className="stat-value">{stats.active}</div>
-                  <div className="stat-label">active</div>
-                </div>
-                <div className="stat">
-                  <div className="stat-value">{stats.completed}</div>
-                  <div className="stat-label">completed</div>
-                </div>
-                <div className="stat">
-                  <div className="stat-value">{stats.total}</div>
-                  <div className="stat-label">total</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="section">
-            <h2>Your Todos ({todos.length} items)</h2>
-            {todos.length === 0 ? (
-              <div className="form-card">
-                <p>No todos yet. Add a todo above to get started!</p>
-              </div>
-            ) : (
-              <div className="todos-list">
-                {todoItems.map(item => (
-                  <div dangerouslySetInnerHTML={{ __html: item }} />
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="section">
-            <div className="stats">
-              <h3>Component Comparison</h3>
-              <div className="stats-grid">
-                <div className="stat">
-                  <div className="stat-value">800+</div>
-                  <div className="stat-label">App-Specific LOC</div>
-                </div>
-                <div className="stat">
-                  <div className="stat-value">50</div>
-                  <div className="stat-label">Generic Component LOC</div>
-                </div>
-                <div className="stat">
-                  <div className="stat-value">94%</div>
-                  <div className="stat-label">Code Reduction</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </body>
-    </html>
-  );
-
-  return new Response(`<!DOCTYPE html>\n${renderToString(page)}`, {
+  return new Response(appHtml, {
     headers: { "Content-Type": "text/html" },
   });
 });
+
 
 // API Routes - reuse existing API
 router.register("POST", "/api/todos", async (req: Request) => {

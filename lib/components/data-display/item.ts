@@ -3,7 +3,8 @@
  * Can be used for todo items, list items, cards, user cards, etc.
  */
 
-import { h } from "../../simple.tsx";
+import { defineComponent } from "../../define-component.ts";
+import { renderComponent } from "../../component-state.ts";
 
 // Simple CSS styles for the item component
 const itemStyles = `
@@ -253,20 +254,8 @@ const itemStyles = `
 }
 `;
 
-export function Item({
-  id = "",
-  title = "",
-  description = "",
-  icon = "",
-  timestamp = "",
-  badges = [],
-  actions = [],
-  variant = "default",
-  size = "md",
-  priority = "",
-  completed = false,
-  selected = false,
-}: {
+// Props type for the Item component
+type ItemProps = {
   id?: string;
   title?: string;
   description?: string;
@@ -279,72 +268,94 @@ export function Item({
   priority?: "low" | "medium" | "high";
   completed?: boolean;
   selected?: boolean;
-}) {
-  const classes = [
-    "item",
-    variant === "completed" || completed ? "completed" : "",
-    variant === "selected" || selected ? "selected" : "",
-    priority ? `priority-${priority}` : "",
-  ].filter(Boolean).join(" ");
+};
 
-  // Render icon
-  const iconHtml = icon ? `
-    <div class="item-icon">
-      ${icon}
-    </div>
-  ` : "";
+// Define the Item component using the defineComponent API
+defineComponent<ItemProps>("item", {
+  styles: itemStyles,
+  render: (props) => {
+    const {
+      id = "",
+      title = "",
+      description = "",
+      icon = "",
+      timestamp = "",
+      badges = [],
+      actions = [],
+      variant = "default",
+      size = "md",
+      priority = "",
+      completed = false,
+      selected = false,
+    } = props;
 
-  // Render badges
-  const badgesHtml = badges.length > 0 ? `
-    <div class="item-badges">
-      ${badges.map(badge => `
-        <span class="item-badge ${badge.variant || 'neutral'}">
-          ${badge.text}
-        </span>
-      `).join("")}
-    </div>
-  ` : "";
+    const classes = [
+      "item",
+      variant === "completed" || completed ? "completed" : "",
+      variant === "selected" || selected ? "selected" : "",
+      priority ? `priority-${priority}` : "",
+    ].filter(Boolean).join(" ");
 
-  // Render metadata
-  const metadataHtml = timestamp ? `
-    <div class="item-metadata">
-      <span>${timestamp}</span>
-    </div>
-  ` : "";
-
-  // Render actions
-  const actionsHtml = actions.length > 0 ? `
-    <div class="item-actions">
-      ${actions.map(action => `
-        <button type="button" class="item-action ${action.variant || 'default'}" onclick="${action.action}">
-          ${action.text}
-        </button>
-      `).join("")}
-    </div>
-  ` : "";
-
-  return `
-    <div
-      ${id ? `id="${id}"` : ''}
-      class="${classes}"
-      data-component="item"
-      data-variant="${variant}"
-      data-size="${size}"
-      ${priority ? `data-priority="${priority}"` : ''}
-      data-completed="${completed.toString()}"
-      data-selected="${selected.toString()}"
-    >
-      <style>${itemStyles}</style>
-      <div class="item-content">
-        ${iconHtml}
-        <div class="item-main">
-          ${title ? `<h3 class="item-title">${title}</h3>` : ''}
-          ${description ? `<p class="item-description">${description}</p>` : ''}
-          ${metadataHtml}
-          ${badgesHtml}
-        </div>
+    // Render icon
+    const iconHtml = icon ? `
+      <div class="item-icon">
+        ${icon}
       </div>
-      ${actionsHtml}
-    </div>
-  `;
-}
+    ` : "";
+
+    // Render badges
+    const badgesHtml = badges.length > 0 ? `
+      <div class="item-badges">
+        ${badges.map(badge => `
+          <span class="item-badge ${badge.variant || 'neutral'}">
+            ${badge.text}
+          </span>
+        `).join("")}
+      </div>
+    ` : "";
+
+    // Render metadata
+    const metadataHtml = timestamp ? `
+      <div class="item-metadata">
+        <span>${timestamp}</span>
+      </div>
+    ` : "";
+
+    // Render actions
+    const actionsHtml = actions.length > 0 ? `
+      <div class="item-actions">
+        ${actions.map(action => `
+          <button type="button" class="item-action ${action.variant || 'default'}" onclick="${action.action}">
+            ${action.text}
+          </button>
+        `).join("")}
+      </div>
+    ` : "";
+
+    return `
+      <div
+        ${id ? `id="${id}"` : ''}
+        class="${classes}"
+        data-component="item"
+        data-variant="${variant}"
+        data-size="${size}"
+        ${priority ? `data-priority="${priority}"` : ''}
+        data-completed="${completed.toString()}"
+        data-selected="${selected.toString()}"
+      >
+        <div class="item-content">
+          ${iconHtml}
+          <div class="item-main">
+            ${title ? `<h3 class="item-title">${title}</h3>` : ''}
+            ${description ? `<p class="item-description">${description}</p>` : ''}
+            ${metadataHtml}
+            ${badgesHtml}
+          </div>
+        </div>
+        ${actionsHtml}
+      </div>
+    `;
+  },
+});
+
+// Use renderComponent("item", props) to render this component

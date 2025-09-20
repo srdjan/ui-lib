@@ -5,7 +5,25 @@
  * Request handlers for todo operations
  */
 
-import { Item } from "../../../lib/components/data-display/item.ts";
+import { renderComponent } from "../../../lib/component-state.ts";
+// Import to register the Item component
+import "../../../lib/components/data-display/item.ts";
+
+// Define ItemProps type locally (since it's not exported from the component)
+type ItemProps = {
+  id?: string;
+  title?: string;
+  description?: string;
+  icon?: string;
+  timestamp?: string;
+  badges?: Array<{ text: string; variant?: string }>;
+  actions?: Array<{ text: string; action: string; variant?: string }>;
+  variant?: "default" | "completed" | "selected" | "priority";
+  size?: "sm" | "md" | "lg";
+  priority?: "low" | "medium" | "high";
+  completed?: boolean;
+  selected?: boolean;
+};
 import { getRepository } from "./repository-factory.ts";
 import {
   errorResponse,
@@ -17,7 +35,7 @@ import type { CreateTodoData, TodoFilter, UpdateTodoData } from "./types.ts";
 
 // Helper functions to convert todos to generic components
 function todoToItem(todo: any): string {
-  return Item({
+  const itemProps: ItemProps = {
     id: todo.id,
     title: todo.text,
     completed: todo.completed,
@@ -29,7 +47,8 @@ function todoToItem(todo: any): string {
       { text: "Edit", action: `editTodo('${todo.id}')` },
       { text: "Delete", variant: "danger", action: `deleteTodo('${todo.id}')` },
     ],
-  });
+  };
+  return renderComponent("item", itemProps);
 }
 
 function getPriorityVariant(priority: string): string {
@@ -114,11 +133,17 @@ export const todoAPI = {
         data = await req.json();
       } else if (contentType.includes("application/x-www-form-urlencoded")) {
         const formData = await req.formData();
-        data = Object.fromEntries(formData.entries());
+        data = {};
+        formData.forEach((value, key) => {
+          data[key] = value;
+        });
       } else {
         // Try form data as fallback
         const formData = await req.formData();
-        data = Object.fromEntries(formData.entries());
+        data = {};
+        formData.forEach((value, key) => {
+          data[key] = value;
+        });
       }
 
       // Get users and default to first user
@@ -209,8 +234,21 @@ export const todoAPI = {
     if (!updateResult.ok) return handleDatabaseError(updateResult.error);
 
     // Return just the updated todo item
+    const itemProps: ItemProps = {
+      id: updateResult.value.id,
+      title: updateResult.value.text,
+      completed: updateResult.value.completed,
+      priority: updateResult.value.priority,
+      timestamp: new Date(updateResult.value.createdAt).toLocaleDateString(),
+      badges: [{ text: updateResult.value.priority, variant: getPriorityVariant(updateResult.value.priority) }],
+      icon: `<input type="checkbox" ${updateResult.value.completed ? 'checked' : ''} />`,
+      actions: [
+        { text: "Edit", action: `editTodo('${updateResult.value.id}')` },
+        { text: "Delete", variant: "danger", action: `deleteTodo('${updateResult.value.id}')` },
+      ],
+    };
     return htmlResponse(
-      todoToItem(updateResult.value),
+      renderComponent("item", itemProps),
     );
   },
 
