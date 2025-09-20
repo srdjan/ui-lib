@@ -1,11 +1,11 @@
 // JSX Runtime: Direct-to-String Renderer with Type-Safe Event Handling and ui-lib Component Support
 
 import type { ComponentAction } from "./actions.ts";
-import { escape, spreadAttrs } from "./dom-helpers.ts";
-import { getRegistry } from "./registry.ts";
-import { renderComponent } from "./component-state.ts";
-import { normalizeClass, normalizeStyle } from "./jsx-normalize.ts";
 import type { HxActionMap } from "./api-recipes.ts";
+import { renderComponent } from "./component-state.ts";
+import { escape, spreadAttrs } from "./dom-helpers.ts";
+import { normalizeClass, normalizeStyle } from "./jsx-normalize.ts";
+import { getRegistry } from "./registry.ts";
 
 const SELF_CLOSING_TAGS = new Set([
   "area",
@@ -290,14 +290,24 @@ function resolveOnAction(value: unknown): string | undefined {
   if (typeof value === "object") {
     if (isActionDescriptor(value)) {
       const descriptor = value as OnActionDescriptor;
-      if (descriptor.attributes) {
-        return spreadAttrs(descriptor.attributes);
-      }
       const methodName = descriptor.api || descriptor.method ||
         descriptor.action;
+
+      let apiResult = "";
       if (typeof methodName === "string") {
-        return invokeApiMethod(methodName, descriptor.args ?? []);
+        apiResult = invokeApiMethod(methodName, descriptor.args ?? []) || "";
       }
+
+      let attributesResult = "";
+      if (descriptor.attributes) {
+        attributesResult = spreadAttrs(descriptor.attributes);
+      }
+
+      // Merge API result and attributes intelligently
+      if (apiResult && attributesResult) {
+        return mergeHtmxAttributes(apiResult, attributesResult);
+      }
+      return apiResult || attributesResult;
     } else if (isAttributeRecord(value)) {
       return spreadAttrs(value as Record<string, unknown>);
     }
@@ -347,6 +357,40 @@ function invokeApiMethod(
 function isActionDescriptor(value: object): value is OnActionDescriptor {
   return "api" in value || "method" in value || "action" in value ||
     "attributes" in value;
+}
+
+/**
+ * Merge two HTMX attribute strings, with the second taking precedence for duplicates
+ */
+function mergeHtmxAttributes(first: string, second: string): string {
+  const firstAttrs = parseAttributeString(first);
+  const secondAttrs = parseAttributeString(second);
+
+  // Merge with second taking precedence
+  const merged = { ...firstAttrs, ...secondAttrs };
+
+  return Object.entries(merged)
+    .map(([key, value]) => `${key}="${escape(String(value))}"`)
+    .join(" ");
+}
+
+/**
+ * Parse an attribute string like 'hx-delete="/api/todos/1" hx-swap="outerHTML"'
+ * into an object like { "hx-delete": "/api/todos/1", "hx-swap": "outerHTML" }
+ */
+function parseAttributeString(attrString: string): Record<string, string> {
+  const attrs: Record<string, string> = {};
+
+  // Match attribute="value" patterns, handling escaped quotes
+  const attrRegex = /(\w+(?:-\w+)*)="([^"]*)"/g;
+  let match;
+
+  while ((match = attrRegex.exec(attrString)) !== null) {
+    const [, key, value] = match;
+    attrs[key] = value;
+  }
+
+  return attrs;
 }
 
 function isAttributeRecord(value: object): boolean {

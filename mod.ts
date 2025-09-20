@@ -52,6 +52,8 @@ export type {
   RouteHandlerFor,
   RouteParamsOf,
 } from "./lib/router.ts";
+// Functional Router API
+export { createRouter, type IRouter } from "./lib/router.ts";
 
 // Reactive utilities (stable subset)
 export {

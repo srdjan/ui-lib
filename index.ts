@@ -42,21 +42,13 @@ export { escapeHtml } from "./lib/ssr.ts";
 
 // Type definitions
 export type { ComponentAction } from "./lib/actions.ts";
-export type {
-  ApiClientOptions,
-  ApiMap,
-} from "./lib/api-generator.ts";
-export type {
-  HxActionMap,
-  HxEnhancementOptions,
-} from "./lib/api-recipes.ts";
-export type {
-  ComponentConfig,
-} from "./lib/define-component.ts";
+export type { ApiClientOptions, ApiMap } from "./lib/api-generator.ts";
+export type { HxActionMap, HxEnhancementOptions } from "./lib/api-recipes.ts";
+export type { ComponentConfig } from "./lib/define-component.ts";
 
 // Re-export minimal API helpers and enhanced HX functions
-export { registerComponentApi } from "./lib/define-component.ts";
 export { generateClientHx, hx } from "./lib/api-recipes.ts";
+export { registerComponentApi } from "./lib/define-component.ts";
 
 // Import JSX types to make them globally available
 import "./lib/jsx.d.ts";
@@ -129,7 +121,6 @@ export {
   type NavigationProps,
   type NavItem,
 } from "./lib/composition.ts";
-
 
 // Utility TS types
 export type { PropsOf, UnwrapHelpers } from "./lib/types.ts";
@@ -224,8 +215,11 @@ export {
   cachePresets,
   type CacheStats,
   cacheWarming,
+  // Functional APIs
+  createPerformanceCache,
   getRenderCache,
   initializeRenderCache,
+  type IPerformanceCache,
   PerformanceCache,
 } from "./lib/performance-cache.ts";
 
@@ -233,6 +227,11 @@ export {
   type BundleAnalysis,
   BundleAnalyzer,
   codeSplitting,
+  createBundleAnalyzer,
+  // Functional APIs
+  createMinimalRuntime,
+  type IBundleAnalyzer,
+  type IMinimalRuntime,
   MinimalRuntime,
   type ModuleInfo,
   type OptimizationConfig,
@@ -242,12 +241,17 @@ export {
 
 export {
   type CompiledTemplate,
+  createPropParserOptimizer,
+  createRenderBatchOptimizer,
+  // Functional APIs
+  createTemplateCompiler,
+  type IPropParserOptimizer,
+  type IRenderBatchOptimizer,
+  type ITemplateCompiler,
   type OptimizationReport,
   PropParserOptimizer,
   RenderBatchOptimizer,
   type RenderMetrics,
   renderOptimizationPresets,
-  RenderOptimizer,
-  RenderProfiler,
   TemplateCompiler,
 } from "./lib/render-optimizer.ts";

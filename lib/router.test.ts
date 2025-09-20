@@ -4,7 +4,7 @@ import {
   assertEquals,
   assertExists,
 } from "https://deno.land/std@0.224.0/assert/mod.ts";
-import { type RouteHandler, Router } from "./router.ts";
+import { createRouter, type RouteHandler, Router } from "./router.ts";
 
 // Helper to create test requests
 const createRequest = (method: string, url: string): Request => {
@@ -256,4 +256,41 @@ Deno.test("Router first matching route wins", () => {
   // Should match the first registered handler
   assertEquals(match.handler, firstHandler);
   assertEquals(match.params.id, "123");
+});
+
+// Test functional router API
+Deno.test("Functional Router API works correctly", () => {
+  const functionalRouter = createRouter();
+  const handler = createHandler("functional-test");
+
+  functionalRouter.register("GET", "/api/users/:id", handler);
+
+  const match = functionalRouter.match(
+    createRequest("GET", "http://example.com/api/users/456"),
+  );
+
+  assertExists(match);
+  assertEquals(match.params.id, "456");
+  assertEquals(match.handler, handler);
+});
+
+Deno.test("Functional Router API handles multiple routes", () => {
+  const functionalRouter = createRouter();
+  const getHandler = createHandler("get-functional");
+  const postHandler = createHandler("post-functional");
+
+  functionalRouter.register("GET", "/api/items", getHandler);
+  functionalRouter.register("POST", "/api/items", postHandler);
+
+  const getMatch = functionalRouter.match(
+    createRequest("GET", "http://example.com/api/items"),
+  );
+  const postMatch = functionalRouter.match(
+    createRequest("POST", "http://example.com/api/items"),
+  );
+
+  assertExists(getMatch);
+  assertExists(postMatch);
+  assertEquals(getMatch.handler, getHandler);
+  assertEquals(postMatch.handler, postHandler);
 });

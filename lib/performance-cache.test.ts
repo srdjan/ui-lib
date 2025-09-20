@@ -8,7 +8,6 @@ import {
   cacheMonitoring,
   type CacheOptions,
   cachePresets,
-  type CacheStats,
   cacheWarming,
   getRenderCache,
   initializeRenderCache,

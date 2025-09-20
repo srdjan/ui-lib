@@ -159,7 +159,7 @@ const trackRender = (
   };
 };
 
-const getComponentStats = (
+const getComponentStatsInternal = (
   state: DevToolsState,
   componentName?: string,
 ): ComponentRenderInfo[] => {
@@ -178,7 +178,7 @@ const getRenderHistory = (
   readonly duration: number;
 }[] => [...state.renderHistory];
 
-const getPerformanceReport = (
+const getPerformanceReportInternal = (
   state: DevToolsState,
 ): {
   totalRenders: number;
@@ -341,7 +341,7 @@ export const createDevTools = (): IDevTools => {
     },
 
     getComponentStats(componentName?: string): ComponentRenderInfo[] {
-      return getComponentStats(state, componentName);
+      return getComponentStatsInternal(state, componentName);
     },
 
     getRenderHistory(): readonly {
@@ -359,7 +359,7 @@ export const createDevTools = (): IDevTools => {
       fastestComponent: { name: string; time: number } | null;
       componentsWithWarnings: string[];
     } {
-      return getPerformanceReport(state);
+      return getPerformanceReportInternal(state);
     },
 
     clearStats(): void {
@@ -557,7 +557,11 @@ export const performanceMonitor: {
    * Get render timeline
    */
   getTimeline(): { component: string; timestamp: Date; duration: number }[] {
-    return devTools.getRenderHistory();
+    return devTools.getRenderHistory() as {
+      component: string;
+      timestamp: Date;
+      duration: number;
+    }[];
   },
 
   /**

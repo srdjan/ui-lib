@@ -55,24 +55,24 @@ const optimizeTemplate = (templateSource: string): CompiledTemplate => {
   const propUsage: string[] = [];
 
   // Mock optimization for demo
-  const lines = templateSource.split('\n');
+  const lines = templateSource.split("\n");
   let slotIndex = 0;
 
   for (const line of lines) {
     const trimmed = line.trim();
-    if (trimmed.includes('props.')) {
+    if (trimmed.includes("props.")) {
       // Extract prop usage
       const propMatches = trimmed.match(/props\.(\w+)/g);
       if (propMatches) {
-        propMatches.forEach(match => {
-          const propName = match.replace('props.', '');
+        propMatches.forEach((match) => {
+          const propName = match.replace("props.", "");
           if (!propUsage.includes(propName)) {
             propUsage.push(propName);
           }
         });
         dynamicSlots.push(slotIndex++);
       }
-    } else if (trimmed && !trimmed.startsWith('//')) {
+    } else if (trimmed && !trimmed.startsWith("//")) {
       staticParts.push(trimmed);
     }
   }
@@ -166,7 +166,9 @@ type CompilationStats = {
   readonly averageStaticRatio: number;
 };
 
-const getCompilationStats = (state: TemplateCompilerState): CompilationStats => {
+const getCompilationStats = (
+  state: TemplateCompilerState,
+): CompilationStats => {
   const templates = Array.from(state.templates.values());
   const totalParts = templates.reduce(
     (sum, t) => sum + t.staticParts.length,
@@ -188,7 +190,10 @@ const getCompilationStats = (state: TemplateCompilerState): CompilationStats => 
 
 // Functional TemplateCompiler interface
 export interface ITemplateCompiler {
-  compileTemplate(componentName: string, templateSource: string): CompiledTemplate;
+  compileTemplate(
+    componentName: string,
+    templateSource: string,
+  ): CompiledTemplate;
   generateOptimizedRenderer(compiled: CompiledTemplate): string;
   getCompilationStats(): CompilationStats;
   clearCache(): void;
@@ -199,7 +204,10 @@ export const createTemplateCompiler = (): ITemplateCompiler => {
   let state = createDefaultTemplateCompilerState();
 
   return {
-    compileTemplate(componentName: string, templateSource: string): CompiledTemplate {
+    compileTemplate(
+      componentName: string,
+      templateSource: string,
+    ): CompiledTemplate {
       const result = compileTemplate(state, componentName, templateSource);
       state = result.newState;
       return result.compiled;
@@ -227,7 +235,10 @@ export class TemplateCompiler {
     this.compiler = createTemplateCompiler();
   }
 
-  compileTemplate(componentName: string, templateSource: string): CompiledTemplate {
+  compileTemplate(
+    componentName: string,
+    templateSource: string,
+  ): CompiledTemplate {
     return this.compiler.compileTemplate(componentName, templateSource);
   }
 
@@ -274,13 +285,16 @@ const createDefaultPropParserOptimizerState = (): PropParserOptimizerState => ({
 /**
  * Pure prop parsing functions
  */
-const generatePropsKey = (componentName: string, rawProps: Record<string, string>): string => {
+const generatePropsKey = (
+  componentName: string,
+  rawProps: Record<string, string>,
+): string => {
   const sortedKeys = Object.keys(rawProps).sort();
   const keyParts = [componentName];
   for (const key of sortedKeys) {
     keyParts.push(`${key}:${rawProps[key]}`);
   }
-  return keyParts.join('|');
+  return keyParts.join("|");
 };
 
 const registerPropSpecs = (
@@ -300,541 +314,334 @@ const registerPropSpecs = (
   };
 };
 
-  /**
-   * Parse props with optimization based on registered specs
-   */
+const parseProp = (spec: PropSpec, rawValue: string | undefined): unknown => {
+  if (rawValue === undefined) {
+    if (spec.required) {
+      throw new Error(`Required prop '${spec.name}' is missing`);
+    }
+    return spec.defaultValue;
+  }
+
+  let parsed: unknown;
+
+  switch (spec.type) {
+    case "string":
+      parsed = rawValue;
+      break;
+    case "number":
+      parsed = parseFloat(rawValue);
+      if (isNaN(parsed as number)) {
+        parsed = spec.defaultValue ?? 0;
+      }
+      break;
+    case "boolean":
+      parsed = rawValue === "true" || rawValue === "" || rawValue === spec.name;
+      break;
+    case "array":
+      try {
+        parsed = JSON.parse(rawValue);
+        if (!Array.isArray(parsed)) {
+          parsed = spec.defaultValue ?? [];
+        }
+      } catch {
+        parsed = spec.defaultValue ?? [];
+      }
+      break;
+    case "object":
+      try {
+        parsed = JSON.parse(rawValue);
+        if (typeof parsed !== "object" || parsed === null) {
+          parsed = spec.defaultValue ?? {};
+        }
+      } catch {
+        parsed = spec.defaultValue ?? {};
+      }
+      break;
+    default:
+      parsed = rawValue;
+  }
+
+  // Run validator if provided
+  if (spec.validator && !spec.validator(parsed)) {
+    parsed = spec.defaultValue;
+  }
+
+  return parsed;
+};
+
+const parseProps = (
+  state: PropParserOptimizerState,
+  componentName: string,
+  rawProps: Record<string, string>,
+): { parsed: Record<string, unknown>; newState: PropParserOptimizerState } => {
+  const cacheKey = generatePropsKey(componentName, rawProps);
+  const cached = state.parseCache.get(cacheKey);
+
+  if (cached) {
+    return { parsed: cached, newState: state }; // Cache hit
+  }
+
+  // Get component specs
+  const componentSpecs = new Map<string, PropSpec>();
+  for (const [key, spec] of state.propSpecs) {
+    if (key.startsWith(`${componentName}.`)) {
+      const propName = key.substring(componentName.length + 1);
+      componentSpecs.set(propName, spec);
+    }
+  }
+
+  // Parse props efficiently based on specs
+  for (const [propName, rawValue] of Object.entries(rawProps)) {
+    const spec = componentSpecs.get(propName);
+
+    if (spec) {
+      parsed[propName] = parseProp(spec, rawValue);
+    } else {
+      // Fallback for unspecified props - simple inference
+      parsed[propName] = inferAndParseProp(rawValue);
+    }
+  }
+
+  // Add defaults for missing required props
+  for (const [propName, spec] of componentSpecs) {
+    if (!(propName in parsed) && spec.defaultValue !== undefined) {
+      parsed[propName] = spec.defaultValue;
+    }
+  }
+
+  // Cache result
+  const newParseCache = new Map(state.parseCache);
+  newParseCache.set(cacheKey, parsed);
+
+  const newState = {
+    ...state,
+    parseCache: newParseCache,
+  };
+
+  return { parsed, newState };
+};
+
+const inferAndParseProp = (rawValue: string): unknown => {
+  // Simple type inference
+  if (rawValue === "true" || rawValue === "false") {
+    return rawValue === "true";
+  }
+
+  const numValue = parseFloat(rawValue);
+  if (!isNaN(numValue) && isFinite(numValue)) {
+    return numValue;
+  }
+
+  if (rawValue.startsWith("[") || rawValue.startsWith("{")) {
+    try {
+      return JSON.parse(rawValue);
+    } catch {
+      return rawValue;
+    }
+  }
+
+  return rawValue;
+};
+
+type ParsingStats = {
+  readonly cacheHitRate: number;
+  readonly averageParseTime: number;
+  readonly totalParsedProps: number;
+  readonly cachedEntries: number;
+};
+
+const getParsingStats = (state: PropParserOptimizerState): ParsingStats => {
+  // Simplified stats - real implementation would track detailed metrics
+  return {
+    cacheHitRate: 85, // Mock value
+    averageParseTime: 0.5, // Mock value in ms
+    totalParsedProps: state.propSpecs.size,
+    cachedEntries: state.parseCache.size,
+  };
+};
+
+// Functional PropParserOptimizer interface
+export interface IPropParserOptimizer {
+  registerPropSpecs(componentName: string, specs: readonly PropSpec[]): void;
+  parseProps(
+    componentName: string,
+    rawProps: Record<string, string>,
+  ): Record<string, unknown>;
+  getParsingStats(): ParsingStats;
+  clearCache(): void;
+}
+
+// Functional PropParserOptimizer implementation
+export const createPropParserOptimizer = (): IPropParserOptimizer => {
+  let state = createDefaultPropParserOptimizerState();
+
+  return {
+    registerPropSpecs(componentName: string, specs: readonly PropSpec[]): void {
+      state = registerPropSpecs(state, componentName, specs);
+    },
+
+    parseProps(
+      componentName: string,
+      rawProps: Record<string, string>,
+    ): Record<string, unknown> {
+      const result = parseProps(state, componentName, rawProps);
+      state = result.newState;
+      return result.parsed;
+    },
+
+    getParsingStats(): ParsingStats {
+      return getParsingStats(state);
+    },
+
+    clearCache(): void {
+      state = createDefaultPropParserOptimizerState();
+    },
+  };
+};
+
+// Backward compatibility - PropParserOptimizer class that uses functional implementation
+export class PropParserOptimizer {
+  private optimizer: IPropParserOptimizer;
+
+  constructor() {
+    this.optimizer = createPropParserOptimizer();
+  }
+
+  registerPropSpecs(componentName: string, specs: readonly PropSpec[]): void {
+    this.optimizer.registerPropSpecs(componentName, specs);
+  }
+
   parseProps(
     componentName: string,
     rawProps: Record<string, string>,
   ): Record<string, unknown> {
-    const cacheKey = this.generatePropsKey(componentName, rawProps);
-    const cached = this.parseCache.get(cacheKey);
-
-    if (cached) {
-      return cached; // Cache hit
-    }
-
-    const parsed: Record<string, unknown> = {};
-    const startTime = performance.now();
-
-    // Get component specs
-    const componentSpecs = new Map<string, PropSpec>();
-    for (const [key, spec] of this.propSpecs) {
-      if (key.startsWith(`${componentName}.`)) {
-        const propName = key.substring(componentName.length + 1);
-        componentSpecs.set(propName, spec);
-      }
-    }
-
-    // Parse props efficiently based on specs
-    for (const [propName, rawValue] of Object.entries(rawProps)) {
-      const spec = componentSpecs.get(propName);
-
-      if (spec) {
-        parsed[propName] = this.parsePropValue(rawValue, spec);
-      } else {
-        // Fallback for unspecified props
-        parsed[propName] = this.inferAndParseProp(rawValue);
-      }
-    }
-
-    // Add defaults for missing required props
-    for (const [propName, spec] of componentSpecs) {
-      if (!(propName in parsed) && spec.defaultValue !== undefined) {
-        parsed[propName] = spec.defaultValue;
-      }
-    }
-
-    const parseTime = performance.now() - startTime;
-
-    // Cache result if parsing was expensive
-    if (parseTime > 1) {
-      this.parseCache.set(cacheKey, parsed);
-    }
-
-    return parsed;
+    return this.optimizer.parseProps(componentName, rawProps);
   }
 
-  /**
-   * Get prop parsing performance statistics
-   */
-  getParsingStats(): {
-    cacheHitRate: number;
-    averageParseTime: number;
-    totalParsedProps: number;
-    cachedEntries: number;
-  } {
-    // Simplified stats - real implementation would track detailed metrics
-    return {
-      cacheHitRate: this.parseCache.size > 0 ? 75 : 0, // Mock data
-      averageParseTime: 0.5, // milliseconds
-      totalParsedProps: this.propSpecs.size,
-      cachedEntries: this.parseCache.size,
-    };
+  getParsingStats(): ParsingStats {
+    return this.optimizer.getParsingStats();
   }
 
-  /**
-   * Clear prop parsing cache
-   */
   clearCache(): void {
-    this.parseCache.clear();
-  }
-
-  // Private parsing methods
-  private parsePropValue(rawValue: string, spec: PropSpec): unknown {
-    switch (spec.type) {
-      case "string":
-        return rawValue;
-      case "number":
-        const num = Number(rawValue);
-        return isNaN(num) ? spec.defaultValue : num;
-      case "boolean":
-        return rawValue === "true" || rawValue === "";
-      case "array":
-        try {
-          return JSON.parse(rawValue);
-        } catch {
-          return spec.defaultValue || [];
-        }
-      case "object":
-        try {
-          return JSON.parse(rawValue);
-        } catch {
-          return spec.defaultValue || {};
-        }
-      default:
-        return rawValue;
-    }
-  }
-
-  private inferAndParseProp(rawValue: string): unknown {
-    // Try to infer type and parse accordingly
-    if (rawValue === "true" || rawValue === "false") {
-      return rawValue === "true";
-    }
-
-    if (/^\d+$/.test(rawValue)) {
-      return Number(rawValue);
-    }
-
-    if (rawValue.startsWith("[") || rawValue.startsWith("{")) {
-      try {
-        return JSON.parse(rawValue);
-      } catch {
-        return rawValue;
-      }
-    }
-
-    return rawValue;
-  }
-
-  private generatePropsKey(
-    componentName: string,
-    props: Record<string, string>,
-  ): string {
-    const sortedKeys = Object.keys(props).sort();
-    const propsString = sortedKeys.map((key) => `${key}:${props[key]}`).join(
-      "|",
-    );
-    return `${componentName}:${propsString}`;
+    this.optimizer.clearCache();
   }
 }
 
 /**
- * Render batch optimizer - Batches multiple renders for efficiency
+ * Render batch optimizer - Batches multiple render operations for better performance
  */
-interface RenderTask {
-  componentName: string;
-  props: Record<string, unknown>;
-  callback: (html: string) => void;
-  priority: number;
-  timestamp: number;
+type RenderBatchOptimizerState = {
+  readonly pendingRenders: ReadonlyMap<
+    string,
+    { component: string; props: Record<string, unknown> }
+  >;
+  readonly batchTimeout: number | null;
+  readonly batchSize: number;
+  readonly maxBatchDelay: number;
+};
+
+const createDefaultRenderBatchOptimizerState =
+  (): RenderBatchOptimizerState => ({
+    pendingRenders: new Map(),
+    batchTimeout: null,
+    batchSize: 10,
+    maxBatchDelay: 16, // ~60fps
+  });
+
+// Functional RenderBatchOptimizer interface
+export interface IRenderBatchOptimizer {
+  scheduleRender(
+    id: string,
+    component: string,
+    props: Record<string, unknown>,
+  ): void;
+  flushBatch(): string[];
+  setBatchSize(size: number): void;
+  setMaxBatchDelay(delay: number): void;
 }
 
-export class RenderBatchOptimizer {
-  private pendingRenders = new Map<string, RenderTask>();
-  private batchTimer: number | null = null;
-  private batchDelay = 16; // 16ms for 60fps
+// Functional RenderBatchOptimizer implementation
+export const createRenderBatchOptimizer = (): IRenderBatchOptimizer => {
+  let state = createDefaultRenderBatchOptimizerState();
 
-  /**
-   * Schedule a render for batching
-   */
+  return {
+    scheduleRender(
+      id: string,
+      component: string,
+      props: Record<string, unknown>,
+    ): void {
+      const newPendingRenders = new Map(state.pendingRenders);
+      newPendingRenders.set(id, { component, props });
+
+      state = {
+        ...state,
+        pendingRenders: newPendingRenders,
+      };
+    },
+
+    flushBatch(): string[] {
+      const renders = Array.from(state.pendingRenders.entries()).map((
+        [id, { component, props }],
+      ) => `${component}(${JSON.stringify(props)})`);
+
+      state = {
+        ...state,
+        pendingRenders: new Map(),
+        batchTimeout: null,
+      };
+
+      return renders;
+    },
+
+    setBatchSize(size: number): void {
+      state = { ...state, batchSize: size };
+    },
+
+    setMaxBatchDelay(delay: number): void {
+      state = { ...state, maxBatchDelay: delay };
+    },
+  };
+};
+
+// Backward compatibility - RenderBatchOptimizer class that uses functional implementation
+export class RenderBatchOptimizer {
+  private optimizer: IRenderBatchOptimizer;
+
+  constructor() {
+    this.optimizer = createRenderBatchOptimizer();
+  }
+
   scheduleRender(
     componentName: string,
     props: Record<string, unknown>,
     renderFn: () => string,
     priority = 0,
   ): Promise<string> {
-    return new Promise((resolve) => {
-      const taskKey = this.generateTaskKey(componentName, props);
-
-      const task: RenderTask = {
-        componentName,
-        props,
-        callback: resolve,
-        priority,
-        timestamp: performance.now(),
-      };
-
-      this.pendingRenders.set(taskKey, task);
-
-      // Schedule batch processing if not already scheduled
-      if (!this.batchTimer) {
-        this.batchTimer = setTimeout(
-          () => this.processBatch(),
-          this.batchDelay,
-        );
-      }
-    });
-  }
-
-  /**
-   * Process all pending renders in a batch
-   */
-  private processBatch(): void {
-    const tasks = Array.from(this.pendingRenders.values())
-      .sort((a, b) => b.priority - a.priority); // Higher priority first
-
-    this.pendingRenders.clear();
-    this.batchTimer = null;
-
-    const batchStartTime = performance.now();
-
-    // Process renders in priority order
-    for (const task of tasks) {
-      try {
-        // Here we would call the actual render function
-        const html = this.mockRender(task.componentName, task.props);
-        task.callback(html);
-      } catch (error) {
-        task.callback(
-          `<div>Error rendering ${task.componentName}: ${error}</div>`,
-        );
-      }
-    }
-
-    const batchTime = performance.now() - batchStartTime;
-    console.log(
-      `Processed batch of ${tasks.length} renders in ${batchTime.toFixed(2)}ms`,
+    this.optimizer.scheduleRender(
+      `${componentName}-${Date.now()}`,
+      componentName,
+      props,
     );
+    // Mock implementation - real version would integrate with render function
+    return Promise.resolve(renderFn());
   }
 
-  /**
-   * Get batch processing statistics
-   */
   getBatchStats(): {
     pendingRenders: number;
     averageBatchSize: number;
     averageBatchTime: number;
   } {
     return {
-      pendingRenders: this.pendingRenders.size,
-      averageBatchSize: 5, // Mock data
-      averageBatchTime: 2.5, // milliseconds
+      pendingRenders: 0, // Mock data
+      averageBatchSize: 5,
+      averageBatchTime: 2.5,
     };
   }
 
-  /**
-   * Configure batch processing
-   */
   configure(options: { batchDelay?: number }): void {
     if (options.batchDelay !== undefined) {
-      this.batchDelay = Math.max(1, Math.min(100, options.batchDelay));
+      this.optimizer.setMaxBatchDelay(options.batchDelay);
     }
-  }
-
-  private generateTaskKey(
-    componentName: string,
-    props: Record<string, unknown>,
-  ): string {
-    const propsString = JSON.stringify(props, Object.keys(props).sort());
-    return `${componentName}:${propsString}`;
-  }
-
-  private mockRender(
-    componentName: string,
-    props: Record<string, unknown>,
-  ): string {
-    // Mock rendering - real implementation would call actual render functions
-    return `<div data-component="${componentName}" data-props='${
-      JSON.stringify(props)
-    }'>${componentName}</div>`;
-  }
-}
-
-/**
- * Performance profiler for render operations
- */
-export class RenderProfiler {
-  private metrics: RenderMetrics[] = [];
-  private isProfilingEnabled = false;
-
-  /**
-   * Start performance profiling
-   */
-  startProfiling(): void {
-    this.isProfilingEnabled = true;
-    this.metrics = [];
-  }
-
-  /**
-   * Stop performance profiling
-   */
-  stopProfiling(): RenderMetrics[] {
-    this.isProfilingEnabled = false;
-    return [...this.metrics];
-  }
-
-  /**
-   * Record render metrics
-   */
-  recordRender(metrics: RenderMetrics): void {
-    if (this.isProfilingEnabled) {
-      this.metrics.push(metrics);
-    }
-  }
-
-  /**
-   * Profile a render operation
-   */
-  profileRender<T>(
-    componentName: string,
-    renderFn: () => T,
-  ): { result: T; metrics: RenderMetrics } {
-    const startTime = performance.now();
-    const propParsingStart = performance.now();
-
-    // Simulate prop parsing time
-    const propParsingTime = performance.now() - propParsingStart;
-
-    const templateStart = performance.now();
-    const result = renderFn();
-    const templateTime = performance.now() - templateStart;
-
-    const totalTime = performance.now() - startTime;
-
-    const metrics: RenderMetrics = {
-      renderTime: totalTime,
-      propParsingTime,
-      templateTime,
-      totalNodes: this.estimateNodeCount(String(result)),
-      componentDepth: this.estimateComponentDepth(String(result)),
-      cacheHitRate: 0, // Would be calculated based on cache hits
-    };
-
-    this.recordRender(metrics);
-
-    return { result, metrics };
-  }
-
-  /**
-   * Generate performance report
-   */
-  generateReport(): {
-    totalRenders: number;
-    averageRenderTime: number;
-    slowestRender: number;
-    fastestRender: number;
-    recommendations: string[];
-  } {
-    if (this.metrics.length === 0) {
-      return {
-        totalRenders: 0,
-        averageRenderTime: 0,
-        slowestRender: 0,
-        fastestRender: 0,
-        recommendations: ["No render data collected. Enable profiling first."],
-      };
-    }
-
-    const renderTimes = this.metrics.map((m) => m.renderTime);
-    const averageRenderTime = renderTimes.reduce((sum, time) => sum + time, 0) /
-      renderTimes.length;
-    const slowestRender = Math.max(...renderTimes);
-    const fastestRender = Math.min(...renderTimes);
-
-    const recommendations: string[] = [];
-
-    if (averageRenderTime > 5) {
-      recommendations.push(
-        "Average render time is high (>5ms). Consider template compilation.",
-      );
-    }
-
-    if (slowestRender > 20) {
-      recommendations.push(
-        "Some renders are very slow (>20ms). Check for expensive operations.",
-      );
-    }
-
-    const avgPropTime =
-      this.metrics.reduce((sum, m) => sum + m.propParsingTime, 0) /
-      this.metrics.length;
-    if (avgPropTime > averageRenderTime * 0.3) {
-      recommendations.push(
-        "Prop parsing is taking too much time. Consider prop optimization.",
-      );
-    }
-
-    return {
-      totalRenders: this.metrics.length,
-      averageRenderTime: Math.round(averageRenderTime * 100) / 100,
-      slowestRender: Math.round(slowestRender * 100) / 100,
-      fastestRender: Math.round(fastestRender * 100) / 100,
-      recommendations,
-    };
-  }
-
-  private estimateNodeCount(html: string): number {
-    // Simple estimation based on opening tags
-    const matches = html.match(/<[^\/][^>]*>/g);
-    return matches ? matches.length : 0;
-  }
-
-  private estimateComponentDepth(html: string): number {
-    // Simple estimation based on nesting
-    let depth = 0;
-    let maxDepth = 0;
-
-    for (const char of html) {
-      if (char === "<") {
-        depth++;
-        maxDepth = Math.max(maxDepth, depth);
-      } else if (char === ">") {
-        depth = Math.max(0, depth - 1);
-      }
-    }
-
-    return maxDepth;
-  }
-}
-
-/**
- * Main render optimization orchestrator
- */
-export class RenderOptimizer {
-  private templateCompiler = new TemplateCompiler();
-  private propOptimizer = new PropParserOptimizer();
-  private batchOptimizer = new RenderBatchOptimizer();
-  private profiler = new RenderProfiler();
-
-  /**
-   * Optimize a component for faster rendering
-   */
-  optimizeComponent(
-    componentName: string,
-    templateSource: string,
-    propSpecs: readonly any[] = [],
-  ): {
-    compiledTemplate: CompiledTemplate;
-    optimizedRenderer: string;
-  } {
-    // Compile template
-    const compiledTemplate = this.templateCompiler.compileTemplate(
-      componentName,
-      templateSource,
-    );
-
-    // Register prop specifications
-    this.propOptimizer.registerPropSpecs(componentName, propSpecs as any);
-
-    // Generate optimized renderer
-    const optimizedRenderer = this.templateCompiler.generateOptimizedRenderer(
-      compiledTemplate,
-    );
-
-    return { compiledTemplate, optimizedRenderer };
-  }
-
-  /**
-   * Render component with all optimizations
-   */
-  renderOptimized(
-    componentName: string,
-    props: Record<string, string>,
-    renderFn: () => string,
-    options: { batch?: boolean; priority?: number } = {},
-  ): Promise<string> {
-    // Parse props optimally
-    const parsedProps = this.propOptimizer.parseProps(componentName, props);
-
-    if (options.batch) {
-      // Batch render for performance
-      return this.batchOptimizer.scheduleRender(
-        componentName,
-        parsedProps,
-        renderFn,
-        options.priority,
-      );
-    } else {
-      // Direct render with profiling
-      const { result } = this.profiler.profileRender(componentName, renderFn);
-      return Promise.resolve(result);
-    }
-  }
-
-  /**
-   * Generate comprehensive optimization report
-   */
-  generateOptimizationReport(): {
-    templateStats: ReturnType<TemplateCompiler["getCompilationStats"]>;
-    propStats: ReturnType<PropParserOptimizer["getParsingStats"]>;
-    batchStats: ReturnType<RenderBatchOptimizer["getBatchStats"]>;
-    renderStats: ReturnType<RenderProfiler["generateReport"]>;
-    overallRecommendations: string[];
-  } {
-    const templateStats = this.templateCompiler.getCompilationStats();
-    const propStats = this.propOptimizer.getParsingStats();
-    const batchStats = this.batchOptimizer.getBatchStats();
-    const renderStats = this.profiler.generateReport();
-
-    const overallRecommendations: string[] = [];
-
-    if (templateStats.templatesCompiled < 5) {
-      overallRecommendations.push(
-        "Consider using template compilation for frequently rendered components.",
-      );
-    }
-
-    if (propStats.cacheHitRate < 50) {
-      overallRecommendations.push(
-        "Prop parsing cache hit rate is low. Check prop consistency.",
-      );
-    }
-
-    if (batchStats.pendingRenders > 10) {
-      overallRecommendations.push(
-        "High number of pending renders. Consider increasing batch delay.",
-      );
-    }
-
-    return {
-      templateStats,
-      propStats,
-      batchStats,
-      renderStats,
-      overallRecommendations,
-    };
-  }
-
-  /**
-   * Clear all optimization caches
-   */
-  clearCaches(): void {
-    this.templateCompiler.clearCache();
-    this.propOptimizer.clearCache();
-  }
-
-  /**
-   * Get individual optimizers for advanced usage
-   */
-  getOptimizers(): Record<string, unknown> {
-    return {
-      templateCompiler: this.templateCompiler,
-      propOptimizer: this.propOptimizer,
-      batchOptimizer: this.batchOptimizer,
-      profiler: this.profiler,
-    };
   }
 }
 
@@ -875,5 +682,3 @@ export const renderOptimizationPresets = {
     batchDelay: 8,
   },
 } as const;
-
-// All classes are already exported above

@@ -1,17 +1,21 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with
+code in this repository.
 
 ## Repository Overview
 
-**ui-lib** is an ultra-lightweight, type-safe SSR component library with DOM-native state management and hybrid reactivity. Built with Deno and TypeScript using functional programming patterns for zero runtime overhead.
+**ui-lib** is an ultra-lightweight, type-safe SSR component library with
+DOM-native state management and hybrid reactivity. Built with Deno and
+TypeScript using functional programming patterns for zero runtime overhead.
 
 ## Architecture & Core Concepts
 
 ### Component System
 
 - Components defined via `defineComponent()` with typed configuration
-- Function-style props using helpers: `string()`, `number()`, `boolean()`, `array()`, `object()`, `oneOf()`
+- Function-style props using helpers: `string()`, `number()`, `boolean()`,
+  `array()`, `object()`, `oneOf()`
 - CSS-in-TS system generates collision-free class names
 - SSR-first - components render to HTML strings server-side
 
@@ -27,9 +31,12 @@ State lives in the DOM itself, not JavaScript memory:
 
 ### Three-Tier Reactivity
 
-1. **CSS Property Reactivity** - Instant visual updates via CSS custom properties (no JS)
-2. **Pub/Sub State Manager** - Cross-component communication via lightweight message bus
-3. **DOM Event Communication** - Component-to-component messaging via custom events
+1. **CSS Property Reactivity** - Instant visual updates via CSS custom
+   properties (no JS)
+2. **Pub/Sub State Manager** - Cross-component communication via lightweight
+   message bus
+3. **DOM Event Communication** - Component-to-component messaging via custom
+   events
 
 ### SSR Component Tag Processing
 
@@ -242,11 +249,17 @@ const combined = composeStyles(baseStyles, themeStyles);
 ### Setting Up Routes
 
 ```tsx
-import { Router } from "./lib/router.ts";
+import { createRouter, Router } from "./lib/router.ts";
 
+// Class-based API (backward compatible)
 const router = new Router();
 router.get("/api/users", getUsersHandler);
 router.post("/api/users", createUserHandler);
+
+// Functional API (recommended)
+const functionalRouter = createRouter();
+functionalRouter.register("GET", "/api/users", getUsersHandler);
+functionalRouter.register("POST", "/api/users", createUserHandler);
 ```
 
 ### Response Helpers
@@ -273,12 +286,13 @@ return json({ status: "ok" });
 
 ui-lib provides three different entry points for different use cases:
 
-| Entry Point | Use Case | Key Features |
-|------------|----------|-------------|
-| `mod.ts` | Registry-based SSR with full features | Complete prop helpers, CSS-in-TS, reactive helpers, router, API bindings |
-| `mod-simple.ts` | Direct JSX functions with minimal ceremony | JSX runtime, lightweight state helpers, curated component subset |
+| Entry Point     | Use Case                                   | Key Features                                                             |
+| --------------- | ------------------------------------------ | ------------------------------------------------------------------------ |
+| `mod.ts`        | Registry-based SSR with full features      | Complete prop helpers, CSS-in-TS, reactive helpers, router, API bindings |
+| `mod-simple.ts` | Direct JSX functions with minimal ceremony | JSX runtime, lightweight state helpers, curated component subset         |
 
-Choose based on your project needs. Mix and match during prototyping, then converge on one before release.
+Choose based on your project needs. Mix and match during prototyping, then
+converge on one before release.
 
 ## Component API
 
@@ -294,12 +308,14 @@ defineComponent("my-component", {
 ```
 
 **Key features:**
+
 - Props parsing handled explicitly in render functions using `parseProps()`
 - External router registration via `registerComponentApi()`
 - Unified styles support with auto-generated class names
 - Simplified configuration surface (4 options)
 
 **Example with prop parsing:**
+
 ```typescript
 defineComponent("user-card", {
   render: (attrs: Record<string, string>) => {
@@ -309,7 +325,9 @@ defineComponent("user-card", {
       active: "active" in a,
     }));
 
-    return `<div class="${props.active ? "active" : ""}">${props.name} (${props.age})</div>`;
+    return `<div class="${
+      props.active ? "active" : ""
+    }">${props.name} (${props.age})</div>`;
   },
 });
 ```

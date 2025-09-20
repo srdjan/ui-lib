@@ -745,8 +745,3 @@ export const cacheMonitoring: {
     return { summary, hotEntries, recommendations };
   },
 };
-
-/**
- * Export the main PerformanceCache class for direct usage
- */
-export { PerformanceCache };
