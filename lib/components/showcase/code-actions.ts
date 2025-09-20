@@ -4,7 +4,7 @@
 /**
  * Code action configuration
  */
-export interface CodeActionConfig {
+export type CodeActionConfig = {
   readonly copyTimeout?: number;
   readonly successMessage?: string;
   readonly errorMessage?: string;

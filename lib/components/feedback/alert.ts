@@ -6,15 +6,15 @@ import type { BaseComponentProps } from "../types.ts";
 export type AlertVariant = "info" | "success" | "warning" | "error";
 export type AlertStyle = "subtle" | "solid" | "left-accent" | "top-accent";
 
-export interface AlertProps extends BaseComponentProps {
-  variant?: AlertVariant;
-  style?: AlertStyle;
-  title?: string;
-  description?: string;
-  icon?: string;
-  closable?: boolean;
-  onClose?: string;
-  children?: string | string[];
+export type AlertProps = BaseComponentProps & {
+  readonly variant?: AlertVariant;
+  readonly style?: AlertStyle;
+  readonly title?: string;
+  readonly description?: string;
+  readonly icon?: string;
+  readonly closable?: boolean;
+  readonly onClose?: string;
+  readonly children?: string | string[];
 }
 
 /**

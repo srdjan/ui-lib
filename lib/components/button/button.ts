@@ -11,17 +11,17 @@ export type ButtonVariant =
   | "link"
   | "destructive";
 
-export interface ButtonProps extends InteractiveComponentProps {
-  variant?: ButtonVariant;
-  size?: ComponentSize;
-  fullWidth?: boolean;
-  loading?: boolean;
-  loadingText?: string;
-  leftIcon?: string;
-  rightIcon?: string;
-  type?: "button" | "submit" | "reset";
-  children?: string | string[];
-}
+export type ButtonProps = InteractiveComponentProps & {
+  readonly variant?: ButtonVariant;
+  readonly size?: ComponentSize;
+  readonly fullWidth?: boolean;
+  readonly loading?: boolean;
+  readonly loadingText?: string;
+  readonly leftIcon?: string;
+  readonly rightIcon?: string;
+  readonly type?: "button" | "submit" | "reset";
+  readonly children?: string | string[];
+};
 
 /**
  * Button component with comprehensive variants and states

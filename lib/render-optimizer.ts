@@ -390,6 +390,9 @@ const parseProps = (
     }
   }
 
+  // Initialize parsed props object
+  const parsed: Record<string, unknown> = {};
+
   // Parse props efficiently based on specs
   for (const [propName, rawValue] of Object.entries(rawProps)) {
     const spec = componentSpecs.get(propName);

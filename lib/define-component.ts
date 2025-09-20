@@ -26,27 +26,27 @@ export type StylesInput = string | UnifiedStyles | Record<string, string>;
 export type DefinedComponent = { readonly name: string };
 
 // Consolidated reactive configuration
-export interface ReactiveConfig {
-  on?: Record<string, string>;
-  state?: Record<string, string>;
-  css?: Record<string, string>;
-  mount?: string;
-  unmount?: string;
-  inject?: boolean; // default false
-}
+export type ReactiveConfig = {
+  readonly on?: Readonly<Record<string, string>>;
+  readonly state?: Readonly<Record<string, string>>;
+  readonly css?: Readonly<Record<string, string>>;
+  readonly mount?: string;
+  readonly unmount?: string;
+  readonly inject?: boolean; // default false
+};
 
 // Minimal component configuration with inline props in render function
-export interface ComponentConfig<TProps = any> {
-  reactive?: ReactiveConfig;
-  styles?: StylesInput;
-  api?: ApiMap;
-  clientScript?: (config?: any) => string;
-  render: (
+export type ComponentConfig<TProps = any> = {
+  readonly reactive?: ReactiveConfig;
+  readonly styles?: StylesInput;
+  readonly api?: ApiMap;
+  readonly clientScript?: (config?: any) => string;
+  readonly render: (
     props: TProps,
     api?: HxActionMap<any>,
     classes?: ClassMap
   ) => string;
-}
+};
 
 // New minimal defineComponent implementation with inline prop definitions
 export function defineComponent<TProps = any>(

@@ -13,15 +13,15 @@ export type BadgeColorScheme =
   | "info";
 export type BadgeShape = "rectangle" | "pill" | "circle";
 
-export interface BadgeProps extends BaseComponentProps {
-  variant?: BadgeVariant;
-  colorScheme?: BadgeColorScheme;
-  size?: ComponentSize;
-  shape?: BadgeShape;
-  icon?: string;
-  removable?: boolean;
-  onRemove?: string;
-  children?: string | string[] | number;
+export type BadgeProps = BaseComponentProps & {
+  readonly variant?: BadgeVariant;
+  readonly colorScheme?: BadgeColorScheme;
+  readonly size?: ComponentSize;
+  readonly shape?: BadgeShape;
+  readonly icon?: string;
+  readonly removable?: boolean;
+  readonly onRemove?: string;
+  readonly children?: string | string[] | number;
 }
 
 /**

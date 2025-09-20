@@ -24,7 +24,7 @@ export const easingFunctions = {
 /**
  * Counter animation configuration
  */
-export interface AnimationConfig {
+export type AnimationConfig = {
   readonly duration?: number;
   readonly delay?: number;
   readonly easing?: keyof typeof easingFunctions | EasingFunction;
@@ -35,7 +35,7 @@ export interface AnimationConfig {
 /**
  * Animated counter props
  */
-export interface AnimatedCounterProps extends ComponentProps {
+export type AnimatedCounterProps = ComponentProps & {
   readonly from?: number;
   readonly to: number;
   readonly unit?: string;

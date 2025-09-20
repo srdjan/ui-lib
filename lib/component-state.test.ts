@@ -249,17 +249,12 @@ Deno.test("renderComponent handles render function errors", () => {
     },
   });
 
-  // This should throw during render function
-  let errorThrown = false;
-  try {
-    renderComponent("error-prone", { shouldError: "true" });
-  } catch (error) {
-    errorThrown = true;
-    const message = (error as Error).message;
-    assert(
-      message.includes("Render error"),
-      "Error should include render error message",
-    );
-  }
-  assert(errorThrown, "Expected render function error to be thrown");
+  // With the new Result-based approach, errors are handled gracefully
+  const result = renderComponent("error-prone", { shouldError: "true" });
+
+  // Should return error comment instead of throwing
+  assert(
+    result.includes("failed to render"),
+    `Expected error comment, got: ${result}`
+  );
 });

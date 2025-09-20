@@ -58,20 +58,20 @@ export interface StateManager {
 /**
  * Subscription entry internal interface
  */
-interface Subscription {
-  callback: (data: unknown) => void;
-  element: Element;
-  timestamp: number;
-}
+type Subscription = {
+  readonly callback: (data: unknown) => void;
+  readonly element: Element;
+  readonly timestamp: number;
+};
 
 /**
  * State entry internal interface
  */
-interface StateEntry {
-  data: unknown;
-  timestamp: number;
-  updateCount: number;
-}
+type StateEntry = {
+  readonly data: unknown;
+  readonly timestamp: number;
+  readonly updateCount: number;
+};
 
 /**
  * JavaScript implementation string for injection into host pages
@@ -106,60 +106,80 @@ window.funcwcState = {
       console.warn('funcwcState.publish: topic must be a string');
       return;
     }
-    
-    // Store state with metadata
-    const stateEntry = this._state.get(topic) || { updateCount: 0 };
-    const newState = {
-      data: data,
-      timestamp: Date.now(),
-      updateCount: stateEntry.updateCount + 1
-    };
-    
-    this._state.set(topic, newState);
-    
-    // Limit total topics
-    if (this._state.size > this._config.maxTopics) {
-      const oldestTopic = Array.from(this._state.entries())
-        .sort((a, b) => a[1].timestamp - b[1].timestamp)[0][0];
-      this._state.delete(oldestTopic);
-      this._subscribers.delete(oldestTopic);
-      
-      if (this._config.debugMode) {
-        console.warn('funcwcState: Removed oldest topic due to limit:', oldestTopic);
-      }
-    }
-    
-    // Notify subscribers
-    const subs = this._subscribers.get(topic) || [];
-    const validSubs = [];
-    
-    subs.forEach(sub => {
-      // Check if element is still in the DOM
-      if (document.contains(sub.element)) {
-        try {
-          sub.callback.call(sub.element, data);
-          validSubs.push(sub);
-        } catch (error) {
-          if (this._config.debugMode) {
-            console.error('funcwcState: Subscription callback error:', error);
-          }
+
+    // Create new state with immutable update
+    const updateState = (currentState) => {
+      const stateEntry = currentState.get(topic) || { updateCount: 0 };
+      const newStateEntry = {
+        data: data,
+        timestamp: Date.now(),
+        updateCount: stateEntry.updateCount + 1
+      };
+
+      const newState = new Map(currentState);
+      newState.set(topic, newStateEntry);
+
+      // Limit total topics
+      if (newState.size > this._config.maxTopics) {
+        const oldestTopic = Array.from(newState.entries())
+          .sort((a, b) => a[1].timestamp - b[1].timestamp)[0][0];
+        newState.delete(oldestTopic);
+
+        // Also update subscribers
+        const newSubscribers = new Map(this._subscribers);
+        newSubscribers.delete(oldestTopic);
+        this._subscribers = newSubscribers;
+
+        if (this._config.debugMode) {
+          console.warn('funcwcState: Removed oldest topic due to limit:', oldestTopic);
         }
       }
-    });
-    
-    // Update subscribers list with only valid ones (automatic cleanup)
-    if (validSubs.length !== subs.length) {
-      if (validSubs.length === 0) {
-        this._subscribers.delete(topic);
-      } else {
-        this._subscribers.set(topic, validSubs);
+
+      return newState;
+    };
+
+    this._state = updateState(this._state);
+
+    // Notify subscribers with immutable update pattern
+    const updateSubscribers = (currentSubs) => {
+      const subs = currentSubs.get(topic) || [];
+      const validSubs = [];
+
+      subs.forEach(sub => {
+        // Check if element is still in the DOM
+        if (document.contains(sub.element)) {
+          try {
+            sub.callback.call(sub.element, data);
+            validSubs.push(sub);
+          } catch (error) {
+            if (this._config.debugMode) {
+              console.error('funcwcState: Subscription callback error:', error);
+            }
+          }
+        }
+      });
+
+      // Return new subscribers map with updates
+      if (validSubs.length !== subs.length) {
+        const newSubs = new Map(currentSubs);
+        if (validSubs.length === 0) {
+          newSubs.delete(topic);
+        } else {
+          newSubs.set(topic, validSubs);
+        }
+
+        if (this._config.debugMode) {
+          console.log(\`funcwcState: Cleaned up \${subs.length - validSubs.length} dead subscriptions for topic '\${topic}'\`);
+        }
+
+        return newSubs;
       }
-      
-      if (this._config.debugMode) {
-        console.log(\`funcwcState: Cleaned up \${subs.length - validSubs.length} dead subscriptions for topic '\${topic}'\`);
-      }
-    }
-    
+
+      return currentSubs;
+    };
+
+    this._subscribers = updateSubscribers(this._subscribers);
+
     // Periodic cleanup
     if (Date.now() - this._lastCleanup > this._config.cleanupInterval) {
       this._performCleanup();
@@ -174,39 +194,42 @@ window.funcwcState = {
       console.warn('funcwcState.subscribe: topic must be a string');
       return;
     }
-    
+
     if (typeof callback !== 'function') {
       console.warn('funcwcState.subscribe: callback must be a function');
       return;
     }
-    
+
     if (!(element instanceof Element)) {
       console.warn('funcwcState.subscribe: element must be a DOM element');
       return;
     }
-    
-    // Initialize subscribers array if needed
-    if (!this._subscribers.has(topic)) {
-      this._subscribers.set(topic, []);
-    }
-    
-    const subs = this._subscribers.get(topic);
-    
-    // Check subscription limits
-    if (subs.length >= this._config.maxSubscriptionsPerTopic) {
-      console.warn(\`funcwcState.subscribe: Maximum subscriptions reached for topic '\${topic}'\`);
-      return;
-    }
-    
-    // Add subscription
-    const subscription = {
-      callback: callback,
-      element: element,
-      timestamp: Date.now()
+
+    // Immutable subscription update
+    const addSubscription = (currentSubs) => {
+      const subs = currentSubs.get(topic) || [];
+
+      // Check subscription limits
+      if (subs.length >= this._config.maxSubscriptionsPerTopic) {
+        console.warn(\`funcwcState.subscribe: Maximum subscriptions reached for topic '\${topic}'\`);
+        return currentSubs;
+      }
+
+      // Create new subscription
+      const subscription = {
+        callback: callback,
+        element: element,
+        timestamp: Date.now()
+      };
+
+      // Return new subscribers map with added subscription
+      const newSubs = new Map(currentSubs);
+      newSubs.set(topic, [...subs, subscription]);
+      return newSubs;
     };
-    
-    subs.push(subscription);
-    
+
+    this._subscribers = addSubscription(this._subscribers);
+
     // Immediately call with current state if it exists
     if (this._state.has(topic)) {
       const currentState = this._state.get(topic);

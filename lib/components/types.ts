@@ -32,20 +32,20 @@ export type ComponentState =
   | "active"
   | "disabled";
 
-export interface BaseComponentProps {
-  className?: string;
-  size?: ComponentSize;
-  variant?: ComponentVariant;
-  disabled?: boolean;
-  children?: unknown | unknown[];
-}
+export type BaseComponentProps = {
+  readonly className?: string;
+  readonly size?: ComponentSize;
+  readonly variant?: ComponentVariant;
+  readonly disabled?: boolean;
+  readonly children?: unknown | unknown[];
+};
 
-export interface InteractiveComponentProps extends BaseComponentProps {
-  onClick?: string;
-  onFocus?: string;
-  onBlur?: string;
-  onKeyDown?: string;
-}
+export type InteractiveComponentProps = BaseComponentProps & {
+  readonly onClick?: string;
+  readonly onFocus?: string;
+  readonly onBlur?: string;
+  readonly onKeyDown?: string;
+};
 
 // Position types for overlays
 export type Position =
@@ -63,15 +63,15 @@ export type Position =
   | "right-end";
 
 // Common style utilities
-export interface SpacingProps {
-  padding?: string | number;
-  margin?: string | number;
-  gap?: string | number;
-}
+export type SpacingProps = {
+  readonly padding?: string | number;
+  readonly margin?: string | number;
+  readonly gap?: string | number;
+};
 
-export interface LayoutProps extends SpacingProps {
-  width?: string | number;
-  height?: string | number;
-  maxWidth?: string | number;
-  maxHeight?: string | number;
-}
+export type LayoutProps = SpacingProps & {
+  readonly width?: string | number;
+  readonly height?: string | number;
+  readonly maxWidth?: string | number;
+  readonly maxHeight?: string | number;
+};

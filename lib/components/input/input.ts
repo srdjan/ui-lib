@@ -20,43 +20,43 @@ export type InputVariant =
   | "unstyled"
   | "compact";
 
-export interface InputProps extends BaseComponentProps {
-  type?: InputType;
-  variant?: InputVariant;
-  size?: ComponentSize;
-  placeholder?: string;
-  value?: string | number;
-  defaultValue?: string | number;
-  required?: boolean;
-  readOnly?: boolean;
-  autoFocus?: boolean;
-  maxLength?: number;
-  minLength?: number;
-  min?: number;
-  max?: number;
-  step?: number;
-  pattern?: string;
-  name?: string;
-  id?: string;
-  label?: string; // optional visual label support
-  rows?: number; // for textarea type
-  style?: string; // optional inline style on wrapper
-  "aria-label"?: string;
-  "aria-describedby"?: string;
-  leftAddon?: string;
-  rightAddon?: string;
-  leftIcon?: string;
-  rightIcon?: string;
-  error?: boolean;
-  errorMessage?: string;
-  helpText?: string;
-  onChange?: string;
-  onInput?: string;
-  onFocus?: string;
-  onBlur?: string;
-  onKeyDown?: string;
-  onKeyUp?: string;
-}
+export type InputProps = BaseComponentProps & {
+  readonly type?: InputType;
+  readonly variant?: InputVariant;
+  readonly size?: ComponentSize;
+  readonly placeholder?: string;
+  readonly value?: string | number;
+  readonly defaultValue?: string | number;
+  readonly required?: boolean;
+  readonly readOnly?: boolean;
+  readonly autoFocus?: boolean;
+  readonly maxLength?: number;
+  readonly minLength?: number;
+  readonly min?: number;
+  readonly max?: number;
+  readonly step?: number;
+  readonly pattern?: string;
+  readonly name?: string;
+  readonly id?: string;
+  readonly label?: string; // optional visual label support
+  readonly rows?: number; // for textarea type
+  readonly style?: string; // optional inline style on wrapper
+  readonly "aria-label"?: string;
+  readonly "aria-describedby"?: string;
+  readonly leftAddon?: string;
+  readonly rightAddon?: string;
+  readonly leftIcon?: string;
+  readonly rightIcon?: string;
+  readonly error?: boolean;
+  readonly errorMessage?: string;
+  readonly helpText?: string;
+  readonly onChange?: string;
+  readonly onInput?: string;
+  readonly onFocus?: string;
+  readonly onBlur?: string;
+  readonly onKeyDown?: string;
+  readonly onKeyUp?: string;
+};
 
 /**
  * Input component with comprehensive variants and accessibility features
@@ -479,4 +479,4 @@ export function Input(props: InputProps): string {
       ${errorTextElement}
     </div>
   `.trim();
-}
+};

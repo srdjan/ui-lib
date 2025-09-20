@@ -6,11 +6,11 @@ import type { ComponentSize, BaseComponentProps } from "../types.ts";
 export type ButtonGroupVariant = "attached" | "spaced";
 export type ButtonGroupOrientation = "horizontal" | "vertical";
 
-export interface ButtonGroupProps extends BaseComponentProps {
-  variant?: ButtonGroupVariant;
-  size?: ComponentSize;
-  orientation?: ButtonGroupOrientation;
-  children?: unknown[];
+export type ButtonGroupProps = BaseComponentProps & {
+  readonly variant?: ButtonGroupVariant;
+  readonly size?: ComponentSize;
+  readonly orientation?: ButtonGroupOrientation;
+  readonly children?: unknown[];
 }
 
 /**

@@ -7,7 +7,7 @@ import type { ComponentProps } from "../../types.ts";
 /**
  * Code modal configuration
  */
-export interface CodeModalConfig {
+export type CodeModalConfig = {
   readonly syntaxHighlighting?: boolean;
   readonly theme?: "light" | "dark" | "auto";
   readonly copyButton?: boolean;

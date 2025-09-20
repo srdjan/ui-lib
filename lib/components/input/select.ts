@@ -5,38 +5,38 @@ import type { ComponentSize, BaseComponentProps } from "../types.ts";
 
 export type SelectVariant = "default" | "filled" | "flushed" | "unstyled";
 
-export interface SelectOption {
-  value: string | number;
-  label: string;
-  disabled?: boolean;
-  group?: string;
-}
+export type SelectOption = {
+  readonly value: string | number;
+  readonly label: string;
+  readonly disabled?: boolean;
+  readonly group?: string;
+};
 
-export interface SelectProps extends BaseComponentProps {
-  variant?: SelectVariant;
-  size?: ComponentSize;
-  placeholder?: string;
-  value?: string | number | (string | number)[];
-  defaultValue?: string | number | (string | number)[];
-  multiple?: boolean;
-  searchable?: boolean;
-  clearable?: boolean;
-  required?: boolean;
-  readOnly?: boolean;
-  autoFocus?: boolean;
-  name?: string;
-  id?: string;
-  "aria-label"?: string;
-  "aria-describedby"?: string;
-  options: SelectOption[];
-  error?: boolean;
-  errorMessage?: string;
-  helpText?: string;
-  maxHeight?: string;
-  onChange?: string;
-  onFocus?: string;
-  onBlur?: string;
-  onSearch?: string;
+export type SelectProps = BaseComponentProps & {
+  readonly variant?: SelectVariant;
+  readonly size?: ComponentSize;
+  readonly placeholder?: string;
+  readonly value?: string | number | (string | number)[];
+  readonly defaultValue?: string | number | (string | number)[];
+  readonly multiple?: boolean;
+  readonly searchable?: boolean;
+  readonly clearable?: boolean;
+  readonly required?: boolean;
+  readonly readOnly?: boolean;
+  readonly autoFocus?: boolean;
+  readonly name?: string;
+  readonly id?: string;
+  readonly "aria-label"?: string;
+  readonly "aria-describedby"?: string;
+  readonly options: SelectOption[];
+  readonly error?: boolean;
+  readonly errorMessage?: string;
+  readonly helpText?: string;
+  readonly maxHeight?: string;
+  readonly onChange?: string;
+  readonly onFocus?: string;
+  readonly onBlur?: string;
+  readonly onSearch?: string;
 }
 
 /**

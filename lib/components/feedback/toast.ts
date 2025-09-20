@@ -12,16 +12,16 @@ export type ToastPosition =
   | "bottom-center"
   | "bottom-right";
 
-export interface ToastProps extends BaseComponentProps {
-  variant?: ToastVariant;
-  title?: string;
-  description?: string;
-  icon?: string;
-  duration?: number; // in milliseconds
-  position?: ToastPosition;
-  closable?: boolean;
-  onClose?: string;
-  children?: string | string[];
+export type ToastProps = BaseComponentProps & {
+  readonly variant?: ToastVariant;
+  readonly title?: string;
+  readonly description?: string;
+  readonly icon?: string;
+  readonly duration?: number; // in milliseconds
+  readonly position?: ToastPosition;
+  readonly closable?: boolean;
+  readonly onClose?: string;
+  readonly children?: string | string[];
 }
 
 /**

@@ -6,21 +6,21 @@ import type { BaseComponentProps, ComponentSize } from "../types.ts";
 export type ProgressVariant = "linear" | "circular";
 export type ProgressColorScheme = "primary" | "success" | "warning" | "error";
 
-export interface ProgressProps extends BaseComponentProps {
-  variant?: ProgressVariant;
-  value?: number;
-  max?: number;
-  size?: ComponentSize;
-  colorScheme?: ProgressColorScheme;
-  isIndeterminate?: boolean;
-  hasStripe?: boolean;
-  isAnimated?: boolean;
-  thickness?: number;
-  trackColor?: string;
-  label?: string;
-  valueText?: string;
-  showValue?: boolean;
-  children?: string | string[];
+export type ProgressProps = BaseComponentProps & {
+  readonly variant?: ProgressVariant;
+  readonly value?: number;
+  readonly max?: number;
+  readonly size?: ComponentSize;
+  readonly colorScheme?: ProgressColorScheme;
+  readonly isIndeterminate?: boolean;
+  readonly hasStripe?: boolean;
+  readonly isAnimated?: boolean;
+  readonly thickness?: number;
+  readonly trackColor?: string;
+  readonly label?: string;
+  readonly valueText?: string;
+  readonly showValue?: boolean;
+  readonly children?: string | string[];
 }
 
 /**

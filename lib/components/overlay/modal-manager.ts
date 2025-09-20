@@ -4,7 +4,7 @@
 /**
  * Modal configuration
  */
-export interface ModalConfig {
+export type ModalConfig = {
   readonly id: string;
   readonly title?: string;
   readonly size?: "sm" | "md" | "lg" | "xl" | "full";

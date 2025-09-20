@@ -6,35 +6,35 @@ import type { ComponentSize, BaseComponentProps } from "../types.ts";
 export type TextareaVariant = "default" | "filled" | "flushed" | "unstyled";
 export type TextareaResize = "none" | "both" | "horizontal" | "vertical" | "auto";
 
-export interface TextareaProps extends BaseComponentProps {
-  variant?: TextareaVariant;
-  size?: ComponentSize;
-  placeholder?: string;
-  value?: string;
-  defaultValue?: string;
-  required?: boolean;
-  readOnly?: boolean;
-  autoFocus?: boolean;
-  maxLength?: number;
-  minLength?: number;
-  rows?: number;
-  cols?: number;
-  minRows?: number;
-  maxRows?: number;
-  resize?: TextareaResize;
-  name?: string;
-  id?: string;
-  "aria-label"?: string;
-  "aria-describedby"?: string;
-  error?: boolean;
-  errorMessage?: string;
-  helpText?: string;
-  onChange?: string;
-  onInput?: string;
-  onFocus?: string;
-  onBlur?: string;
-  onKeyDown?: string;
-  onKeyUp?: string;
+export type TextareaProps = BaseComponentProps & {
+  readonly variant?: TextareaVariant;
+  readonly size?: ComponentSize;
+  readonly placeholder?: string;
+  readonly value?: string;
+  readonly defaultValue?: string;
+  readonly required?: boolean;
+  readonly readOnly?: boolean;
+  readonly autoFocus?: boolean;
+  readonly maxLength?: number;
+  readonly minLength?: number;
+  readonly rows?: number;
+  readonly cols?: number;
+  readonly minRows?: number;
+  readonly maxRows?: number;
+  readonly resize?: TextareaResize;
+  readonly name?: string;
+  readonly id?: string;
+  readonly "aria-label"?: string;
+  readonly "aria-describedby"?: string;
+  readonly error?: boolean;
+  readonly errorMessage?: string;
+  readonly helpText?: string;
+  readonly onChange?: string;
+  readonly onInput?: string;
+  readonly onFocus?: string;
+  readonly onBlur?: string;
+  readonly onKeyDown?: string;
+  readonly onKeyUp?: string;
 }
 
 /**

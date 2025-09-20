@@ -7,7 +7,7 @@ import type { ComponentProps } from "../../types.ts";
 /**
  * Demo viewer configuration
  */
-export interface DemoViewerConfig {
+export type DemoViewerConfig = {
   readonly apiBasePath?: string;
   readonly defaultDemo?: string;
   readonly enableCodeModal?: boolean;

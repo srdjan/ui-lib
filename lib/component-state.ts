@@ -2,25 +2,34 @@
 import { getRegistry } from "./registry.ts";
 import { shouldInjectStyle } from "./style-registry.ts";
 import { setRenderContext, clearRenderContext } from "./jsx-runtime.ts";
+import { Result, ok, err } from "./result.ts";
 
 // Generate a unique component instance ID
 export function generateComponentId(componentName: string): string {
   return `${componentName}-${crypto.randomUUID()}`;
 }
 
-// Render component with DOM-native approach
-export function renderComponent(
+// Error types for component rendering
+export type RenderError =
+  | { readonly type: "ComponentNotFound"; readonly name: string; readonly available: readonly string[] }
+  | { readonly type: "RenderFailed"; readonly error: unknown; readonly component: string }
+  | { readonly type: "InvalidProps"; readonly component: string; readonly details: string };
+
+// Render component with DOM-native approach using Result type
+export function renderComponentSafe(
   componentName: string,
   props: Record<string, unknown> = {},
-): string {
+): Result<string, RenderError> {
   const registry = getRegistry();
   const entry = registry[componentName];
 
   if (!entry) {
-    const registeredComponents = Object.keys(registry).join(", ");
-    return `<!-- component "${componentName}" not found. Available components: ${
-      registeredComponents || "none"
-    } -->`;
+    const registeredComponents = Object.keys(registry);
+    return err({
+      type: "ComponentNotFound",
+      name: componentName,
+      available: registeredComponents,
+    });
   }
 
   // Props are now handled directly in the component's render function
@@ -45,10 +54,17 @@ export function renderComponent(
   try {
     // Simple render with props and optional API
     markup = entry.render(rawProps, apiCreators);
-  } finally {
-    // Always clear the context, even if rendering throws
+  } catch (error) {
     clearRenderContext();
+    return err({
+      type: "RenderFailed",
+      error,
+      component: componentName,
+    });
   }
+
+  // Clear the context after successful render
+  clearRenderContext();
 
   let cssTag = "";
   if (entry.css) {
@@ -58,7 +74,33 @@ export function renderComponent(
     }
   }
 
-  return `${cssTag}${markup}`;
+  return ok(`${cssTag}${markup}`);
+}
+
+// Legacy render function for backward compatibility
+export function renderComponent(
+  componentName: string,
+  props: Record<string, unknown> = {},
+): string {
+  const result = renderComponentSafe(componentName, props);
+
+  if (result.ok) {
+    return result.value;
+  }
+
+  // Handle errors with fallback behavior matching original implementation
+  switch (result.error.type) {
+    case "ComponentNotFound":
+      return `<!-- component "${result.error.name}" not found. Available components: ${
+        result.error.available.join(", ") || "none"
+      } -->`;
+    case "RenderFailed":
+      console.error(`Component render failed: ${result.error.component}`, result.error.error);
+      return `<!-- component "${result.error.component}" failed to render -->`;
+    case "InvalidProps":
+      console.error(`Invalid props for component: ${result.error.component}`, result.error.details);
+      return `<!-- component "${result.error.component}" received invalid props -->`;
+  }
 }
 
 // Small, fast, deterministic string hash to key CSS dedup per request
