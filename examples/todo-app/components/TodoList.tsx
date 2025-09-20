@@ -63,7 +63,7 @@ defineComponent("todo-list", {
 
     if (loading) {
       return (
-        <div id="todo-list" class="todo-list loading">
+        <div id="todo-list" class="todo-list loading" data-component="todo-list">
           <div class="loading-spinner">Loading todos...</div>
         </div>
       );
@@ -75,7 +75,7 @@ defineComponent("todo-list", {
         : `No ${parsedFilter.status} todos found.`;
 
       return (
-        <div id="todo-list" class="todo-list empty">
+        <div id="todo-list" class="todo-list empty" data-component="todo-list">
           <div class="alert alert-info">
             {alertContent}
           </div>
@@ -84,7 +84,7 @@ defineComponent("todo-list", {
     }
 
     return (
-      <div id="todo-list" class="todo-list">
+      <div id="todo-list" class="todo-list" data-component="todo-list">
         {parsedTodos.map((todo) =>
           renderComponent("todo-item", { todo: JSON.stringify(todo) })
         ).join("")}

@@ -168,11 +168,35 @@ export const todoAPI = {
     const deleteResult = await repository.delete(params.id);
     if (!deleteResult.ok) return handleDatabaseError(deleteResult.error);
 
-    // Return empty response - HTMX will remove the element
-    return new Response("", {
-      status: 200,
-      headers: { "Content-Type": "text/html" },
-    });
+    // Return updated todo list like other operations
+    const url = new URL(req.url);
+
+    // Get users and default to first user
+    const usersResult = await repository.getUsers();
+    if (!usersResult.ok) return handleDatabaseError(usersResult.error);
+
+    const userId = url.searchParams.get("user") || usersResult.value[0];
+    const status = (url.searchParams.get("status") as TodoFilter["status"]) || "all";
+    const priority = (url.searchParams.get("priority") as TodoFilter["priority"]) || undefined;
+
+    const filter: TodoFilter = { status, priority };
+
+    // Get filtered todos
+    const todosResult = await repository.filter(filter, userId);
+    if (!todosResult.ok) return handleDatabaseError(todosResult.error);
+
+    // Get stats
+    const statsResult = await repository.getStats(userId);
+    if (!statsResult.ok) return handleDatabaseError(statsResult.error);
+
+    return htmlResponse(
+      TodoList({
+        todos: JSON.stringify(todosResult.value),
+        todoCount: JSON.stringify(statsResult.value),
+        currentFilter: JSON.stringify(filter),
+        userId,
+      })
+    );
   },
 
   // POST /api/todos/clear-completed - Bulk delete completed todos

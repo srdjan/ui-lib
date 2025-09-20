@@ -32,24 +32,7 @@ console.log("Repository initialized successfully");
 // Register component APIs with the router
 registerComponentApi("todo-item", router);
 registerComponentApi("todo-form", router);
-
-// Manual registration of todo-filters API routes (workaround for registerComponentApi bug)
-import { getRegistry } from "../../lib/registry.ts";
-const registry = getRegistry();
-const todoFiltersComponent = registry["todo-filters"];
-if (todoFiltersComponent?.apiMap) {
-  console.log("Manually registering todo-filters API routes...");
-  for (
-    const [functionName, apiDefinition] of Object.entries(
-      todoFiltersComponent.apiMap,
-    )
-  ) {
-    if (Array.isArray(apiDefinition) && apiDefinition.length === 3) {
-      const [method, path, handler] = apiDefinition;
-      router.register(method, path, handler as any);
-    }
-  }
-}
+registerComponentApi("todo-filters", router);
 
 // Data helpers using functional repository
 import { ensureRepository, getRepository } from "./api/index.ts";

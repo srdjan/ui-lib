@@ -82,21 +82,18 @@ defineComponent("todo-form", {
     const cancelHook = typeof onCancel === "string" ? onCancel : undefined;
     const isEditing = Boolean(parsedTodo);
 
-    // HTMX wiring aligned with shared list target configuration
-    const baseOptions = { target: LIST_TARGET, swap: "outerHTML" } as const;
-    const createAttrs = api?.createTodo?.(undefined, baseOptions) ??
-      `hx-post="/api/todos" hx-target="${LIST_TARGET}" hx-swap="outerHTML"`;
-    const updateAttrs = parsedTodo
-      ? api?.updateTodo?.(parsedTodo.id, undefined, baseOptions) ??
-        `hx-put="/api/todos/${parsedTodo.id}" hx-target="${LIST_TARGET}" hx-swap="outerHTML"`
-      : createAttrs;
+    // API wiring for form submission
+    const baseOptions = { target: LIST_TARGET, swap: "outerHTML", select: LIST_TARGET } as const;
+    const createAttrs = api?.createTodo ? api.createTodo(undefined, baseOptions) : "";
+    const updateAttrs = parsedTodo && api?.updateTodo
+      ? api.updateTodo(parsedTodo.id, undefined, baseOptions)
+      : "";
     const formAttrs = isEditing && parsedTodo ? updateAttrs : createAttrs;
 
     return `
       <div class="todo-form">
         <form
           ${formAttrs}
-          hx-select="${LIST_TARGET}"
           onsubmit="setTimeout(() => this.reset(), 100)"
         >
           <input type="hidden" name="user" value="${userId}" />

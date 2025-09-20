@@ -16,10 +16,8 @@ import {
 import { todoAPI } from "../api/index.ts";
 import type { Todo } from "../api/types.ts";
 
-const swapAttrsFor = (id: string) => ({
-  "hx-target": `#todo-${id}`,
-  "hx-swap": "outerHTML",
-});
+// Helper to generate target for this todo item
+const getTargetFor = (id: string) => `#todo-${id}`;
 
 defineComponent("todo-item", {
   api: {
@@ -149,34 +147,18 @@ defineComponent("todo-item", {
       high: "#ef4444",
     };
 
-    const fallbackSwap = swapAttrsFor(parsedTodo.id);
+    const target = getTargetFor(parsedTodo.id);
 
-    const toggleAction = api
-      ? {
-        api: "toggleTodo",
-        args: [parsedTodo.id],
-        attributes: fallbackSwap,
-      }
-      : `hx-post="/api/todos/${parsedTodo.id}/toggle" hx-target="${
-        fallbackSwap["hx-target"]
-      }" hx-swap="${fallbackSwap["hx-swap"]}"`;
+    const toggleAction = api?.toggleTodo ? api.toggleTodo(parsedTodo.id, {
+      target,
+      swap: "outerHTML",
+    }) : "";
 
-    const deleteAttributes = {
-      ...fallbackSwap,
-      "hx-confirm": "Are you sure you want to delete this todo?",
-    };
-
-    const deleteAction = api
-      ? {
-        api: "deleteTodo",
-        args: [parsedTodo.id],
-        attributes: deleteAttributes,
-      }
-      : `hx-delete="/api/todos/${parsedTodo.id}" hx-target="${
-        deleteAttributes["hx-target"]
-      }" hx-swap="${deleteAttributes["hx-swap"]}" hx-confirm="${
-        deleteAttributes["hx-confirm"]
-      }"`;
+    const deleteAction = api?.deleteTodo ? api.deleteTodo(parsedTodo.id, {
+      target: "#todo-list",
+      swap: "outerHTML",
+      confirm: "Are you sure you want to delete this todo?",
+    }) : "";
 
     return (
       <div
