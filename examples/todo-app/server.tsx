@@ -15,21 +15,8 @@ import { renderComponent } from "../../lib/component-state.ts";
 // Import to register the Item component
 import "../../lib/components/data-display/item.ts";
 
-// Define ItemProps type locally (since it's not exported from the component)
-type ItemProps = {
-  id?: string;
-  title?: string;
-  description?: string;
-  icon?: string;
-  timestamp?: string;
-  badges?: Array<{ text: string; variant?: string }>;
-  actions?: Array<{ text: string; action: string; variant?: string }>;
-  variant?: "default" | "completed" | "selected" | "priority";
-  size?: "sm" | "md" | "lg";
-  priority?: "low" | "medium" | "high";
-  completed?: boolean;
-  selected?: boolean;
-};
+// Import types from the updated Item component
+import type { ItemProps } from "../../lib/components/data-display/item.ts";
 
 import { todoAPI } from "./api/index.ts";
 import type { Todo, TodoFilter } from "./api/types.ts";
@@ -100,127 +87,42 @@ function getPriorityVariant(priority: string): string {
   }
 }
 
-// Basic CSS styles
-const basicStyles = `
-  body {
-    margin: 0;
-    padding: 0;
-    background-color: #f9fafb;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  }
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-  }
+// Modern semantic CSS classes using the design system
+const appSpecificStyles = `
+  /* Application-specific styles using semantic classes */
   .header {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-block-end: var(--space-2xl);
   }
+
   .title {
     font-size: 2rem;
-    font-weight: bold;
-    color: #111827;
-    margin-bottom: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-block-end: var(--space-md);
   }
+
   .subtitle {
     font-size: 1.125rem;
-    color: #6b7280;
-    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    margin-block-end: var(--space-xs);
   }
+
   .description {
     font-size: 1rem;
-    color: #9ca3af;
-    max-width: 600px;
-    margin: 0 auto;
+    color: var(--text-tertiary);
+    max-inline-size: 600px;
+    margin-inline: auto;
     line-height: 1.6;
   }
+
   .section {
-    margin-bottom: 3rem;
+    margin-block-end: var(--space-2xl);
   }
-  .form-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
-  .form-card h2 {
-    margin: 0 0 1.5rem 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #111827;
-  }
-  .form-group {
-    margin-bottom: 1rem;
-  }
-  .form-group label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #111827;
-    margin-bottom: 0.5rem;
-  }
-  .form-group input,
-  .form-group select {
-    width: 100%;
-    padding: 0.75rem;
-    font-size: 1rem;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    background: white;
-    color: #111827;
-  }
-  .form-group input:focus,
-  .form-group select:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-  button[type="submit"] {
-    background: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 0.75rem 1.5rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.15s ease;
-  }
-  button[type="submit"]:hover {
-    background: #2563eb;
-  }
-  .todos-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .stats {
-    background: white;
-    padding: 1rem;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
-    margin-bottom: 1rem;
-    text-align: center;
-  }
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-  }
-  .stat {
-    text-align: center;
-  }
-  .stat-value {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #111827;
-  }
-  .stat-label {
-    font-size: 0.875rem;
-    color: #6b7280;
-    text-transform: capitalize;
+
+  /* Application container using utility classes */
+  .app-container {
+    min-block-size: 100vh;
   }
 `;
 
@@ -231,7 +133,6 @@ type TodoAppProps = {
 };
 
 defineComponent<TodoAppProps>("todo-app", {
-  styles: basicStyles,
   render: (props) => {
     const { todos, stats } = props;
 
@@ -245,6 +146,7 @@ defineComponent<TodoAppProps>("todo-app", {
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <title>Generic Components Demo - ui-lib</title>
+          <link rel="stylesheet" href="/styles/base.css">
           <script src="https://unpkg.com/htmx.org@1.9.10"></script>
           <script src="https://unpkg.com/htmx.org@1.9.10/dist/ext/json-enc.js"></script>
           <script>
@@ -256,90 +158,93 @@ defineComponent<TodoAppProps>("todo-app", {
               }
             };
           </script>
+          <style>${appSpecificStyles}</style>
         </head>
-        <body>
-          <div class="container">
-            <header class="header">
-              <h1 class="title">Generic Components Demo</h1>
-              <p class="subtitle">Todo App Built with Reusable Library Components</p>
-              <p class="description">
-                This demonstrates how applications can be built using only generic,
-                reusable components from the ui-lib without any app-specific components.
-              </p>
-            </header>
+        <body class="page">
+          <div class="u-center app-container">
+            <div class="u-flow" style="--flow-space: var(--space-2xl)">
+              <header class="header">
+                <h1 class="title">Generic Components Demo</h1>
+                <p class="subtitle">Todo App Built with Reusable Library Components</p>
+                <p class="description">
+                  This demonstrates how applications can be built using only generic,
+                  reusable components from the ui-lib without any app-specific components.
+                </p>
+              </header>
 
-            <div class="section">
-              <div class="form-card">
-                <h2>Add New Todo</h2>
-                <form method="POST" action="/api/todos">
-                  <div class="form-group">
-                    <label for="text">What needs to be done?</label>
-                    <input type="text" id="text" name="text" placeholder="Enter todo text..." required />
-                  </div>
-                  <div class="form-group">
-                    <label for="priority">Priority</label>
-                    <select id="priority" name="priority" required>
-                      <option value="">Select priority</option>
-                      <option value="low">Low Priority</option>
-                      <option value="medium">Medium Priority</option>
-                      <option value="high">High Priority</option>
-                    </select>
-                  </div>
-                  <button type="submit">Add Todo</button>
-                </form>
-              </div>
-            </div>
+              <section class="section">
+                <div class="card" data-size="lg">
+                  <h2 style="margin: 0 0 var(--space-lg) 0; font-size: 1.25rem; font-weight: 600;">Add New Todo</h2>
+                  <form method="POST" action="/api/todos" class="u-flow">
+                    <div class="form-group">
+                      <label for="text" class="form-label">What needs to be done?</label>
+                      <input type="text" id="text" name="text" class="form-input" placeholder="Enter todo text..." required />
+                    </div>
+                    <div class="form-group">
+                      <label for="priority" class="form-label">Priority</label>
+                      <select id="priority" name="priority" class="form-input" required>
+                        <option value="">Select priority</option>
+                        <option value="low">Low Priority</option>
+                        <option value="medium">Medium Priority</option>
+                        <option value="high">High Priority</option>
+                      </select>
+                    </div>
+                    <button type="submit" class="btn" data-variant="primary">Add Todo</button>
+                  </form>
+                </div>
+              </section>
 
-            <div class="section">
-              <div class="stats">
-                <div class="stats-grid">
-                  <div class="stat">
-                    <div class="stat-value">${stats.active}</div>
-                    <div class="stat-label">active</div>
-                  </div>
-                  <div class="stat">
-                    <div class="stat-value">${stats.completed}</div>
-                    <div class="stat-label">completed</div>
-                  </div>
-                  <div class="stat">
-                    <div class="stat-value">${stats.total}</div>
-                    <div class="stat-label">total</div>
+              <section class="section">
+                <div class="card" data-size="md">
+                  <div class="stats-grid">
+                    <div class="stat">
+                      <span class="stat-value">${stats.active}</span>
+                      <span class="stat-label">active</span>
+                    </div>
+                    <div class="stat">
+                      <span class="stat-value">${stats.completed}</span>
+                      <span class="stat-label">completed</span>
+                    </div>
+                    <div class="stat">
+                      <span class="stat-value">${stats.total}</span>
+                      <span class="stat-label">total</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              </section>
 
-            <div class="section">
-              <h2>Your Todos (${todos.length} items)</h2>
-              ${todos.length === 0 ? `
-                <div class="form-card">
-                  <p>No todos yet. Add a todo above to get started!</p>
-                </div>
-              ` : `
-                <div class="todos-list">
-                  ${todoItems.join('')}
-                </div>
-              `}
-            </div>
+              <section class="section">
+                <h2 style="margin-bottom: var(--space-md);">Your Todos (${todos.length} items)</h2>
+                ${todos.length === 0 ? `
+                  <div class="card" data-size="lg">
+                    <p>No todos yet. Add a todo above to get started!</p>
+                  </div>
+                ` : `
+                  <div class="u-stack todos-list">
+                    ${todoItems.join('')}
+                  </div>
+                `}
+              </section>
 
-            <div class="section">
-              <div class="stats">
-                <h3>Component Comparison</h3>
-                <div class="stats-grid">
-                  <div class="stat">
-                    <div class="stat-value">800+</div>
-                    <div class="stat-label">App-Specific LOC</div>
-                  </div>
-                  <div class="stat">
-                    <div class="stat-value">50</div>
-                    <div class="stat-label">Generic Component LOC</div>
-                  </div>
-                  <div class="stat">
-                    <div class="stat-value">94%</div>
-                    <div class="stat-label">Code Reduction</div>
+              <section class="section">
+                <div class="card" data-size="md">
+                  <h3 style="text-align: center; margin-bottom: var(--space-md);">Component Comparison</h3>
+                  <div class="stats-grid">
+                    <div class="stat">
+                      <span class="stat-value">800+</span>
+                      <span class="stat-label">App-Specific LOC</span>
+                    </div>
+                    <div class="stat">
+                      <span class="stat-value">50</span>
+                      <span class="stat-label">Generic Component LOC</span>
+                    </div>
+                    <div class="stat">
+                      <span class="stat-value">94%</span>
+                      <span class="stat-label">Code Reduction</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </section>
             </div>
           </div>
         </body>
@@ -398,6 +303,22 @@ router.register(
     });
   }
 );
+
+// Serve CSS files
+router.register("GET", "/styles/base.css", async () => {
+  try {
+    const cssContent = await Deno.readTextFile("./styles/base.css");
+    return new Response(cssContent, {
+      headers: { "Content-Type": "text/css" },
+    });
+  } catch (error) {
+    console.error("Failed to load CSS:", error);
+    return new Response("/* CSS file not found */", {
+      status: 404,
+      headers: { "Content-Type": "text/css" },
+    });
+  }
+});
 
 router.register("GET", "/health", async () => {
   const users = await getUsers();

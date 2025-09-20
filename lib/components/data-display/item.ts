@@ -1,278 +1,310 @@
 /**
  * Item Component - Generic reusable item display
  * Can be used for todo items, list items, cards, user cards, etc.
+ *
+ * Refactored to use modern CSS-in-TS with design tokens and cascade layers
  */
 
 import { defineComponent } from "../../define-component.ts";
 import { renderComponent } from "../../component-state.ts";
+import { css } from "../../css-in-ts.ts";
+import { componentTokens } from "../../themes/component-tokens.ts";
+import type { ComponentSize } from "../types.ts";
 
-// Simple CSS styles for the item component
-const itemStyles = `
-.item {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 1rem;
-  background-color: white;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  transition: all 0.15s ease;
-  position: relative;
-  container-type: inline-size;
-}
+// Modern CSS-in-TS styles using design tokens
+function createItemStyles() {
+  return css({
+    item: {
+      // Layout
+      display: "flex",
+      alignItems: "flex-start",
+      justifyContent: "space-between",
+      position: "relative",
+      containerType: "inline-size",
 
-.item:hover {
-  background-color: #f9fafb;
-  border-color: #d1d5db;
-}
+      // Spacing & sizing
+      padding: componentTokens.spacing[4],
+      gap: componentTokens.spacing[3],
 
-.item:focus-within {
-  outline: 2px solid #bfdbfe;
-  outline-offset: 2px;
-}
+      // Visual styling
+      backgroundColor: componentTokens.colors.surface.background,
+      border: `1px solid ${componentTokens.colors.surface.border}`,
+      borderRadius: componentTokens.radius.md,
+      boxShadow: componentTokens.shadows.sm,
 
-.item.completed {
-  opacity: 0.7;
-  text-decoration: line-through;
-  background-color: #f3f4f6;
-}
+      // Animation
+      transition: `all ${componentTokens.animation.duration.normal} ${componentTokens.animation.easing.out}`,
 
-.item.selected {
-  background-color: #eff6ff;
-  border-color: #bfdbfe;
-}
+      // Hover state
+      "&:hover": {
+        backgroundColor: componentTokens.colors.surface.muted,
+        borderColor: componentTokens.colors.gray[300],
+        boxShadow: componentTokens.shadows.base,
+      },
 
-.item.priority-high {
-  border-left: 4px solid #ef4444;
-}
+      // Focus state
+      "&:focus-within": {
+        outline: `2px solid ${componentTokens.colors.primary[300]}`,
+        outlineOffset: "2px",
+      },
 
-.item.priority-medium {
-  border-left: 4px solid #f59e0b;
-}
+      // Container queries for responsive design
+      "@media": {
+        "(max-width: 300px)": {
+          flexDirection: "column",
+          alignItems: "stretch",
+          gap: componentTokens.spacing[3],
+        },
+      },
+    },
 
-.item.priority-low {
-  border-left: 4px solid #10b981;
-}
+    // State variants
+    completed: {
+      opacity: 0.7,
+      textDecoration: "line-through",
+      backgroundColor: componentTokens.colors.gray[100],
+    },
 
-@container (max-width: 300px) {
-  .item {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
-  }
-}
+    selected: {
+      backgroundColor: componentTokens.colors.primary[50],
+      borderColor: componentTokens.colors.primary[300],
+    },
 
-.item-content {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  flex: 1;
-  min-width: 0;
-}
+    // Priority variants
+    priorityHigh: {
+      borderInlineStart: `4px solid ${componentTokens.colors.error[500]}`,
+    },
 
-@container (max-width: 300px) {
-  .item-content {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
-}
+    priorityMedium: {
+      borderInlineStart: `4px solid ${componentTokens.colors.warning[500]}`,
+    },
 
-.item-icon {
-  flex-shrink: 0;
-  width: 1.5rem;
-  height: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #6b7280;
-}
+    priorityLow: {
+      borderInlineStart: `4px solid ${componentTokens.colors.success[500]}`,
+    },
 
-.item-icon svg,
-.item-icon img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 4px;
-}
+    // Layout components
+    content: {
+      display: "flex",
+      alignItems: "flex-start",
+      gap: componentTokens.spacing[3],
+      flex: 1,
+      minWidth: 0,
 
-.item-main {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
+      "@media": {
+        "(max-width: 300px)": {
+          flexDirection: "column",
+          alignItems: "stretch",
+          gap: componentTokens.spacing[2],
+        },
+      },
+    },
 
-.item-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #111827;
-  line-height: 1.25;
-  margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+    icon: {
+      flexShrink: 0,
+      width: componentTokens.spacing[6],
+      height: componentTokens.spacing[6],
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      color: componentTokens.colors.gray[500],
 
-.item-description {
-  font-size: 0.875rem;
-  color: #6b7280;
-  line-height: 1.5;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
+      "& svg, & img": {
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+        borderRadius: componentTokens.radius.sm,
+      },
+    },
 
-.item-metadata {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-  font-size: 0.75rem;
-  color: #9ca3af;
-}
+    main: {
+      flex: 1,
+      minWidth: 0,
+      display: "flex",
+      flexDirection: "column",
+      gap: componentTokens.spacing[1],
+    },
 
-@container (max-width: 300px) {
-  .item-metadata {
-    flex-wrap: wrap;
-    gap: 0.25rem;
-  }
-}
+    title: {
+      fontSize: componentTokens.typography.sizes.base,
+      fontWeight: componentTokens.typography.weights.semibold,
+      color: componentTokens.colors.surface.foreground,
+      lineHeight: componentTokens.typography.lineHeights.tight,
+      margin: 0,
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+    },
 
-.item-metadata .dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background-color: currentColor;
-  opacity: 0.5;
-}
+    description: {
+      fontSize: componentTokens.typography.sizes.sm,
+      color: componentTokens.colors.gray[600],
+      lineHeight: componentTokens.typography.lineHeights.normal,
+      margin: 0,
+      display: "-webkit-box",
+      WebkitLineClamp: 2,
+      WebkitBoxOrient: "vertical",
+      overflow: "hidden",
+    },
 
-.item-badges {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  margin-top: 0.5rem;
-  flex-wrap: wrap;
-}
+    metadata: {
+      display: "flex",
+      alignItems: "center",
+      gap: componentTokens.spacing[2],
+      marginBlockStart: componentTokens.spacing[2],
+      fontSize: componentTokens.typography.sizes.xs,
+      color: componentTokens.colors.gray[500],
 
-.item-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  border-radius: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-}
+      "@media": {
+        "(max-width: 300px)": {
+          flexWrap: "wrap",
+          gap: componentTokens.spacing[1],
+        },
+      },
+    },
 
-.item-badge.primary {
-  background-color: #dbeafe;
-  color: #1d4ed8;
-}
+    badges: {
+      display: "flex",
+      alignItems: "center",
+      gap: componentTokens.spacing[1],
+      marginBlockStart: componentTokens.spacing[2],
+      flexWrap: "wrap",
+    },
 
-.item-badge.success {
-  background-color: #dcfce7;
-  color: #166534;
-}
+    badge: {
+      display: "inline-flex",
+      alignItems: "center",
+      padding: `${componentTokens.spacing[1]} ${componentTokens.spacing[2]}`,
+      fontSize: componentTokens.typography.sizes.xs,
+      fontWeight: componentTokens.typography.weights.medium,
+      borderRadius: componentTokens.radius.sm,
+      textTransform: "uppercase",
+      letterSpacing: componentTokens.typography.letterSpacing.wide,
+    },
 
-.item-badge.warning {
-  background-color: #fef3c7;
-  color: #92400e;
-}
+    // Badge variants
+    badgePrimary: {
+      backgroundColor: componentTokens.colors.primary[100],
+      color: componentTokens.colors.primary[800],
+    },
 
-.item-badge.danger {
-  background-color: #fee2e2;
-  color: #dc2626;
-}
+    badgeSuccess: {
+      backgroundColor: componentTokens.colors.success[100],
+      color: componentTokens.colors.success[800],
+    },
 
-.item-badge.neutral {
-  background-color: #f3f4f6;
-  color: #6b7280;
-}
+    badgeWarning: {
+      backgroundColor: componentTokens.colors.warning[100],
+      color: componentTokens.colors.warning[800],
+    },
 
-.item-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  flex-shrink: 0;
-}
+    badgeDanger: {
+      backgroundColor: componentTokens.colors.error[100],
+      color: componentTokens.colors.error[800],
+    },
 
-@container (max-width: 300px) {
-  .item-actions {
-    align-self: stretch;
-    justify-content: space-between;
-    margin-top: 0.5rem;
-  }
-}
+    badgeNeutral: {
+      backgroundColor: componentTokens.colors.gray[100],
+      color: componentTokens.colors.gray[700],
+    },
 
-.item-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem;
-  background-color: transparent;
-  color: #6b7280;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  transition: all 0.15s ease;
-  min-width: 2rem;
-  min-height: 2rem;
-}
+    // Actions
+    actions: {
+      display: "flex",
+      alignItems: "center",
+      gap: componentTokens.spacing[1],
+      flexShrink: 0,
 
-.item-action:hover {
-  background-color: #f9fafb;
-  color: #111827;
-}
+      "@media": {
+        "(max-width: 300px)": {
+          alignSelf: "stretch",
+          justifyContent: "space-between",
+          marginBlockStart: componentTokens.spacing[2],
+        },
+      },
+    },
 
-.item-action:focus-visible {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-}
+    action: {
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: componentTokens.spacing[2],
+      backgroundColor: "transparent",
+      color: componentTokens.colors.gray[500],
+      border: "none",
+      borderRadius: componentTokens.radius.sm,
+      cursor: "pointer",
+      fontSize: componentTokens.typography.sizes.sm,
+      transition: `all ${componentTokens.animation.duration.fast} ${componentTokens.animation.easing.out}`,
+      minWidth: componentTokens.spacing[8],
+      minHeight: componentTokens.spacing[8],
 
-.item-action.danger {
-  color: #ef4444;
-}
+      "&:hover": {
+        backgroundColor: componentTokens.colors.surface.muted,
+        color: componentTokens.colors.surface.foreground,
+      },
 
-.item-action.danger:hover {
-  background-color: #fef2f2;
-  color: #dc2626;
-}
+      "&:focus-visible": {
+        outline: `2px solid ${componentTokens.colors.primary[500]}`,
+        outlineOffset: "2px",
+      },
+    },
 
-.item-action.primary {
-  color: #3b82f6;
-}
+    actionDanger: {
+      color: componentTokens.colors.error[500],
 
-.item-action.primary:hover {
-  background-color: #eff6ff;
-  color: #2563eb;
+      "&:hover": {
+        backgroundColor: componentTokens.colors.error[50],
+        color: componentTokens.colors.error[600],
+      },
+    },
+
+    actionPrimary: {
+      color: componentTokens.colors.primary[500],
+
+      "&:hover": {
+        backgroundColor: componentTokens.colors.primary[50],
+        color: componentTokens.colors.primary[600],
+      },
+    },
+  });
 }
-`;
 
 // Props type for the Item component
-type ItemProps = {
-  id?: string;
-  title?: string;
-  description?: string;
-  icon?: string;
-  timestamp?: string;
-  badges?: Array<{ text: string; variant?: string }>;
-  actions?: Array<{ text: string; action: string; variant?: string }>;
-  variant?: "default" | "completed" | "selected" | "priority";
-  size?: "sm" | "md" | "lg";
-  priority?: "low" | "medium" | "high";
-  completed?: boolean;
-  selected?: boolean;
+export type ItemProps = {
+  readonly id?: string;
+  readonly title?: string;
+  readonly description?: string;
+  readonly icon?: string;
+  readonly timestamp?: string;
+  readonly badges?: readonly ItemBadge[];
+  readonly actions?: readonly ItemAction[];
+  readonly variant?: ItemVariant;
+  readonly size?: ComponentSize;
+  readonly priority?: ItemPriority;
+  readonly completed?: boolean;
+  readonly selected?: boolean;
 };
 
-// Define the Item component using the defineComponent API
+// Enhanced props with better typing
+export type ItemVariant = "default" | "completed" | "selected" | "priority";
+export type ItemPriority = "low" | "medium" | "high";
+export type BadgeVariant = "primary" | "success" | "warning" | "danger" | "neutral";
+export type ActionVariant = "default" | "primary" | "danger";
+
+export type ItemBadge = {
+  readonly text: string;
+  readonly variant?: BadgeVariant;
+};
+
+export type ItemAction = {
+  readonly text: string;
+  readonly action: string;
+  readonly variant?: ActionVariant;
+};
+
+// Define the Item component using the modern defineComponent API
 defineComponent<ItemProps>("item", {
-  styles: itemStyles,
   render: (props) => {
     const {
       id = "",
@@ -289,25 +321,53 @@ defineComponent<ItemProps>("item", {
       selected = false,
     } = props;
 
-    const classes = [
-      "item",
-      variant === "completed" || completed ? "completed" : "",
-      variant === "selected" || selected ? "selected" : "",
-      priority ? `priority-${priority}` : "",
+    // Generate CSS styles
+    const styles = createItemStyles();
+
+    // Build CSS classes
+    const itemClasses = [
+      styles.classMap.item,
+      (variant === "completed" || completed) && styles.classMap.completed,
+      (variant === "selected" || selected) && styles.classMap.selected,
+      priority === "high" && styles.classMap.priorityHigh,
+      priority === "medium" && styles.classMap.priorityMedium,
+      priority === "low" && styles.classMap.priorityLow,
     ].filter(Boolean).join(" ");
+
+    // Helper to get badge class
+    const getBadgeClass = (variant?: BadgeVariant) => {
+      const baseClass = styles.classMap.badge;
+      switch (variant) {
+        case "primary": return `${baseClass} ${styles.classMap.badgePrimary}`;
+        case "success": return `${baseClass} ${styles.classMap.badgeSuccess}`;
+        case "warning": return `${baseClass} ${styles.classMap.badgeWarning}`;
+        case "danger": return `${baseClass} ${styles.classMap.badgeDanger}`;
+        default: return `${baseClass} ${styles.classMap.badgeNeutral}`;
+      }
+    };
+
+    // Helper to get action class
+    const getActionClass = (variant?: ActionVariant) => {
+      const baseClass = styles.classMap.action;
+      switch (variant) {
+        case "primary": return `${baseClass} ${styles.classMap.actionPrimary}`;
+        case "danger": return `${baseClass} ${styles.classMap.actionDanger}`;
+        default: return baseClass;
+      }
+    };
 
     // Render icon
     const iconHtml = icon ? `
-      <div class="item-icon">
+      <div class="${styles.classMap.icon}">
         ${icon}
       </div>
     ` : "";
 
     // Render badges
     const badgesHtml = badges.length > 0 ? `
-      <div class="item-badges">
+      <div class="${styles.classMap.badges}">
         ${badges.map(badge => `
-          <span class="item-badge ${badge.variant || 'neutral'}">
+          <span class="${getBadgeClass(badge.variant)}">
             ${badge.text}
           </span>
         `).join("")}
@@ -316,16 +376,20 @@ defineComponent<ItemProps>("item", {
 
     // Render metadata
     const metadataHtml = timestamp ? `
-      <div class="item-metadata">
+      <div class="${styles.classMap.metadata}">
         <span>${timestamp}</span>
       </div>
     ` : "";
 
     // Render actions
     const actionsHtml = actions.length > 0 ? `
-      <div class="item-actions">
+      <div class="${styles.classMap.actions}">
         ${actions.map(action => `
-          <button type="button" class="item-action ${action.variant || 'default'}" onclick="${action.action}">
+          <button
+            type="button"
+            class="${getActionClass(action.variant)}"
+            onclick="${action.action}"
+          >
             ${action.text}
           </button>
         `).join("")}
@@ -333,9 +397,10 @@ defineComponent<ItemProps>("item", {
     ` : "";
 
     return `
+      <style>${styles.css}</style>
       <div
         ${id ? `id="${id}"` : ''}
-        class="${classes}"
+        class="${itemClasses}"
         data-component="item"
         data-variant="${variant}"
         data-size="${size}"
@@ -343,11 +408,11 @@ defineComponent<ItemProps>("item", {
         data-completed="${completed.toString()}"
         data-selected="${selected.toString()}"
       >
-        <div class="item-content">
+        <div class="${styles.classMap.content}">
           ${iconHtml}
-          <div class="item-main">
-            ${title ? `<h3 class="item-title">${title}</h3>` : ''}
-            ${description ? `<p class="item-description">${description}</p>` : ''}
+          <div class="${styles.classMap.main}">
+            ${title ? `<h3 class="${styles.classMap.title}">${title}</h3>` : ''}
+            ${description ? `<p class="${styles.classMap.description}">${description}</p>` : ''}
             ${metadataHtml}
             ${badgesHtml}
           </div>
