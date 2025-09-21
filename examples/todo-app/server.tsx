@@ -16,10 +16,10 @@ import { renderComponent } from "../../lib/component-state.ts";
 // Import to register working library components
 import "../../lib/components/data-display/item.ts";
 import "../../lib/components/data-display/stat.ts";
-import "../../lib/components/layout/page.ts";
-import "../../lib/components/layout/stack.ts";
-import "../../lib/components/layout/section.ts";
-import "../../lib/components/layout/header.ts";
+import "../../lib/components/layout/page.tsx";
+import "../../lib/components/layout/stack.tsx";
+import "../../lib/components/layout/section.tsx";
+import "../../lib/components/layout/header.tsx";
 import "../../lib/components/layout/card.ts";
 import "../../lib/components/layout/grid.ts";
 

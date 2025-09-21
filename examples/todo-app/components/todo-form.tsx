@@ -1,9 +1,10 @@
+/** @jsx h */
 /**
  * TodoForm Component
  * Simple form for adding new todos using library Card component
  */
 
-import { defineComponent } from "../../../lib/define-component.ts";
+import { defineComponent, h } from "../../../lib/define-component.ts";
 import { renderComponent } from "../../../lib/component-state.ts";
 import "../../../lib/components/layout/card.ts";
 
@@ -16,8 +17,8 @@ defineComponent<TodoFormProps>("todo-form", {
   render: (props) => {
     const { action = "/api/todos", method = "POST" } = props;
 
-    const formHtml = `
-      <form method="${method}" action="${action}">
+    const formContent = (
+      <form method={method} action={action}>
         <div>
           <label for="text">What needs to be done?</label>
           <input
@@ -39,11 +40,11 @@ defineComponent<TodoFormProps>("todo-form", {
         </div>
         <button type="submit">Add Todo</button>
       </form>
-    `;
+    );
 
     return renderComponent("card", { title: "Add New Todo", size: "md" }).replace(
       "{{children}}",
-      formHtml
+      formContent
     );
   },
 });

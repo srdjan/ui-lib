@@ -1,12 +1,13 @@
+/** @jsx h */
 /**
  * TodoStats Component
  * Shows todo statistics using the library Stat component in a Grid layout
  */
 
-import { defineComponent } from "../../../lib/define-component.ts";
+import { defineComponent, h } from "../../../lib/define-component.ts";
 import { renderComponent } from "../../../lib/component-state.ts";
 import "../../../lib/components/data-display/stat.ts";
-import "../../../lib/components/layout/grid.ts";
+import "../../../lib/components/layout/grid.tsx";
 import "../../../lib/components/layout/card.ts";
 
 export type TodoStatsProps = {

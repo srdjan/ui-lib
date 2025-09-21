@@ -58,12 +58,14 @@ export interface PageProps extends BaseLayoutProps, SpacingProps {
   readonly maxWidth?: string;
   readonly centered?: boolean;
   readonly variant?: ContainerVariant;
+  readonly children?: unknown;
 }
 
 export interface StackProps extends BaseLayoutProps, SpacingProps {
   readonly spacing?: Spacing;
   readonly align?: Alignment;
   readonly dividers?: boolean;
+  readonly children?: unknown;
 }
 
 export interface GridProps extends BaseLayoutProps, SpacingProps {
@@ -72,6 +74,7 @@ export interface GridProps extends BaseLayoutProps, SpacingProps {
   readonly areas?: string;
   readonly responsive?: boolean;
   readonly minItemWidth?: string;
+  readonly children?: unknown;
 }
 
 export interface FlexProps extends BaseLayoutProps, SpacingProps {
@@ -80,6 +83,7 @@ export interface FlexProps extends BaseLayoutProps, SpacingProps {
   readonly align?: Alignment;
   readonly justify?: JustifyContent;
   readonly inline?: boolean;
+  readonly children?: unknown;
 }
 
 export interface SectionProps extends BaseLayoutProps, SpacingProps {
@@ -87,6 +91,7 @@ export interface SectionProps extends BaseLayoutProps, SpacingProps {
   readonly subtitle?: string;
   readonly level?: 1 | 2 | 3 | 4 | 5 | 6;
   readonly variant?: "default" | "contained" | "full-width";
+  readonly children?: unknown;
 }
 
 export interface HeaderProps extends BaseLayoutProps {

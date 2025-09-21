@@ -11,7 +11,7 @@ import { html, Router } from "../../mod-simple.ts";
 import { renderComponent } from "../../lib/component-state.ts";
 
 // Import all todo components
-import "./components/index.ts";
+import "./components/todo-app.tsx";
 
 // Import API functionality
 import { todoAPI } from "./api/index.ts";

@@ -1,9 +1,10 @@
+/** @jsx h */
 /**
  * Section Component - Semantic section with optional header
  * Provides proper semantic structure for content sections
  */
 
-import { defineComponent } from "../../define-component.ts";
+import { defineComponent, h } from "../../define-component.ts";
 import type { SectionProps } from "./types.ts";
 
 defineComponent<SectionProps>("section", {
@@ -19,6 +20,7 @@ defineComponent<SectionProps>("section", {
       id = "",
       role = "",
       ariaLabel = "",
+      children,
     } = props;
 
     const classes = ["section"];
@@ -37,46 +39,47 @@ defineComponent<SectionProps>("section", {
 
     if (className) classes.push(className);
 
-    const styles = [];
+    const styles: Record<string, string> = {};
     if (padding) {
       if (padding.startsWith("var(") || padding.includes("px") || padding.includes("rem")) {
-        styles.push(`padding: ${padding};`);
+        styles.padding = padding;
       } else {
-        styles.push(`padding: var(--space-${padding});`);
+        styles.padding = `var(--space-${padding})`;
       }
     }
     if (margin) {
       if (margin.startsWith("var(") || margin.includes("px") || margin.includes("rem")) {
-        styles.push(`margin: ${margin};`);
+        styles.margin = margin;
       } else {
-        styles.push(`margin: var(--space-${margin});`);
+        styles.margin = `var(--space-${margin})`;
       }
     }
 
-    // Generate header if title provided
-    const headerHtml = title ? `
+    // Build header content if title is provided
+    const headerContent = title ? (
       <header class="section__header">
-        <h${level} class="section__title">${title}</h${level}>
-        ${subtitle ? `<p class="section__subtitle">${subtitle}</p>` : ""}
+        <div
+          class="section__title"
+          dangerouslySetInnerHTML={{ __html: `<h${level}>${title}</h${level}>` }}
+        />
+        {subtitle && (
+          <p class="section__subtitle" dangerouslySetInnerHTML={{ __html: subtitle }} />
+        )}
       </header>
-    ` : "";
+    ) : "";
 
-    const attributes = [
-      `class="${classes.join(' ')}"`,
-      styles.length > 0 ? `style="${styles.join(' ')}"` : "",
-      id ? `id="${id}"` : "",
-      role ? `role="${role}"` : "",
-      ariaLabel ? `aria-label="${ariaLabel}"` : "",
-    ].filter(Boolean);
-
-    return `
-      <section ${attributes.join(" ")}>
-        ${headerHtml}
-        <div class="section__content">
-          {{children}}
-        </div>
+    return (
+      <section
+        class={classes.join(' ')}
+        style={Object.keys(styles).length > 0 ? styles : undefined}
+        id={id || undefined}
+        role={role || undefined}
+        aria-label={ariaLabel || undefined}
+      >
+        {headerContent}
+        <div class="section__content" dangerouslySetInnerHTML={{ __html: "{{children}}" }} />
       </section>
-    `;
+    );
   },
 });
 

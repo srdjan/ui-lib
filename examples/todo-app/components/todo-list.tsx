@@ -1,13 +1,14 @@
+/** @jsx h */
 /**
  * TodoList Component
  * Renders a list of todos using the library Stack layout component
  */
 
-import { defineComponent } from "../../../lib/define-component.ts";
+import { defineComponent, h } from "../../../lib/define-component.ts";
 import { renderComponent } from "../../../lib/component-state.ts";
-import "../../../lib/components/layout/stack.ts";
+import "../../../lib/components/layout/stack.tsx";
 import type { Todo } from "../api/types.ts";
-import { todoToItem } from "./todo-item.ts";
+import { todoToItem } from "./todo-item.tsx";
 
 export type TodoListProps = {
   todos: readonly Todo[];

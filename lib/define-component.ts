@@ -17,6 +17,8 @@ import { applyReactiveAttrs } from "./reactive-system.ts";
 import { extractPropDefinitions } from "./prop-helpers.ts";
 import { parseRenderParameters } from "./render-parameter-parser.ts";
 import "./jsx.d.ts";
+// Re-export h function for JSX support
+export { h } from "./jsx-runtime.ts";
 
 export type { HxActionMap };
 

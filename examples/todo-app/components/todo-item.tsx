@@ -1,9 +1,10 @@
+/** @jsx h */
 /**
  * TodoItem Component
  * Wraps the library Item component with todo-specific logic
  */
 
-import { defineComponent } from "../../../lib/define-component.ts";
+import { defineComponent, h } from "../../../lib/define-component.ts";
 import { renderComponent } from "../../../lib/component-state.ts";
 import "../../../lib/components/data-display/item.ts";
 

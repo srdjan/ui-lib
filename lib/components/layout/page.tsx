@@ -1,9 +1,10 @@
+/** @jsx h */
 /**
  * Page Component - Main page container
  * Provides consistent page structure and centering
  */
 
-import { defineComponent } from "../../define-component.ts";
+import { defineComponent, h } from "../../define-component.ts";
 import type { PageProps } from "./types.ts";
 
 defineComponent<PageProps>("page", {
@@ -17,6 +18,7 @@ defineComponent<PageProps>("page", {
       id = "",
       role = "",
       ariaLabel = "",
+      children,
     } = props;
 
     const classes = ["page"];
@@ -40,14 +42,18 @@ defineComponent<PageProps>("page", {
     if (centered) classes.push("u-center");
     if (className) classes.push(className);
 
-    const attributes = [
-      `class="${classes.join(' ')}"`,
-      id ? `id="${id}"` : "",
-      role ? `role="${role}"` : "",
-      ariaLabel ? `aria-label="${ariaLabel}"` : "",
-    ].filter(Boolean);
+    // Use JSX to build the element structure, then inject the placeholder
+    const element = (
+      <div
+        class={classes.join(' ')}
+        id={id || undefined}
+        role={role || undefined}
+        aria-label={ariaLabel || undefined}
+        dangerouslySetInnerHTML={{ __html: "{{children}}" }}
+      />
+    );
 
-    return `<div ${attributes.join(" ")}>{{children}}</div>`;
+    return element;
   },
 });
 
