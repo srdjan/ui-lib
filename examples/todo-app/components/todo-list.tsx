@@ -5,6 +5,8 @@
  */
 
 import { defineComponent, h } from "../../../lib/define-component.ts";
+import "./todo-item.tsx";
+
 import type { Todo } from "../api/types.ts";
 
 export type TodoListProps = {

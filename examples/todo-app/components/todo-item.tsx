@@ -7,6 +7,7 @@
 import { hx } from "../../../lib/api-recipes.ts";
 import "../../../lib/components/data-display/item.ts";
 import { defineComponent, h } from "../../../lib/define-component.ts";
+import { todoAPI } from "../api/index.ts";
 
 import type { Todo } from "../api/types.ts";
 
@@ -66,12 +67,12 @@ defineComponent<{ todo: Todo }>("todo-item", {
     toggle: [
       "POST",
       "/api/todos/:id/toggle",
-      () => new Response(null, { status: 204 }),
+      (req, params) => todoAPI.toggleTodo(req, params as { id: string }),
     ],
     deleteTodo: [
       "DELETE",
       "/api/todos/:id",
-      () => new Response(null, { status: 204 }),
+      (req, params) => todoAPI.deleteTodo(req, params as { id: string }),
     ],
   },
   render: ({ todo }, api) => {
