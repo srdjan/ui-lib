@@ -36,7 +36,7 @@ defineComponent<GridProps>("grid", {
 
     return (
       <div
-        class={classes.join(' ')}
+        class={classes.join(" ")}
         data-gap={gap}
         id={id || undefined}
         role={role || undefined}

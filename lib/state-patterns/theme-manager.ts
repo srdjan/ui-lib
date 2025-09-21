@@ -90,7 +90,7 @@ export class ThemeManager {
   toggleDarkMode(): ThemeState {
     const currentState = this.getCurrentState();
     const currentTheme = this.themes.get(currentState.currentTheme);
-    
+
     if (!currentTheme) {
       throw new Error(`Current theme "${currentState.currentTheme}" not found`);
     }
@@ -120,7 +120,11 @@ export class ThemeManager {
    * Subscribe to theme state changes
    */
   subscribe(callback: (state: ThemeState) => void, element: Element): void {
-    this.stateManager.subscribe(this.topic, callback as (data: unknown) => void, element);
+    this.stateManager.subscribe(
+      this.topic,
+      callback as (data: unknown) => void,
+      element,
+    );
   }
 
   /**
@@ -136,7 +140,7 @@ export class ThemeManager {
    */
   addTheme(theme: ThemeConfig): void {
     this.themes.set(theme.name, theme);
-    
+
     // Update available themes in state
     const currentState = this.getCurrentState();
     const newState: ThemeState = {
@@ -155,7 +159,7 @@ export class ThemeManager {
     }
 
     this.themes.delete(themeName);
-    
+
     // Switch to default if current theme was removed
     const currentState = this.getCurrentState();
     if (currentState.currentTheme === themeName) {
@@ -180,8 +184,11 @@ export class ThemeManager {
 
     // Try to detect system preference
     if (initialTheme === this.defaultTheme) {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const darkTheme = Array.from(this.themes.values()).find((theme) => theme.isDark);
+      const prefersDark =
+        window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const darkTheme = Array.from(this.themes.values()).find((theme) =>
+        theme.isDark
+      );
       if (prefersDark && darkTheme) {
         initialTheme = darkTheme.name;
       }
@@ -191,19 +198,21 @@ export class ThemeManager {
   }
 
   private applyCSSProperties(properties: Record<string, string>): void {
-    const target = this.cssScope === "global" 
-      ? document.documentElement 
+    const target = this.cssScope === "global"
+      ? document.documentElement
       : document.querySelector("[data-component]") ?? document.documentElement;
 
     Object.entries(properties).forEach(([property, value]) => {
-      const cssProperty = property.startsWith("--") ? property : `--${property}`;
+      const cssProperty = property.startsWith("--")
+        ? property
+        : `--${property}`;
       (target as HTMLElement).style.setProperty(cssProperty, value);
     });
   }
 
   private publishState(state: ThemeState): void {
     this.stateManager.publish(this.topic, state);
-    
+
     if (this.persistToLocalStorage) {
       try {
         localStorage.setItem(`ui-lib-theme-${this.topic}`, state.currentTheme);

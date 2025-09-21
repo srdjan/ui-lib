@@ -2,6 +2,10 @@
 import { type ApiMap } from "./api-generator.ts";
 import { generateClientHx, type HxActionMap } from "./api-recipes.ts";
 import { getConfig } from "./config.ts";
+import {
+  hasDeclarativeBindings,
+  processDeclarativeBindings,
+} from "./declarative-bindings.ts";
 import "./jsx.d.ts";
 import { extractPropDefinitions } from "./prop-helpers.ts";
 import { applyReactiveAttrs } from "./reactive-system.ts";
@@ -38,6 +42,8 @@ export type ComponentConfig<TProps = any> = {
   readonly styles?: StylesInput;
   readonly api?: ApiMap;
   readonly clientScript?: (config?: any) => string;
+  // Optional explicit props transformer (legacy/alternate style)
+  readonly props?: (attrs: Record<string, string>) => TProps;
   readonly render: (
     props: TProps,
     api?: HxActionMap<any>,
@@ -60,11 +66,15 @@ export function defineComponent<TProps = any>(
   const globalConfig = getConfig();
   const { logging, dev } = globalConfig;
 
-  // Auto-extract props from render function parameters
+  // Prefer explicit props transformer if provided; otherwise auto-extract
   const { propHelpers, hasProps } = parseRenderParameters(render);
   let propsTransformer: ((attrs: Record<string, string>) => TProps) | undefined;
 
-  if (hasProps) {
+  if (typeof (config as any).props === "function") {
+    propsTransformer = (config as any).props as (
+      attrs: Record<string, string>,
+    ) => TProps;
+  } else if (hasProps) {
     const { propsTransformer: autoTransformer } = extractPropDefinitions(
       propHelpers,
     );
@@ -180,6 +190,22 @@ export function defineComponent<TProps = any>(
       }
 
       html = render(propsWithChildren, generatedApi, classMap);
+
+      // Process declarative bindings if present
+      if (hasDeclarativeBindings(html)) {
+        html = processDeclarativeBindings(html, name);
+      }
+
+      // Inject data-component on the first opening tag for debugging and tooling
+      const tagMatch = html.match(/([\s\S]*?)(<[a-zA-Z][^>]*)(>)/);
+      if (tagMatch) {
+        const [full, prefix, openTag, closeAngle] = tagMatch;
+        const hasDataComponent = /\sdata-component=/.test(openTag);
+        const newOpen = hasDataComponent
+          ? openTag
+          : `${openTag} data-component="${name}"`;
+        html = `${prefix}${newOpen}${closeAngle}${html.slice(full.length)}`;
+      }
 
       // Apply reactive attributes if configured
       if (reactive) {

@@ -13,7 +13,7 @@ export type CodeModalConfig = {
   readonly copyButton?: boolean;
   readonly formatButton?: boolean;
   readonly language?: string;
-}
+};
 
 /**
  * Code modal props

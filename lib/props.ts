@@ -1,7 +1,9 @@
 import { parseRenderParameters } from "./render-parameter-parser.ts";
 import { extractPropDefinitions } from "./prop-helpers.ts";
 // Props transformer type - now local since it's no longer in define-component
-type PropsTransformer<TRawAttrs = Record<string, string>, TProps = unknown> = (attrs: TRawAttrs) => TProps;
+type PropsTransformer<TRawAttrs = Record<string, string>, TProps = unknown> = (
+  attrs: TRawAttrs,
+) => TProps;
 import { getConfig } from "./config.ts";
 
 interface PropsParserConfig<TProps> {
@@ -45,4 +47,3 @@ export function createPropsParser<TProps>(
 
   return finalPropsTransformer;
 }
-

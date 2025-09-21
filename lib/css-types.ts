@@ -316,9 +316,12 @@ export type PseudoSelectors = {
   "&::placeholder"?: CSSProperties;
   "&[data-disabled]"?: CSSProperties;
   "&[data-active]"?: CSSProperties;
-  [key: `&:${string}`]: StyleObject | undefined;
-  [key: `&[${string}]`]: StyleObject | undefined;
-  [key: `&.${string}`]: StyleObject | undefined;
+  [key: `&:${string}`]: CSSProperties | undefined;
+  [key: `&::${string}`]: CSSProperties | undefined;
+  [key: `&[${string}]`]: CSSProperties | undefined;
+  [key: `&.${string}`]: CSSProperties | undefined;
+  [key: `& ${string}`]: CSSProperties | undefined;
+  [key: `&>${string}`]: CSSProperties | undefined;
 };
 
 // Media queries for responsive design

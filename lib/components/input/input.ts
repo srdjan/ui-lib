@@ -479,4 +479,4 @@ export function Input(props: InputProps): string {
       ${errorTextElement}
     </div>
   `.trim();
-};
+}

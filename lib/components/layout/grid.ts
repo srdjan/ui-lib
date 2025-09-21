@@ -33,7 +33,7 @@ defineComponent<GridProps>("grid", {
     if (className) classes.push(className);
 
     const attributes = [
-      `class="${classes.join(' ')}"`,
+      `class="${classes.join(" ")}"`,
       `data-gap="${gap}"`,
       id ? `id="${id}"` : "",
       role ? `role="${role}"` : "",

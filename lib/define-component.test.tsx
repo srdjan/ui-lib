@@ -5,11 +5,11 @@ import {
   assertExists,
   assertStringIncludes,
 } from "https://deno.land/std@0.224.0/assert/mod.ts";
-import { defineComponent } from "./define-component.ts";
-import { string, boolean } from "./prop-helpers.ts";
-import { getRegistry } from "./registry.ts";
 import { renderComponent } from "./component-state.ts";
+import { defineComponent } from "./define-component.ts";
 import { h } from "./jsx-runtime.ts";
+import { boolean, string } from "./prop-helpers.ts";
+import { getRegistry } from "./registry.ts";
 
 Deno.test("Minimal API: Basic component registration", () => {
   // Clear registry first
@@ -47,7 +47,7 @@ Deno.test("Minimal API: Component with prop parsing", () => {
   const result1 = renderComponent("test-props", { name: "test" });
   assertEquals(
     result1,
-    '<div>test: 42, active: false</div>',
+    '<div data-component="test-props">test: 42, active: false</div>',
   );
 
   const result2 = renderComponent("test-props", {
@@ -57,7 +57,7 @@ Deno.test("Minimal API: Component with prop parsing", () => {
   });
   assertEquals(
     result2,
-    '<div>test: 100, active: true</div>',
+    '<div data-component="test-props">test: 100, active: true</div>',
   );
 });
 
@@ -77,19 +77,23 @@ Deno.test("Minimal API: Component with styles", () => {
   assertExists(registry["test-styles"].css);
   assertEquals(
     registry["test-styles"].css,
-    `.test-button { background: blue; color: white; }`
+    `.test-button { background: blue; color: white; }`,
   );
 
   const result = renderComponent("test-styles", { text: "Test Button" });
   // Should include CSS and button HTML
-  assertEquals(result, '<style>.test-button { background: blue; color: white; }</style><button class="test-button">Test Button</button>');
+  assertEquals(
+    result,
+    '<style>.test-button { background: blue; color: white; }</style><button class="test-button" data-component="test-styles">Test Button</button>',
+  );
 });
 
 Deno.test("Minimal API: Component with API", () => {
   const registry = getRegistry();
   delete registry["test-api"];
 
-  const mockHandler = async () => new Response(JSON.stringify({ success: true }));
+  const mockHandler = async () =>
+    new Response(JSON.stringify({ success: true }));
 
   defineComponent("test-api", {
     api: {
@@ -112,7 +116,10 @@ Deno.test("Minimal API: Component with API", () => {
   assertExists(registry["test-api"].apiMap);
 
   const result = renderComponent("test-api", {});
-  assertEquals(result, '<div>Component with API</div>');
+  assertEquals(
+    result,
+    '<div data-component="test-api">Component with API</div>',
+  );
 });
 
 Deno.test("Minimal API: Error handling for missing render", () => {
@@ -144,20 +151,30 @@ Deno.test("Minimal API: Children preservation", () => {
     render: ({
       children = string("No children"),
     }) => {
-      const childrenContent = typeof children === "string" && children !== "" ? children : "No children";
+      const childrenContent = typeof children === "string" && children !== ""
+        ? children
+        : "No children";
       return <div>{childrenContent}</div>;
     },
   });
 
   // Test with children - this simulates SSR tag processor passing children
-  const result1 = renderComponent("test-children", { children: "Child content" } as any);
-  assertEquals(result1, '<div>Child content</div>');
+  const result1 = renderComponent(
+    "test-children",
+    { children: "Child content" } as any,
+  );
+  assertEquals(
+    result1,
+    '<div data-component="test-children">Child content</div>',
+  );
 
   // Test without children
   const result2 = renderComponent("test-children", {});
-  assertEquals(result2, '<div>No children</div>');
+  assertEquals(
+    result2,
+    '<div data-component="test-children">No children</div>',
+  );
 });
-
 
 Deno.test("Minimal API: Reactive configuration", () => {
   const registry = getRegistry();

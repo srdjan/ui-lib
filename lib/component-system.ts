@@ -1,9 +1,14 @@
 // Component Design System with clear public/private API boundaries
 // Establishes semantic component classes and variant system
 
-import { modernCSS, responsiveComponent, cssUtils, type ModernStyleObject } from './modern-css-system.ts';
-import { token, SEMANTIC_TOKENS } from './styles/design-tokens.ts';
-import { createComponent } from './styles/css-layers.ts';
+import {
+  cssUtils,
+  modernCSS,
+  type ModernStyleObject,
+  responsiveComponent,
+} from "./modern-css-system.ts";
+import { SEMANTIC_TOKENS, token } from "./styles/design-tokens.ts";
+import { createComponent } from "./styles/css-layers.ts";
 
 /**
  * Public Component API
@@ -65,11 +70,11 @@ export type ToneAttribute = `data-tone`;
  * Component Size System
  */
 export const COMPONENT_SIZES = {
-  xs: 'xs',
-  sm: 'sm',
-  md: 'md',
-  lg: 'lg',
-  xl: 'xl',
+  xs: "xs",
+  sm: "sm",
+  md: "md",
+  lg: "lg",
+  xl: "xl",
 } as const;
 
 export type ComponentSize = keyof typeof COMPONENT_SIZES;
@@ -78,12 +83,12 @@ export type ComponentSize = keyof typeof COMPONENT_SIZES;
  * Component Tone System (for semantic variants)
  */
 export const COMPONENT_TONES = {
-  neutral: 'neutral',
-  primary: 'primary',
-  success: 'success',
-  warning: 'warning',
-  error: 'error',
-  info: 'info',
+  neutral: "neutral",
+  primary: "primary",
+  success: "success",
+  warning: "warning",
+  error: "error",
+  info: "info",
 } as const;
 
 export type ComponentTone = keyof typeof COMPONENT_TONES;
@@ -95,43 +100,43 @@ export const DESIGN_SYSTEM: ComponentAPI = {
   // Layout Components
   card: {
     baseStyles: {
-      backgroundColor: token('surface', 'background'),
-      border: `1px solid ${token('surface', 'border')}`,
-      borderRadius: token('radius', 'lg'),
-      boxShadow: token('shadow', 'sm'),
-      padding: token('space', '6'),
-      containerType: 'inline-size',
+      backgroundColor: token("surface", "background"),
+      border: `1px solid ${token("surface", "border")}`,
+      borderRadius: token("radius", "lg"),
+      boxShadow: token("shadow", "sm"),
+      padding: token("space", "6"),
+      containerType: "inline-size",
 
-      '&:hover': {
-        boxShadow: token('shadow', 'md'),
-        borderColor: token('surface', 'border-strong'),
+      "&:hover": {
+        boxShadow: token("shadow", "md"),
+        borderColor: token("surface", "border-strong"),
       },
 
-      '@container': {
-        '(min-width: 300px)': {
-          padding: token('space', '8'),
+      "@container": {
+        "(min-width: 300px)": {
+          padding: token("space", "8"),
         },
       },
 
-      '@media': {
-        'reduced-motion': {
-          transition: 'none',
+      "@media": {
+        "reduced-motion": {
+          transition: "none",
         },
       },
     },
     variants: {
       elevated: {
-        boxShadow: token('shadow', 'lg'),
-        border: 'none',
+        boxShadow: token("shadow", "lg"),
+        border: "none",
       },
       outlined: {
-        boxShadow: 'none',
-        borderWidth: '2px',
+        boxShadow: "none",
+        borderWidth: "2px",
       },
       filled: {
-        backgroundColor: token('surface', 'muted'),
-        border: 'none',
-        boxShadow: 'none',
+        backgroundColor: token("surface", "muted"),
+        border: "none",
+        boxShadow: "none",
       },
     },
     container: true,
@@ -139,220 +144,222 @@ export const DESIGN_SYSTEM: ComponentAPI = {
 
   stack: {
     baseStyles: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: token('space', '4'),
-      alignItems: 'stretch',
+      display: "flex",
+      flexDirection: "column",
+      gap: token("space", "4"),
+      alignItems: "stretch",
     },
     sizes: {
-      sm: { gap: token('space', '2') },
-      md: { gap: token('space', '4') },
-      lg: { gap: token('space', '6') },
-      xl: { gap: token('space', '8') },
+      sm: { gap: token("space", "2") },
+      md: { gap: token("space", "4") },
+      lg: { gap: token("space", "6") },
+      xl: { gap: token("space", "8") },
     },
   },
 
   cluster: {
     baseStyles: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: token('space', '4'),
-      alignItems: 'center',
-      justifyContent: 'flex-start',
+      display: "flex",
+      flexWrap: "wrap",
+      gap: token("space", "4"),
+      alignItems: "center",
+      justifyContent: "flex-start",
     },
     sizes: {
-      sm: { gap: token('space', '2') },
-      md: { gap: token('space', '4') },
-      lg: { gap: token('space', '6') },
+      sm: { gap: token("space", "2") },
+      md: { gap: token("space", "4") },
+      lg: { gap: token("space", "6") },
     },
     variants: {
-      center: { justifyContent: 'center' },
-      end: { justifyContent: 'flex-end' },
-      between: { justifyContent: 'space-between' },
-      around: { justifyContent: 'space-around' },
+      center: { justifyContent: "center" },
+      end: { justifyContent: "flex-end" },
+      between: { justifyContent: "space-between" },
+      around: { justifyContent: "space-around" },
     },
   },
 
   center: {
     baseStyles: {
-      marginInline: 'auto',
-      maxInlineSize: '60ch',
-      paddingInline: token('space', '4'),
-      boxSizing: 'content-box',
+      marginInline: "auto",
+      maxInlineSize: "60ch",
+      paddingInline: token("space", "4"),
+      boxSizing: "content-box",
 
-      '@container': {
-        '(min-width: 768px)': {
-          paddingInline: token('space', '6'),
+      "@container": {
+        "(min-width: 768px)": {
+          paddingInline: token("space", "6"),
         },
       },
     },
     sizes: {
-      sm: { maxInlineSize: '40ch' },
-      md: { maxInlineSize: '60ch' },
-      lg: { maxInlineSize: '80ch' },
-      xl: { maxInlineSize: '100ch' },
+      sm: { maxInlineSize: "40ch" },
+      md: { maxInlineSize: "60ch" },
+      lg: { maxInlineSize: "80ch" },
+      xl: { maxInlineSize: "100ch" },
     },
   },
 
   sidebar: {
     baseStyles: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: token('space', '4'),
-      alignItems: 'stretch',
+      display: "flex",
+      flexWrap: "wrap",
+      gap: token("space", "4"),
+      alignItems: "stretch",
 
-      '> :first-child': {
-        flexBasis: '20rem',
+      "> :first-child": {
+        flexBasis: "20rem",
         flexGrow: 1,
       },
 
-      '> :last-child': {
-        flexBasis: '0',
+      "> :last-child": {
+        flexBasis: "0",
         flexGrow: 999,
-        minInlineSize: '50%',
+        minInlineSize: "50%",
       },
     },
     variants: {
       reverse: {
-        flexDirection: 'row-reverse',
+        flexDirection: "row-reverse",
       },
     },
   },
 
   switcher: {
     baseStyles: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: token('space', '4'),
+      display: "flex",
+      flexWrap: "wrap",
+      gap: token("space", "4"),
 
-      '> *': {
+      "> *": {
         flexGrow: 1,
-        flexBasis: 'calc((30rem - 100%) * 999)',
+        flexBasis: "calc((30rem - 100%) * 999)",
       },
     },
     sizes: {
-      sm: { '> *': { flexBasis: 'calc((20rem - 100%) * 999)' } },
-      md: { '> *': { flexBasis: 'calc((30rem - 100%) * 999)' } },
-      lg: { '> *': { flexBasis: 'calc((40rem - 100%) * 999)' } },
+      sm: { "> *": { flexBasis: "calc((20rem - 100%) * 999)" } },
+      md: { "> *": { flexBasis: "calc((30rem - 100%) * 999)" } },
+      lg: { "> *": { flexBasis: "calc((40rem - 100%) * 999)" } },
     },
   },
 
   // Interactive Components
   button: {
     baseStyles: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: token('space', '2'),
-      padding: `${token('space', '2')} ${token('space', '4')}`,
-      borderRadius: token('radius', 'md'),
-      border: '1px solid transparent',
-      fontSize: token('typography', 'text-sm'),
-      fontWeight: token('typography', 'weight-medium'),
-      lineHeight: token('typography', 'leading-tight'),
-      textDecoration: 'none',
-      userSelect: 'none',
-      cursor: 'pointer',
-      transition: `all ${token('animation', 'duration-normal')} ${token('animation', 'ease-out')}`,
-      contain: 'layout style paint',
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: token("space", "2"),
+      padding: `${token("space", "2")} ${token("space", "4")}`,
+      borderRadius: token("radius", "md"),
+      border: "1px solid transparent",
+      fontSize: token("typography", "text-sm"),
+      fontWeight: token("typography", "weight-medium"),
+      lineHeight: token("typography", "leading-tight"),
+      textDecoration: "none",
+      userSelect: "none",
+      cursor: "pointer",
+      transition: `all ${token("animation", "duration-normal")} ${
+        token("animation", "ease-out")
+      }`,
+      contain: "layout style paint",
 
       ...cssUtils.focusVisible({
-        boxShadow: token('shadow', 'focus'),
+        boxShadow: token("shadow", "focus"),
       }),
 
       '&:disabled, &[aria-disabled="true"]': {
         opacity: 0.6,
-        cursor: 'not-allowed',
-        pointerEvents: 'none',
+        cursor: "not-allowed",
+        pointerEvents: "none",
       },
 
-      '@media': {
-        'reduced-motion': {
-          transition: 'none',
+      "@media": {
+        "reduced-motion": {
+          transition: "none",
         },
       },
     },
     variants: {
       primary: {
-        backgroundColor: SEMANTIC_TOKENS['interactive-bg'],
-        color: SEMANTIC_TOKENS['interactive-text'],
+        backgroundColor: SEMANTIC_TOKENS["interactive-bg"],
+        color: SEMANTIC_TOKENS["interactive-text"],
 
-        '&:hover:not(:disabled)': {
-          backgroundColor: SEMANTIC_TOKENS['interactive-bg-hover'],
+        "&:hover:not(:disabled)": {
+          backgroundColor: SEMANTIC_TOKENS["interactive-bg-hover"],
         },
 
-        '&:active:not(:disabled)': {
-          backgroundColor: SEMANTIC_TOKENS['interactive-bg-active'],
+        "&:active:not(:disabled)": {
+          backgroundColor: SEMANTIC_TOKENS["interactive-bg-active"],
         },
       },
       secondary: {
-        backgroundColor: token('surface', 'muted'),
-        color: token('surface', 'foreground'),
+        backgroundColor: token("surface", "muted"),
+        color: token("surface", "foreground"),
 
-        '&:hover:not(:disabled)': {
-          backgroundColor: token('color', 'gray-200'),
+        "&:hover:not(:disabled)": {
+          backgroundColor: token("color", "gray-200"),
         },
       },
       outline: {
-        backgroundColor: 'transparent',
-        borderColor: token('surface', 'border-strong'),
-        color: token('surface', 'foreground'),
+        backgroundColor: "transparent",
+        borderColor: token("surface", "border-strong"),
+        color: token("surface", "foreground"),
 
-        '&:hover:not(:disabled)': {
-          backgroundColor: token('surface', 'muted'),
+        "&:hover:not(:disabled)": {
+          backgroundColor: token("surface", "muted"),
         },
       },
       ghost: {
-        backgroundColor: 'transparent',
-        color: token('surface', 'foreground'),
+        backgroundColor: "transparent",
+        color: token("surface", "foreground"),
 
-        '&:hover:not(:disabled)': {
-          backgroundColor: token('surface', 'muted'),
+        "&:hover:not(:disabled)": {
+          backgroundColor: token("surface", "muted"),
         },
       },
       link: {
-        backgroundColor: 'transparent',
-        color: SEMANTIC_TOKENS['interactive-bg'],
+        backgroundColor: "transparent",
+        color: SEMANTIC_TOKENS["interactive-bg"],
         padding: 0,
-        height: 'auto',
-        textDecoration: 'underline',
+        height: "auto",
+        textDecoration: "underline",
 
-        '&:hover:not(:disabled)': {
-          color: SEMANTIC_TOKENS['interactive-bg-hover'],
+        "&:hover:not(:disabled)": {
+          color: SEMANTIC_TOKENS["interactive-bg-hover"],
         },
       },
     },
     sizes: {
       xs: {
-        padding: `${token('space', '1')} ${token('space', '2')}`,
-        fontSize: token('typography', 'text-xs'),
-        height: token('size', 'button-xs'),
+        padding: `${token("space", "1")} ${token("space", "2")}`,
+        fontSize: token("typography", "text-xs"),
+        height: token("size", "button-xs"),
       },
       sm: {
-        padding: `${token('space', '1.5')} ${token('space', '3')}`,
-        fontSize: token('typography', 'text-xs'),
-        height: token('size', 'button-sm'),
+        padding: `${token("space", "1.5")} ${token("space", "3")}`,
+        fontSize: token("typography", "text-xs"),
+        height: token("size", "button-sm"),
       },
       md: {
-        padding: `${token('space', '2')} ${token('space', '4')}`,
-        fontSize: token('typography', 'text-sm'),
-        height: token('size', 'button-md'),
+        padding: `${token("space", "2")} ${token("space", "4")}`,
+        fontSize: token("typography", "text-sm"),
+        height: token("size", "button-md"),
       },
       lg: {
-        padding: `${token('space', '2.5')} ${token('space', '5')}`,
-        fontSize: token('typography', 'text-base'),
-        height: token('size', 'button-lg'),
+        padding: `${token("space", "2.5")} ${token("space", "5")}`,
+        fontSize: token("typography", "text-base"),
+        height: token("size", "button-lg"),
       },
       xl: {
-        padding: `${token('space', '3')} ${token('space', '6')}`,
-        fontSize: token('typography', 'text-lg'),
-        height: token('size', 'button-xl'),
+        padding: `${token("space", "3")} ${token("space", "6")}`,
+        fontSize: token("typography", "text-lg"),
+        height: token("size", "button-xl"),
       },
     },
     states: {
       loading: {
         opacity: 0.8,
-        cursor: 'wait',
+        cursor: "wait",
       },
     },
   },
@@ -360,80 +367,80 @@ export const DESIGN_SYSTEM: ComponentAPI = {
   // Feedback Components
   alert: {
     baseStyles: {
-      position: 'relative',
-      padding: token('space', '4'),
-      borderRadius: token('radius', 'md'),
-      border: '1px solid',
-      fontSize: token('typography', 'text-sm'),
-      lineHeight: token('typography', 'leading-normal'),
+      position: "relative",
+      padding: token("space", "4"),
+      borderRadius: token("radius", "md"),
+      border: "1px solid",
+      fontSize: token("typography", "text-sm"),
+      lineHeight: token("typography", "leading-normal"),
 
-      '& [data-alert-icon]': {
-        marginInlineEnd: token('space', '3'),
+      "& [data-alert-icon]": {
+        marginInlineEnd: token("space", "3"),
         flexShrink: 0,
       },
 
-      '& [data-alert-title]': {
-        fontWeight: token('typography', 'weight-semibold'),
-        marginBlockEnd: token('space', '1'),
+      "& [data-alert-title]": {
+        fontWeight: token("typography", "weight-semibold"),
+        marginBlockEnd: token("space", "1"),
       },
     },
     variants: {
       info: {
-        backgroundColor: token('color', 'info-50'),
-        borderColor: token('color', 'info-200'),
-        color: token('color', 'info-900'),
+        backgroundColor: token("color", "info-50"),
+        borderColor: token("color", "info-200"),
+        color: token("color", "info-900"),
       },
       success: {
-        backgroundColor: token('color', 'success-50'),
-        borderColor: token('color', 'success-200'),
-        color: token('color', 'success-900'),
+        backgroundColor: token("color", "success-50"),
+        borderColor: token("color", "success-200"),
+        color: token("color", "success-900"),
       },
       warning: {
-        backgroundColor: token('color', 'warning-50'),
-        borderColor: token('color', 'warning-200'),
-        color: token('color', 'warning-900'),
+        backgroundColor: token("color", "warning-50"),
+        borderColor: token("color", "warning-200"),
+        color: token("color", "warning-900"),
       },
       error: {
-        backgroundColor: token('color', 'error-50'),
-        borderColor: token('color', 'error-200'),
-        color: token('color', 'error-900'),
+        backgroundColor: token("color", "error-50"),
+        borderColor: token("color", "error-200"),
+        color: token("color", "error-900"),
       },
     },
   },
 
   badge: {
     baseStyles: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: token('typography', 'text-xs'),
-      fontWeight: token('typography', 'weight-medium'),
-      lineHeight: token('typography', 'leading-none'),
-      borderRadius: token('radius', 'full'),
-      padding: `${token('space', '1')} ${token('space', '2')}`,
-      textTransform: 'uppercase',
-      letterSpacing: token('typography', 'tracking-wide'),
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: token("typography", "text-xs"),
+      fontWeight: token("typography", "weight-medium"),
+      lineHeight: token("typography", "leading-none"),
+      borderRadius: token("radius", "full"),
+      padding: `${token("space", "1")} ${token("space", "2")}`,
+      textTransform: "uppercase",
+      letterSpacing: token("typography", "tracking-wide"),
     },
     variants: {
       neutral: {
-        backgroundColor: token('color', 'gray-100'),
-        color: token('color', 'gray-800'),
+        backgroundColor: token("color", "gray-100"),
+        color: token("color", "gray-800"),
       },
       primary: {
-        backgroundColor: token('color', 'primary-100'),
-        color: token('color', 'primary-800'),
+        backgroundColor: token("color", "primary-100"),
+        color: token("color", "primary-800"),
       },
       success: {
-        backgroundColor: token('color', 'success-100'),
-        color: token('color', 'success-800'),
+        backgroundColor: token("color", "success-100"),
+        color: token("color", "success-800"),
       },
       warning: {
-        backgroundColor: token('color', 'warning-100'),
-        color: token('color', 'warning-800'),
+        backgroundColor: token("color", "warning-100"),
+        color: token("color", "warning-800"),
       },
       error: {
-        backgroundColor: token('color', 'error-100'),
-        color: token('color', 'error-800'),
+        backgroundColor: token("color", "error-100"),
+        color: token("color", "error-800"),
       },
     },
   },
@@ -441,17 +448,17 @@ export const DESIGN_SYSTEM: ComponentAPI = {
   // Navigation Components
   toolbar: {
     baseStyles: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: token('space', '2'),
-      padding: `${token('space', '2')} ${token('space', '4')}`,
-      backgroundColor: token('surface', 'background'),
-      borderBottom: `1px solid ${token('surface', 'border')}`,
+      display: "flex",
+      alignItems: "center",
+      gap: token("space", "2"),
+      padding: `${token("space", "2")} ${token("space", "4")}`,
+      backgroundColor: token("surface", "background"),
+      borderBottom: `1px solid ${token("surface", "border")}`,
     },
     variants: {
       elevated: {
-        boxShadow: token('shadow', 'sm'),
-        borderBottom: 'none',
+        boxShadow: token("shadow", "sm"),
+        borderBottom: "none",
       },
     },
   },
@@ -459,69 +466,69 @@ export const DESIGN_SYSTEM: ComponentAPI = {
   // Content Components
   prose: {
     baseStyles: {
-      maxInlineSize: '65ch',
-      fontSize: token('typography', 'text-base'),
-      lineHeight: token('typography', 'leading-relaxed'),
-      color: token('surface', 'foreground'),
+      maxInlineSize: "65ch",
+      fontSize: token("typography", "text-base"),
+      lineHeight: token("typography", "leading-relaxed"),
+      color: token("surface", "foreground"),
 
-      '& h1, & h2, & h3, & h4, & h5, & h6': {
-        fontWeight: token('typography', 'weight-bold'),
-        lineHeight: token('typography', 'leading-tight'),
-        marginBlockStart: token('space', '8'),
-        marginBlockEnd: token('space', '4'),
+      "& h1, & h2, & h3, & h4, & h5, & h6": {
+        fontWeight: token("typography", "weight-bold"),
+        lineHeight: token("typography", "leading-tight"),
+        marginBlockStart: token("space", "8"),
+        marginBlockEnd: token("space", "4"),
       },
 
-      '& h1': { fontSize: token('typography', 'text-3xl') },
-      '& h2': { fontSize: token('typography', 'text-2xl') },
-      '& h3': { fontSize: token('typography', 'text-xl') },
-      '& h4': { fontSize: token('typography', 'text-lg') },
+      "& h1": { fontSize: token("typography", "text-3xl") },
+      "& h2": { fontSize: token("typography", "text-2xl") },
+      "& h3": { fontSize: token("typography", "text-xl") },
+      "& h4": { fontSize: token("typography", "text-lg") },
 
-      '& p': {
-        marginBlockEnd: token('space', '4'),
+      "& p": {
+        marginBlockEnd: token("space", "4"),
       },
 
-      '& ul, & ol': {
-        marginBlockEnd: token('space', '4'),
-        paddingInlineStart: token('space', '6'),
+      "& ul, & ol": {
+        marginBlockEnd: token("space", "4"),
+        paddingInlineStart: token("space", "6"),
       },
 
-      '& li': {
-        marginBlockEnd: token('space', '1'),
+      "& li": {
+        marginBlockEnd: token("space", "1"),
       },
 
-      '& a': {
-        color: SEMANTIC_TOKENS['interactive-bg'],
-        textDecoration: 'underline',
+      "& a": {
+        color: SEMANTIC_TOKENS["interactive-bg"],
+        textDecoration: "underline",
 
-        '&:hover': {
-          color: SEMANTIC_TOKENS['interactive-bg-hover'],
+        "&:hover": {
+          color: SEMANTIC_TOKENS["interactive-bg-hover"],
         },
       },
 
-      '& code': {
-        backgroundColor: token('surface', 'muted'),
-        padding: `${token('space', '0.5')} ${token('space', '1')}`,
-        borderRadius: token('radius', 'sm'),
-        fontSize: '0.9em',
-        fontFamily: token('typography', 'font-mono'),
+      "& code": {
+        backgroundColor: token("surface", "muted"),
+        padding: `${token("space", "0.5")} ${token("space", "1")}`,
+        borderRadius: token("radius", "sm"),
+        fontSize: "0.9em",
+        fontFamily: token("typography", "font-mono"),
       },
 
-      '& pre': {
-        backgroundColor: token('surface', 'muted'),
-        padding: token('space', '4'),
-        borderRadius: token('radius', 'md'),
-        overflow: 'auto',
-        fontSize: token('typography', 'text-sm'),
-        fontFamily: token('typography', 'font-mono'),
-        marginBlockEnd: token('space', '6'),
+      "& pre": {
+        backgroundColor: token("surface", "muted"),
+        padding: token("space", "4"),
+        borderRadius: token("radius", "md"),
+        overflow: "auto",
+        fontSize: token("typography", "text-sm"),
+        fontFamily: token("typography", "font-mono"),
+        marginBlockEnd: token("space", "6"),
       },
 
-      '& blockquote': {
-        borderInlineStart: `4px solid ${token('surface', 'border-strong')}`,
-        paddingInlineStart: token('space', '4'),
-        fontStyle: 'italic',
-        color: token('color', 'gray-600'),
-        marginBlockEnd: token('space', '6'),
+      "& blockquote": {
+        borderInlineStart: `4px solid ${token("surface", "border-strong")}`,
+        paddingInlineStart: token("space", "4"),
+        fontStyle: "italic",
+        color: token("color", "gray-600"),
+        marginBlockEnd: token("space", "6"),
       },
     },
   },
@@ -565,16 +572,19 @@ export function generateComponentCSS(): string {
     }
   }
 
-  return componentCSS.join('\n\n');
+  return componentCSS.join("\n\n");
 }
 
 /**
  * Generate base component CSS
  */
-function generateComponentBaseCSS(name: string, config: ComponentConfig): string {
+function generateComponentBaseCSS(
+  name: string,
+  config: ComponentConfig,
+): string {
   const { css } = modernCSS({
-    layer: 'components',
-    container: config.container ? { name, type: 'inline-size' } : undefined,
+    layer: "components",
+    container: config.container ? { name, type: "inline-size" } : undefined,
     styles: {
       [name]: config.baseStyles,
     },
@@ -586,12 +596,15 @@ function generateComponentBaseCSS(name: string, config: ComponentConfig): string
 /**
  * Generate variant CSS
  */
-function generateVariantCSS(componentName: string, variants: Record<string, ModernStyleObject>): string {
+function generateVariantCSS(
+  componentName: string,
+  variants: Record<string, ModernStyleObject>,
+): string {
   const variantRules: string[] = [];
 
   for (const [variantName, styles] of Object.entries(variants)) {
     const { css } = modernCSS({
-      layer: 'components',
+      layer: "components",
       styles: {
         [`${componentName}[data-variant="${variantName}"]`]: styles,
       },
@@ -599,18 +612,21 @@ function generateVariantCSS(componentName: string, variants: Record<string, Mode
     variantRules.push(css);
   }
 
-  return variantRules.join('\n\n');
+  return variantRules.join("\n\n");
 }
 
 /**
  * Generate size CSS
  */
-function generateSizeCSS(componentName: string, sizes: Record<string, ModernStyleObject>): string {
+function generateSizeCSS(
+  componentName: string,
+  sizes: Record<string, ModernStyleObject>,
+): string {
   const sizeRules: string[] = [];
 
   for (const [sizeName, styles] of Object.entries(sizes)) {
     const { css } = modernCSS({
-      layer: 'components',
+      layer: "components",
       styles: {
         [`${componentName}[data-size="${sizeName}"]`]: styles,
       },
@@ -618,18 +634,21 @@ function generateSizeCSS(componentName: string, sizes: Record<string, ModernStyl
     sizeRules.push(css);
   }
 
-  return sizeRules.join('\n\n');
+  return sizeRules.join("\n\n");
 }
 
 /**
  * Generate state CSS
  */
-function generateStateCSS(componentName: string, states: Record<string, ModernStyleObject>): string {
+function generateStateCSS(
+  componentName: string,
+  states: Record<string, ModernStyleObject>,
+): string {
   const stateRules: string[] = [];
 
   for (const [stateName, styles] of Object.entries(states)) {
     const { css } = modernCSS({
-      layer: 'components',
+      layer: "components",
       styles: {
         [`${componentName}[data-state="${stateName}"]`]: styles,
       },
@@ -637,5 +656,5 @@ function generateStateCSS(componentName: string, states: Record<string, ModernSt
     stateRules.push(css);
   }
 
-  return stateRules.join('\n\n');
+  return stateRules.join("\n\n");
 }

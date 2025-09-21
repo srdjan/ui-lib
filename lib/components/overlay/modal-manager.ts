@@ -13,7 +13,7 @@ export type ModalConfig = {
   readonly keyboard?: boolean;
   readonly className?: string;
   readonly zIndex?: number;
-}
+};
 
 /**
  * Modal content configuration
@@ -33,6 +33,7 @@ export interface ModalAction {
   readonly action: string | (() => void);
   readonly variant?: "primary" | "secondary" | "danger";
   readonly dismiss?: boolean;
+  readonly disabled?: boolean;
 }
 
 /**
@@ -112,16 +113,28 @@ const setupEventListeners = (
   listeners: ModalEventListeners,
 ): void => {
   if (listeners.onShow) {
-    modal.addEventListener("modal:show", listeners.onShow);
+    modal.addEventListener(
+      "modal:show",
+      (e) => listeners.onShow?.(e.currentTarget as HTMLElement),
+    );
   }
   if (listeners.onShown) {
-    modal.addEventListener("modal:shown", listeners.onShown);
+    modal.addEventListener(
+      "modal:shown",
+      (e) => listeners.onShown?.(e.currentTarget as HTMLElement),
+    );
   }
   if (listeners.onHide) {
-    modal.addEventListener("modal:hide", listeners.onHide);
+    modal.addEventListener(
+      "modal:hide",
+      (e) => listeners.onHide?.(e.currentTarget as HTMLElement),
+    );
   }
   if (listeners.onHidden) {
-    modal.addEventListener("modal:hidden", listeners.onHidden);
+    modal.addEventListener(
+      "modal:hidden",
+      (e) => listeners.onHidden?.(e.currentTarget as HTMLElement),
+    );
   }
 };
 

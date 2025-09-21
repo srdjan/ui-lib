@@ -1,15 +1,18 @@
-import { assertEquals, assertStringIncludes } from "https://deno.land/std/assert/mod.ts";
-import { 
-  bindText, 
-  bindClass, 
-  bindStyle, 
-  bindValue, 
-  emitOn, 
-  listenFor, 
-  showIf, 
-  hideIf,
+import {
+  assertEquals,
+  assertStringIncludes,
+} from "https://deno.land/std/assert/mod.ts";
+import {
+  bindClass,
+  bindStyle,
+  bindText,
+  bindValue,
   combineBindings,
-  createBoundElement
+  createBoundElement,
+  emitOn,
+  hideIf,
+  listenFor,
+  showIf,
 } from "./reactive-helpers.ts";
 
 // Tests for the new declarative binding helper functions
@@ -63,9 +66,9 @@ Deno.test("combineBindings - combines multiple binding strings", () => {
   const result = combineBindings(
     bindText("title"),
     bindClass("theme"),
-    showIf("visible")
+    showIf("visible"),
   );
-  
+
   assertStringIncludes(result, 'data-bind-text="title"');
   assertStringIncludes(result, 'data-bind-class="theme"');
   assertStringIncludes(result, 'data-show-if="visible"');
@@ -77,19 +80,22 @@ Deno.test("combineBindings - filters out empty bindings", () => {
     "", // empty binding
     bindClass("theme"),
     null as unknown as string, // null binding
-    showIf("visible")
+    showIf("visible"),
   );
-  
-  assertEquals(result, 'data-bind-text="title" data-bind-class="theme" data-show-if="visible"');
+
+  assertEquals(
+    result,
+    'data-bind-text="title" data-bind-class="theme" data-show-if="visible"',
+  );
 });
 
 Deno.test("createBoundElement - creates element with text binding", () => {
   const result = createBoundElement(
     "span",
     { text: "username" },
-    "Default User"
+    "Default User",
   );
-  
+
   assertEquals(result, '<span data-bind-text="username">Default User</span>');
 });
 
@@ -98,21 +104,21 @@ Deno.test("createBoundElement - creates element with multiple bindings", () => {
     "div",
     {
       text: "title",
-      class: "theme", 
+      class: "theme",
       showIf: "visible",
-      attrs: { id: "main-title", role: "heading" }
+      attrs: { id: "main-title", role: "heading" },
     },
-    "Page Title"
+    "Page Title",
   );
-  
+
   assertStringIncludes(result, 'id="main-title"');
   assertStringIncludes(result, 'role="heading"');
   assertStringIncludes(result, 'data-bind-text="title"');
   assertStringIncludes(result, 'data-bind-class="theme"');
   assertStringIncludes(result, 'data-show-if="visible"');
-  assertStringIncludes(result, 'Page Title');
-  assertEquals(result.startsWith('<div'), true);
-  assertEquals(result.endsWith('</div>'), true);
+  assertStringIncludes(result, "Page Title");
+  assertEquals(result.startsWith("<div"), true);
+  assertEquals(result.endsWith("</div>"), true);
 });
 
 Deno.test("createBoundElement - creates self-closing element", () => {
@@ -120,14 +126,14 @@ Deno.test("createBoundElement - creates self-closing element", () => {
     "input",
     {
       value: "email",
-      attrs: { type: "email", placeholder: "Enter email" }
-    }
+      attrs: { type: "email", placeholder: "Enter email" },
+    },
   );
-  
+
   assertStringIncludes(result, 'type="email"');
   assertStringIncludes(result, 'placeholder="Enter email"');
   assertStringIncludes(result, 'data-bind-value="email"');
-  assertEquals(result.endsWith(' />'), true);
+  assertEquals(result.endsWith(" />"), true);
 });
 
 Deno.test("createBoundElement - creates button with emit binding", () => {
@@ -136,17 +142,17 @@ Deno.test("createBoundElement - creates button with emit binding", () => {
     {
       emit: { event: "save", value: '{"form": "user"}' },
       hideIf: "isSaving",
-      attrs: { type: "button", class: "primary-btn" }
+      attrs: { type: "button", class: "primary-btn" },
     },
-    "Save User"
+    "Save User",
   );
-  
+
   assertStringIncludes(result, 'type="button"');
   assertStringIncludes(result, 'class="primary-btn"');
   assertStringIncludes(result, 'data-emit="save"');
   assertStringIncludes(result, 'data-emit-value="{"form": "user"}"');
   assertStringIncludes(result, 'data-hide-if="isSaving"');
-  assertStringIncludes(result, 'Save User');
+  assertStringIncludes(result, "Save User");
 });
 
 Deno.test("createBoundElement - creates element with style binding", () => {
@@ -154,14 +160,14 @@ Deno.test("createBoundElement - creates element with style binding", () => {
     "div",
     {
       style: { property: "backgroundColor", state: "bgColor" },
-      attrs: { class: "themed-box" }
+      attrs: { class: "themed-box" },
     },
-    "Themed Content"
+    "Themed Content",
   );
-  
+
   assertStringIncludes(result, 'class="themed-box"');
   assertStringIncludes(result, 'data-bind-style="backgroundColor:bgColor"');
-  assertStringIncludes(result, 'Themed Content');
+  assertStringIncludes(result, "Themed Content");
 });
 
 Deno.test("createBoundElement - creates element with listen binding", () => {
@@ -169,32 +175,32 @@ Deno.test("createBoundElement - creates element with listen binding", () => {
     "div",
     {
       listen: { event: "user:login", handler: "showWelcome()" },
-      attrs: { id: "notification-area" }
+      attrs: { id: "notification-area" },
     },
-    "Notifications will appear here"
+    "Notifications will appear here",
   );
-  
+
   assertStringIncludes(result, 'id="notification-area"');
   assertStringIncludes(result, 'data-listen="user:login:showWelcome()"');
-  assertStringIncludes(result, 'Notifications will appear here');
+  assertStringIncludes(result, "Notifications will appear here");
 });
 
 Deno.test("createBoundElement - handles empty bindings gracefully", () => {
   const result = createBoundElement(
     "div",
     {}, // no bindings
-    "Plain content"
+    "Plain content",
   );
-  
-  assertEquals(result, '<div>Plain content</div>');
+
+  assertEquals(result, "<div>Plain content</div>");
 });
 
 Deno.test("createBoundElement - handles no content", () => {
   const result = createBoundElement(
     "br",
-    { attrs: { class: "spacer" } }
+    { attrs: { class: "spacer" } },
   );
-  
+
   assertEquals(result, '<br class="spacer" />');
 });
 
@@ -204,18 +210,21 @@ Deno.test("createBoundElement - complex form example", () => {
     {
       listen: { event: "submit", handler: "preventDefault(); handleSubmit()" },
       showIf: "showForm",
-      attrs: { method: "post", action: "/api/users" }
+      attrs: { method: "post", action: "/api/users" },
     },
     `
       <input data-bind-value="name" placeholder="Name" required />
       <input data-bind-value="email" type="email" placeholder="Email" required />
       <button type="submit" data-emit="form:submit">Create User</button>
-    `
+    `,
   );
-  
+
   assertStringIncludes(result, 'method="post"');
   assertStringIncludes(result, 'action="/api/users"');
-  assertStringIncludes(result, 'data-listen="submit:preventDefault(); handleSubmit()"');
+  assertStringIncludes(
+    result,
+    'data-listen="submit:preventDefault(); handleSubmit()"',
+  );
   assertStringIncludes(result, 'data-show-if="showForm"');
   assertStringIncludes(result, 'data-bind-value="name"');
   assertStringIncludes(result, 'data-bind-value="email"');
@@ -226,7 +235,7 @@ Deno.test("Helper functions - special characters handling", () => {
   // Test that helper functions properly handle special characters
   const eventHandler = 'alert("Hello \\"World\\"!")';
   const result = listenFor("test", eventHandler);
-  
+
   // The function doesn't escape quotes, it just concatenates the strings
   assertEquals(result, 'data-listen="test:alert("Hello \\"World\\"!")"');
 });

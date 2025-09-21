@@ -1,19 +1,23 @@
 // Modern CSS Architecture - Main Integration
 // Provides a unified API for the modernized CSS system
 
-export * from './styles/css-layers.ts';
-export * from './styles/design-tokens.ts';
-export * from './modern-css-system.ts';
-export * from './component-system.ts';
-export * from './css-bundler.ts';
-export * from './css-migration.ts';
+export * from "./component-system.ts";
+export * from "./css-bundler.ts";
+export * from "./css-migration.ts";
+export * from "./modern-css-system.ts";
+export * from "./styles/css-layers.ts";
+export * from "./styles/design-tokens.ts";
 
-import { CSSBundler, bundlePresets } from './css-bundler.ts';
-import { CSSMigration } from './css-migration.ts';
-import { modernCSS, responsiveComponent } from './modern-css-system.ts';
-import { token, generateTokenCSS } from './styles/design-tokens.ts';
-import { generateLayerDeclaration, CSS_RESET, UTILITY_CLASSES } from './styles/css-layers.ts';
-import { generateComponentCSS } from './component-system.ts';
+import { generateComponentCSS } from "./component-system.ts";
+import { bundlePresets, CSSBundler } from "./css-bundler.ts";
+import { CSSMigration } from "./css-migration.ts";
+import { modernCSS, responsiveComponent } from "./modern-css-system.ts";
+import {
+  CSS_RESET,
+  generateLayerDeclaration,
+  UTILITY_CLASSES,
+} from "./styles/css-layers.ts";
+import { generateTokenCSS, token } from "./styles/design-tokens.ts";
 
 /**
  * Modern CSS Architecture API
@@ -51,14 +55,16 @@ export class ModernCSS {
     this.initialized = true;
 
     if (developmentMode) {
-      console.log('🎨 Modern CSS Architecture initialized in development mode');
+      console.log("🎨 Modern CSS Architecture initialized in development mode");
     }
   }
 
   /**
    * Get the complete CSS bundle for the application
    */
-  static getBundle(preset: 'minimal' | 'complete' | 'development' | 'production' = 'complete'): string {
+  static getBundle(
+    preset: "minimal" | "complete" | "development" | "production" = "complete",
+  ): string {
     if (!this.initialized) {
       this.initialize();
     }
@@ -72,7 +78,7 @@ export class ModernCSS {
    */
   static getCriticalCSS(): string {
     const bundle = bundlePresets.production();
-    return bundle.criticalCSS || '';
+    return bundle.criticalCSS || "";
   }
 
   /**
@@ -80,17 +86,17 @@ export class ModernCSS {
    */
   static createComponentStyles(
     name: string,
-    styles: Parameters<typeof modernCSS>[0]['styles'],
+    styles: Parameters<typeof modernCSS>[0]["styles"],
     options: {
       useContainer?: boolean;
-      layer?: 'components' | 'utilities';
-    } = {}
-  ): { classMap: Record<string, string>; css: string } {
-    const { useContainer = true, layer = 'components' } = options;
+      layer?: "components" | "utilities";
+    } = {},
+  ): { classMap: Record<string, any>; css: string } {
+    const { useContainer = true, layer = "components" } = options;
 
     return modernCSS({
       layer,
-      container: useContainer ? { name, type: 'inline-size' } : undefined,
+      container: useContainer ? { name, type: "inline-size" } : undefined,
       styles,
     });
   }
@@ -100,8 +106,8 @@ export class ModernCSS {
    */
   static createResponsiveComponent(
     name: string,
-    styles: Parameters<typeof responsiveComponent>[1]
-  ): { classMap: Record<string, string>; css: string } {
+    styles: Parameters<typeof responsiveComponent>[1],
+  ): { classMap: Record<string, any>; css: string } {
     return responsiveComponent(name, styles);
   }
 
@@ -117,13 +123,19 @@ export class ModernCSS {
    */
   static migrateLegacyStyles(
     componentName: string,
-    legacyStyles: any
+    legacyStyles: any,
   ): {
     styles: { classMap: Record<string, string>; css: string };
     report: any;
   } {
-    const styles = CSSMigration.migrateLegacyStyles(legacyStyles, componentName);
-    const report = CSSMigration.generateMigrationReport(componentName, legacyStyles);
+    const styles = CSSMigration.migrateLegacyStyles(
+      legacyStyles,
+      componentName,
+    );
+    const report = CSSMigration.generateMigrationReport(
+      componentName,
+      legacyStyles,
+    );
 
     return { styles, report };
   }
@@ -140,7 +152,7 @@ export class ModernCSS {
       generateComponentCSS(),
     ];
 
-    return parts.join('\n\n');
+    return parts.join("\n\n");
   }
 
   /**
@@ -154,7 +166,10 @@ export class ModernCSS {
   /**
    * Get bundle statistics for performance monitoring
    */
-  static getBundleStats(preset: 'minimal' | 'complete' | 'development' | 'production' = 'production'): {
+  static getBundleStats(
+    preset: "minimal" | "complete" | "development" | "production" =
+      "production",
+  ): {
     totalSize: number;
     gzippedSize: number;
     layers: Record<string, number>;
@@ -171,7 +186,7 @@ export class ModernCSS {
     this.developmentMode = true;
 
     // Add CSS debugging utilities
-    if (typeof document !== 'undefined') {
+    if (typeof document !== "undefined") {
       this.addCSSDebugging();
     }
   }
@@ -217,17 +232,19 @@ export class ModernCSS {
 }
 `;
 
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = debugCSS;
-    style.id = 'css-debug-utilities';
+    style.id = "css-debug-utilities";
     document.head.appendChild(style);
 
     // Add toggle function to window
     (window as any).toggleCSSDebug = () => {
-      document.documentElement.toggleAttribute('data-css-debug');
+      document.documentElement.toggleAttribute("data-css-debug");
     };
 
-    console.log('🔍 CSS Debug mode enabled. Call toggleCSSDebug() to visualize layout.');
+    console.log(
+      "🔍 CSS Debug mode enabled. Call toggleCSSDebug() to visualize layout.",
+    );
   }
 }
 
@@ -317,8 +334,10 @@ export const prod = {
 };
 
 // Auto-initialize in development if not explicitly initialized
-if (typeof Deno !== 'undefined' && Deno.env.get('DENO_ENV') === 'development') {
-  dev.init();
-} else if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
-  dev.init();
+{
+  const denoEnv = (globalThis as any).Deno?.env?.get?.("DENO_ENV");
+  const nodeEnv = (globalThis as any).process?.env?.NODE_ENV;
+  if (denoEnv === "development" || nodeEnv === "development") {
+    dev.init();
+  }
 }

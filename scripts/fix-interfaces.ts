@@ -19,15 +19,15 @@ for (const filePath of files) {
     /export interface (\w+Props) extends (\w+)\s*{\n([\s\S]*?)^}/gm,
     (match, name, baseType, body) => {
       // Add readonly to each property
-      const readonlyBody = body.split('\n').map(line => {
+      const readonlyBody = body.split("\n").map((line) => {
         // Skip empty lines and comments
-        if (!line.trim() || line.trim().startsWith('//')) return line;
+        if (!line.trim() || line.trim().startsWith("//")) return line;
         // Add readonly to properties
-        return line.replace(/^(\s*)(\w+)(\??:)/, '$1readonly $2$3');
-      }).join('\n');
+        return line.replace(/^(\s*)(\w+)(\??:)/, "$1readonly $2$3");
+      }).join("\n");
 
       return `export type ${name} = ${baseType} & {\n${readonlyBody}}`;
-    }
+    },
   );
 
   if (modified !== content) {

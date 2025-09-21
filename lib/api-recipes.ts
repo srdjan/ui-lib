@@ -26,7 +26,8 @@ export function hx(options: HxEnhancementOptions): TaggedHxOptions {
 }
 
 export type HxActionMap<TApi extends ApiMap> = {
-  [K in keyof TApi]: (...args: unknown[]) => string;
+  // Use any to allow spreading into JSX props in tests and app code
+  [K in keyof TApi]: (...args: unknown[]) => any;
 };
 
 export function generateClientHx<TApi extends ApiMap>(

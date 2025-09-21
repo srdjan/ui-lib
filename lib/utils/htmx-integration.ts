@@ -7,7 +7,13 @@
 export interface HTMXRequestOptions {
   readonly method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   readonly target?: string;
-  readonly swap?: "innerHTML" | "outerHTML" | "beforebegin" | "afterbegin" | "beforeend" | "afterend";
+  readonly swap?:
+    | "innerHTML"
+    | "outerHTML"
+    | "beforebegin"
+    | "afterbegin"
+    | "beforeend"
+    | "afterend";
   readonly trigger?: string;
   readonly headers?: Record<string, string>;
   readonly values?: Record<string, unknown>;
@@ -55,7 +61,7 @@ export class HTMXUtil {
   static process(element: Element | string): void {
     if (!this.isLoaded()) return;
 
-    const el = typeof element === "string" 
+    const el = typeof element === "string"
       ? document.querySelector(element)
       : element;
 
@@ -70,7 +76,7 @@ export class HTMXUtil {
   static trigger(element: Element | string, eventName: string): void {
     if (!this.isLoaded()) return;
 
-    const el = typeof element === "string" 
+    const el = typeof element === "string"
       ? document.querySelector(element)
       : element;
 
@@ -85,7 +91,7 @@ export class HTMXUtil {
   static remove(element: Element | string): void {
     if (!this.isLoaded()) return;
 
-    const el = typeof element === "string" 
+    const el = typeof element === "string"
       ? document.querySelector(element)
       : element;
 
@@ -120,11 +126,11 @@ export const htmx = {
    */
   get: (url: string, options: Partial<HTMXRequestOptions> = {}): string => {
     let attrs = `hx-get="${url}"`;
-    
+
     if (options.target) attrs += ` hx-target="${options.target}"`;
     if (options.swap) attrs += ` hx-swap="${options.swap}"`;
     if (options.trigger) attrs += ` hx-trigger="${options.trigger}"`;
-    
+
     return attrs;
   },
 
@@ -133,11 +139,11 @@ export const htmx = {
    */
   post: (url: string, options: Partial<HTMXRequestOptions> = {}): string => {
     let attrs = `hx-post="${url}"`;
-    
+
     if (options.target) attrs += ` hx-target="${options.target}"`;
     if (options.swap) attrs += ` hx-swap="${options.swap}"`;
     if (options.trigger) attrs += ` hx-trigger="${options.trigger}"`;
-    
+
     return attrs;
   },
 
@@ -146,11 +152,11 @@ export const htmx = {
    */
   put: (url: string, options: Partial<HTMXRequestOptions> = {}): string => {
     let attrs = `hx-put="${url}"`;
-    
+
     if (options.target) attrs += ` hx-target="${options.target}"`;
     if (options.swap) attrs += ` hx-swap="${options.swap}"`;
     if (options.trigger) attrs += ` hx-trigger="${options.trigger}"`;
-    
+
     return attrs;
   },
 
@@ -159,11 +165,11 @@ export const htmx = {
    */
   delete: (url: string, options: Partial<HTMXRequestOptions> = {}): string => {
     let attrs = `hx-delete="${url}"`;
-    
+
     if (options.target) attrs += ` hx-target="${options.target}"`;
     if (options.swap) attrs += ` hx-swap="${options.swap}"`;
     if (options.trigger) attrs += ` hx-trigger="${options.trigger}"`;
-    
+
     return attrs;
   },
 
@@ -201,7 +207,7 @@ export const htmx = {
   /**
    * Build hx-ext attribute
    */
-  ext: (extensions: string[]): string => `hx-ext="${extensions.join(',')}"`,
+  ext: (extensions: string[]): string => `hx-ext="${extensions.join(",")}"`,
 };
 
 /**
@@ -226,10 +232,10 @@ export const htmxPatterns = {
    * Infinite scroll pattern
    */
   infiniteScroll: (url: string, target: string): string => {
-    return htmx.get(url, { 
-      target, 
+    return htmx.get(url, {
+      target,
       swap: "beforeend",
-      trigger: "intersect" 
+      trigger: "intersect",
     });
   },
 
@@ -243,10 +249,14 @@ export const htmxPatterns = {
   /**
    * Search with debounce
    */
-  searchWithDebounce: (url: string, target: string, delay = "300ms"): string => {
-    return htmx.get(url, { 
-      target, 
-      trigger: `keyup changed delay:${delay}, search` 
+  searchWithDebounce: (
+    url: string,
+    target: string,
+    delay = "300ms",
+  ): string => {
+    return htmx.get(url, {
+      target,
+      trigger: `keyup changed delay:${delay}, search`,
     });
   },
 };

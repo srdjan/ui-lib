@@ -27,7 +27,6 @@ import type { SidebarProps } from "./layout-types.ts";
  * 🔄 State management for open/closed
  */
 defineComponent("sidebar", {
-
   // CSS-Only Format - Auto-generated class names!
   styles: {
     sidebar: `{
@@ -251,7 +250,7 @@ defineComponent("sidebar", {
         <aside
           class={sidebarClasses}
           style={sidebarStyles}
-          id={typeof id === 'string' && id ? id : undefined}
+          id={typeof id === "string" && id ? id : undefined}
           role="complementary"
           aria-label={`${sidebarPosition} sidebar`}
           data-sidebar-position={sidebarPosition}

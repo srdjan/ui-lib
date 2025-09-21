@@ -23,7 +23,7 @@ defineComponent<StackProps>("stack", {
     if (className) classes.push(className);
 
     const attributes = [
-      `class="${classes.join(' ')}"`,
+      `class="${classes.join(" ")}"`,
       `data-spacing="${spacing}"`,
       align !== "stretch" ? `data-align="${align}"` : "",
       id ? `id="${id}"` : "",

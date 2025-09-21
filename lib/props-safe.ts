@@ -1,5 +1,5 @@
 // Safe prop parsing utilities using Result types
-import { Result, ok, err } from "./result.ts";
+import { err, ok, Result } from "./result.ts";
 import { PropError, PropHelper } from "./prop-helpers.ts";
 
 export type PropsError = {
@@ -14,7 +14,14 @@ export type PropsError = {
 export function parsePropsListSafe<T extends Record<string, PropHelper>>(
   attrs: Record<string, string>,
   propDefinitions: T,
-): Result<{ [K in keyof T]: ReturnType<T[K]["parseSafe"]> extends Result<infer U, any> ? U : never }, PropsError> {
+): Result<
+  {
+    [K in keyof T]: ReturnType<T[K]["parseSafe"]> extends Result<infer U, any>
+      ? U
+      : never;
+  },
+  PropsError
+> {
   const results: Record<string, unknown> = {};
   const errors: PropError[] = [];
 
@@ -44,7 +51,14 @@ export function parsePropsListSafe<T extends Record<string, PropHelper>>(
 export function parsePropsStrictSafe<T extends Record<string, PropHelper>>(
   attrs: Record<string, string>,
   propDefinitions: T,
-): Result<{ [K in keyof T]: ReturnType<T[K]["parseSafe"]> extends Result<infer U, any> ? U : never }, PropError> {
+): Result<
+  {
+    [K in keyof T]: ReturnType<T[K]["parseSafe"]> extends Result<infer U, any>
+      ? U
+      : never;
+  },
+  PropError
+> {
   const results: Record<string, unknown> = {};
 
   for (const [key, helper] of Object.entries(propDefinitions)) {
@@ -90,11 +104,17 @@ export function createPropsValidator<T extends Record<string, PropHelper>>(
       const error = result.error;
       switch (error.type) {
         case "RequiredMissing":
-          throw new Error(`Required ${error.propType} prop '${error.key}' is missing`);
+          throw new Error(
+            `Required ${error.propType} prop '${error.key}' is missing`,
+          );
         case "ParseFailed":
-          throw new Error(`Failed to parse prop '${error.key}': ${error.reason}`);
+          throw new Error(
+            `Failed to parse prop '${error.key}': ${error.reason}`,
+          );
         case "InvalidValue":
-          throw new Error(`Invalid value for prop '${error.key}': expected ${error.expected}, got '${error.value}'`);
+          throw new Error(
+            `Invalid value for prop '${error.key}': expected ${error.expected}, got '${error.value}'`,
+          );
       }
     },
   };

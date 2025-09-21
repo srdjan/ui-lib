@@ -255,6 +255,6 @@ Deno.test("renderComponent handles render function errors", () => {
   // Should return error comment instead of throwing
   assert(
     result.includes("failed to render"),
-    `Expected error comment, got: ${result}`
+    `Expected error comment, got: ${result}`,
   );
 });

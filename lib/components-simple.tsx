@@ -1,18 +1,18 @@
 // Simplified Essential Components - Direct JSX functions, no registry
 // Each component is a simple function that returns JSX
-import { h, css } from "./simple.tsx";
+import { Fragment, h } from "./simple.tsx";
 
 /**
  * Button Component - Essential interactive element
  */
-export function Button({ 
-  children, 
-  variant = "primary", 
+export function Button({
+  children,
+  variant = "primary",
   size = "md",
   disabled = false,
   onClick,
   type = "button",
-  className = ""
+  className = "",
 }: {
   children: string;
   variant?: "primary" | "secondary" | "outline" | "ghost";
@@ -24,26 +24,29 @@ export function Button({
 }) {
   const sizeClasses = {
     sm: "btn-sm",
-    md: "btn-md", 
-    lg: "btn-lg"
+    md: "btn-md",
+    lg: "btn-lg",
   };
 
   const variantClasses = {
     primary: "btn-primary",
     secondary: "btn-secondary",
     outline: "btn-outline",
-    ghost: "btn-ghost"
+    ghost: "btn-ghost",
   };
 
   return (
     <button
       type={type}
-      className={`btn ${sizeClasses[size]} ${variantClasses[variant]} ${className}`.trim()}
+      className={`btn ${sizeClasses[size]} ${
+        variantClasses[variant]
+      } ${className}`.trim()}
       disabled={disabled}
       onClick={onClick}
     >
       {children}
-      <style>{`
+      <style>
+        {`
         .btn {
           display: inline-flex;
           align-items: center;
@@ -106,7 +109,8 @@ export function Button({
         .btn-ghost:hover:not(:disabled) {
           background: #eff6ff;
         }
-      `}</style>
+      `}
+      </style>
     </button>
   );
 }
@@ -125,7 +129,7 @@ export function Input({
   id,
   onInput,
   onChange,
-  dataBind
+  dataBind,
 }: {
   type?: "text" | "email" | "password" | "number" | "tel" | "url";
   placeholder?: string;
@@ -140,20 +144,22 @@ export function Input({
   dataBind?: string; // For state binding
 }) {
   return (
-    <input
-      type={type}
-      className={`input ${className}`.trim()}
-      placeholder={placeholder}
-      value={value}
-      disabled={disabled}
-      required={required}
-      name={name}
-      id={id}
-      onInput={onInput}
-      onChange={onChange}
-      data-bind={dataBind}
-    >
-      <style>{`
+    <>
+      <input
+        type={type}
+        className={`input ${className}`.trim()}
+        placeholder={placeholder}
+        value={value}
+        disabled={disabled}
+        required={required}
+        name={name}
+        id={id}
+        onInput={onInput}
+        onChange={onChange}
+        data-bind={dataBind}
+      />
+      <style>
+        {`
         .input {
           display: block;
           width: 100%;
@@ -166,24 +172,25 @@ export function Input({
           border-radius: 6px;
           transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
-        
+
         .input:focus {
           outline: none;
           border-color: #3b82f6;
           box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
-        
+
         .input:disabled {
           background: #f9fafb;
           color: #6b7280;
           cursor: not-allowed;
         }
-        
+
         .input::placeholder {
           color: #9ca3af;
         }
-      `}</style>
-    </input>
+      `}
+      </style>
+    </>
   );
 }
 
@@ -194,7 +201,7 @@ export function Card({
   children,
   title,
   className = "",
-  padding = true
+  padding = true,
 }: {
   children: string;
   title?: string;
@@ -202,10 +209,11 @@ export function Card({
   padding?: boolean;
 }) {
   return (
-    <div className={`card ${padding ? 'card-padded' : ''} ${className}`.trim()}>
+    <div className={`card ${padding ? "card-padded" : ""} ${className}`.trim()}>
       {title && <h3 className="card-title">{title}</h3>}
       <div className="card-content">{children}</div>
-      <style>{`
+      <style>
+        {`
         .card {
           background: white;
           border: 1px solid #e5e7eb;
@@ -228,7 +236,8 @@ export function Card({
           color: #374151;
           line-height: 1.5;
         }
-      `}</style>
+      `}
+      </style>
     </div>
   );
 }
@@ -241,7 +250,7 @@ export function Alert({
   variant = "info",
   title,
   dismissible = false,
-  className = ""
+  className = "",
 }: {
   children: string;
   variant?: "info" | "success" | "warning" | "error";
@@ -251,9 +260,9 @@ export function Alert({
 }) {
   const variantClasses = {
     info: "alert-info",
-    success: "alert-success", 
+    success: "alert-success",
     warning: "alert-warning",
-    error: "alert-error"
+    error: "alert-error",
   };
 
   return (
@@ -261,15 +270,17 @@ export function Alert({
       {title && <strong className="alert-title">{title}</strong>}
       <div className="alert-content">{children}</div>
       {dismissible && (
-        <button 
-          className="alert-dismiss" 
+        <button
+          type="button"
+          className="alert-dismiss"
           onClick="this.parentElement.remove()"
           aria-label="Dismiss"
         >
           ×
         </button>
       )}
-      <style>{`
+      <style>
+        {`
         .alert {
           position: relative;
           padding: 12px 16px;
@@ -334,7 +345,8 @@ export function Alert({
           border-color: #fecaca;
           color: #dc2626;
         }
-      `}</style>
+      `}
+      </style>
     </div>
   );
 }
@@ -345,7 +357,7 @@ export function Alert({
 export function Container({
   children,
   size = "md",
-  className = ""
+  className = "",
 }: {
   children: string;
   size?: "sm" | "md" | "lg" | "xl" | "full";
@@ -354,15 +366,16 @@ export function Container({
   const sizeClasses = {
     sm: "container-sm",
     md: "container-md",
-    lg: "container-lg", 
+    lg: "container-lg",
     xl: "container-xl",
-    full: "container-full"
+    full: "container-full",
   };
 
   return (
     <div className={`container ${sizeClasses[size]} ${className}`.trim()}>
       {children}
-      <style>{`
+      <style>
+        {`
         .container {
           width: 100%;
           margin: 0 auto;
@@ -380,7 +393,8 @@ export function Container({
             padding: 0 12px;
           }
         }
-      `}</style>
+      `}
+      </style>
     </div>
   );
 }

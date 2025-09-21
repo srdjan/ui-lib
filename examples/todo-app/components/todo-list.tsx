@@ -1,10 +1,13 @@
+// deno-lint-ignore-file verbatim-module-syntax
+
 /** @jsx h */
 /**
  * TodoList Component
  * Renders a list of todos using the library Stack layout component
  */
 
-import { defineComponent, h } from "../../../lib/define-component.ts";
+import { h } from "jsx";
+import { defineComponent } from "../../../lib/define-component.ts";
 import { todoAPI } from "../api/index.ts";
 import "./todo-item.tsx";
 
@@ -23,7 +26,7 @@ defineComponent<TodoListProps>("todo-list", {
       todoAPI.clearCompleted,
     ],
   },
-  render: (props, api) => {
+  render: (props, _api) => {
     const {
       todos,
       emptyMessage = "No todos yet. Add a todo above to get started!",

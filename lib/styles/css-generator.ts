@@ -52,7 +52,7 @@ function generateCSSCustomProperties(tokens: DesignTokens): string {
     cssProps.push(`  --size-${key}: ${value};`);
   });
 
-  return `:root {\n${cssProps.join('\n')}\n}`;
+  return `:root {\n${cssProps.join("\n")}\n}`;
 }
 
 /**
@@ -377,5 +377,5 @@ export function generateCSS(): string {
     customProperties,
     baseStyles,
     componentStyles,
-  ].join('\n\n');
+  ].join("\n\n");
 }

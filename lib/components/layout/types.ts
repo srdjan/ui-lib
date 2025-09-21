@@ -6,26 +6,51 @@
 import type { ComponentSize } from "../types.ts";
 
 // Core layout types
-export type Spacing = "none" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | string;
+export type Spacing =
+  | "none"
+  | "xs"
+  | "sm"
+  | "md"
+  | "lg"
+  | "xl"
+  | "2xl"
+  | "3xl"
+  | string;
 export type Alignment = "start" | "center" | "end" | "stretch" | "baseline";
-export type JustifyContent = "start" | "center" | "end" | "between" | "around" | "evenly";
+export type JustifyContent =
+  | "start"
+  | "center"
+  | "end"
+  | "between"
+  | "around"
+  | "evenly";
 export type Direction = "row" | "column" | "row-reverse" | "column-reverse";
 export type Wrap = "nowrap" | "wrap" | "wrap-reverse";
 
 // Layout variants
-export type LayoutVariant = "default" | "contained" | "full-width" | "centered" | "sidebar";
+export type LayoutVariant =
+  | "default"
+  | "contained"
+  | "full-width"
+  | "centered"
+  | "sidebar";
 export type ContainerVariant = "fluid" | "constrained" | "narrow" | "wide";
-export type CardVariant = "default" | "elevated" | "outlined" | "filled" | "interactive";
+export type CardVariant =
+  | "default"
+  | "elevated"
+  | "outlined"
+  | "filled"
+  | "interactive";
 
 // Layout presets for different application types
 export type LayoutPreset =
-  | "app"           // General application layout
-  | "dashboard"     // Admin dashboard with sidebar
-  | "blog"          // Content-focused blog layout
-  | "landing"       // Marketing landing page
-  | "docs"          // Documentation layout
-  | "auth"          // Authentication pages
-  | "empty";        // Minimal layout
+  | "app" // General application layout
+  | "dashboard" // Admin dashboard with sidebar
+  | "blog" // Content-focused blog layout
+  | "landing" // Marketing landing page
+  | "docs" // Documentation layout
+  | "auth" // Authentication pages
+  | "empty"; // Minimal layout
 
 // Base props for all layout components
 export interface BaseLayoutProps {

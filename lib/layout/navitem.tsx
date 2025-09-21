@@ -1,7 +1,7 @@
 /** @jsx h */
 // ui-lib NavItem Component - Individual navigation item
 import { defineComponent, h } from "../index.ts";
-import { string, boolean } from "../prop-helpers.ts";
+import { boolean, string } from "../prop-helpers.ts";
 import type { NavItemProps } from "./layout-types.ts";
 
 /**
@@ -23,7 +23,6 @@ import type { NavItemProps } from "./layout-types.ts";
  * 🎯 Keyboard navigation support
  */
 defineComponent("navitem", {
-
   // Props parsing moved to render function
 
   // No API needed - using direct HTMX navigation

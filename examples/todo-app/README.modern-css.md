@@ -1,10 +1,12 @@
 # Modern CSS Architecture Demo
 
-This demonstrates the implementation of the modernized CSS architecture in the ui-lib todo app example.
+This demonstrates the implementation of the modernized CSS architecture in the
+ui-lib todo app example.
 
 ## 🎯 **What Was Implemented**
 
 ### **1. Modern CSS Architecture System**
+
 - **Cascade Layers**: `@layer reset, tokens, utilities, components, overrides`
 - **Design Tokens**: Comprehensive token system with semantic aliases
 - **Container Queries**: True component-responsive design
@@ -14,6 +16,7 @@ This demonstrates the implementation of the modernized CSS architecture in the u
 ### **2. Modern Components Created**
 
 #### **TodoItem.modern.tsx**
+
 - Uses design tokens instead of hardcoded values
 - Container queries for responsive layout
 - Data attributes for state management (`data-completed`, `data-priority`)
@@ -21,12 +24,14 @@ This demonstrates the implementation of the modernized CSS architecture in the u
 - Priority-based visual indicators using border accents
 
 #### **TodoList.modern.tsx**
+
 - CSS Grid layout with auto-fit columns
 - Container query-based responsive design
 - Semantic HTML with proper ARIA labels
 - Loading states with modern CSS animations
 
 #### **server.modern.tsx**
+
 - Side-by-side comparison of old vs new CSS
 - Modern CSS initialization and configuration
 - CSS statistics and performance monitoring
@@ -35,15 +40,17 @@ This demonstrates the implementation of the modernized CSS architecture in the u
 ### **3. Key Modern CSS Features Used**
 
 #### **Design Tokens**
+
 ```typescript
 // Instead of hardcoded values
-padding: "1rem"
+padding: "1rem";
 
 // Use semantic tokens
-padding: token("space", "6")
+padding: token("space", "6");
 ```
 
 #### **Container Queries**
+
 ```css
 @container (min-width: 500px) {
   padding: token("space", "8");
@@ -55,17 +62,23 @@ padding: token("space", "6")
 ```
 
 #### **Cascade Layers**
+
 ```css
 @layer components {
-  .todo-item { /* component styles */ }
+  .todo-item {
+    /* component styles */
+  }
 }
 
 @layer utilities {
-  .u-hidden { /* utility styles */ }
+  .u-hidden {
+    /* utility styles */
+  }
 }
 ```
 
 #### **Modern Selectors**
+
 ```css
 &:focus-visible {
   outline: 2px solid token("color", "primary-500");
@@ -103,30 +116,35 @@ padding: token("space", "6")
 ## 🎨 **Modern CSS Features Demonstrated**
 
 ### **1. Design System Architecture**
+
 - Consistent spacing scale using golden ratio
 - Semantic color system with light/dark mode support
 - Typography scale with fluid responsive sizing
 - Component variants using data attributes
 
 ### **2. Container Query Responsive Design**
+
 - Components respond to their container size, not viewport
 - True component-level responsive behavior
 - Layout shifts based on available space
 - Better reusability across different contexts
 
 ### **3. Cascade Layers for Specificity Management**
+
 - Clear separation of concerns
 - Predictable specificity hierarchy
 - Easy overrides without !important
 - Better maintainability and debugging
 
 ### **4. Modern Accessibility Patterns**
+
 - Semantic HTML with proper ARIA labels
 - Focus management with `:focus-visible`
 - High contrast support
 - Screen reader friendly state announcements
 
 ### **5. Performance Optimizations**
+
 - CSS containment for rendering performance
 - Bundle analysis and size monitoring
 - Critical CSS extraction
@@ -135,6 +153,7 @@ padding: token("space", "6")
 ## 🔄 **Migration Benefits**
 
 ### **Before (Legacy CSS-in-TS)**
+
 ```typescript
 styles: `
   .todo-item {
@@ -142,10 +161,11 @@ styles: `
     background: white;
     border: 1px solid #e5e7eb;
   }
-`
+`;
 ```
 
 ### **After (Modern CSS Architecture)**
+
 ```typescript
 const styles = css.responsive("todo-item", {
   base: {
@@ -157,12 +177,13 @@ const styles = css.responsive("todo-item", {
   "@container": {
     "(min-width: 500px)": {
       padding: token("space", "8"),
-    }
-  }
+    },
+  },
 });
 ```
 
 ### **Key Improvements**
+
 - **Maintainability**: Design tokens enable consistent changes across components
 - **Responsiveness**: Container queries provide true component-responsive design
 - **Performance**: Better CSS organization and bundling
@@ -177,4 +198,6 @@ const styles = css.responsive("todo-item", {
 4. **Implement dark mode** using the token system
 5. **Add CSS custom properties** for dynamic theming
 
-This modern CSS architecture provides a solid foundation for scalable, maintainable, and performant user interfaces while maintaining the SSR-first philosophy of ui-lib.
+This modern CSS architecture provides a solid foundation for scalable,
+maintainable, and performant user interfaces while maintaining the SSR-first
+philosophy of ui-lib.

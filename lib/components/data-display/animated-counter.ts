@@ -30,7 +30,7 @@ export type AnimationConfig = {
   readonly easing?: keyof typeof easingFunctions | EasingFunction;
   readonly steps?: number;
   readonly format?: (value: number) => string;
-}
+};
 
 /**
  * Animated counter props
@@ -44,7 +44,7 @@ export type AnimatedCounterProps = ComponentProps & {
   readonly class?: string;
   readonly autoStart?: boolean;
   readonly trigger?: "load" | "visible" | "manual";
-}
+};
 
 /**
  * Default number formatter

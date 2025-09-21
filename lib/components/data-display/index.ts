@@ -1,6 +1,14 @@
 // Data display components exports
 export * from "./animated-counter.ts";
-export * from "./item.ts";
+// Avoid re-exporting BadgeVariant type from item to prevent clashes with feedback/BadgeVariant
+export type {
+  ActionVariant,
+  ItemAction,
+  ItemBadge,
+  ItemPriority,
+  ItemProps,
+  ItemVariant,
+} from "./item.ts";
 export * from "./list.ts";
 export * from "./stat.ts";
 

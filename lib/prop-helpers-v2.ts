@@ -1,7 +1,8 @@
 // Enhanced prop helpers with automatic type inference and no runtime type checking needed
 // This is the next evolution of the prop system - fully type-safe at compile time
 
-import type { PropHelper } from "./prop-helpers.ts";
+import type { PropError, PropHelper } from "./prop-helpers.ts";
+import { err, ok, Result } from "./result.ts";
 
 /**
  * Enhanced PropHelper that returns already-typed values
@@ -34,15 +35,22 @@ export function typedString(
     defaultValue,
     required: defaultValue === undefined,
     parse: (attrs: Record<string, string>, key: string) => {
+      const result = helper.parseSafe(attrs, key);
+      if (result.ok) return result.value;
+      throw new Error(`Required string prop '${key}' is missing`);
+    },
+    parseSafe: (
+      attrs: Record<string, string>,
+      key: string,
+    ): Result<string, PropError> => {
       const kebabKey = camelToKebab(key);
       const value = attrs[key] ?? attrs[kebabKey];
       if (value === undefined) {
-        if (defaultValue !== undefined) {
-          return defaultValue;
-        }
-        throw new Error(`Required string prop '${key}' is missing`);
+        return defaultValue !== undefined
+          ? ok(defaultValue)
+          : err({ type: "RequiredMissing", key, propType: "string" });
       }
-      return value;
+      return ok(value);
     },
     transform: (value: string) => value,
   };
@@ -77,21 +85,33 @@ export function typedNumber(
     defaultValue,
     required: defaultValue === undefined,
     parse: (attrs: Record<string, string>, key: string) => {
+      const result = helper.parseSafe(attrs, key);
+      if (result.ok) return result.value;
+      if (result.error.type === "RequiredMissing") {
+        throw new Error(`Required number prop '${key}' is missing`);
+      }
+      throw new Error(
+        `Invalid number value for prop '${key}': ${(attrs[key] ??
+          attrs[camelToKebab(key)])}. Expected a valid number but got "${(attrs[
+            key
+          ] ?? attrs[camelToKebab(key)])}".`,
+      );
+    },
+    parseSafe: (
+      attrs: Record<string, string>,
+      key: string,
+    ): Result<number, PropError> => {
       const kebabKey = camelToKebab(key);
       const value = attrs[key] ?? attrs[kebabKey];
       if (value === undefined) {
-        if (defaultValue !== undefined) {
-          return defaultValue;
-        }
-        throw new Error(`Required number prop '${key}' is missing`);
+        return defaultValue !== undefined
+          ? ok(defaultValue)
+          : err({ type: "RequiredMissing", key, propType: "number" });
       }
       const parsed = Number(value);
-      if (isNaN(parsed)) {
-        throw new Error(
-          `Invalid number value for prop '${key}': ${value}. Expected a valid number but got "${value}".`,
-        );
-      }
-      return parsed;
+      return isNaN(parsed)
+        ? err({ type: "ParseFailed", key, value, reason: "Not a valid number" })
+        : ok(parsed);
     },
     transform: (value: number) => value,
   };
@@ -127,15 +147,23 @@ export function typedBoolean(
     defaultValue,
     required: defaultValue === undefined,
     parse: (attrs: Record<string, string>, key: string) => {
+      const result = helper.parseSafe(attrs, key);
+      if (result.ok) return result.value;
+      throw new Error(`Required boolean prop '${key}' is missing`);
+    },
+    parseSafe: (
+      attrs: Record<string, string>,
+      key: string,
+    ): Result<boolean, PropError> => {
       const kebabKey = camelToKebab(key);
-      const hasAttr = key in attrs || kebabKey in attrs;
-      if (!hasAttr && defaultValue !== undefined) {
-        return defaultValue;
+      const raw = attrs[key] ?? attrs[kebabKey];
+      const hasAttr = raw !== undefined;
+      if (!hasAttr) {
+        return defaultValue !== undefined
+          ? ok(defaultValue)
+          : err({ type: "RequiredMissing", key, propType: "boolean" });
       }
-      if (!hasAttr && defaultValue === undefined) {
-        throw new Error(`Required boolean prop '${key}' is missing`);
-      }
-      return hasAttr;
+      return ok(true);
     },
     transform: (value: boolean) => value,
   };
@@ -171,29 +199,40 @@ export function typedArray<T = unknown>(
     defaultValue,
     required: defaultValue === undefined,
     parse: (attrs: Record<string, string>, key: string) => {
+      const result = helper.parseSafe(attrs, key);
+      if (result.ok) return result.value;
+      if (result.error.type === "RequiredMissing") {
+        throw new Error(`Required array prop '${key}' is missing`);
+      }
+      if (result.error.type === "ParseFailed") {
+        throw new Error(
+          `Invalid JSON array for prop '${key}': ${result.error.value}`,
+        );
+      }
+      // InvalidValue means parsed but not an array
+      throw new Error(
+        `Prop '${key}' must be a valid JSON array. Got object instead.`,
+      );
+    },
+    parseSafe: (
+      attrs: Record<string, string>,
+      key: string,
+    ): Result<T[], PropError> => {
       const kebabKey = camelToKebab(key);
       const value = attrs[key] ?? attrs[kebabKey];
       if (value === undefined) {
-        if (defaultValue !== undefined) {
-          return defaultValue;
-        }
-        throw new Error(`Required array prop '${key}' is missing`);
+        return defaultValue !== undefined
+          ? ok(defaultValue)
+          : err({ type: "RequiredMissing", key, propType: "array" });
       }
       try {
         const parsed = JSON.parse(value);
         if (!Array.isArray(parsed)) {
-          throw new Error(
-            `Prop '${key}' must be a valid JSON array. Got ${typeof parsed} instead.`,
-          );
+          return err({ type: "InvalidValue", key, value, expected: "array" });
         }
-        return parsed as T[];
-      } catch (error) {
-        const errorMessage = error instanceof Error
-          ? error.message
-          : String(error);
-        throw new Error(
-          `Invalid JSON array for prop '${key}': ${value}. Parse error: ${errorMessage}`,
-        );
+        return ok(parsed as T[]);
+      } catch {
+        return err({ type: "ParseFailed", key, value, reason: "Invalid JSON" });
       }
     },
     transform: (value: T[]) => value,
@@ -227,35 +266,50 @@ export function typedObject<
     defaultValue,
     required: defaultValue === undefined,
     parse: (attrs: Record<string, string>, key: string) => {
+      const result = helper.parseSafe(attrs, key);
+      if (result.ok) return result.value;
+      if (result.error.type === "RequiredMissing") {
+        throw new Error(`Required object prop '${key}' is missing`);
+      }
+      if (result.error.type === "ParseFailed") {
+        throw new Error(
+          `Invalid JSON object for prop '${key}': ${result.error.value}`,
+        );
+      }
+      // InvalidValue means parsed but not an object (could be array)
+      const val = String(result.error.value || "").trim();
+      if (val.startsWith("[")) {
+        throw new Error(
+          `Prop '${key}' must be a valid JSON object. Got array instead.`,
+        );
+      }
+      throw new Error(
+        `Prop '${key}' must be a valid JSON object. Got ${
+          val ? typeof {} : "non-object"
+        } instead.`,
+      );
+    },
+    parseSafe: (
+      attrs: Record<string, string>,
+      key: string,
+    ): Result<T, PropError> => {
       const kebabKey = camelToKebab(key);
       const value = attrs[key] ?? attrs[kebabKey];
       if (value === undefined) {
-        if (defaultValue !== undefined) {
-          return defaultValue;
-        }
-        throw new Error(`Required object prop '${key}' is missing`);
+        return defaultValue !== undefined
+          ? ok(defaultValue as T)
+          : err({ type: "RequiredMissing", key, propType: "object" });
       }
       try {
         const parsed = JSON.parse(value);
         if (
-          typeof parsed !== "object" ||
-          parsed === null ||
-          Array.isArray(parsed)
+          typeof parsed !== "object" || parsed === null || Array.isArray(parsed)
         ) {
-          throw new Error(
-            `Prop '${key}' must be a valid JSON object. Got ${
-              Array.isArray(parsed) ? "array" : typeof parsed
-            } instead.`,
-          );
+          return err({ type: "InvalidValue", key, value, expected: "object" });
         }
-        return parsed as T;
-      } catch (error) {
-        const errorMessage = error instanceof Error
-          ? error.message
-          : String(error);
-        throw new Error(
-          `Invalid JSON object for prop '${key}': ${value}. Parse error: ${errorMessage}`,
-        );
+        return ok(parsed as T);
+      } catch {
+        return err({ type: "ParseFailed", key, value, reason: "Invalid JSON" });
       }
     },
     transform: (value: T) => value,
@@ -306,4 +360,3 @@ export function extractTypedValues<T extends Record<string, unknown>>(
 
   return result;
 }
-

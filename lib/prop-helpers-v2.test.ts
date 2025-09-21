@@ -195,4 +195,3 @@ Deno.test("camelCase to kebab-case conversion works correctly", () => {
   const value2 = helper.parse(attrs2, "directMatch");
   assertEquals(value2, "value2");
 });
-

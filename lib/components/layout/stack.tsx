@@ -26,7 +26,7 @@ defineComponent<StackProps>("stack", {
 
     return (
       <div
-        class={classes.join(' ')}
+        class={classes.join(" ")}
         data-spacing={spacing}
         data-align={align !== "stretch" ? align : undefined}
         id={id || undefined}

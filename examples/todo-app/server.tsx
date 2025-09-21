@@ -1,4 +1,5 @@
 #!/usr/bin/env deno run --allow-net --allow-read --allow-env
+// deno-lint-ignore-file verbatim-module-syntax
 
 /** @jsx h */
 /**
@@ -6,7 +7,7 @@
  * Demonstrates building the todo app using only generic library components
  */
 
-import { h } from "../../lib/jsx-runtime.ts";
+import { h } from "jsx";
 import { html, Router } from "../../mod-simple.ts";
 
 import { todoAPI } from "./api/index.ts";

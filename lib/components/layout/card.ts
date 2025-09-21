@@ -50,7 +50,10 @@ defineComponent<CardProps>("card", {
 
     const styles = [];
     if (padding) {
-      if (padding.startsWith("var(") || padding.includes("px") || padding.includes("rem")) {
+      if (
+        padding.startsWith("var(") || padding.includes("px") ||
+        padding.includes("rem")
+      ) {
         styles.push(`padding: ${padding};`);
       } else {
         styles.push(`padding: var(--space-${padding});`);
@@ -58,17 +61,19 @@ defineComponent<CardProps>("card", {
     }
 
     // Generate header if title provided
-    const headerHtml = title ? `
+    const headerHtml = title
+      ? `
       <header class="card__header">
         <h3 class="card__title">${title}</h3>
         ${subtitle ? `<p class="card__subtitle">${subtitle}</p>` : ""}
       </header>
-    ` : "";
+    `
+      : "";
 
     const attributes = [
-      `class="${classes.join(' ')}"`,
+      `class="${classes.join(" ")}"`,
       `data-size="${size}"`,
-      styles.length > 0 ? `style="${styles.join(' ')}"` : "",
+      styles.length > 0 ? `style="${styles.join(" ")}"` : "",
       id ? `id="${id}"` : "",
       role ? `role="${role}"` : "",
       ariaLabel ? `aria-label="${ariaLabel}"` : "",

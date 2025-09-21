@@ -1,7 +1,7 @@
 /** @jsx h */
 // ui-lib Navbar Component - Composable navigation container
 import { defineComponent, h } from "../index.ts";
-import { string, boolean } from "../prop-helpers.ts";
+import { boolean, string } from "../prop-helpers.ts";
 import type { NavbarProps } from "./layout-types.ts";
 
 /**
@@ -24,7 +24,6 @@ import type { NavbarProps } from "./layout-types.ts";
  * 🎭 Sticky/fixed positioning options
  */
 defineComponent("navbar", {
-
   // CSS-Only Format - Auto-generated class names!
   styles: {
     navbar: `{
@@ -206,7 +205,9 @@ defineComponent("navbar", {
     const navStyle = typeof style === "string" ? style : "primary";
     const isSticky = typeof sticky === "boolean" ? sticky : false;
     const isCollapsible = typeof collapsible === "boolean" ? collapsible : true;
-    const navOrientation = typeof orientation === "string" ? orientation : "horizontal";
+    const navOrientation = typeof orientation === "string"
+      ? orientation
+      : "horizontal";
 
     const navbarClasses = [
       classes!.navbar,
@@ -232,7 +233,16 @@ defineComponent("navbar", {
         data-navbar-style={navStyle}
         data-navbar-orientation={navOrientation}
       >
-        <div class={classes!.navContent} style={`--navbar-content-max-width: ${typeof contentMaxWidth === "string" ? contentMaxWidth : "none"}; --navbar-content-padding: ${typeof contentPadding === "string" ? contentPadding : "0 var(--size-4)"};`}>
+        <div
+          class={classes!.navContent}
+          style={`--navbar-content-max-width: ${
+            typeof contentMaxWidth === "string" ? contentMaxWidth : "none"
+          }; --navbar-content-padding: ${
+            typeof contentPadding === "string"
+              ? contentPadding
+              : "0 var(--size-4)"
+          };`}
+        >
           {/* Mobile hamburger menu toggle */}
           {isCollapsible && (
             <button

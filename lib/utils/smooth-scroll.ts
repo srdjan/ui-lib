@@ -19,10 +19,11 @@ export const scrollEasing = {
   linear: (t: number): number => t,
   easeInQuad: (t: number): number => t * t,
   easeOutQuad: (t: number): number => t * (2 - t),
-  easeInOutQuad: (t: number): number => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t,
+  easeInOutQuad: (t: number): number =>
+    t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t,
   easeInCubic: (t: number): number => t * t * t,
   easeOutCubic: (t: number): number => (--t) * t * t + 1,
-  easeInOutCubic: (t: number): number => 
+  easeInOutCubic: (t: number): number =>
     t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1,
 } as const;
 
@@ -40,7 +41,7 @@ export class SmoothScroll {
     target: string | Element,
     options: ScrollOptions = {},
   ): void {
-    const element = typeof target === "string" 
+    const element = typeof target === "string"
       ? document.querySelector(target)
       : target;
 
@@ -74,7 +75,7 @@ export class SmoothScroll {
 
     const startY = window.pageYOffset;
     const distance = targetY - startY;
-    
+
     if (Math.abs(distance) < 1) {
       onComplete?.();
       return;
@@ -124,8 +125,10 @@ export class SmoothScroll {
     options: ScrollOptions = {},
   ): void {
     document.addEventListener("click", (event) => {
-      const link = (event.target as Element).closest(selector) as HTMLAnchorElement;
-      
+      const link = (event.target as Element).closest(
+        selector,
+      ) as HTMLAnchorElement;
+
       if (!link) return;
 
       const href = link.getAttribute("href");
@@ -153,7 +156,7 @@ export class SmoothScroll {
     target: string | Element,
     options: { offset?: number } = {},
   ): void {
-    const element = typeof target === "string" 
+    const element = typeof target === "string"
       ? document.querySelector(target)
       : target;
 
@@ -176,7 +179,10 @@ export class SmoothScroll {
 /**
  * Convenience functions
  */
-export const smoothScrollTo = (target: string | Element, options?: ScrollOptions): void => {
+export const smoothScrollTo = (
+  target: string | Element,
+  options?: ScrollOptions,
+): void => {
   SmoothScroll.scrollToElement(target, options);
 };
 
@@ -191,7 +197,9 @@ export const setupSmoothScrolling = (options?: ScrollOptions): void => {
 /**
  * Generate JavaScript code for client-side smooth scrolling
  */
-export const createSmoothScrollScript = (options: ScrollOptions = {}): string => {
+export const createSmoothScrollScript = (
+  options: ScrollOptions = {},
+): string => {
   const {
     duration = 800,
     offset = 0,

@@ -26,7 +26,7 @@ async function convertFile(filePath: string) {
       // Add readonly to each property
       const readonlyBody = body.replace(
         /^\s*(\w+)(\??:)/gm,
-        '  readonly $1$2'
+        "  readonly $1$2",
       );
 
       if (baseType) {
@@ -34,7 +34,7 @@ async function convertFile(filePath: string) {
       } else {
         return `export type ${name} = {${readonlyBody}}`;
       }
-    }
+    },
   );
 
   // Also convert any other export interface patterns
@@ -42,14 +42,17 @@ async function convertFile(filePath: string) {
     /export interface (\w+)(\s+extends\s+(\w+))?\s*{([^}]+)}/g,
     (match, name, extendsClause, baseType, body) => {
       // Skip if already converted or not a Props interface
-      if (!name.includes('Props') && !name.includes('Config') && !name.includes('Options')) {
+      if (
+        !name.includes("Props") && !name.includes("Config") &&
+        !name.includes("Options")
+      ) {
         return match; // Keep non-prop interfaces as-is for now
       }
 
       // Add readonly to each property
       const readonlyBody = body.replace(
         /^\s*(\w+)(\??:)/gm,
-        '  readonly $1$2'
+        "  readonly $1$2",
       );
 
       if (baseType) {
@@ -57,7 +60,7 @@ async function convertFile(filePath: string) {
       } else {
         return `export type ${name} = {${readonlyBody}}`;
       }
-    }
+    },
   );
 
   if (newContent !== content) {

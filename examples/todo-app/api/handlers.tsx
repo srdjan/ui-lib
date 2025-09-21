@@ -1,3 +1,5 @@
+// deno-lint-ignore-file verbatim-module-syntax
+
 /** @jsx h */
 
 /**
@@ -5,7 +7,7 @@
  * Request handlers for todo operations
  */
 
-import { h } from "../../../lib/define-component.ts";
+import { h } from "jsx";
 import { getRepository } from "./repository-factory.ts";
 import {
   errorResponse,
@@ -35,17 +37,7 @@ function todosToList(todos: readonly Todo[]): string {
     );
   }
 
-  return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "1rem",
-      }}
-    >
-      {todos.map((todo) => <todo-item todo={todo} />)}
-    </div>
-  );
+  return <todo-list todos={todos} />;
 }
 
 // Moved shared response helpers to ./response.ts
@@ -102,7 +94,7 @@ export const todoAPI = {
       const repository = getRepository();
 
       // Handle both JSON and form data
-      let data: any;
+      let data: Record<string, unknown>;
       const contentType = req.headers.get("content-type") || "";
 
       if (contentType.includes("application/json")) {
@@ -126,11 +118,16 @@ export const todoAPI = {
       const usersResult = await repository.getUsers();
       if (!usersResult.ok) return handleDatabaseError(usersResult.error);
 
-      const userId = data.user || usersResult.value[0];
+      const userId = (typeof data.user === "string" && data.user.length > 0)
+        ? data.user
+        : usersResult.value[0];
       const todoData: CreateTodoData = {
         userId,
-        text: data.text || "",
-        priority: data.priority || "medium",
+        text: typeof data.text === "string" ? data.text : "",
+        priority: (data.priority === "low" || data.priority === "medium" ||
+            data.priority === "high")
+          ? (data.priority as "low" | "medium" | "high")
+          : "medium",
         completed: false,
       };
 
@@ -188,7 +185,7 @@ export const todoAPI = {
   },
 
   // POST /api/todos/:id/toggle - Toggle completion status
-  async toggleTodo(req: Request, params: { id: string }): Promise<Response> {
+  async toggleTodo(_req: Request, params: { id: string }): Promise<Response> {
     const repository = getRepository();
 
     // Get existing todo

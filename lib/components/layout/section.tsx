@@ -41,14 +41,20 @@ defineComponent<SectionProps>("section", {
 
     const styles: Record<string, string> = {};
     if (padding) {
-      if (padding.startsWith("var(") || padding.includes("px") || padding.includes("rem")) {
+      if (
+        padding.startsWith("var(") || padding.includes("px") ||
+        padding.includes("rem")
+      ) {
         styles.padding = padding;
       } else {
         styles.padding = `var(--space-${padding})`;
       }
     }
     if (margin) {
-      if (margin.startsWith("var(") || margin.includes("px") || margin.includes("rem")) {
+      if (
+        margin.startsWith("var(") || margin.includes("px") ||
+        margin.includes("rem")
+      ) {
         styles.margin = margin;
       } else {
         styles.margin = `var(--space-${margin})`;
@@ -56,28 +62,38 @@ defineComponent<SectionProps>("section", {
     }
 
     // Build header content if title is provided
-    const headerContent = title ? (
-      <header class="section__header">
-        <div
-          class="section__title"
-          dangerouslySetInnerHTML={{ __html: `<h${level}>${title}</h${level}>` }}
-        />
-        {subtitle && (
-          <p class="section__subtitle" dangerouslySetInnerHTML={{ __html: subtitle }} />
-        )}
-      </header>
-    ) : "";
+    const headerContent = title
+      ? (
+        <header class="section__header">
+          <div
+            class="section__title"
+            dangerouslySetInnerHTML={{
+              __html: `<h${level}>${title}</h${level}>`,
+            }}
+          />
+          {subtitle && (
+            <p
+              class="section__subtitle"
+              dangerouslySetInnerHTML={{ __html: subtitle }}
+            />
+          )}
+        </header>
+      )
+      : "";
 
     return (
       <section
-        class={classes.join(' ')}
+        class={classes.join(" ")}
         style={Object.keys(styles).length > 0 ? styles : undefined}
         id={id || undefined}
         role={role || undefined}
         aria-label={ariaLabel || undefined}
       >
         {headerContent}
-        <div class="section__content" dangerouslySetInnerHTML={{ __html: "{{children}}" }} />
+        <div
+          class="section__content"
+          dangerouslySetInnerHTML={{ __html: "{{children}}" }}
+        />
       </section>
     );
   },

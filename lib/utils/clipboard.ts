@@ -97,14 +97,18 @@ export class ClipboardUtil {
 /**
  * Copy text to clipboard (convenience function)
  */
-export const copyToClipboard = async (text: string): Promise<ClipboardResult> => {
+export const copyToClipboard = async (
+  text: string,
+): Promise<ClipboardResult> => {
   return ClipboardUtil.copy(text);
 };
 
 /**
  * Copy element content to clipboard
  */
-export const copyElementContent = async (element: Element): Promise<ClipboardResult> => {
+export const copyElementContent = async (
+  element: Element,
+): Promise<ClipboardResult> => {
   const text = element.textContent ?? "";
   return ClipboardUtil.copy(text);
 };

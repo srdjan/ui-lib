@@ -1,13 +1,15 @@
+// deno-lint-ignore-file verbatim-module-syntax
+
 /** @jsx h */
 /**
  * TodoItem Component
  * Wraps the library Item component with todo-specific logic
  */
 
+import { h } from "jsx";
 import { itemAction, onAction } from "../../../lib/api-recipes.ts";
 import "../../../lib/components/data-display/item.ts";
 import { defineComponent } from "../../../lib/define-component.ts";
-import { h } from "../../../lib/jsx-runtime.ts";
 import { todoAPI } from "../api/index.ts";
 
 import type { Todo } from "../api/types.ts";
@@ -96,7 +98,7 @@ defineComponent<{ todo: Todo }>("todo-item", {
         todo.completed ? "checked" : ""
       } ${toggleAttrs} />`,
       actions: [
-        { text: "Edit" },
+        { text: "Delete" },
         itemAction(api!.deleteTodo, "Delete", [todo.id], {
           variant: "danger",
           confirm: "Are you sure you want to delete this todo?",

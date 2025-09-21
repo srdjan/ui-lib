@@ -1,10 +1,10 @@
 // CSS Migration and Integration Helpers
 // Provides smooth migration path from current CSS-in-TS to modern architecture
 
-import { modernCSS, type ModernStyleObject } from './modern-css-system.ts';
-import { token } from './styles/design-tokens.ts';
-import { wrapInLayer } from './styles/css-layers.ts';
-import type { CSSProperties, StyleObject } from './css-types.ts';
+import { modernCSS, type ModernStyleObject } from "./modern-css-system.ts";
+import { token } from "./styles/design-tokens.ts";
+import { wrapInLayer } from "./styles/css-layers.ts";
+import type { CSSProperties, StyleObject } from "./css-types.ts";
 
 /**
  * Migration Configuration
@@ -37,7 +37,7 @@ export class CSSMigration {
    */
   static migrateLegacyStyles(
     legacyStyles: Record<string, StyleObject>,
-    componentName?: string
+    componentName?: string,
   ): { classMap: Record<string, string>; css: string } {
     const modernStyles: Record<string, ModernStyleObject> = {};
 
@@ -46,8 +46,10 @@ export class CSSMigration {
     }
 
     return modernCSS({
-      layer: 'components',
-      container: componentName ? { name: componentName, type: 'inline-size' } : undefined,
+      layer: "components",
+      container: componentName
+        ? { name: componentName, type: "inline-size" }
+        : undefined,
       styles: modernStyles,
     });
   }
@@ -55,20 +57,26 @@ export class CSSMigration {
   /**
    * Convert legacy style object to modern format
    */
-  private static convertStyleObject(styleObject: StyleObject): ModernStyleObject {
+  private static convertStyleObject(
+    styleObject: StyleObject,
+  ): ModernStyleObject {
     const modernStyle: ModernStyleObject = {};
 
     for (const [property, value] of Object.entries(styleObject)) {
-      if (property.startsWith('&')) {
+      if (property.startsWith("&")) {
         // Handle pseudo-selectors
         modernStyle[property] = this.convertStyleObject(value as StyleObject);
-      } else if (property === '@media') {
+      } else if (property === "@media") {
         // Handle media queries
         const mediaQueries: Record<string, ModernStyleObject> = {};
-        for (const [breakpoint, breakpointStyles] of Object.entries(value as Record<string, StyleObject>)) {
+        for (
+          const [breakpoint, breakpointStyles] of Object.entries(
+            value as Record<string, StyleObject>,
+          )
+        ) {
           mediaQueries[breakpoint] = this.convertStyleObject(breakpointStyles);
         }
-        modernStyle['@media'] = mediaQueries;
+        modernStyle["@media"] = mediaQueries;
       } else {
         // Handle regular CSS properties with token replacement
         modernStyle[property] = this.replaceWithTokens(property, value);
@@ -82,76 +90,76 @@ export class CSSMigration {
    * Replace hardcoded values with design tokens where possible
    */
   private static replaceWithTokens(property: string, value: unknown): unknown {
-    if (typeof value !== 'string') return value;
+    if (typeof value !== "string") return value;
 
     // Color replacements
     const colorReplacements: Record<string, string> = {
-      '#ffffff': token('color', 'white'),
-      '#000000': token('color', 'black'),
-      '#f9fafb': token('color', 'gray-50'),
-      '#f3f4f6': token('color', 'gray-100'),
-      '#e5e7eb': token('color', 'gray-200'),
-      '#d1d5db': token('color', 'gray-300'),
-      '#9ca3af': token('color', 'gray-400'),
-      '#6b7280': token('color', 'gray-500'),
-      '#4b5563': token('color', 'gray-600'),
-      '#374151': token('color', 'gray-700'),
-      '#1f2937': token('color', 'gray-800'),
-      '#111827': token('color', 'gray-900'),
+      "#ffffff": token("color", "white"),
+      "#000000": token("color", "black"),
+      "#f9fafb": token("color", "gray-50"),
+      "#f3f4f6": token("color", "gray-100"),
+      "#e5e7eb": token("color", "gray-200"),
+      "#d1d5db": token("color", "gray-300"),
+      "#9ca3af": token("color", "gray-400"),
+      "#6b7280": token("color", "gray-500"),
+      "#4b5563": token("color", "gray-600"),
+      "#374151": token("color", "gray-700"),
+      "#1f2937": token("color", "gray-800"),
+      "#111827": token("color", "gray-900"),
       // Primary colors
-      '#3b82f6': token('color', 'primary-500'),
-      '#2563eb': token('color', 'primary-600'),
-      '#1d4ed8': token('color', 'primary-700'),
+      "#3b82f6": token("color", "primary-500"),
+      "#2563eb": token("color", "primary-600"),
+      "#1d4ed8": token("color", "primary-700"),
       // Success colors
-      '#22c55e': token('color', 'success-500'),
-      '#16a34a': token('color', 'success-600'),
+      "#22c55e": token("color", "success-500"),
+      "#16a34a": token("color", "success-600"),
       // Error colors
-      '#ef4444': token('color', 'error-500'),
-      '#dc2626': token('color', 'error-600'),
+      "#ef4444": token("color", "error-500"),
+      "#dc2626": token("color", "error-600"),
       // Warning colors
-      '#f59e0b': token('color', 'warning-500'),
-      '#d97706': token('color', 'warning-600'),
+      "#f59e0b": token("color", "warning-500"),
+      "#d97706": token("color", "warning-600"),
     };
 
     // Spacing replacements
     const spacingReplacements: Record<string, string> = {
-      '0': token('space', '0'),
-      '1px': token('space', 'px'),
-      '0.25rem': token('space', '1'),
-      '0.5rem': token('space', '2'),
-      '0.75rem': token('space', '3'),
-      '1rem': token('space', '4'),
-      '1.25rem': token('space', '5'),
-      '1.5rem': token('space', '6'),
-      '2rem': token('space', '8'),
-      '2.5rem': token('space', '10'),
-      '3rem': token('space', '12'),
-      '4rem': token('space', '16'),
-      '5rem': token('space', '20'),
+      "0": token("space", "0"),
+      "1px": token("space", "px"),
+      "0.25rem": token("space", "1"),
+      "0.5rem": token("space", "2"),
+      "0.75rem": token("space", "3"),
+      "1rem": token("space", "4"),
+      "1.25rem": token("space", "5"),
+      "1.5rem": token("space", "6"),
+      "2rem": token("space", "8"),
+      "2.5rem": token("space", "10"),
+      "3rem": token("space", "12"),
+      "4rem": token("space", "16"),
+      "5rem": token("space", "20"),
     };
 
     // Font size replacements
     const fontSizeReplacements: Record<string, string> = {
-      '0.75rem': token('typography', 'text-xs'),
-      '0.875rem': token('typography', 'text-sm'),
-      '1rem': token('typography', 'text-base'),
-      '1.125rem': token('typography', 'text-lg'),
-      '1.25rem': token('typography', 'text-xl'),
-      '1.5rem': token('typography', 'text-2xl'),
-      '1.875rem': token('typography', 'text-3xl'),
-      '2.25rem': token('typography', 'text-4xl'),
+      "0.75rem": token("typography", "text-xs"),
+      "0.875rem": token("typography", "text-sm"),
+      "1rem": token("typography", "text-base"),
+      "1.125rem": token("typography", "text-lg"),
+      "1.25rem": token("typography", "text-xl"),
+      "1.5rem": token("typography", "text-2xl"),
+      "1.875rem": token("typography", "text-3xl"),
+      "2.25rem": token("typography", "text-4xl"),
     };
 
     // Border radius replacements
     const radiusReplacements: Record<string, string> = {
-      '0': token('radius', 'none'),
-      '0.125rem': token('radius', 'sm'),
-      '0.25rem': token('radius', 'base'),
-      '0.375rem': token('radius', 'md'),
-      '0.5rem': token('radius', 'lg'),
-      '0.75rem': token('radius', 'xl'),
-      '1rem': token('radius', '2xl'),
-      '9999px': token('radius', 'full'),
+      "0": token("radius", "none"),
+      "0.125rem": token("radius", "sm"),
+      "0.25rem": token("radius", "base"),
+      "0.375rem": token("radius", "md"),
+      "0.5rem": token("radius", "lg"),
+      "0.75rem": token("radius", "xl"),
+      "1rem": token("radius", "2xl"),
+      "9999px": token("radius", "full"),
     };
 
     // Apply replacements based on property
@@ -192,7 +200,7 @@ export class CSSMigration {
     ): { classMap: Record<string, string>; css: string } {
       if (CSSMigration.config.addDeprecationWarnings) {
         console.warn(
-          'DEPRECATION: Legacy css() function is deprecated. Migrate to modernCSS() for better performance and features.'
+          "DEPRECATION: Legacy css() function is deprecated. Migrate to modernCSS() for better performance and features.",
         );
       }
 
@@ -205,16 +213,18 @@ export class CSSMigration {
    */
   static generateMigrationReport(
     componentName: string,
-    legacyStyles: Record<string, StyleObject>
+    legacyStyles: Record<string, StyleObject>,
   ): MigrationReport {
-    const replacements: Array<{ property: string; oldValue: string; newValue: string }> = [];
+    const replacements: Array<
+      { property: string; oldValue: string; newValue: string }
+    > = [];
     const warnings: string[] = [];
     let tokenUsage = 0;
     let totalProperties = 0;
 
     for (const [styleKey, styleObject] of Object.entries(legacyStyles)) {
       for (const [property, value] of Object.entries(styleObject)) {
-        if (typeof value === 'string') {
+        if (typeof value === "string") {
           totalProperties++;
           const tokenValue = this.replaceWithTokens(property, value);
           if (tokenValue !== value) {
@@ -230,12 +240,16 @@ export class CSSMigration {
     }
 
     // Check for deprecated patterns
-    if (JSON.stringify(legacyStyles).includes('!important')) {
-      warnings.push('Usage of !important detected - consider using cascade layers instead');
+    if (JSON.stringify(legacyStyles).includes("!important")) {
+      warnings.push(
+        "Usage of !important detected - consider using cascade layers instead",
+      );
     }
 
-    if (JSON.stringify(legacyStyles).includes('px')) {
-      warnings.push('Pixel values detected - consider using design tokens for consistency');
+    if (JSON.stringify(legacyStyles).includes("px")) {
+      warnings.push(
+        "Pixel values detected - consider using design tokens for consistency",
+      );
     }
 
     return {
@@ -252,24 +266,26 @@ export class CSSMigration {
   /**
    * Calculate how "modern" a component's styles are
    */
-  private static calculateModernizationScore(styles: Record<string, StyleObject>): number {
+  private static calculateModernizationScore(
+    styles: Record<string, StyleObject>,
+  ): number {
     let score = 0;
     let maxScore = 0;
 
     const styleString = JSON.stringify(styles);
 
     // Positive points
-    if (styleString.includes('var(--')) score += 20; // Uses CSS custom properties
-    if (styleString.includes('clamp(')) score += 15; // Uses fluid typography
-    if (styleString.includes('@container')) score += 20; // Uses container queries
-    if (styleString.includes('logical')) score += 10; // Uses logical properties
-    if (styleString.includes(':focus-visible')) score += 10; // Modern focus handling
-    if (styleString.includes('@supports')) score += 10; // Progressive enhancement
+    if (styleString.includes("var(--")) score += 20; // Uses CSS custom properties
+    if (styleString.includes("clamp(")) score += 15; // Uses fluid typography
+    if (styleString.includes("@container")) score += 20; // Uses container queries
+    if (styleString.includes("logical")) score += 10; // Uses logical properties
+    if (styleString.includes(":focus-visible")) score += 10; // Modern focus handling
+    if (styleString.includes("@supports")) score += 10; // Progressive enhancement
 
     // Negative points
-    if (styleString.includes('!important')) score -= 15;
-    if (styleString.includes('px') && !styleString.includes('1px')) score -= 10; // Hardcoded pixels
-    if (styleString.includes('#')) score -= 5; // Hardcoded hex colors
+    if (styleString.includes("!important")) score -= 15;
+    if (styleString.includes("px") && !styleString.includes("1px")) score -= 10; // Hardcoded pixels
+    if (styleString.includes("#")) score -= 5; // Hardcoded hex colors
 
     maxScore = 85; // Maximum possible score
 
@@ -311,7 +327,7 @@ export class ComponentUpgrader {
       useModernTokens?: boolean;
       enableContainerQueries?: boolean;
       addAccessibilityFeatures?: boolean;
-    } = {}
+    } = {},
   ): {
     styles: { classMap: Record<string, string>; css: string };
     render: (props: TProps, api?: any, classes?: any) => string;
@@ -328,27 +344,38 @@ export class ComponentUpgrader {
 
     // Upgrade styles if they exist
     if (currentComponent.styles) {
-      if (typeof currentComponent.styles === 'string') {
+      if (typeof currentComponent.styles === "string") {
         // Handle string-based styles
         upgradedStyles = {
           classMap: {},
-          css: wrapInLayer('components', currentComponent.styles),
+          css: wrapInLayer("components", currentComponent.styles),
         };
       } else {
         // Handle object-based styles
         upgradedStyles = CSSMigration.migrateLegacyStyles(
           currentComponent.styles,
-          enableContainerQueries ? name : undefined
+          enableContainerQueries ? name : undefined,
         );
-        migrationReport = CSSMigration.generateMigrationReport(name, currentComponent.styles);
+        migrationReport = CSSMigration.generateMigrationReport(
+          name,
+          currentComponent.styles,
+        );
       }
     } else {
-      upgradedStyles = { classMap: {}, css: '' };
+      upgradedStyles = { classMap: {}, css: "" };
     }
 
     // Enhance render function with accessibility features
-    const enhancedRender = (props: TProps, api?: any, classes?: any): string => {
-      const originalHtml = currentComponent.render(props, api, classes || upgradedStyles.classMap);
+    const enhancedRender = (
+      props: TProps,
+      api?: any,
+      classes?: any,
+    ): string => {
+      const originalHtml = currentComponent.render(
+        props,
+        api,
+        classes || upgradedStyles.classMap,
+      );
 
       if (!addAccessibilityFeatures) {
         return originalHtml;
@@ -368,33 +395,36 @@ export class ComponentUpgrader {
   /**
    * Add accessibility enhancements to component HTML
    */
-  private static enhanceAccessibility(html: string, componentName: string): string {
+  private static enhanceAccessibility(
+    html: string,
+    componentName: string,
+  ): string {
     let enhanced = html;
 
     // Add data-component attribute for debugging
     enhanced = enhanced.replace(
       /(<[^>]+class="[^"]*"[^>]*>)/,
-      `$1`.replace('>', ` data-component="${componentName}">`)
+      `$1`.replace(">", ` data-component="${componentName}">`),
     );
 
     // Enhance focus indicators
     enhanced = enhanced.replace(
       /(<button[^>]*>)/g,
-      '$1'.replace('>', ' data-focus-visible="">')
+      "$1".replace(">", ' data-focus-visible="">'),
     );
 
     // Add ARIA landmarks where appropriate
-    if (componentName === 'toolbar') {
+    if (componentName === "toolbar") {
       enhanced = enhanced.replace(
         /(<[^>]+class="[^"]*toolbar[^"]*"[^>]*>)/,
-        '$1'.replace('>', ' role="toolbar">')
+        "$1".replace(">", ' role="toolbar">'),
       );
     }
 
-    if (componentName === 'alert') {
+    if (componentName === "alert") {
       enhanced = enhanced.replace(
         /(<[^>]+class="[^"]*alert[^"]*"[^>]*>)/,
-        '$1'.replace('>', ' role="alert" aria-live="polite">')
+        "$1".replace(">", ' role="alert" aria-live="polite">'),
       );
     }
 
@@ -411,20 +441,32 @@ export class BatchMigration {
    */
   static migrateComponents(
     components: Record<string, { styles?: any }>,
-    options: { generateReport?: boolean } = {}
+    options: { generateReport?: boolean } = {},
   ): {
-    upgradedComponents: Record<string, { classMap: Record<string, string>; css: string }>;
+    upgradedComponents: Record<
+      string,
+      { classMap: Record<string, string>; css: string }
+    >;
     reports?: Record<string, MigrationReport>;
   } {
-    const upgradedComponents: Record<string, { classMap: Record<string, string>; css: string }> = {};
+    const upgradedComponents: Record<
+      string,
+      { classMap: Record<string, string>; css: string }
+    > = {};
     const reports: Record<string, MigrationReport> = {};
 
     for (const [name, component] of Object.entries(components)) {
-      if (component.styles && typeof component.styles === 'object') {
-        upgradedComponents[name] = CSSMigration.migrateLegacyStyles(component.styles, name);
+      if (component.styles && typeof component.styles === "object") {
+        upgradedComponents[name] = CSSMigration.migrateLegacyStyles(
+          component.styles,
+          name,
+        );
 
         if (options.generateReport) {
-          reports[name] = CSSMigration.generateMigrationReport(name, component.styles);
+          reports[name] = CSSMigration.generateMigrationReport(
+            name,
+            component.styles,
+          );
         }
       }
     }
@@ -449,18 +491,19 @@ export class BatchMigration {
     const totalComponents = components.length;
 
     const averageModernizationScore = Math.round(
-      components.reduce((sum, report) => sum + report.modernizationScore, 0) / totalComponents
+      components.reduce((sum, report) => sum + report.modernizationScore, 0) /
+        totalComponents,
     );
 
     const totalTokenReplacements = components.reduce(
       (sum, report) => sum + report.tokenReplacementCount,
-      0
+      0,
     );
 
     // Count warning frequencies
     const warningCounts: Record<string, number> = {};
-    components.forEach(report => {
-      report.warnings.forEach(warning => {
+    components.forEach((report) => {
+      report.warnings.forEach((warning) => {
         warningCounts[warning] = (warningCounts[warning] || 0) + 1;
       });
     });
@@ -471,8 +514,8 @@ export class BatchMigration {
       .slice(0, 5);
 
     const componentsNeedingAttention = components
-      .filter(report => report.modernizationScore < 50)
-      .map(report => report.componentName);
+      .filter((report) => report.modernizationScore < 50)
+      .map((report) => report.componentName);
 
     return {
       totalComponents,

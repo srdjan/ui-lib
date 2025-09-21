@@ -1,10 +1,13 @@
+// deno-lint-ignore-file verbatim-module-syntax
+
 /** @jsx h */
 /**
  * TodoApp Component
  * Main application component that orchestrates all todo functionality
  */
 
-import { defineComponent, h } from "../../../lib/define-component.ts";
+import { h } from "jsx";
+import { defineComponent } from "../../../lib/define-component.ts";
 import { generateCSS } from "../../../lib/styles/css-generator.ts";
 
 // Import app-specific components

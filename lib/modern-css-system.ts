@@ -1,20 +1,28 @@
 // Modern CSS system with container queries, cascade layers, and performance optimizations
 // Provides enhanced CSS-in-TS with full modern CSS features
 
-import type { CSSLayer } from './styles/css-layers.ts';
-import { wrapInLayer } from './styles/css-layers.ts';
-import { token } from './styles/design-tokens.ts';
+import type { CSSLayer } from "./styles/css-layers.ts";
+import { wrapInLayer } from "./styles/css-layers.ts";
+import { token } from "./styles/design-tokens.ts";
 
 /**
  * Enhanced CSS Properties with modern features
  */
 export interface ModernCSSProperties {
   // Container Queries
-  containerType?: 'normal' | 'size' | 'inline-size' | 'block-size';
+  containerType?: "normal" | "size" | "inline-size" | "block-size";
   containerName?: string;
 
   // CSS Containment
-  contain?: 'none' | 'strict' | 'content' | 'size' | 'layout' | 'style' | 'paint' | string;
+  contain?:
+    | "none"
+    | "strict"
+    | "content"
+    | "size"
+    | "layout"
+    | "style"
+    | "paint"
+    | string;
 
   // Logical Properties
   inlineSize?: string | number;
@@ -42,12 +50,12 @@ export interface ModernCSSProperties {
   placeSelf?: string;
 
   // Advanced Selectors
-  '&:focus-visible'?: ModernCSSProperties;
-  '&:focus-within'?: ModernCSSProperties;
-  '&:has()'?: ModernCSSProperties;
-  '&:is()'?: ModernCSSProperties;
-  '&:where()'?: ModernCSSProperties;
-  '&:not()'?: ModernCSSProperties;
+  "&:focus-visible"?: ModernCSSProperties;
+  "&:focus-within"?: ModernCSSProperties;
+  "&:has()"?: ModernCSSProperties;
+  "&:is()"?: ModernCSSProperties;
+  "&:where()"?: ModernCSSProperties;
+  "&:not()"?: ModernCSSProperties;
 
   // Standard CSS properties (extended from existing types)
   [key: string]: any;
@@ -66,13 +74,13 @@ export interface ContainerQuery {
  */
 export interface ModernStyleObject extends ModernCSSProperties {
   // Container queries
-  '@container'?: Record<string, ModernCSSProperties>;
+  "@container"?: Record<string, ModernCSSProperties>;
 
   // Support functions
-  '@supports'?: Record<string, ModernCSSProperties>;
+  "@supports"?: Record<string, ModernCSSProperties>;
 
   // Existing media queries
-  '@media'?: Record<string, ModernCSSProperties>;
+  "@media"?: Record<string, ModernCSSProperties>;
 
   // Nested selectors
   [key: `&${string}`]: ModernCSSProperties | undefined;
@@ -88,7 +96,7 @@ export interface ComponentStyleConfig {
   readonly layer?: CSSLayer;
   readonly container?: {
     name?: string;
-    type?: 'normal' | 'size' | 'inline-size' | 'block-size';
+    type?: "normal" | "size" | "inline-size" | "block-size";
   };
   readonly styles: Record<string, ModernStyleObject>;
 }
@@ -107,7 +115,7 @@ export class ModernCSSGenerator {
     classMap: Record<string, string>;
     css: string;
   } {
-    const { layer = 'components', container, styles } = config;
+    const { layer = "components", container, styles } = config;
     const classMap: Record<string, string> = {};
     const cssRules: string[] = [];
 
@@ -130,7 +138,7 @@ export class ModernCSSGenerator {
       }
     }
 
-    const combinedCSS = cssRules.join('\n\n');
+    const combinedCSS = cssRules.join("\n\n");
     const layeredCSS = wrapInLayer(layer, combinedCSS);
 
     return {
@@ -142,7 +150,9 @@ export class ModernCSSGenerator {
   /**
    * Generate container CSS setup
    */
-  private static generateContainerCSS(container: NonNullable<ComponentStyleConfig['container']>): string {
+  private static generateContainerCSS(
+    container: NonNullable<ComponentStyleConfig["container"]>,
+  ): string {
     const rules: string[] = [];
 
     if (container.name) {
@@ -153,17 +163,20 @@ export class ModernCSSGenerator {
       rules.push(`container-type: ${container.type};`);
     }
 
-    if (rules.length === 0) return '';
+    if (rules.length === 0) return "";
 
     return `.component-container {
-  ${rules.join('\n  ')}
+  ${rules.join("\n  ")}
 }`;
   }
 
   /**
    * Convert style object to CSS with modern features
    */
-  private static styleObjectToCSS(styles: ModernStyleObject, selector: string): string {
+  private static styleObjectToCSS(
+    styles: ModernStyleObject,
+    selector: string,
+  ): string {
     const rules: string[] = [];
     const baseStyles: Record<string, string> = {};
     const nestedSelectors: Record<string, ModernStyleObject> = {};
@@ -173,16 +186,22 @@ export class ModernCSSGenerator {
 
     // Separate different types of styles
     for (const [key, value] of Object.entries(styles)) {
-      if (key.startsWith('&')) {
+      if (key.startsWith("&")) {
         nestedSelectors[key] = value as ModernStyleObject;
-      } else if (key.startsWith(' ')) {
+      } else if (key.startsWith(" ")) {
         nestedSelectors[key] = value as ModernStyleObject;
-      } else if (key === '@container') {
-        Object.assign(containerQueries, value as Record<string, ModernStyleObject>);
-      } else if (key === '@media') {
+      } else if (key === "@container") {
+        Object.assign(
+          containerQueries,
+          value as Record<string, ModernStyleObject>,
+        );
+      } else if (key === "@media") {
         Object.assign(mediaQueries, value as Record<string, ModernStyleObject>);
-      } else if (key === '@supports') {
-        Object.assign(supportQueries, value as Record<string, ModernStyleObject>);
+      } else if (key === "@supports") {
+        Object.assign(
+          supportQueries,
+          value as Record<string, ModernStyleObject>,
+        );
       } else if (value !== undefined) {
         baseStyles[key] = this.formatCSSValue(key, value);
       }
@@ -192,17 +211,19 @@ export class ModernCSSGenerator {
     if (Object.keys(baseStyles).length > 0) {
       const declarations = Object.entries(baseStyles)
         .map(([prop, val]) => `  ${this.kebabCase(prop)}: ${val};`)
-        .join('\n');
+        .join("\n");
       rules.push(`.${selector} {\n${declarations}\n}`);
     }
 
     // Generate nested selectors
-    for (const [nestedSelector, nestedStyles] of Object.entries(nestedSelectors)) {
-      const fullSelector = nestedSelector.startsWith('&')
-        ? nestedSelector.replace('&', `.${selector}`)
+    for (
+      const [nestedSelector, nestedStyles] of Object.entries(nestedSelectors)
+    ) {
+      const fullSelector = nestedSelector.startsWith("&")
+        ? nestedSelector.replace("&", `.${selector}`)
         : `.${selector}${nestedSelector}`;
 
-      const nestedCSS = this.styleObjectToCSS(nestedStyles, '');
+      const nestedCSS = this.styleObjectToCSS(nestedStyles, "");
       if (nestedCSS) {
         // Replace the placeholder selector with the actual nested selector
         const formattedCSS = nestedCSS.replace(/^\.[^{]*/, fullSelector);
@@ -211,7 +232,9 @@ export class ModernCSSGenerator {
     }
 
     // Generate container queries
-    for (const [condition, containerStyles] of Object.entries(containerQueries)) {
+    for (
+      const [condition, containerStyles] of Object.entries(containerQueries)
+    ) {
       const containerCSS = this.styleObjectToCSS(containerStyles, selector);
       if (containerCSS) {
         rules.push(`@container ${condition} {\n  ${containerCSS}\n}`);
@@ -235,7 +258,7 @@ export class ModernCSSGenerator {
       }
     }
 
-    return rules.join('\n\n');
+    return rules.join("\n\n");
   }
 
   /**
@@ -264,11 +287,11 @@ export class ModernCSSGenerator {
    * Convert camelCase to kebab-case
    */
   private static kebabCase(str: string): string {
-    if (str.startsWith('--')) return str;
+    if (str.startsWith("--")) return str;
 
     return str
-      .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
-      .replace(/^ms-/, '-ms-')
+      .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+      .replace(/^ms-/, "-ms-")
       .toLowerCase();
   }
 
@@ -276,10 +299,17 @@ export class ModernCSSGenerator {
    * Format CSS value with proper units and conversions
    */
   private static formatCSSValue(property: string, value: unknown): string {
-    if (typeof value === 'number') {
+    if (typeof value === "number") {
       const unitlessProperties = [
-        'opacity', 'flexGrow', 'flexShrink', 'fontWeight', 'lineHeight',
-        'order', 'zIndex', 'animationIterationCount', 'aspectRatio'
+        "opacity",
+        "flexGrow",
+        "flexShrink",
+        "fontWeight",
+        "lineHeight",
+        "order",
+        "zIndex",
+        "animationIterationCount",
+        "aspectRatio",
       ];
 
       if (unitlessProperties.includes(property)) {
@@ -297,22 +327,22 @@ export class ModernCSSGenerator {
    */
   private static getMediaQuery(breakpoint: string): string {
     const defaultBreakpoints: Record<string, string> = {
-      'mobile': '(max-width: 640px)',
-      'tablet': '(min-width: 641px) and (max-width: 1024px)',
-      'desktop': '(min-width: 1025px)',
-      'wide': '(min-width: 1441px)',
-      'print': 'print',
-      'reduced-motion': '(prefers-reduced-motion: reduce)',
-      'dark': '(prefers-color-scheme: dark)',
-      'light': '(prefers-color-scheme: light)',
-      'high-contrast': '(prefers-contrast: high)',
+      "mobile": "(max-width: 640px)",
+      "tablet": "(min-width: 641px) and (max-width: 1024px)",
+      "desktop": "(min-width: 1025px)",
+      "wide": "(min-width: 1441px)",
+      "print": "print",
+      "reduced-motion": "(prefers-reduced-motion: reduce)",
+      "dark": "(prefers-color-scheme: dark)",
+      "light": "(prefers-color-scheme: light)",
+      "high-contrast": "(prefers-contrast: high)",
     };
 
     if (breakpoint in defaultBreakpoints) {
       return defaultBreakpoints[breakpoint];
     }
 
-    if (breakpoint.startsWith('(') && breakpoint.endsWith(')')) {
+    if (breakpoint.startsWith("(") && breakpoint.endsWith(")")) {
       return breakpoint;
     }
 
@@ -335,13 +365,13 @@ export function modernCSS(config: ComponentStyleConfig): {
  */
 export function responsiveComponent(
   name: string,
-  styles: Record<string, ModernStyleObject>
+  styles: Record<string, ModernStyleObject>,
 ): { classMap: Record<string, string>; css: string } {
   return modernCSS({
-    layer: 'components',
+    layer: "components",
     container: {
       name: name,
-      type: 'inline-size',
+      type: "inline-size",
     },
     styles,
   });
@@ -354,15 +384,20 @@ export const cssUtils = {
   /**
    * Create high-performance animations
    */
-  animation: (name: string, keyframes: Record<string, ModernCSSProperties>): string => {
+  animation: (
+    name: string,
+    keyframes: Record<string, ModernCSSProperties>,
+  ): string => {
     const keyframeRules = Object.entries(keyframes)
       .map(([percent, styles]) => {
         const declarations = Object.entries(styles)
-          .map(([prop, value]) => `  ${ModernCSSGenerator['kebabCase'](prop)}: ${value};`)
-          .join('\n');
+          .map(([prop, value]) =>
+            `  ${ModernCSSGenerator["kebabCase"](prop)}: ${value};`
+          )
+          .join("\n");
         return `  ${percent} {\n${declarations}\n  }`;
       })
-      .join('\n');
+      .join("\n");
 
     return `@keyframes ${name} {
 ${keyframeRules}
@@ -373,12 +408,12 @@ ${keyframeRules}
    * Create focus-visible styles for accessibility
    */
   focusVisible: (styles: ModernCSSProperties): ModernCSSProperties => ({
-    '&:focus': {
-      outline: 'none',
+    "&:focus": {
+      outline: "none",
     },
-    '&:focus-visible': {
-      outline: `2px solid ${token('color', 'primary-500')}`,
-      outlineOffset: '2px',
+    "&:focus-visible": {
+      outline: `2px solid ${token("color", "primary-500")}`,
+      outlineOffset: "2px",
       ...styles,
     },
   }),
@@ -386,20 +421,26 @@ ${keyframeRules}
   /**
    * Create reduced motion variants
    */
-  reducedMotion: (normalStyles: ModernCSSProperties, reducedStyles: ModernCSSProperties): ModernCSSProperties => ({
+  reducedMotion: (
+    normalStyles: ModernCSSProperties,
+    reducedStyles: ModernCSSProperties,
+  ): ModernCSSProperties => ({
     ...normalStyles,
-    '@media': {
-      'reduced-motion': reducedStyles,
+    "@media": {
+      "reduced-motion": reducedStyles,
     },
   }),
 
   /**
    * Create dark mode variants
    */
-  darkMode: (lightStyles: ModernCSSProperties, darkStyles: ModernCSSProperties): ModernCSSProperties => ({
+  darkMode: (
+    lightStyles: ModernCSSProperties,
+    darkStyles: ModernCSSProperties,
+  ): ModernCSSProperties => ({
     ...lightStyles,
-    '@media': {
-      'dark': darkStyles,
+    "@media": {
+      "dark": darkStyles,
     },
   }),
 };

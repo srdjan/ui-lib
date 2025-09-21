@@ -2,19 +2,23 @@
 
 ## Overview
 
-This document provides guidance on the modern CSS architecture implemented in the todo application, showcasing best practices for organizing CSS in SSR applications using the ui-lib component system.
+This document provides guidance on the modern CSS architecture implemented in
+the todo application, showcasing best practices for organizing CSS in SSR
+applications using the ui-lib component system.
 
 ## Architecture Principles
 
 ### 1. Cascade Layers Strategy
 
-We implement a **5-layer cascade architecture** that provides clear separation of concerns:
+We implement a **5-layer cascade architecture** that provides clear separation
+of concerns:
 
 ```css
 @layer reset, tokens, utilities, components, overrides;
 ```
 
 **Benefits:**
+
 - **Predictable specificity** - No more CSS specificity wars
 - **Clear boundaries** - Each layer has a specific purpose
 - **Safe overrides** - Consumers can customize without `!important`
@@ -23,11 +27,13 @@ We implement a **5-layer cascade architecture** that provides clear separation o
 ### 2. Public vs Private API Design
 
 **Public API (Documented for consumers):**
+
 - Semantic classes: `.card`, `.alert`, `.btn`, `.page`
 - Data attributes: `data-variant="primary"`, `data-size="lg"`
 - Design tokens: `--space-*`, `--surface-*`, `--text-*`
 
 **Private API (Internal implementation):**
+
 - Utility classes: `.u-stack`, `.u-cluster`, `.u-center`
 - Zero specificity with `:where()` wrapper
 - Not exposed in public documentation
@@ -35,16 +41,19 @@ We implement a **5-layer cascade architecture** that provides clear separation o
 ### 3. Component CSS Organization
 
 **Library Components (Item):**
+
 - Use **CSS-in-TS** with design tokens
 - Type-safe styling with IntelliSense
 - Collision-free class names
 - Modern CSS features (container queries, logical properties)
 
 **Application Components (TodoApp):**
+
 - Use **semantic CSS classes** from the design system
 - Application-specific styles in separate layer
-- Compose using utility classes for layout
-Great! Let me show you a complete setup for your custom SSR JSX implementation with proper types and a factory function.
+- Compose using utility classes for layout Great! Let me show you a complete
+  setup for your custom SSR JSX implementation with proper types and a factory
+  function.
 
 ## Complete JSX Type Definitions
 
@@ -70,13 +79,13 @@ declare global {
       style?: string | Record<string, string | number>;
       title?: string;
       lang?: string;
-      dir?: 'ltr' | 'rtl' | 'auto';
+      dir?: "ltr" | "rtl" | "auto";
       hidden?: boolean;
       tabIndex?: number;
-      
+
       // Data attributes
       [key: `data-${string}`]: any;
-      
+
       // Event handlers
       onClick?: string | ((e: Event) => void);
       onSubmit?: string | ((e: Event) => void);
@@ -84,14 +93,24 @@ declare global {
       onInput?: string | ((e: Event) => void);
       onFocus?: string | ((e: Event) => void);
       onBlur?: string | ((e: Event) => void);
-      
+
       // ARIA
       role?: string;
       [key: `aria-${string}`]: any;
     }
 
     interface InputHTMLAttributes extends HTMLAttributes {
-      type?: 'text' | 'password' | 'email' | 'number' | 'tel' | 'url' | 'search' | 'date' | 'checkbox' | 'radio';
+      type?:
+        | "text"
+        | "password"
+        | "email"
+        | "number"
+        | "tel"
+        | "url"
+        | "search"
+        | "date"
+        | "checkbox"
+        | "radio";
       value?: string | number;
       placeholder?: string;
       name?: string;
@@ -108,7 +127,7 @@ declare global {
 
     interface AnchorHTMLAttributes extends HTMLAttributes {
       href?: string;
-      target?: '_blank' | '_self' | '_parent' | '_top';
+      target?: "_blank" | "_self" | "_parent" | "_top";
       rel?: string;
       download?: boolean | string;
     }
@@ -118,15 +137,15 @@ declare global {
       alt?: string;
       width?: string | number;
       height?: string | number;
-      loading?: 'lazy' | 'eager';
-      decoding?: 'async' | 'sync' | 'auto';
+      loading?: "lazy" | "eager";
+      decoding?: "async" | "sync" | "auto";
       srcset?: string;
       sizes?: string;
     }
 
     interface FormHTMLAttributes extends HTMLAttributes {
       action?: string;
-      method?: 'get' | 'post';
+      method?: "get" | "post";
       enctype?: string;
       novalidate?: boolean;
     }
@@ -143,7 +162,7 @@ declare global {
       article: HTMLAttributes;
       aside: HTMLAttributes;
       nav: HTMLAttributes;
-      
+
       // Text
       h1: HTMLAttributes;
       h2: HTMLAttributes;
@@ -155,27 +174,43 @@ declare global {
       strong: HTMLAttributes;
       em: HTMLAttributes;
       small: HTMLAttributes;
-      
+
       // Links & Media
       a: AnchorHTMLAttributes;
       img: ImgHTMLAttributes;
-      video: HTMLAttributes & { src?: string; controls?: boolean; autoplay?: boolean };
-      audio: HTMLAttributes & { src?: string; controls?: boolean; autoplay?: boolean };
-      
+      video: HTMLAttributes & {
+        src?: string;
+        controls?: boolean;
+        autoplay?: boolean;
+      };
+      audio: HTMLAttributes & {
+        src?: string;
+        controls?: boolean;
+        autoplay?: boolean;
+      };
+
       // Forms
       form: FormHTMLAttributes;
       input: InputHTMLAttributes;
-      textarea: HTMLAttributes & { rows?: number; cols?: number; value?: string; placeholder?: string };
-      button: HTMLAttributes & { type?: 'button' | 'submit' | 'reset'; disabled?: boolean };
+      textarea: HTMLAttributes & {
+        rows?: number;
+        cols?: number;
+        value?: string;
+        placeholder?: string;
+      };
+      button: HTMLAttributes & {
+        type?: "button" | "submit" | "reset";
+        disabled?: boolean;
+      };
       select: HTMLAttributes & { value?: string; multiple?: boolean };
       option: HTMLAttributes & { value?: string; selected?: boolean };
       label: HTMLAttributes & { for?: string };
-      
+
       // Lists
       ul: HTMLAttributes;
       ol: HTMLAttributes;
       li: HTMLAttributes;
-      
+
       // Table
       table: HTMLAttributes;
       thead: HTMLAttributes;
@@ -183,14 +218,23 @@ declare global {
       tr: HTMLAttributes;
       th: HTMLAttributes & { colspan?: number; rowspan?: number };
       td: HTMLAttributes & { colspan?: number; rowspan?: number };
-      
+
       // Other
       br: HTMLAttributes;
       hr: HTMLAttributes;
-      script: HTMLAttributes & { src?: string; type?: string; async?: boolean; defer?: boolean };
+      script: HTMLAttributes & {
+        src?: string;
+        type?: string;
+        async?: boolean;
+        defer?: boolean;
+      };
       style: HTMLAttributes & { type?: string };
       link: HTMLAttributes & { href?: string; rel?: string; type?: string };
-      meta: HTMLAttributes & { name?: string; content?: string; charset?: string };
+      meta: HTMLAttributes & {
+        name?: string;
+        content?: string;
+        charset?: string;
+      };
     }
 
     // Support for functional components
@@ -226,47 +270,47 @@ export function h(
   // Flatten children arrays and filter out null/undefined
   const flatChildren = children
     .flat(Infinity)
-    .filter(child => child != null && child !== false);
+    .filter((child) => child != null && child !== false);
 
   return {
     type,
     props: {
       ...props,
-      children: flatChildren.length > 0 ? flatChildren : undefined
-    }
+      children: flatChildren.length > 0 ? flatChildren : undefined,
+    },
   };
 }
 
 // Fragment support (optional)
 export function Fragment({ children }: { children?: any }): JSX.Element {
-  return h('fragment', null, children);
+  return h("fragment", null, children);
 }
 
 // SSR Render to String
 export function renderToString(vnode: JSX.Element | string | number): string {
   // Handle primitives
-  if (typeof vnode === 'string') return escapeHtml(vnode);
-  if (typeof vnode === 'number') return String(vnode);
-  if (!vnode || typeof vnode !== 'object') return '';
+  if (typeof vnode === "string") return escapeHtml(vnode);
+  if (typeof vnode === "number") return String(vnode);
+  if (!vnode || typeof vnode !== "object") return "";
 
   const { type, props } = vnode;
 
   // Handle functional components
-  if (typeof type === 'function') {
+  if (typeof type === "function") {
     const componentResult = type(props || {});
     return renderToString(componentResult);
   }
 
   // Handle fragments
-  if (type === 'fragment') {
+  if (type === "fragment") {
     const children = props?.children || [];
-    return Array.isArray(children) 
-      ? children.map(renderToString).join('')
+    return Array.isArray(children)
+      ? children.map(renderToString).join("")
       : renderToString(children);
   }
 
   // Handle void elements
-  const voidElements = new Set(['br', 'hr', 'img', 'input', 'link', 'meta']);
+  const voidElements = new Set(["br", "hr", "img", "input", "link", "meta"]);
   const isVoid = voidElements.has(type);
 
   // Build opening tag
@@ -275,17 +319,17 @@ export function renderToString(vnode: JSX.Element | string | number): string {
   // Add attributes
   if (props) {
     for (const [key, value] of Object.entries(props)) {
-      if (key === 'children') continue;
-      
-      const attrName = key === 'className' ? 'class' : key;
-      
+      if (key === "children") continue;
+
+      const attrName = key === "className" ? "class" : key;
+
       if (value === true) {
         html += ` ${attrName}`;
       } else if (value !== false && value != null) {
-        if (key === 'style' && typeof value === 'object') {
+        if (key === "style" && typeof value === "object") {
           const styleStr = Object.entries(value)
             .map(([k, v]) => `${kebabCase(k)}: ${v}`)
-            .join('; ');
+            .join("; ");
           html += ` ${attrName}="${escapeHtml(styleStr)}"`;
         } else {
           html += ` ${attrName}="${escapeHtml(String(value))}"`;
@@ -295,41 +339,41 @@ export function renderToString(vnode: JSX.Element | string | number): string {
   }
 
   if (isVoid) {
-    return html + ' />';
+    return html + " />";
   }
 
-  html += '>';
+  html += ">";
 
   // Add children
   const children = props?.children;
   if (children) {
     if (Array.isArray(children)) {
-      html += children.map(renderToString).join('');
+      html += children.map(renderToString).join("");
     } else {
       html += renderToString(children);
     }
   }
 
   html += `</${type}>`;
-  
+
   return html;
 }
 
 // Helper functions
 function escapeHtml(str: string): string {
   const htmlEscapes: Record<string, string> = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;'
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
   };
-  
-  return str.replace(/[&<>"']/g, char => htmlEscapes[char]);
+
+  return str.replace(/[&<>"']/g, (char) => htmlEscapes[char]);
 }
 
 function kebabCase(str: string): string {
-  return str.replace(/([A-Z])/g, '-$1').toLowerCase();
+  return str.replace(/([A-Z])/g, "-$1").toLowerCase();
 }
 ```
 
@@ -363,7 +407,7 @@ Here's everything tied together:
 
 ```typescript
 // app.tsx
-import { h, Fragment, renderToString } from './jsx-factory';
+import { Fragment, h, renderToString } from "./jsx-factory";
 
 // Functional component with typed props
 interface CardProps {
@@ -392,10 +436,12 @@ function Layout({ children }: { children?: any }): JSX.Element {
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>My SSR App</title>
-        <style>{`
+        <style>
+          {`
           .card { border: 1px solid #ddd; padding: 1rem; }
           .card-body { margin-top: 1rem; }
-        `}</style>
+        `}
+        </style>
       </head>
       <body>
         <header>
@@ -412,8 +458,8 @@ function Layout({ children }: { children?: any }): JSX.Element {
 // Page component
 function HomePage(): JSX.Element {
   const cards = [
-    { title: 'Card 1', description: 'First card' },
-    { title: 'Card 2', description: 'Second card', imageUrl: '/image.jpg' }
+    { title: "Card 1", description: "First card" },
+    { title: "Card 2", description: "Second card", imageUrl: "/image.jpg" },
   ];
 
   return (
@@ -421,9 +467,7 @@ function HomePage(): JSX.Element {
       <section>
         <h2>Welcome!</h2>
         <div class="card-grid">
-          {cards.map(card => (
-            <Card {...card} />
-          ))}
+          {cards.map((card) => <Card {...card} />)}
         </div>
       </section>
     </Layout>
@@ -436,7 +480,7 @@ console.log(html);
 
 // For use with Node.js HTTP server
 export function handleRequest(): string {
-  return '<!DOCTYPE html>' + renderToString(<HomePage />);
+  return "<!DOCTYPE html>" + renderToString(<HomePage />);
 }
 ```
 
@@ -444,20 +488,21 @@ export function handleRequest(): string {
 
 ```typescript
 // server.ts
-import { createServer } from 'http';
-import { handleRequest } from './app';
+import { createServer } from "http";
+import { handleRequest } from "./app";
 
 const server = createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+  res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
   res.end(handleRequest());
 });
 
 server.listen(3000, () => {
-  console.log('Server running at http://localhost:3000');
+  console.log("Server running at http://localhost:3000");
 });
 ```
 
 This gives you:
+
 - ✅ Full TypeScript support with autocomplete for HTML attributes
 - ✅ Type-safe functional components
 - ✅ Proper SSR rendering to HTML strings
@@ -553,6 +598,7 @@ function createItemStyles() {
 ### Token Usage
 
 **✅ Good:**
+
 ```css
 .card {
   padding: var(--space-lg);
@@ -562,6 +608,7 @@ function createItemStyles() {
 ```
 
 **❌ Avoid:**
+
 ```css
 .card {
   padding: 24px; /* Use tokens instead */
@@ -593,10 +640,10 @@ Support international layouts automatically:
 
 ```css
 .card {
-  padding-inline: var(--space-lg);    /* horizontal padding */
-  padding-block: var(--space-md);     /* vertical padding */
-  margin-inline: auto;                /* horizontal centering */
-  border-inline-start: 4px solid;     /* left border in LTR, right in RTL */
+  padding-inline: var(--space-lg); /* horizontal padding */
+  padding-block: var(--space-md); /* vertical padding */
+  margin-inline: auto; /* horizontal centering */
+  border-inline-start: 4px solid; /* left border in LTR, right in RTL */
 }
 ```
 
@@ -762,21 +809,25 @@ lib/components/
 ## Migration Path
 
 ### Phase 1: Establish Foundation
+
 1. ✅ Create cascade layers structure
 2. ✅ Define design token system
 3. ✅ Implement utility classes
 
 ### Phase 2: Refactor Components
+
 1. ✅ Update Item component to use CSS-in-TS + tokens
 2. ✅ Update TodoApp to use semantic classes
 3. ✅ Remove hardcoded CSS values
 
 ### Phase 3: Enhancement
+
 1. Add dark mode support via custom properties
 2. Implement responsive typography scale
 3. Add animation system with reduced motion support
 
 ### Phase 4: Documentation
+
 1. Document public API classes
 2. Create component gallery
 3. Provide migration guides
@@ -814,4 +865,5 @@ This architecture provides:
 5. **Performance optimized** with containment and careful will-change usage
 6. **Future-proof** design system that scales
 
-The combination of cascade layers, design tokens, and CSS-in-TS creates a robust foundation for building consistent, maintainable user interfaces at scale.
+The combination of cascade layers, design tokens, and CSS-in-TS creates a robust
+foundation for building consistent, maintainable user interfaces at scale.

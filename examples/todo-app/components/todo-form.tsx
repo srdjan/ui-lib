@@ -1,10 +1,13 @@
+// deno-lint-ignore-file verbatim-module-syntax
+
 /** @jsx h */
 /**
  * TodoForm Component
  * Simple form for adding new todos using library Card component
  */
 
-import { defineComponent, h } from "../../../lib/define-component.ts";
+import { h } from "jsx";
+import { defineComponent } from "../../../lib/define-component.ts";
 
 export type TodoFormProps = {
   action?: string;
@@ -51,4 +54,3 @@ defineComponent<TodoFormProps>("todo-form", {
 });
 
 export const TodoForm = "todo-form";
-

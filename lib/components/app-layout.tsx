@@ -23,7 +23,6 @@ import { boolean, defineComponent, h, string } from "../../index.ts";
  * 👥 Child content composition
  */
 defineComponent("app-layout", {
-
   // CSS-Only Format - Auto-generated class names!
   styles: {
     container: `{
@@ -291,7 +290,9 @@ defineComponent("app-layout", {
               const adjustLayout = () => {
                 const hasLeft = !!layout.querySelector('[data-sidebar-position="left"]');
                 const hasRight = !!layout.querySelector('[data-sidebar-position="right"]');
-                layout.classList.remove('${classes!.layoutMainOnly}', '${classes!.layoutLeftOnly}', '${classes!.layoutRightOnly}');
+                layout.classList.remove('${classes!.layoutMainOnly}', '${
+      classes!.layoutLeftOnly
+    }', '${classes!.layoutRightOnly}');
                 if (hasLeft && hasRight) {
                   // default 3-column
                   layout.style.gridTemplateColumns = 'auto 1fr auto';
@@ -359,7 +360,7 @@ defineComponent("app-layout", {
                 resizeObserver.observe(layout);
               }
             })();`;
-    
+
     const fullHtml = (children || `
       <!-- Default content if no children provided -->
       <header class="${classes!.headerArea}">

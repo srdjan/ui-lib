@@ -27,20 +27,28 @@ defineComponent<HeaderProps>("header", {
 
     return (
       <header
-        class={classes.join(' ')}
+        class={classes.join(" ")}
         id={id || undefined}
         role={role || undefined}
         aria-label={ariaLabel || undefined}
       >
         <div
           class="header__title"
-          dangerouslySetInnerHTML={{ __html: `<h${level}>${title}</h${level}>` }}
+          dangerouslySetInnerHTML={{
+            __html: `<h${level}>${title}</h${level}>`,
+          }}
         />
         {subtitle && (
-          <p class="header__subtitle" dangerouslySetInnerHTML={{ __html: subtitle }} />
+          <p
+            class="header__subtitle"
+            dangerouslySetInnerHTML={{ __html: subtitle }}
+          />
         )}
         {description && (
-          <p class="header__description" dangerouslySetInnerHTML={{ __html: description }} />
+          <p
+            class="header__description"
+            dangerouslySetInnerHTML={{ __html: description }}
+          />
         )}
       </header>
     );

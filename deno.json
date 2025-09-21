@@ -33,17 +33,30 @@
     "serve": "deno run --allow-net --allow-read --allow-env --unstable-kv examples/todo-app/server-clean.tsx",
     "start": "deno task check && deno task serve",
     "bundle:state": "deno run --allow-read --allow-write scripts/bundle_state.ts",
-    "ci:examples-guard": "deno run --allow-read scripts/checks/no_rendercomponent_in_examples.ts"
+    "ci:examples-guard": "deno run --allow-read scripts/checks/no_rendercomponent_in_examples.ts",
+    "docs": "deno fmt --check docs/**/*.md"
   },
 
   "compilerOptions": {
     "strict": true,
     "lib": ["ES2021", "DOM", "deno.ns"],
     "jsx": "react",
-    "jsxFactory": "h"
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment"
   },
 
   "imports": {
     "jsx": "./lib/jsx-runtime.ts"
+  },
+
+  "lint": {
+    "include": ["index.ts", "examples/todo-app"],
+    "exclude": [
+      "examples/**/*.test.ts",
+      "examples/**/*.test.tsx",
+      "scripts",
+      "examples/layout-demo.ts",
+      "examples/todo-app/api/response.tsx"
+    ]
   }
 }

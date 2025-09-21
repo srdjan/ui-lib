@@ -2,30 +2,22 @@
 export { Alert } from "./alert.ts";
 export { Progress } from "./progress.ts";
 export { Badge } from "./badge.ts";
-export { Toast, ToastContainer, createShowToastScript } from "./toast.ts";
+export { createShowToastScript, Toast, ToastContainer } from "./toast.ts";
 
 // Export feedback-specific types
-export type { 
-  AlertProps,
-  AlertVariant,
-  AlertStyle,
-} from "./alert.ts";
+export type { AlertProps, AlertStyle, AlertVariant } from "./alert.ts";
 
 export type {
+  ProgressColorScheme,
   ProgressProps,
   ProgressVariant,
-  ProgressColorScheme,
 } from "./progress.ts";
 
 export type {
-  BadgeProps,
-  BadgeVariant,
   BadgeColorScheme,
+  BadgeProps,
   BadgeShape,
+  BadgeVariant,
 } from "./badge.ts";
 
-export type {
-  ToastProps,
-  ToastVariant,
-  ToastPosition,
-} from "./toast.ts";
+export type { ToastPosition, ToastProps, ToastVariant } from "./toast.ts";

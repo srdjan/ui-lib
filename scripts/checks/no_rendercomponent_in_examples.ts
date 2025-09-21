@@ -30,7 +30,9 @@ async function scanDir(dir: string) {
 await scanDir(new URL(root).pathname);
 
 if (violations.length > 0) {
-  console.error("renderComponent usage found in application code (examples/todo-app):\n");
+  console.error(
+    "renderComponent usage found in application code (examples/todo-app):\n",
+  );
   for (const v of violations) {
     console.error(`${v.path}:${v.line}: ${v.text}`);
   }
@@ -38,4 +40,3 @@ if (violations.length > 0) {
 } else {
   console.log("OK: No renderComponent usage found under examples/todo-app");
 }
-

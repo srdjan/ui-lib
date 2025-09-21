@@ -22,7 +22,7 @@ export type ToastProps = BaseComponentProps & {
   readonly closable?: boolean;
   readonly onClose?: string;
   readonly children?: string | string[];
-}
+};
 
 /**
  * Toast component for temporary notification messages

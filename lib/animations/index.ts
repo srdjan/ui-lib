@@ -5,18 +5,18 @@ export * from "./number-counter.ts";
 
 // Export animation types
 export type {
-  EasingFunction,
   CounterAnimationOptions,
+  EasingFunction,
 } from "./number-counter.ts";
 
 // Export animation utilities
 export {
-  easing,
-  numberCounter,
-  animateNumber,
   animateCounterGroup,
-  formatters,
-  createElementCounter,
   animateElements,
+  animateNumber,
+  createElementCounter,
+  easing,
+  formatters,
+  numberCounter,
   NumberCounterAnimation,
 } from "./number-counter.ts";

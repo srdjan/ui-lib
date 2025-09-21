@@ -43,7 +43,7 @@ let updated = content.replace(
     },
     parseSafe,
   }`;
-  }
+  },
 );
 
 // Fix object helper
@@ -82,7 +82,7 @@ updated = updated.replace(
     },
     parseSafe,
   }`;
-  }
+  },
 );
 
 // Fix oneOf helper
@@ -128,7 +128,7 @@ updated = updated.replace(
     },
     parseSafe,
   }`;
-  }
+  },
 );
 
 await Deno.writeTextFile(filePath, updated);

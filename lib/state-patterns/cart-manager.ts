@@ -74,7 +74,9 @@ export class CartManager {
     let newItems = [...currentState.items];
 
     // Check if item already exists
-    const existingIndex = newItems.findIndex((existing) => existing.id === item.id);
+    const existingIndex = newItems.findIndex((existing) =>
+      existing.id === item.id
+    );
 
     if (existingIndex >= 0) {
       // Update existing item quantity
@@ -86,7 +88,9 @@ export class CartManager {
     } else {
       // Add new item
       if (newItems.length >= this.maxItems) {
-        throw new Error(`Cannot add item: cart is full (max ${this.maxItems} items)`);
+        throw new Error(
+          `Cannot add item: cart is full (max ${this.maxItems} items)`,
+        );
       }
       newItems.push({ ...item, quantity });
     }
@@ -141,7 +145,11 @@ export class CartManager {
    * Subscribe to cart state changes
    */
   subscribe(callback: (state: CartState) => void, element: Element): void {
-    this.stateManager.subscribe(this.topic, callback as (data: unknown) => void, element);
+    this.stateManager.subscribe(
+      this.topic,
+      callback as (data: unknown) => void,
+      element,
+    );
   }
 
   /**
@@ -172,8 +180,11 @@ export class CartManager {
 
   private calculateState(items: readonly CartItem[]): CartState {
     const count = items.reduce((sum, item) => sum + item.quantity, 0);
-    const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
+    const total = items.reduce(
+      (sum, item) => sum + (item.price * item.quantity),
+      0,
+    );
+
     return {
       items,
       count,
@@ -184,7 +195,7 @@ export class CartManager {
 
   private publishState(state: CartState): void {
     this.stateManager.publish(this.topic, state);
-    
+
     if (this.persistToLocalStorage) {
       this.saveToStorage(state);
     }
@@ -233,7 +244,7 @@ export const createCartAction = (cartManager: CartManager) => {
   return (action: CartAction, itemData: unknown): void => {
     try {
       const item = itemData as CartItem;
-      
+
       switch (action) {
         case "add":
           cartManager.addItem(item);
@@ -260,10 +271,12 @@ export const createCartAction = (cartManager: CartManager) => {
  * JavaScript implementation string for injection into host pages
  * This creates window.uiLibCartAction with the cart functionality
  */
-export const createCartManagerScript = (config: CartManagerConfig = {}): string => {
+export const createCartManagerScript = (
+  config: CartManagerConfig = {},
+): string => {
   const topic = config.topic ?? "cart";
   const maxItems = config.maxItems ?? 100;
-  
+
   return `
 // ui-lib Cart Manager - Client-side cart functionality
 window.uiLibCartAction = function(action, itemData) {

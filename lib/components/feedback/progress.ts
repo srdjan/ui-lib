@@ -21,7 +21,7 @@ export type ProgressProps = BaseComponentProps & {
   readonly valueText?: string;
   readonly showValue?: boolean;
   readonly children?: string | string[];
-}
+};
 
 /**
  * Progress component for showing completion progress

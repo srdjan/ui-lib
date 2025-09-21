@@ -137,7 +137,9 @@ const formStyles = css.responsive("form", {
     borderRadius: token("radius", "md"),
     backgroundColor: token("surface", "background"),
     color: token("color", "text-primary"),
-    transition: `all ${token("animation", "fast")} ${token("animation", "ease")}`,
+    transition: `all ${token("animation", "fast")} ${
+      token("animation", "ease")
+    }`,
 
     "&::placeholder": {
       color: token("color", "text-tertiary"),
@@ -170,7 +172,11 @@ const formStyles = css.responsive("form", {
     // Select specific styling
     "&[data-type='select']": {
       cursor: "pointer",
-      backgroundImage: `url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>')}")`,
+      backgroundImage: `url("data:image/svg+xml,${
+        encodeURIComponent(
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>',
+        )
+      }")`,
       backgroundRepeat: "no-repeat",
       backgroundPosition: "right 8px center",
       backgroundSize: "16px",
@@ -225,7 +231,9 @@ const formStyles = css.responsive("form", {
     fontSize: token("typography", "sm-size"),
     fontWeight: token("typography", "medium"),
     cursor: "pointer",
-    transition: `all ${token("animation", "fast")} ${token("animation", "ease")}`,
+    transition: `all ${token("animation", "fast")} ${
+      token("animation", "ease")
+    }`,
 
     "&:hover:not(:disabled)": {
       backgroundColor: token("color", "primary-600"),
@@ -275,7 +283,9 @@ const formStyles = css.responsive("form", {
     fontSize: token("typography", "sm-size"),
     fontWeight: token("typography", "medium"),
     cursor: "pointer",
-    transition: `all ${token("animation", "fast")} ${token("animation", "ease")}`,
+    transition: `all ${token("animation", "fast")} ${
+      token("animation", "ease")
+    }`,
 
     "&:hover:not(:disabled)": {
       backgroundColor: token("surface", "background-hover"),
@@ -368,16 +378,18 @@ defineComponent("form", {
     };
 
     // Render form header
-    const header = (title || description) ? `
+    const header = (title || description)
+      ? `
       <div class="${classMap.header}" data-no-border="${hasNoBorder}">
         ${title ? `<h2 class="title">${title}</h2>` : ""}
         ${description ? `<p class="description">${description}</p>` : ""}
       </div>
-    ` : "";
+    `
+      : "";
 
     // Render form fields
-    const fieldsHtml = parsedFields.map(field => {
-      const fieldId = `${id || 'form'}-${field.name}`;
+    const fieldsHtml = parsedFields.map((field) => {
+      const fieldId = `${id || "form"}-${field.name}`;
       const hasError = Boolean(field.error);
 
       let fieldInput = "";
@@ -389,9 +401,9 @@ defineComponent("form", {
             name="${field.name}"
             data-type="textarea"
             data-error="${hasError}"
-            placeholder="${field.placeholder || ''}"
-            ${field.required ? 'required' : ''}
-          >${field.value || ''}</textarea>`;
+            placeholder="${field.placeholder || ""}"
+            ${field.required ? "required" : ""}
+          >${field.value || ""}</textarea>`;
           break;
 
         case "select":
@@ -402,48 +414,87 @@ defineComponent("form", {
             name="${field.name}"
             data-type="select"
             data-error="${hasError}"
-            ${field.required ? 'required' : ''}
+            ${field.required ? "required" : ""}
           >
-            ${field.placeholder ? `<option value="">${field.placeholder}</option>` : ''}
-            ${options.map(opt =>
-              `<option value="${opt.value}" ${opt.value === field.value ? 'selected' : ''}>${opt.label}</option>`
-            ).join('')}
+            ${
+            field.placeholder
+              ? `<option value="">${field.placeholder}</option>`
+              : ""
+          }
+            ${
+            options.map((opt) =>
+              `<option value="${opt.value}" ${
+                opt.value === field.value ? "selected" : ""
+              }>${opt.label}</option>`
+            ).join("")
+          }
           </select>`;
           break;
 
         default:
           fieldInput = `<input
             class="${classMap.field}"
-            type="${field.type || 'text'}"
+            type="${field.type || "text"}"
             id="${fieldId}"
             name="${field.name}"
             data-error="${hasError}"
-            placeholder="${field.placeholder || ''}"
-            value="${field.value || ''}"
-            ${field.required ? 'required' : ''}
+            placeholder="${field.placeholder || ""}"
+            value="${field.value || ""}"
+            ${field.required ? "required" : ""}
           />`;
       }
 
       return `
         <div class="${classMap.group}">
-          ${field.label ? `<label class="${classMap.label}" for="${fieldId}" data-required="${field.required || false}">${field.label}</label>` : ''}
+          ${
+        field.label
+          ? `<label class="${classMap.label}" for="${fieldId}" data-required="${
+            field.required || false
+          }">${field.label}</label>`
+          : ""
+      }
           ${fieldInput}
-          ${(field.help || field.error) ? `<div class="${classMap.help}" data-error="${hasError}">${field.error || field.help}</div>` : ''}
+          ${
+        (field.help || field.error)
+          ? `<div class="${classMap.help}" data-error="${hasError}">${
+            field.error || field.help
+          }</div>`
+          : ""
+      }
         </div>
       `;
     }).join("");
 
     // Render form actions
-    const actions = (primaryAction || secondaryAction) ? `
+    const actions = (primaryAction || secondaryAction)
+      ? `
       <div class="${classMap.actions}" data-no-border="${hasNoBorder}">
-        ${primaryAction ? `<button type="submit" class="${classMap.primaryAction}" data-loading="${isLoading}" ${isLoading ? 'disabled' : ''}>${primaryActionText}</button>` : ''}
-        ${secondaryAction ? `<button type="button" class="${classMap.secondaryAction}" onclick="${secondaryAction}">${secondaryActionText}</button>` : ''}
+        ${
+        primaryAction
+          ? `<button type="submit" class="${classMap.primaryAction}" data-loading="${isLoading}" ${
+            isLoading ? "disabled" : ""
+          }>${primaryActionText}</button>`
+          : ""
+      }
+        ${
+        secondaryAction
+          ? `<button type="button" class="${classMap.secondaryAction}" onclick="${secondaryAction}">${secondaryActionText}</button>`
+          : ""
+      }
       </div>
-    ` : "";
+    `
+      : "";
 
     return `
-      <div ${Object.entries(containerProps).map(([k, v]) => v ? `${k}="${v}"` : "").join(" ")}>
-        <form ${Object.entries(formProps).map(([k, v]) => v ? `${k}="${v}"` : "").join(" ")}>
+      <div ${
+      Object.entries(containerProps).map(([k, v]) => v ? `${k}="${v}"` : "")
+        .join(" ")
+    }>
+        <form ${
+      Object.entries(formProps).map(([k, v]) => v ? `${k}="${v}"` : "").join(
+        " ",
+      )
+    }>
           ${header}
           ${fieldsHtml}
           ${actions}
@@ -486,9 +537,13 @@ export const Form = (props: {
   if (props.description) attrs.description = props.description;
   if (props.fields) attrs.fields = JSON.stringify(props.fields);
   if (props.primaryAction) attrs.primaryAction = props.primaryAction;
-  if (props.primaryActionText) attrs.primaryActionText = props.primaryActionText;
+  if (props.primaryActionText) {
+    attrs.primaryActionText = props.primaryActionText;
+  }
   if (props.secondaryAction) attrs.secondaryAction = props.secondaryAction;
-  if (props.secondaryActionText) attrs.secondaryActionText = props.secondaryActionText;
+  if (props.secondaryActionText) {
+    attrs.secondaryActionText = props.secondaryActionText;
+  }
   if (props.variant) attrs.variant = props.variant;
   if (props.size) attrs.size = props.size;
   if (props.loading) attrs.loading = "true";

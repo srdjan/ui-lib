@@ -43,7 +43,7 @@ export type CartClearAction = { type: "cartClear" };
 export type ThemeSwitchAction = { type: "themeSwitch"; themeName: string };
 export type ThemeToggleDarkAction = { type: "themeToggleDark" };
 
-// Navigation action types  
+// Navigation action types
 export type SmoothScrollAction = { type: "smoothScroll"; target: string };
 export type TabSwitchAction = { type: "tabSwitch"; tabId: string };
 
@@ -66,7 +66,7 @@ export type LoadDemoAction = { type: "loadDemo"; demoName: string };
 export type ShowCodeModalAction = { type: "showCodeModal"; demoName?: string };
 
 // Base actions supported by the runtime
-export type BaseAction = 
+export type BaseAction =
   | ToggleClassAction
   | ToggleClassesAction
   | ShowModalAction
@@ -133,7 +133,10 @@ export const actions = {
     itemId,
   }),
 
-  cartUpdate: (itemId: string, updates: Record<string, unknown>): CartUpdateAction => ({
+  cartUpdate: (
+    itemId: string,
+    updates: Record<string, unknown>,
+  ): CartUpdateAction => ({
     type: "cartUpdate",
     itemId,
     updates,

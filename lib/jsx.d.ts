@@ -11,7 +11,9 @@ type EventHandlers = {
 type BaseIntrinsicProps = EventHandlers & {
   children?: JSXChildren;
   class?: string;
-  className?: string;
+  className?:
+    | string
+    | readonly (string | readonly string[] | Record<string, boolean>)[];
   style?: string | Record<string, string | number>;
   dangerouslySetInnerHTML?: { __html: string };
   [key: string]: unknown;

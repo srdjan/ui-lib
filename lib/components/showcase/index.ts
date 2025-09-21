@@ -6,21 +6,18 @@ export * from "./code-modal.ts";
 export * from "./code-actions.ts";
 
 // Export component types
-export type {
-  DemoViewerConfig,
-  DemoViewerProps,
-} from "./demo-viewer.ts";
+export type { DemoViewerConfig, DemoViewerProps } from "./demo-viewer.ts";
 
 export type {
   CodeModalConfig,
-  CodeModalProps,
   CodeModalConfig as ModalConfig,
+  CodeModalProps,
   CodeModalProps as ModalProps,
 } from "./code-modal.ts";
 
 export type {
   CodeActionConfig,
-  CodeActionResult,
   CodeActionConfig as ActionConfig,
+  CodeActionResult,
   CodeActionResult as ActionResult,
 } from "./code-actions.ts";

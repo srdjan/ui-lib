@@ -1,4 +1,5 @@
 #!/usr/bin/env deno run --allow-net --allow-read --allow-env
+// deno-lint-ignore-file verbatim-module-syntax
 
 /** @jsx h */
 /**
@@ -6,7 +7,7 @@
  * Demonstrates clean separation of concerns with no inline CSS
  */
 
-import { h } from "../../lib/jsx-runtime.ts";
+import { h } from "jsx";
 
 import { html, Router } from "../../mod-simple.ts";
 

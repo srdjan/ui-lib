@@ -1,8 +1,8 @@
 // Server-side component rendering for DOM-native components
 import { getRegistry } from "./registry.ts";
 import { shouldInjectStyle } from "./style-registry.ts";
-import { setRenderContext, clearRenderContext } from "./jsx-runtime.ts";
-import { Result, ok, err } from "./result.ts";
+import { clearRenderContext, setRenderContext } from "./jsx-runtime.ts";
+import { err, ok, Result } from "./result.ts";
 
 // Generate a unique component instance ID
 export function generateComponentId(componentName: string): string {
@@ -11,9 +11,21 @@ export function generateComponentId(componentName: string): string {
 
 // Error types for component rendering
 export type RenderError =
-  | { readonly type: "ComponentNotFound"; readonly name: string; readonly available: readonly string[] }
-  | { readonly type: "RenderFailed"; readonly error: unknown; readonly component: string }
-  | { readonly type: "InvalidProps"; readonly component: string; readonly details: string };
+  | {
+    readonly type: "ComponentNotFound";
+    readonly name: string;
+    readonly available: readonly string[];
+  }
+  | {
+    readonly type: "RenderFailed";
+    readonly error: unknown;
+    readonly component: string;
+  }
+  | {
+    readonly type: "InvalidProps";
+    readonly component: string;
+    readonly details: string;
+  };
 
 // Render component with DOM-native approach using Result type
 export function renderComponentSafe(
@@ -95,10 +107,16 @@ export function renderComponent(
         result.error.available.join(", ") || "none"
       } -->`;
     case "RenderFailed":
-      console.error(`Component render failed: ${result.error.component}`, result.error.error);
+      console.error(
+        `Component render failed: ${result.error.component}`,
+        result.error.error,
+      );
       return `<!-- component "${result.error.component}" failed to render -->`;
     case "InvalidProps":
-      console.error(`Invalid props for component: ${result.error.component}`, result.error.details);
+      console.error(
+        `Invalid props for component: ${result.error.component}`,
+        result.error.details,
+      );
       return `<!-- component "${result.error.component}" received invalid props -->`;
   }
 }

@@ -126,8 +126,10 @@ function createElement(tag, props, ...children) {
 
 const generateJSXRuntime = (): string => {
   return `
-// JSX Runtime
-const h = createElement;
+// JSX Runtime (jsx)
+function h(tag, props, ...children) { return createElement(tag, props, ...children); }
+const jsx = h; // jsx entry for tooling/tests
+const jsxs = h; // multi-children helper alias
 const Fragment = ({ children }) => children;`.trim();
 };
 
@@ -208,7 +210,7 @@ const wrapRuntime = (runtimeCode: string): string => {
 
   // Export to global scope
   if (typeof window !== 'undefined') {
-    window.uiLib = { createElement, h, Fragment, string, number, boolean, array };
+    window.uiLib = { createElement, h, jsx, jsxs, Fragment, string, number, boolean, array };
   }
 })();`.trim();
 };

@@ -12,7 +12,7 @@ export type DemoViewerConfig = {
   readonly defaultDemo?: string;
   readonly enableCodeModal?: boolean;
   readonly syntaxHighlighting?: boolean;
-}
+};
 
 /**
  * Demo viewer component props

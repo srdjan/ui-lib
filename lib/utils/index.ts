@@ -6,39 +6,33 @@ export * from "./smooth-scroll.ts";
 export * from "./htmx-integration.ts";
 
 // Export utility types
-export type {
-  ClipboardResult,
-} from "./clipboard.ts";
+export type { ClipboardResult } from "./clipboard.ts";
 
-export type {
-  ScrollOptions,
-} from "./smooth-scroll.ts";
+export type { ScrollOptions } from "./smooth-scroll.ts";
 
-export type {
-  HTMXRequestOptions,
-} from "./htmx-integration.ts";
+export type { HTMXRequestOptions } from "./htmx-integration.ts";
 
 // Export utility functions
 export {
   ClipboardUtil,
-  copyToClipboard,
   copyElementContent,
+  copyToClipboard,
   copyWithFeedback,
   createClipboardScript,
 } from "./clipboard.ts";
 
 export {
-  SmoothScroll,
+  createSmoothScrollScript,
   scrollEasing,
+  setupSmoothScrolling,
+  SmoothScroll,
   smoothScrollTo,
   smoothScrollToTop,
-  setupSmoothScrolling,
-  createSmoothScrollScript,
 } from "./smooth-scroll.ts";
 
 export {
-  HTMXUtil,
+  createHTMXScript,
   htmx,
   htmxPatterns,
-  createHTMXScript,
+  HTMXUtil,
 } from "./htmx-integration.ts";

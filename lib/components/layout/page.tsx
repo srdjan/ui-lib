@@ -45,7 +45,7 @@ defineComponent<PageProps>("page", {
     // Use JSX to build the element structure, then inject the placeholder
     const element = (
       <div
-        class={classes.join(' ')}
+        class={classes.join(" ")}
         id={id || undefined}
         role={role || undefined}
         aria-label={ariaLabel || undefined}

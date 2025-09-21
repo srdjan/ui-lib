@@ -9,7 +9,7 @@ export type CodeActionConfig = {
   readonly successMessage?: string;
   readonly errorMessage?: string;
   readonly formatter?: (code: string) => string;
-}
+};
 
 /**
  * Code action result
@@ -110,9 +110,7 @@ export class CodeActions {
     source: Element | string,
     button?: Element,
   ): Promise<CodeActionResult> {
-    const code = typeof source === "string"
-      ? source
-      : source.textContent ?? "";
+    const code = typeof source === "string" ? source : source.textContent ?? "";
 
     const result = await this.copyToClipboard(code);
 
@@ -145,7 +143,9 @@ export class CodeActions {
 
       return {
         success,
-        message: success ? this.config.successMessage : this.config.errorMessage,
+        message: success
+          ? this.config.successMessage
+          : this.config.errorMessage,
       };
     } catch (error) {
       return {
@@ -159,12 +159,12 @@ export class CodeActions {
   private defaultFormatter(code: string): string {
     // Basic code formatting - in real implementation, you might use prettier or similar
     return code
-      .split('\n')
-      .map(line => line.trim())
-      .join('\n')
-      .replace(/;/g, ';\n')
-      .replace(/\{/g, ' {\n')
-      .replace(/\}/g, '\n}');
+      .split("\n")
+      .map((line) => line.trim())
+      .join("\n")
+      .replace(/;/g, ";\n")
+      .replace(/\{/g, " {\n")
+      .replace(/\}/g, "\n}");
   }
 }
 
@@ -177,7 +177,9 @@ export const codeActions = new CodeActions();
  * Generate JavaScript code for copy button functionality
  * This matches the inline functions from the showcase
  */
-export const createCopyButtonScript = (config: CodeActionConfig = {}): string => {
+export const createCopyButtonScript = (
+  config: CodeActionConfig = {},
+): string => {
   const {
     copyTimeout = 2000,
     successMessage = "✅ Copied!",

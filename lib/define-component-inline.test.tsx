@@ -4,11 +4,11 @@ import {
   assertEquals,
   assertExists,
 } from "https://deno.land/std@0.224.0/assert/mod.ts";
-import { defineComponent, defineSimpleComponent } from "./define-component.ts";
-import { getRegistry } from "./registry.ts";
 import { renderComponent } from "./component-state.ts";
+import { defineComponent, defineSimpleComponent } from "./define-component.ts";
 import { h } from "./jsx-runtime.ts";
-import { string, number, boolean, oneOf } from "./prop-helpers.ts";
+import { boolean, number, oneOf, string } from "./prop-helpers.ts";
+import { getRegistry } from "./registry.ts";
 
 Deno.test("Inline props: Basic component with prop helpers", () => {
   const registry = getRegistry();
@@ -87,10 +87,14 @@ Deno.test("Inline props: Component with CSS-only format", () => {
         font-weight: bold;
       }`,
     },
-    render: ({
-      title = string("Card Title"),
-      content = string("Card content"),
-    }, _api, classes) => (
+    render: (
+      {
+        title = string("Card Title"),
+        content = string("Card content"),
+      },
+      _api,
+      classes,
+    ) => (
       <div class={classes?.card}>
         <h2 class={classes?.title}>{title}</h2>
         <p>{content}</p>
@@ -113,17 +117,21 @@ Deno.test("defineSimpleComponent: Simplified API", () => {
 
   defineSimpleComponent(
     "simple-component",
-    ({
-      name = string("Anonymous"),
-      age = number(0),
-    }, _api, classes) => (
+    (
+      {
+        name = string("Anonymous"),
+        age = number(0),
+      },
+      _api,
+      classes,
+    ) => (
       <div class={classes?.container}>
         <span>{name} is {age} years old</span>
       </div>
     ),
     {
       container: `{ padding: 1rem; background: #f0f0f0; }`,
-    }
+    },
   );
 
   const result = renderComponent("simple-component", {
@@ -178,5 +186,8 @@ Deno.test("Inline props: No props (simple render)", () => {
   });
 
   const result = renderComponent("no-props", {});
-  assertEquals(result, "<div>Static content with no props</div>");
+  assertEquals(
+    result,
+    '<div data-component="no-props">Static content with no props</div>',
+  );
 });

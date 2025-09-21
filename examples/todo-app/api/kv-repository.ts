@@ -42,7 +42,7 @@ const createKvError = (operation: string, message: string): DatabaseError => ({
 const errorMessage = (error: unknown): string =>
   error instanceof Error ? error.message : String(error);
 
-const createSerializationError = (
+const _createSerializationError = (
   message: string,
   data?: unknown,
 ): DatabaseError => ({

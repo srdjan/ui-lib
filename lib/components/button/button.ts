@@ -3,9 +3,9 @@ import { css } from "../../css-in-ts.ts";
 import { componentTokens } from "../../themes/component-tokens.ts";
 import type { ComponentSize, InteractiveComponentProps } from "../types.ts";
 
-export type ButtonVariant = 
+export type ButtonVariant =
   | "primary"
-  | "secondary" 
+  | "secondary"
   | "outline"
   | "ghost"
   | "link"
@@ -25,18 +25,18 @@ export type ButtonProps = InteractiveComponentProps & {
 
 /**
  * Button component with comprehensive variants and states
- * 
+ *
  * @example
  * ```tsx
  * // Basic usage
  * Button({ children: "Click me" })
- * 
+ *
  * // With variants and sizes
  * Button({ variant: "primary", size: "lg", children: "Large Primary" })
- * 
+ *
  * // With icons
  * Button({ leftIcon: "📁", children: "Save File", variant: "outline" })
- * 
+ *
  * // Loading state
  * Button({ loading: true, loadingText: "Saving...", children: "Save" })
  * ```
@@ -44,7 +44,7 @@ export type ButtonProps = InteractiveComponentProps & {
 export function Button(props: ButtonProps): string {
   const {
     variant = "primary",
-    size = "md", 
+    size = "md",
     fullWidth = false,
     loading = false,
     loadingText = "Loading...",
@@ -72,63 +72,64 @@ export function Button(props: ButtonProps): string {
       borderRadius: componentTokens.radius.md,
       border: "1px solid transparent",
       cursor: "pointer",
-      transition: `all ${componentTokens.animation.duration.normal} ${componentTokens.animation.easing.out}`,
+      transition:
+        `all ${componentTokens.animation.duration.normal} ${componentTokens.animation.easing.out}`,
       textDecoration: "none",
       userSelect: "none",
       whiteSpace: "nowrap",
-      
+
       // Focus styles
       "&:focus": {
         outline: "none",
         boxShadow: `0 0 0 3px ${componentTokens.colors.primary[200]}`,
       },
-      
+
       "&:focus:not(:focus-visible)": {
         boxShadow: "none",
       },
-      
+
       // Disabled styles
       "&:disabled, &[aria-disabled='true']": {
         cursor: "not-allowed",
         opacity: 0.6,
       },
-      
+
       // Size variants
       ...(size === "xs" && {
         height: componentTokens.component.button.height.xs,
         padding: componentTokens.component.button.padding.xs,
         fontSize: componentTokens.typography.sizes.xs,
       }),
-      
+
       ...(size === "sm" && {
-        height: componentTokens.component.button.height.sm, 
+        height: componentTokens.component.button.height.sm,
         padding: componentTokens.component.button.padding.sm,
         fontSize: componentTokens.typography.sizes.sm,
       }),
-      
+
       ...(size === "md" && {
         height: componentTokens.component.button.height.md,
         padding: componentTokens.component.button.padding.md,
         fontSize: componentTokens.typography.sizes.sm,
       }),
-      
+
       ...(size === "lg" && {
         height: componentTokens.component.button.height.lg,
         padding: componentTokens.component.button.padding.lg,
         fontSize: componentTokens.typography.sizes.base,
       }),
-      
+
       ...(size === "xl" && {
         height: componentTokens.component.button.height.xl,
         padding: componentTokens.component.button.padding.xl,
         fontSize: componentTokens.typography.sizes.lg,
       }),
-      
+
       // Full width
       ...(fullWidth && {
         width: "100%",
       }),
-      
+
       // Variant styles
       ...(variant === "primary" && {
         backgroundColor: componentTokens.colors.primary[500],
@@ -140,7 +141,7 @@ export function Button(props: ButtonProps): string {
           backgroundColor: componentTokens.colors.primary[700],
         },
       }),
-      
+
       ...(variant === "secondary" && {
         backgroundColor: componentTokens.colors.gray[100],
         color: componentTokens.colors.gray[900],
@@ -151,7 +152,7 @@ export function Button(props: ButtonProps): string {
           backgroundColor: componentTokens.colors.gray[300],
         },
       }),
-      
+
       ...(variant === "outline" && {
         backgroundColor: "transparent",
         borderColor: componentTokens.colors.gray[300],
@@ -164,7 +165,7 @@ export function Button(props: ButtonProps): string {
           backgroundColor: componentTokens.colors.gray[100],
         },
       }),
-      
+
       ...(variant === "ghost" && {
         backgroundColor: "transparent",
         color: componentTokens.colors.gray[700],
@@ -175,7 +176,7 @@ export function Button(props: ButtonProps): string {
           backgroundColor: componentTokens.colors.gray[200],
         },
       }),
-      
+
       ...(variant === "link" && {
         backgroundColor: "transparent",
         color: componentTokens.colors.primary[600],
@@ -187,7 +188,7 @@ export function Button(props: ButtonProps): string {
           textDecoration: "underline",
         },
       }),
-      
+
       ...(variant === "destructive" && {
         backgroundColor: componentTokens.colors.error[500],
         color: "white",
@@ -199,27 +200,28 @@ export function Button(props: ButtonProps): string {
         },
       }),
     },
-    
+
     icon: {
       display: "inline-block",
       flexShrink: 0,
     },
-    
+
     spinner: {
       display: "inline-block",
       width: "1rem",
       height: "1rem",
       border: "2px solid transparent",
-      borderTop: "2px solid currentColor", 
+      borderTop: "2px solid currentColor",
       borderRadius: "50%",
       animation: "spin 1s linear infinite",
     },
-    
+
     content: {
       opacity: loading ? 0 : 1,
-      transition: `opacity ${componentTokens.animation.duration.fast} ${componentTokens.animation.easing.out}`,
+      transition:
+        `opacity ${componentTokens.animation.duration.fast} ${componentTokens.animation.easing.out}`,
     },
-    
+
     loadingContent: {
       position: "absolute",
       display: "flex",
@@ -227,10 +229,11 @@ export function Button(props: ButtonProps): string {
       justifyContent: "center",
       gap: componentTokens.spacing[2],
       opacity: loading ? 1 : 0,
-      transition: `opacity ${componentTokens.animation.duration.fast} ${componentTokens.animation.easing.out}`,
+      transition:
+        `opacity ${componentTokens.animation.duration.fast} ${componentTokens.animation.easing.out}`,
     },
   });
-  
+
   // Prepare content
   const buttonText = Array.isArray(children) ? children.join("") : children;
   const content = [
@@ -238,12 +241,12 @@ export function Button(props: ButtonProps): string {
     buttonText,
     rightIcon && `<span class="${styles.classMap.icon}">${rightIcon}</span>`,
   ].filter(Boolean).join("");
-  
+
   const loadingContent = [
     `<span class="${styles.classMap.spinner}"></span>`,
     loadingText,
   ].join("");
-  
+
   // Build attributes
   const attributes = {
     class: `${styles.classMap.button} ${className}`.trim(),
@@ -253,7 +256,7 @@ export function Button(props: ButtonProps): string {
     ...(onFocus && { onfocus: onFocus }),
     ...(onBlur && { onblur: onBlur }),
   };
-  
+
   const attributeString = Object.entries(attributes)
     .map(([key, value]) => `${key}="${value}"`)
     .join(" ");
@@ -261,7 +264,11 @@ export function Button(props: ButtonProps): string {
   return `
     <button ${attributeString}>
       <span class="${styles.classMap.content}">${content}</span>
-      ${loading ? `<span class="${styles.classMap.loadingContent}">${loadingContent}</span>` : ""}
+      ${
+    loading
+      ? `<span class="${styles.classMap.loadingContent}">${loadingContent}</span>`
+      : ""
+  }
     </button>
     <style>
       @keyframes spin {

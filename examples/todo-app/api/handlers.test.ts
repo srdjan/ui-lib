@@ -3,9 +3,12 @@ import {
   assertStringIncludes,
 } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import { todoAPI } from "./handlers.tsx";
+// Ensure SSR component is registered during tests
+import "../components/todo-list.tsx";
+
+import type { Result } from "../../../lib/result.ts";
 import { getRepository, initializeRepository } from "./repository-factory.ts";
 import type { DatabaseError } from "./types.ts";
-import type { Result } from "../../../lib/result.ts";
 
 async function unwrapResult<T>(
   resultOrPromise: Result<T, DatabaseError> | Promise<Result<T, DatabaseError>>,

@@ -1,9 +1,13 @@
 // CSS Bundling and Performance Optimization System
 // Provides intelligent CSS bundling, deduplication, and critical CSS extraction
 
-import { generateLayerDeclaration, CSS_RESET, UTILITY_CLASSES } from './styles/css-layers.ts';
-import { generateTokenCSS } from './styles/design-tokens.ts';
-import { generateComponentCSS } from './component-system.ts';
+import {
+  CSS_RESET,
+  generateLayerDeclaration,
+  UTILITY_CLASSES,
+} from "./styles/css-layers.ts";
+import { generateTokenCSS } from "./styles/design-tokens.ts";
+import { generateComponentCSS } from "./component-system.ts";
 
 /**
  * CSS Bundle Configuration
@@ -12,7 +16,7 @@ export interface CSSBundleConfig {
   readonly includeReset?: boolean;
   readonly includeTokens?: boolean;
   readonly includeUtilities?: boolean;
-  readonly includeComponents?: string[] | 'all';
+  readonly includeComponents?: string[] | "all";
   readonly minify?: boolean;
   readonly sourcemap?: boolean;
   readonly criticalCSS?: boolean;
@@ -47,7 +51,7 @@ export class CSSBundler {
       includeReset = true,
       includeTokens = true,
       includeUtilities = true,
-      includeComponents = 'all',
+      includeComponents = "all",
       minify = false,
       criticalCSS = false,
     } = config;
@@ -81,7 +85,7 @@ export class CSSBundler {
     }
 
     // Combine and optimize
-    const combinedCSS = cssChunks.join('\n\n');
+    const combinedCSS = cssChunks.join("\n\n");
     const optimizedCSS = this.optimizeCSS(combinedCSS);
     const finalCSS = minify ? this.minifyCSS(optimizedCSS) : optimizedCSS;
 
@@ -104,8 +108,8 @@ export class CSSBundler {
   /**
    * Get component CSS based on selection
    */
-  private static getComponentCSS(selection: string[] | 'all'): string {
-    if (selection === 'all') {
+  private static getComponentCSS(selection: string[] | "all"): string {
+    if (selection === "all") {
       return generateComponentCSS();
     }
 
@@ -125,7 +129,7 @@ export class CSSBundler {
       }
     }
 
-    return selectedCSS.join('\n\n');
+    return selectedCSS.join("\n\n");
   }
 
   /**
@@ -134,7 +138,7 @@ export class CSSBundler {
   private static generateSingleComponentCSS(componentName: string): string {
     // This would integrate with the component system to generate individual component CSS
     // For now, return empty string as placeholder
-    return '';
+    return "";
   }
 
   /**
@@ -142,7 +146,7 @@ export class CSSBundler {
    */
   private static optimizeCSS(css: string): string {
     // Remove duplicate rules
-    const rules = css.split('}').filter(rule => rule.trim());
+    const rules = css.split("}").filter((rule) => rule.trim());
     const uniqueRules = new Set<string>();
     const optimizedRules: string[] = [];
 
@@ -150,11 +154,11 @@ export class CSSBundler {
       const normalizedRule = this.normalizeRule(rule);
       if (!uniqueRules.has(normalizedRule)) {
         uniqueRules.add(normalizedRule);
-        optimizedRules.push(rule + '}');
+        optimizedRules.push(rule + "}");
       }
     }
 
-    return optimizedRules.join('\n');
+    return optimizedRules.join("\n");
   }
 
   /**
@@ -163,9 +167,9 @@ export class CSSBundler {
   private static normalizeRule(rule: string): string {
     return rule
       .trim()
-      .replace(/\s+/g, ' ')
-      .replace(/;\s*}/g, '}')
-      .replace(/,\s+/g, ',');
+      .replace(/\s+/g, " ")
+      .replace(/;\s*}/g, "}")
+      .replace(/,\s+/g, ",");
   }
 
   /**
@@ -174,17 +178,17 @@ export class CSSBundler {
   private static minifyCSS(css: string): string {
     return css
       // Remove comments
-      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\/\*[\s\S]*?\*\//g, "")
       // Remove unnecessary whitespace
-      .replace(/\s+/g, ' ')
+      .replace(/\s+/g, " ")
       // Remove space around selectors and braces
-      .replace(/\s*{\s*/g, '{')
-      .replace(/;\s*}/g, '}')
-      .replace(/}\s*/g, '}')
+      .replace(/\s*{\s*/g, "{")
+      .replace(/;\s*}/g, "}")
+      .replace(/}\s*/g, "}")
       // Remove trailing semicolons
-      .replace(/;}/g, '}')
+      .replace(/;}/g, "}")
       // Remove space around commas in selectors
-      .replace(/,\s+/g, ',')
+      .replace(/,\s+/g, ",")
       .trim();
   }
 
@@ -208,21 +212,24 @@ export class CSSBundler {
     ];
 
     const criticalRules: string[] = [];
-    const rules = css.split('\n');
+    const rules = css.split("\n");
 
     for (const rule of rules) {
-      if (criticalSelectors.some(selector => selector.test(rule))) {
+      if (criticalSelectors.some((selector) => selector.test(rule))) {
         criticalRules.push(rule);
       }
     }
 
-    return criticalRules.join('\n');
+    return criticalRules.join("\n");
   }
 
   /**
    * Generate bundle statistics
    */
-  private static generateStats(css: string, components: string[] | 'all'): CSSBundle['stats'] {
+  private static generateStats(
+    css: string,
+    components: string[] | "all",
+  ): CSSBundle["stats"] {
     const totalSize = new Blob([css]).size;
     const gzippedSize = this.estimateGzipSize(css);
 
@@ -236,7 +243,7 @@ export class CSSBundler {
       layers[layerName] = (layers[layerName] || 0) + 1;
     }
 
-    const componentList = Array.isArray(components) ? components : ['all'];
+    const componentList = Array.isArray(components) ? components : ["all"];
 
     return {
       totalSize,
@@ -279,7 +286,10 @@ export class CSSBundler {
   /**
    * Create component-specific bundle
    */
-  static createComponentBundle(components: string[], config: CSSBundleConfig = {}): CSSBundle {
+  static createComponentBundle(
+    components: string[],
+    config: CSSBundleConfig = {},
+  ): CSSBundle {
     return this.createBundle({
       ...config,
       includeComponents: components,
@@ -297,20 +307,20 @@ export class CSSAssetManager {
    * Load CSS bundle and inject into document
    */
   static async loadBundle(bundle: CSSBundle, critical = false): Promise<void> {
-    if (typeof document === 'undefined') {
+    if (typeof document === "undefined") {
       // SSR environment - return the CSS string
       return;
     }
 
-    const cssId = critical ? 'critical-css' : 'main-css';
+    const cssId = critical ? "critical-css" : "main-css";
 
     if (this.loadedAssets.has(cssId)) {
       return; // Already loaded
     }
 
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.id = cssId;
-    style.textContent = critical ? (bundle.criticalCSS || '') : bundle.css;
+    style.textContent = critical ? (bundle.criticalCSS || "") : bundle.css;
 
     if (critical) {
       // Insert critical CSS at the beginning of head
@@ -326,11 +336,11 @@ export class CSSAssetManager {
    * Preload CSS bundle
    */
   static preloadBundle(href: string): void {
-    if (typeof document === 'undefined') return;
+    if (typeof document === "undefined") return;
 
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'style';
+    const link = document.createElement("link");
+    link.rel = "preload";
+    link.as = "style";
     link.href = href;
     document.head.appendChild(link);
   }
@@ -339,7 +349,7 @@ export class CSSAssetManager {
    * Get CSS bundle as data URL for inline embedding
    */
   static getBundleDataURL(bundle: CSSBundle): string {
-    const cssBlob = new Blob([bundle.css], { type: 'text/css' });
+    const cssBlob = new Blob([bundle.css], { type: "text/css" });
     return URL.createObjectURL(cssBlob);
   }
 }
@@ -352,12 +362,12 @@ export class CSSPerformanceMonitor {
    * Measure CSS parsing time
    */
   static async measureParsing(css: string): Promise<number> {
-    if (typeof performance === 'undefined') return 0;
+    if (typeof performance === "undefined") return 0;
 
     const start = performance.now();
 
     // Create temporary style element to measure parsing
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = css;
     document.head.appendChild(style);
 
@@ -385,7 +395,8 @@ export class CSSPerformanceMonitor {
     const mediaQueryCount = (css.match(/@media[^{]+{/g) || []).length;
 
     // Simple complexity score calculation
-    const complexityScore = (selectorCount * 0.3) + (propertyCount * 0.5) + (mediaQueryCount * 0.2);
+    const complexityScore = (selectorCount * 0.3) + (propertyCount * 0.5) +
+      (mediaQueryCount * 0.2);
 
     return {
       ruleCount,
@@ -404,42 +415,46 @@ export const bundlePresets = {
   /**
    * Minimal bundle with just essential styles
    */
-  minimal: (): CSSBundle => CSSBundler.createBundle({
-    includeReset: true,
-    includeTokens: true,
-    includeUtilities: false,
-    includeComponents: ['button', 'card', 'alert'],
-    minify: true,
-  }),
+  minimal: (): CSSBundle =>
+    CSSBundler.createBundle({
+      includeReset: true,
+      includeTokens: true,
+      includeUtilities: false,
+      includeComponents: ["button", "card", "alert"],
+      minify: true,
+    }),
 
   /**
    * Full-featured bundle with all components
    */
-  complete: (): CSSBundle => CSSBundler.createBundle({
-    includeReset: true,
-    includeTokens: true,
-    includeUtilities: true,
-    includeComponents: 'all',
-    minify: false,
-  }),
+  complete: (): CSSBundle =>
+    CSSBundler.createBundle({
+      includeReset: true,
+      includeTokens: true,
+      includeUtilities: true,
+      includeComponents: "all",
+      minify: false,
+    }),
 
   /**
    * Development bundle with debugging features
    */
-  development: (): CSSBundle => CSSBundler.createDevBundle({
-    includeReset: true,
-    includeTokens: true,
-    includeUtilities: true,
-    includeComponents: 'all',
-  }),
+  development: (): CSSBundle =>
+    CSSBundler.createDevBundle({
+      includeReset: true,
+      includeTokens: true,
+      includeUtilities: true,
+      includeComponents: "all",
+    }),
 
   /**
    * Production-optimized bundle
    */
-  production: (): CSSBundle => CSSBundler.createProdBundle({
-    includeReset: true,
-    includeTokens: true,
-    includeUtilities: true,
-    includeComponents: 'all',
-  }),
+  production: (): CSSBundle =>
+    CSSBundler.createProdBundle({
+      includeReset: true,
+      includeTokens: true,
+      includeUtilities: true,
+      includeComponents: "all",
+    }),
 };

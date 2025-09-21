@@ -22,7 +22,7 @@ export type BadgeProps = BaseComponentProps & {
   readonly removable?: boolean;
   readonly onRemove?: string;
   readonly children?: string | string[] | number;
-}
+};
 
 /**
  * Badge component for status indicators and labels

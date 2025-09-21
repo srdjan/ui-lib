@@ -264,8 +264,24 @@ const setCacheValue = <T>(
     currentState = newState;
   }
 
-  // Evict entries if needed
-  const evictedState = evictLRUEntries(currentState, finalSize);
+  // Evict entries if needed (by size)
+  let evictedState = evictLRUEntries(currentState, finalSize);
+
+  // Evict by entry count if necessary (LRU)
+  if (evictedState.entries.size >= evictedState.options.maxEntries) {
+    // Sort oldest first
+    const sorted = Array.from(evictedState.accessOrder.entries()).sort((a, b) =>
+      a[1] - b[1]
+    );
+    let tmpState = evictedState;
+    while (tmpState.entries.size >= tmpState.options.maxEntries) {
+      const oldest = sorted.shift();
+      if (!oldest) break;
+      const { newState } = deleteCacheEntry(tmpState, oldest[0]);
+      tmpState = newState;
+    }
+    evictedState = tmpState;
+  }
 
   // Store entry
   const newEntries = new Map(evictedState.entries);
@@ -427,9 +443,12 @@ export const createPerformanceCache = <T = string>(
 // Backward compatibility - PerformanceCache class that uses functional implementation
 export class PerformanceCache<T = string> {
   private cache: IPerformanceCache<T>;
+  // Track hot entries locally (key -> { hits, size })
+  private readonly hotMap: Map<string, { hits: number; size: number }>;
 
   constructor(options: CacheOptions) {
     this.cache = createPerformanceCache<T>(options);
+    this.hotMap = new Map();
   }
 
   generateKey(
@@ -441,19 +460,38 @@ export class PerformanceCache<T = string> {
   }
 
   get(key: string): T | null {
-    return this.cache.get(key);
+    const val = this.cache.get(key);
+    if (val !== null) {
+      const entry = this.hotMap.get(key) ?? { hits: 0, size: 0 };
+      entry.hits += 1;
+      // Approximate size if we don't know it yet and value is string-like
+      if (entry.size === 0) {
+        const strVal = typeof val === "string" ? val : JSON.stringify(val);
+        entry.size = new TextEncoder().encode(strVal).length;
+      }
+      this.hotMap.set(key, entry);
+    }
+    return val;
   }
 
   set(key: string, value: T, dependencies: readonly string[] = []): void {
     this.cache.set(key, value, dependencies);
+    const strVal = typeof value === "string" ? value : JSON.stringify(value);
+    this.hotMap.set(key, {
+      hits: 0,
+      size: new TextEncoder().encode(strVal).length,
+    });
   }
 
   delete(key: string): boolean {
-    return this.cache.delete(key);
+    const res = this.cache.delete(key);
+    this.hotMap.delete(key);
+    return res;
   }
 
   clear(): void {
     this.cache.clear();
+    this.hotMap.clear();
   }
 
   has(key: string): boolean {
@@ -476,9 +514,10 @@ export class PerformanceCache<T = string> {
   getHotEntries(
     limit = 10,
   ): Array<{ key: string; hits: number; size: number }> {
-    // This is a simplified implementation since we don't expose internal state
-    // In a real implementation, you might want to track this separately
-    return [];
+    return Array.from(this.hotMap.entries())
+      .map(([key, { hits, size }]) => ({ key, hits, size }))
+      .sort((a, b) => b.hits - a.hits)
+      .slice(0, limit);
   }
 }
 

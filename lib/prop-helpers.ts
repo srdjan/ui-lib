@@ -1,12 +1,26 @@
 // Smart type helpers for function-style props
 // Eliminates duplication between props definition and render parameters
 
-import { Result, ok, err } from "./result.ts";
+import { err, ok, Result } from "./result.ts";
 
 export type PropError =
-  | { readonly type: "RequiredMissing"; readonly key: string; readonly propType: string }
-  | { readonly type: "ParseFailed"; readonly key: string; readonly value: string; readonly reason: string }
-  | { readonly type: "InvalidValue"; readonly key: string; readonly value: string; readonly expected: string };
+  | {
+    readonly type: "RequiredMissing";
+    readonly key: string;
+    readonly propType: string;
+  }
+  | {
+    readonly type: "ParseFailed";
+    readonly key: string;
+    readonly value: string;
+    readonly reason: string;
+  }
+  | {
+    readonly type: "InvalidValue";
+    readonly key: string;
+    readonly value: string;
+    readonly expected: string;
+  };
 
 export type PropHelper<T = unknown> = {
   readonly __propHelper: true;
@@ -14,7 +28,10 @@ export type PropHelper<T = unknown> = {
   readonly defaultValue?: T;
   readonly required: boolean;
   readonly parse: (attrs: Record<string, string>, key: string) => T;
-  readonly parseSafe: (attrs: Record<string, string>, key: string) => Result<T, PropError>;
+  readonly parseSafe: (
+    attrs: Record<string, string>,
+    key: string,
+  ) => Result<T, PropError>;
 };
 
 /**
@@ -30,7 +47,10 @@ function camelToKebab(str: string): string {
  * @returns PropHelper for string parsing
  */
 export function string(defaultValue?: string): PropHelper<string> {
-  const parseSafe = (attrs: Record<string, string>, key: string): Result<string, PropError> => {
+  const parseSafe = (
+    attrs: Record<string, string>,
+    key: string,
+  ): Result<string, PropError> => {
     // Try both camelCase and kebab-case versions
     const kebabKey = camelToKebab(key);
     const value = attrs[key] ?? attrs[kebabKey];
@@ -65,7 +85,10 @@ export function string(defaultValue?: string): PropHelper<string> {
  * @returns PropHelper for number parsing
  */
 export function number(defaultValue?: number): PropHelper<number> {
-  const parseSafe = (attrs: Record<string, string>, key: string): Result<number, PropError> => {
+  const parseSafe = (
+    attrs: Record<string, string>,
+    key: string,
+  ): Result<number, PropError> => {
     // Try both camelCase and kebab-case versions
     const kebabKey = camelToKebab(key);
     const value = attrs[key] ?? attrs[kebabKey];
@@ -77,7 +100,12 @@ export function number(defaultValue?: number): PropHelper<number> {
     }
     const parsed = Number(value);
     if (isNaN(parsed)) {
-      return err({ type: "ParseFailed", key, value, reason: "Not a valid number" });
+      return err({
+        type: "ParseFailed",
+        key,
+        value,
+        reason: "Not a valid number",
+      });
     }
     return ok(parsed);
   };
@@ -96,7 +124,9 @@ export function number(defaultValue?: number): PropHelper<number> {
       if (result.error.type === "RequiredMissing") {
         throw new Error(`Required number prop '${key}' is missing`);
       }
-      throw new Error(`Invalid number value for prop '${key}': ${result.error.value}`);
+      throw new Error(
+        `Invalid number value for prop '${key}': ${result.error.value}`,
+      );
     },
     parseSafe,
   };
@@ -108,7 +138,10 @@ export function number(defaultValue?: number): PropHelper<number> {
  * @returns PropHelper for boolean parsing
  */
 export function boolean(defaultValue?: boolean): PropHelper<boolean> {
-  const parseSafe = (attrs: Record<string, string>, key: string): Result<boolean, PropError> => {
+  const parseSafe = (
+    attrs: Record<string, string>,
+    key: string,
+  ): Result<boolean, PropError> => {
     // Try both camelCase and kebab-case versions
     const kebabKey = camelToKebab(key);
     const raw = attrs[key] ?? attrs[kebabKey];
@@ -145,7 +178,10 @@ export function boolean(defaultValue?: boolean): PropHelper<boolean> {
  * @returns PropHelper for array parsing
  */
 export function array<T = unknown>(defaultValue?: T[]): PropHelper<T[]> {
-  const parseSafe = (attrs: Record<string, string>, key: string): Result<T[], PropError> => {
+  const parseSafe = (
+    attrs: Record<string, string>,
+    key: string,
+  ): Result<T[], PropError> => {
     const kebabKey = camelToKebab(key);
     const value = attrs[key] ?? attrs[kebabKey];
     if (value === undefined) {
@@ -176,7 +212,9 @@ export function array<T = unknown>(defaultValue?: T[]): PropHelper<T[]> {
       if (result.error.type === "RequiredMissing") {
         throw new Error(`Required array prop '${key}' is missing`);
       }
-      throw new Error(`Invalid array value for prop '${key}': ${result.error.value}`);
+      throw new Error(
+        `Invalid array value for prop '${key}': ${result.error.value}`,
+      );
     },
     parseSafe,
   };
@@ -190,7 +228,10 @@ export function array<T = unknown>(defaultValue?: T[]): PropHelper<T[]> {
 export function object<T = Record<string, unknown>>(
   defaultValue?: T,
 ): PropHelper<T> {
-  const parseSafe = (attrs: Record<string, string>, key: string): Result<T, PropError> => {
+  const parseSafe = (
+    attrs: Record<string, string>,
+    key: string,
+  ): Result<T, PropError> => {
     const kebabKey = camelToKebab(key);
     const value = attrs[key] ?? attrs[kebabKey];
     if (value === undefined) {
@@ -201,7 +242,9 @@ export function object<T = Record<string, unknown>>(
     }
     try {
       const parsed = JSON.parse(value);
-      if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+      if (
+        typeof parsed !== "object" || parsed === null || Array.isArray(parsed)
+      ) {
         return err({ type: "InvalidValue", key, value, expected: "object" });
       }
       return ok(parsed as T);
@@ -221,7 +264,9 @@ export function object<T = Record<string, unknown>>(
       if (result.error.type === "RequiredMissing") {
         throw new Error(`Required object prop '${key}' is missing`);
       }
-      throw new Error(`Invalid object value for prop '${key}': ${result.error.value}`);
+      throw new Error(
+        `Invalid object value for prop '${key}': ${result.error.value}`,
+      );
     },
     parseSafe,
   };
@@ -237,7 +282,10 @@ export function oneOf<T extends readonly string[]>(
 ): PropHelper<T[number]> {
   const typeDesc = `oneOf(${options.map((v) => JSON.stringify(v)).join("|")})`;
 
-  const parseSafe = (attrs: Record<string, string>, key: string): Result<T[number], PropError> => {
+  const parseSafe = (
+    attrs: Record<string, string>,
+    key: string,
+  ): Result<T[number], PropError> => {
     const kebabKey = camelToKebab(key);
     const value = (attrs[key] ?? attrs[kebabKey]) as string | undefined;
     if (value === undefined) {
@@ -251,7 +299,7 @@ export function oneOf<T extends readonly string[]>(
       type: "InvalidValue",
       key,
       value,
-      expected: `one of: ${options.map(String).join(", ")}`
+      expected: `one of: ${options.map(String).join(", ")}`,
     });
   };
 
@@ -263,7 +311,9 @@ export function oneOf<T extends readonly string[]>(
     parse: (attrs: Record<string, string>, key: string) => {
       const result = parseSafe(attrs, key);
       if (result.ok) return result.value;
-      throw new Error(`Required prop '${key}' is missing (expected ${typeDesc})`);
+      throw new Error(
+        `Required prop '${key}' is missing (expected ${typeDesc})`,
+      );
     },
     parseSafe,
   };

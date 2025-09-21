@@ -1,10 +1,13 @@
+// deno-lint-ignore-file verbatim-module-syntax
+
 /** @jsx h */
 /**
  * TodoStats Component
  * Shows todo statistics using the library Stat component in a Grid layout
  */
 
-import { defineComponent, h } from "../../../lib/define-component.ts";
+import { h } from "jsx";
+import { defineComponent } from "../../../lib/define-component.ts";
 
 export type TodoStatsProps = {
   stats: {
@@ -40,4 +43,3 @@ defineComponent<TodoStatsProps>("todo-stats", {
 });
 
 export const TodoStats = "todo-stats";
-

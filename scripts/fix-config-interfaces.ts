@@ -16,16 +16,16 @@ for (const filePath of files) {
     /export interface (\w+Config)\s*{\n([\s\S]*?)^}/gm,
     (match, name, body) => {
       // Add readonly to each property
-      const readonlyBody = body.split('\n').map(line => {
+      const readonlyBody = body.split("\n").map((line) => {
         // Skip empty lines and comments
-        if (!line.trim() || line.trim().startsWith('//')) return line;
+        if (!line.trim() || line.trim().startsWith("//")) return line;
         // Add readonly to properties, but not if already present
-        if (line.includes('readonly')) return line;
-        return line.replace(/^(\s*)(\w+)(\??:)/, '$1readonly $2$3');
-      }).join('\n');
+        if (line.includes("readonly")) return line;
+        return line.replace(/^(\s*)(\w+)(\??:)/, "$1readonly $2$3");
+      }).join("\n");
 
       return `export type ${name} = {\n${readonlyBody}}`;
-    }
+    },
   );
 
   if (modified !== content) {

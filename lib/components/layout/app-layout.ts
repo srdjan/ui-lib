@@ -28,8 +28,8 @@ defineComponent<LayoutProps>("app-layout", {
     if (maxWidth) styles.push(`max-width: ${maxWidth};`);
 
     const attributes = [
-      `class="${classes.join(' ')}"`,
-      styles.length > 0 ? `style="${styles.join(' ')}"` : "",
+      `class="${classes.join(" ")}"`,
+      styles.length > 0 ? `style="${styles.join(" ")}"` : "",
       id ? `id="${id}"` : "",
       role ? `role="${role}"` : "",
       ariaLabel ? `aria-label="${ariaLabel}"` : "",

@@ -24,7 +24,10 @@ import { number, string } from "./prop-helpers.ts";
 // Test setup - create test components
 defineComponent("test-component", {
   render: ({ title = string("Test") }) => (
-    <div><h1>{title}</h1><p>Test content</p></div>
+    <div>
+      <h1>{title}</h1>
+      <p>Test content</p>
+    </div>
   ),
 });
 

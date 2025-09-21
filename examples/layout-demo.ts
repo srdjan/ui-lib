@@ -27,29 +27,38 @@ defineComponent<{}>("layout-demo", {
       {
         title: "Constrained Page (Default)",
         code: `renderComponent("page", { variant: "constrained" })`,
-        preview: renderComponent("page", { variant: "constrained" }).replace("{{children}}", `
+        preview: renderComponent("page", { variant: "constrained" }).replace(
+          "{{children}}",
+          `
           <div style=\"background: #f0f0f0; padding: 1rem; text-align: center;\">
             Constrained page with max-width and centered content
           </div>
-        `),
+        `,
+        ),
       },
       {
         title: "Fluid Page",
         code: `renderComponent("page", { variant: "fluid" })`,
-        preview: renderComponent("page", { variant: "fluid" }).replace("{{children}}", `
+        preview: renderComponent("page", { variant: "fluid" }).replace(
+          "{{children}}",
+          `
           <div style=\"background: #f0f0f0; padding: 1rem; text-align: center;\">
             Fluid page that takes full width
           </div>
-        `),
+        `,
+        ),
       },
       {
         title: "Narrow Page",
         code: `renderComponent("page", { variant: "narrow" })`,
-        preview: renderComponent("page", { variant: "narrow" }).replace("{{children}}", `
+        preview: renderComponent("page", { variant: "narrow" }).replace(
+          "{{children}}",
+          `
           <div style=\"background: #f0f0f0; padding: 1rem; text-align: center;\">
             Narrow page for content-focused layouts
           </div>
-        `),
+        `,
+        ),
       },
     ];
 
@@ -57,20 +66,26 @@ defineComponent<{}>("layout-demo", {
       {
         title: "Stack with Medium Spacing",
         code: `renderComponent("stack", { spacing: "md" })`,
-        preview: renderComponent("stack", { spacing: "md" }).replace("{{children}}", `
+        preview: renderComponent("stack", { spacing: "md" }).replace(
+          "{{children}}",
+          `
           <div style=\"background: #e0e0e0; padding: 0.5rem;\">Item 1</div>
           <div style=\"background: #d0d0d0; padding: 0.5rem;\">Item 2</div>
           <div style=\"background: #c0c0c0; padding: 0.5rem;\">Item 3</div>
-        `),
+        `,
+        ),
       },
       {
         title: "Stack with Large Spacing",
         code: `renderComponent("stack", { spacing: "xl" })`,
-        preview: renderComponent("stack", { spacing: "xl" }).replace("{{children}}", `
+        preview: renderComponent("stack", { spacing: "xl" }).replace(
+          "{{children}}",
+          `
           <div style=\"background: #e0e0e0; padding: 0.5rem;\">Item 1</div>
           <div style=\"background: #d0d0d0; padding: 0.5rem;\">Item 2</div>
           <div style=\"background: #c0c0c0; padding: 0.5rem;\">Item 3</div>
-        `),
+        `,
+        ),
       },
     ];
 
@@ -78,20 +93,39 @@ defineComponent<{}>("layout-demo", {
       {
         title: "3-Column Grid",
         code: `renderComponent("grid", { columns: 3, gap: "md" })`,
-        preview: renderComponent("grid", { columns: 3, gap: "md" }).replace("{{children}}", [
-          renderComponent("stat", { value: "42", label: "Active Users" }),
-          renderComponent("stat", { value: "128", label: "Total Posts" }),
-          renderComponent("stat", { value: "91%", label: "Uptime" }),
-        ].join("")),
+        preview: renderComponent("grid", { columns: 3, gap: "md" }).replace(
+          "{{children}}",
+          [
+            renderComponent("stat", { value: "42", label: "Active Users" }),
+            renderComponent("stat", { value: "128", label: "Total Posts" }),
+            renderComponent("stat", { value: "91%", label: "Uptime" }),
+          ].join(""),
+        ),
       },
       {
         title: "Auto-fit Grid",
-        code: `renderComponent("grid", { columns: "auto", minItemWidth: "200px" })`,
-        preview: renderComponent("grid", { columns: "auto", minItemWidth: "200px" }).replace("{{children}}", [
-          renderComponent("card", { title: "Card 1" }).replace("{{children}}", "Auto-sized card content"),
-          renderComponent("card", { title: "Card 2" }).replace("{{children}}", "Auto-sized card content"),
-          renderComponent("card", { title: "Card 3" }).replace("{{children}}", "Auto-sized card content"),
-        ].join("")),
+        code:
+          `renderComponent("grid", { columns: "auto", minItemWidth: "200px" })`,
+        preview: renderComponent("grid", {
+          columns: "auto",
+          minItemWidth: "200px",
+        }).replace(
+          "{{children}}",
+          [
+            renderComponent("card", { title: "Card 1" }).replace(
+              "{{children}}",
+              "Auto-sized card content",
+            ),
+            renderComponent("card", { title: "Card 2" }).replace(
+              "{{children}}",
+              "Auto-sized card content",
+            ),
+            renderComponent("card", { title: "Card 3" }).replace(
+              "{{children}}",
+              "Auto-sized card content",
+            ),
+          ].join(""),
+        ),
       },
     ];
 
@@ -184,7 +218,9 @@ defineComponent<{}>("layout-demo", {
       }
     `;
 
-    const renderExampleCard = (example: { title: string; code: string; preview: string }) => (
+    const renderExampleCard = (
+      example: { title: string; code: string; preview: string },
+    ) => (
       <article class="demo-card">
         <header>
           <h3>{example.title}</h3>
@@ -192,7 +228,10 @@ defineComponent<{}>("layout-demo", {
         <p>
           <strong>Usage:</strong> <code>{example.code}</code>
         </p>
-        <div class="demo-card__preview" dangerouslySetInnerHTML={{ __html: example.preview }} />
+        <div
+          class="demo-card__preview"
+          dangerouslySetInnerHTML={{ __html: example.preview }}
+        />
       </article>
     );
 
@@ -232,7 +271,10 @@ defineComponent<{}>("layout-demo", {
       <html lang="en">
         <head>
           <meta charset="UTF-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+          />
           <title>Layout Components Demo - ui-lib</title>
           <style dangerouslySetInnerHTML={{ __html: styles }} />
         </head>
@@ -240,7 +282,10 @@ defineComponent<{}>("layout-demo", {
           <main class="layout-demo">
             <header class="layout-demo__hero">
               <h1>Layout Components Demo</h1>
-              <p>Explore constrained layouts, responsive stacks, and adaptive grids.</p>
+              <p>
+                Explore constrained layouts, responsive stacks, and adaptive
+                grids.
+              </p>
             </header>
             {pageSection}
             {stackSection}

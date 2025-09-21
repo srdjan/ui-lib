@@ -15,19 +15,19 @@ export type AlertProps = BaseComponentProps & {
   readonly closable?: boolean;
   readonly onClose?: string;
   readonly children?: string | string[];
-}
+};
 
 /**
  * Alert component for displaying contextual feedback messages
- * 
+ *
  * @example
  * ```tsx
  * // Basic alerts
  * Alert({ variant: "success", children: "Operation completed successfully!" })
  * Alert({ variant: "error", title: "Error", description: "Something went wrong" })
- * 
+ *
  * // Closable alert with custom icon
- * Alert({ 
+ * Alert({
  *   variant: "warning",
  *   style: "left-accent",
  *   icon: "⚠️",
@@ -52,18 +52,18 @@ export function Alert(props: AlertProps): string {
   } = props;
 
   const alertId = `alert-${Math.random().toString(36).substr(2, 9)}`;
-  
+
   // Default icons for each variant
   const defaultIcons = {
     info: "ℹ️",
-    success: "✅", 
+    success: "✅",
     warning: "⚠️",
     error: "❌",
   };
-  
+
   const alertIcon = icon || defaultIcons[variant];
   const alertText = Array.isArray(children) ? children.join("") : children;
-  
+
   const styles = css({
     alert: {
       position: "relative",
@@ -74,7 +74,7 @@ export function Alert(props: AlertProps): string {
       display: "flex",
       gap: componentTokens.spacing[3],
       alignItems: "flex-start",
-      
+
       // Style variants
       ...(style === "subtle" && {
         ...(variant === "info" && {
@@ -102,7 +102,7 @@ export function Alert(props: AlertProps): string {
           border: `1px solid ${componentTokens.colors.error[200]}`,
         }),
       }),
-      
+
       ...(style === "solid" && {
         color: "white",
         ...(variant === "info" && {
@@ -118,7 +118,7 @@ export function Alert(props: AlertProps): string {
           backgroundColor: componentTokens.colors.error[500],
         }),
       }),
-      
+
       ...(style === "left-accent" && {
         borderLeft: `4px solid`,
         backgroundColor: componentTokens.colors.gray[50],
@@ -140,7 +140,7 @@ export function Alert(props: AlertProps): string {
           color: componentTokens.colors.error[800],
         }),
       }),
-      
+
       ...(style === "top-accent" && {
         borderTop: `4px solid`,
         backgroundColor: componentTokens.colors.gray[50],
@@ -163,29 +163,29 @@ export function Alert(props: AlertProps): string {
         }),
       }),
     },
-    
+
     icon: {
       flexShrink: 0,
       fontSize: "1.25rem",
       lineHeight: 1,
     },
-    
+
     content: {
       flex: 1,
       minWidth: 0,
     },
-    
+
     title: {
       fontWeight: componentTokens.typography.weights.semibold,
       marginBottom: description || alertText ? componentTokens.spacing[1] : 0,
       fontSize: componentTokens.typography.sizes.sm,
     },
-    
+
     description: {
       fontSize: componentTokens.typography.sizes.sm,
       opacity: 0.9,
     },
-    
+
     closeButton: {
       position: "absolute",
       top: componentTokens.spacing[2],
@@ -199,13 +199,14 @@ export function Alert(props: AlertProps): string {
       lineHeight: 1,
       color: "currentColor",
       opacity: 0.7,
-      transition: `all ${componentTokens.animation.duration.fast} ${componentTokens.animation.easing.out}`,
-      
+      transition:
+        `all ${componentTokens.animation.duration.fast} ${componentTokens.animation.easing.out}`,
+
       "&:hover": {
         opacity: 1,
         backgroundColor: "rgba(0, 0, 0, 0.1)",
       },
-      
+
       "&:focus": {
         outline: "none",
         opacity: 1,
@@ -213,9 +214,10 @@ export function Alert(props: AlertProps): string {
       },
     },
   });
-  
+
   // Close functionality
-  const closeScript = closable ? `
+  const closeScript = closable
+    ? `
     <script>
       (function() {
         function closeAlert() {
@@ -232,35 +234,42 @@ export function Alert(props: AlertProps): string {
             }, 300);
             
             // Call custom close handler
-            ${onClose ? `(${onClose})();` : ''}
+            ${onClose ? `(${onClose})();` : ""}
           }
         }
         
         // Make function globally accessible
-        window.closeAlert_${alertId.replace(/-/g, '_')} = closeAlert;
+        window.closeAlert_${alertId.replace(/-/g, "_")} = closeAlert;
       })();
     </script>
-  ` : "";
-  
-  const closeButton = closable ? `
+  `
+    : "";
+
+  const closeButton = closable
+    ? `
     <button 
       class="${styles.classMap.closeButton}"
       type="button"
       aria-label="Close alert"
-      onclick="closeAlert_${alertId.replace(/-/g, '_')}()"
+      onclick="closeAlert_${alertId.replace(/-/g, "_")}()"
     >
       ✕
     </button>
-  ` : "";
-  
-  const titleElement = title ? `<div class="${styles.classMap.title}">${title}</div>` : "";
-  
-  const contentElement = description || alertText ? `
+  `
+    : "";
+
+  const titleElement = title
+    ? `<div class="${styles.classMap.title}">${title}</div>`
+    : "";
+
+  const contentElement = description || alertText
+    ? `
     <div class="${styles.classMap.description}">
       ${description || alertText}
     </div>
-  ` : "";
-  
+  `
+    : "";
+
   return `
     <div 
       id="${alertId}"
@@ -268,7 +277,9 @@ export function Alert(props: AlertProps): string {
       role="alert"
       aria-live="polite"
     >
-      ${alertIcon ? `<div class="${styles.classMap.icon}">${alertIcon}</div>` : ""}
+      ${
+    alertIcon ? `<div class="${styles.classMap.icon}">${alertIcon}</div>` : ""
+  }
       <div class="${styles.classMap.content}">
         ${titleElement}
         ${contentElement}

@@ -11,24 +11,25 @@ export type EasingFunction = (t: number) => number;
  */
 export const easing = {
   linear: (t: number): number => t,
-  
+
   // Quadratic
   easeInQuad: (t: number): number => t * t,
   easeOutQuad: (t: number): number => t * (2 - t),
-  easeInOutQuad: (t: number): number => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t,
-  
+  easeInOutQuad: (t: number): number =>
+    t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t,
+
   // Cubic
   easeInCubic: (t: number): number => t * t * t,
   easeOutCubic: (t: number): number => (--t) * t * t + 1,
-  easeInOutCubic: (t: number): number => 
+  easeInOutCubic: (t: number): number =>
     t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1,
-  
+
   // Quartic
   easeInQuart: (t: number): number => t * t * t * t,
   easeOutQuart: (t: number): number => 1 - (--t) * t * t * t,
-  easeInOutQuart: (t: number): number => 
+  easeInOutQuart: (t: number): number =>
     t < 0.5 ? 8 * t * t * t * t : 1 - 8 * (--t) * t * t * t,
-  
+
   // Elastic
   easeInElastic: (t: number): number => {
     if (t === 0) return 0;
@@ -36,19 +37,19 @@ export const easing = {
     const c4 = (2 * Math.PI) / 3;
     return -Math.pow(2, 10 * t - 10) * Math.sin((t * 10 - 10.75) * c4);
   },
-  
+
   easeOutElastic: (t: number): number => {
     if (t === 0) return 0;
     if (t === 1) return 1;
     const c4 = (2 * Math.PI) / 3;
     return Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * c4) + 1;
   },
-  
+
   // Bounce
   easeOutBounce: (t: number): number => {
     const n1 = 7.5625;
     const d1 = 2.75;
-    
+
     if (t < 1 / d1) {
       return n1 * t * t;
     } else if (t < 2 / d1) {
@@ -130,7 +131,7 @@ export class NumberCounterAnimation {
       }
 
       const now = Date.now();
-      
+
       if (now < startTime) {
         setTimeout(step, 16); // ~60fps
         return;
@@ -222,36 +223,35 @@ export const animateCounterGroup = (
  */
 export const formatters = {
   integer: (value: number): string => Math.round(value).toString(),
-  
-  decimal: (decimals = 1) => (value: number): string => 
-    value.toFixed(decimals),
-  
-  percentage: (decimals = 1) => (value: number): string => 
+
+  decimal: (decimals = 1) => (value: number): string => value.toFixed(decimals),
+
+  percentage: (decimals = 1) => (value: number): string =>
     `${value.toFixed(decimals)}%`,
-  
-  currency: (currency = "$", decimals = 2) => (value: number): string => 
+
+  currency: (currency = "$", decimals = 2) => (value: number): string =>
     `${currency}${value.toFixed(decimals)}`,
-  
+
   fileSize: (value: number): string => {
     const units = ["B", "KB", "MB", "GB", "TB"];
     let unitIndex = 0;
     let size = value;
-    
+
     while (size >= 1024 && unitIndex < units.length - 1) {
       size /= 1024;
       unitIndex++;
     }
-    
+
     return `${size.toFixed(1)}${units[unitIndex]}`;
   },
-  
+
   duration: (value: number): string => {
     const minutes = Math.floor(value / 60);
     const seconds = Math.round(value % 60);
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   },
-  
-  withUnit: (unit: string, decimals = 1) => (value: number): string => 
+
+  withUnit: (unit: string, decimals = 1) => (value: number): string =>
     `${value.toFixed(decimals)}${unit}`,
 };
 
@@ -265,7 +265,9 @@ export const createElementCounter = (
   return numberCounter.animate({
     ...options,
     onUpdate: (value) => {
-      const formatted = options.formatter ? options.formatter(value) : value.toString();
+      const formatted = options.formatter
+        ? options.formatter(value)
+        : value.toString();
       element.textContent = formatted;
     },
   });
@@ -280,12 +282,14 @@ export const animateElements = (
 ): readonly number[] => {
   return elements.map(({ element, options }, index) => {
     const delay = (options.delay ?? 0) + (index * staggerDelay);
-    
+
     return numberCounter.animate({
       ...options,
       delay,
       onUpdate: (value) => {
-        const formatted = options.formatter ? options.formatter(value) : value.toString();
+        const formatted = options.formatter
+          ? options.formatter(value)
+          : value.toString();
         element.textContent = formatted;
         options.onUpdate?.(value);
       },

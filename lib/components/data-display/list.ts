@@ -153,7 +153,9 @@ const listStyles = css.responsive("list", {
       textDecoration: "none",
       fontSize: token("typography", "sm-size"),
       fontWeight: token("typography", "medium"),
-      transition: `all ${token("animation", "fast")} ${token("animation", "ease")}`,
+      transition: `all ${token("animation", "fast")} ${
+        token("animation", "ease")
+      }`,
 
       "&:hover": {
         backgroundColor: token("color", "primary-600"),
@@ -297,7 +299,8 @@ defineComponent("list", {
     };
 
     // Render header if title or actions are provided
-    const header = (title || count || headerActions) ? `
+    const header = (title || count || headerActions)
+      ? `
       <div class="${classMap.header}">
         <div>
           ${title ? `<h2 class="title">${title}</h2>` : ""}
@@ -305,12 +308,16 @@ defineComponent("list", {
         </div>
         ${headerActions ? `<div class="actions">${headerActions}</div>` : ""}
       </div>
-    ` : "";
+    `
+      : "";
 
     // Loading state
     if (isLoading) {
       return `
-        <div ${Object.entries(containerProps).map(([k, v]) => v ? `${k}="${v}"` : "").join(" ")}>
+        <div ${
+        Object.entries(containerProps).map(([k, v]) => v ? `${k}="${v}"` : "")
+          .join(" ")
+      }>
           ${header}
           <div class="${classMap.loadingSpinner}">
             <span class="text">Loading items...</span>
@@ -322,13 +329,20 @@ defineComponent("list", {
     // Empty state
     if (isEmpty || parsedItems.length === 0) {
       return `
-        <div ${Object.entries(containerProps).map(([k, v]) => v ? `${k}="${v}"` : "").join(" ")}>
+        <div ${
+        Object.entries(containerProps).map(([k, v]) => v ? `${k}="${v}"` : "")
+          .join(" ")
+      }>
           ${header}
           <div class="${classMap.emptyState}">
             ${emptyIcon ? `<div class="icon">${emptyIcon}</div>` : ""}
             <div class="title">${emptyTitle}</div>
             <div class="description">${emptyDescription}</div>
-            ${emptyAction ? `<a href="${emptyAction}" class="action">${emptyActionText}</a>` : ""}
+            ${
+        emptyAction
+          ? `<a href="${emptyAction}" class="action">${emptyActionText}</a>`
+          : ""
+      }
           </div>
         </div>
       `;
@@ -336,7 +350,10 @@ defineComponent("list", {
 
     // Normal state with items
     return `
-      <div ${Object.entries(containerProps).map(([k, v]) => v ? `${k}="${v}"` : "").join(" ")}>
+      <div ${
+      Object.entries(containerProps).map(([k, v]) => v ? `${k}="${v}"` : "")
+        .join(" ")
+    }>
         ${header}
         ${parsedItems.join("")}
       </div>
@@ -363,7 +380,11 @@ export const List = (props: {
 }) => {
   const attrs: Record<string, string> = {};
 
-  if (props.items) attrs.items = Array.isArray(props.items) ? JSON.stringify(props.items) : props.items;
+  if (props.items) {
+    attrs.items = Array.isArray(props.items)
+      ? JSON.stringify(props.items)
+      : props.items;
+  }
   if (props.layout) attrs.layout = props.layout;
   if (props.size) attrs.size = props.size;
   if (props.loading) attrs.loading = "true";

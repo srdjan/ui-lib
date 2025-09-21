@@ -1,27 +1,92 @@
 // DOM Effect Descriptions - Pure functional approach to DOM operations
 // Instead of directly mutating the DOM, functions return descriptions of effects
 
-import { Result, ok, err } from "./result.ts";
+import { err, ok, Result } from "./result.ts";
 
 // DOM operation types as algebraic data type
 export type DOMOperation =
-  | { readonly type: "addClass"; readonly elementId: string; readonly className: string }
-  | { readonly type: "removeClass"; readonly elementId: string; readonly className: string }
-  | { readonly type: "setStyle"; readonly elementId: string; readonly property: string; readonly value: string }
-  | { readonly type: "setAttribute"; readonly elementId: string; readonly name: string; readonly value: string }
-  | { readonly type: "removeAttribute"; readonly elementId: string; readonly name: string }
-  | { readonly type: "setDisplay"; readonly elementId: string; readonly display: string }
-  | { readonly type: "appendChild"; readonly parentId: string; readonly child: Element }
-  | { readonly type: "removeChild"; readonly parentId: string; readonly childId: string }
-  | { readonly type: "innerHTML"; readonly elementId: string; readonly html: string }
+  | {
+    readonly type: "addClass";
+    readonly elementId: string;
+    readonly className: string;
+  }
+  | {
+    readonly type: "removeClass";
+    readonly elementId: string;
+    readonly className: string;
+  }
+  | {
+    readonly type: "setStyle";
+    readonly elementId: string;
+    readonly property: string;
+    readonly value: string;
+  }
+  | {
+    readonly type: "setAttribute";
+    readonly elementId: string;
+    readonly name: string;
+    readonly value: string;
+  }
+  | {
+    readonly type: "removeAttribute";
+    readonly elementId: string;
+    readonly name: string;
+  }
+  | {
+    readonly type: "setDisplay";
+    readonly elementId: string;
+    readonly display: string;
+  }
+  | {
+    readonly type: "appendChild";
+    readonly parentId: string;
+    readonly child: Element;
+  }
+  | {
+    readonly type: "removeChild";
+    readonly parentId: string;
+    readonly childId: string;
+  }
+  | {
+    readonly type: "innerHTML";
+    readonly elementId: string;
+    readonly html: string;
+  }
   | { readonly type: "focus"; readonly elementId: string }
   | { readonly type: "blur"; readonly elementId: string }
-  | { readonly type: "dispatchEvent"; readonly elementId: string; readonly event: Event }
-  | { readonly type: "addEventListener"; readonly elementId: string; readonly event: string; readonly handler: EventListener }
-  | { readonly type: "removeEventListener"; readonly elementId: string; readonly event: string; readonly handler: EventListener }
-  | { readonly type: "createElement"; readonly tagName: string; readonly id: string; readonly attributes?: Record<string, string> }
-  | { readonly type: "querySelector"; readonly selector: string; readonly callback: (element: Element | null) => DOMOperation[] }
-  | { readonly type: "setTimeout"; readonly callback: () => DOMOperation[]; readonly delay: number };
+  | {
+    readonly type: "dispatchEvent";
+    readonly elementId: string;
+    readonly event: Event;
+  }
+  | {
+    readonly type: "addEventListener";
+    readonly elementId: string;
+    readonly event: string;
+    readonly handler: EventListener;
+  }
+  | {
+    readonly type: "removeEventListener";
+    readonly elementId: string;
+    readonly event: string;
+    readonly handler: EventListener;
+  }
+  | {
+    readonly type: "createElement";
+    readonly tagName: string;
+    readonly id: string;
+    readonly attributes?: Record<string, string>;
+  }
+  | {
+    readonly type: "querySelector";
+    readonly selector: string;
+    readonly callback: (element: Element | null) => DOMOperation[];
+  }
+  | {
+    readonly type: "setTimeout";
+    readonly callback: () => DOMOperation[];
+    readonly delay: number;
+  };
 
 // Effect batch for atomic operations
 export type DOMEffectBatch = {
@@ -33,7 +98,11 @@ export type DOMEffectBatch = {
 export type DOMError =
   | { readonly type: "ElementNotFound"; readonly id: string }
   | { readonly type: "InvalidOperation"; readonly reason: string }
-  | { readonly type: "ExecutionFailed"; readonly operation: DOMOperation; readonly error: unknown };
+  | {
+    readonly type: "ExecutionFailed";
+    readonly operation: DOMOperation;
+    readonly error: unknown;
+  };
 
 // Pure function to create effect descriptions
 export const createDOMEffects = {
@@ -49,7 +118,11 @@ export const createDOMEffects = {
     className,
   }),
 
-  setStyle: (elementId: string, property: string, value: string): DOMOperation => ({
+  setStyle: (
+    elementId: string,
+    property: string,
+    value: string,
+  ): DOMOperation => ({
     type: "setStyle",
     elementId,
     property,
@@ -79,7 +152,10 @@ export const createDOMEffects = {
     html,
   }),
 
-  setTimeout: (callback: () => DOMOperation[], delay: number): DOMOperation => ({
+  setTimeout: (
+    callback: () => DOMOperation[],
+    delay: number,
+  ): DOMOperation => ({
     type: "setTimeout",
     callback,
     delay,
@@ -87,7 +163,9 @@ export const createDOMEffects = {
 };
 
 // Execute a single DOM operation (impure - should be at application boundary)
-export const executeDOMOperation = (op: DOMOperation): Result<void, DOMError> => {
+export const executeDOMOperation = (
+  op: DOMOperation,
+): Result<void, DOMError> => {
   try {
     switch (op.type) {
       case "addClass": {
@@ -218,9 +296,11 @@ export const executeDOMOperation = (op: DOMOperation): Result<void, DOMError> =>
       }
 
       default:
-        // @ts-expect-error: Exhaustiveness check
         const _exhaustive: never = op;
-        return err({ type: "InvalidOperation", reason: "Unknown operation type" });
+        return err({
+          type: "InvalidOperation",
+          reason: "Unknown operation type",
+        });
     }
   } catch (error) {
     return err({ type: "ExecutionFailed", operation: op, error });
@@ -228,7 +308,9 @@ export const executeDOMOperation = (op: DOMOperation): Result<void, DOMError> =>
 };
 
 // Execute a batch of DOM operations
-export const executeDOMBatch = (operations: readonly DOMOperation[]): Result<void, DOMError> => {
+export const executeDOMBatch = (
+  operations: readonly DOMOperation[],
+): Result<void, DOMError> => {
   for (const op of operations) {
     const result = executeDOMOperation(op);
     if (!result.ok) {
@@ -241,9 +323,9 @@ export const executeDOMBatch = (operations: readonly DOMOperation[]): Result<voi
 // Helper to create a deferred effect (for animations/transitions)
 export const deferredEffect = (
   operations: readonly DOMOperation[],
-  delay: number
+  delay: number,
 ): DOMOperation => ({
   type: "setTimeout",
-  callback: () => operations,
+  callback: () => [...operations],
   delay,
 });

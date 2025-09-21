@@ -33,7 +33,7 @@ defineComponent<StatProps>("stat", {
     if (className) classes.push(className);
 
     const attributes = [
-      `class="${classes.join(' ')}"`,
+      `class="${classes.join(" ")}"`,
       id ? `id="${id}"` : "",
     ].filter(Boolean);
 
@@ -41,7 +41,9 @@ defineComponent<StatProps>("stat", {
       <div ${attributes.join(" ")}>
         <span class="stat__value">${value}</span>
         <span class="stat__label">${label}</span>
-        ${description ? `<span class="stat__description">${description}</span>` : ""}
+        ${
+      description ? `<span class="stat__description">${description}</span>` : ""
+    }
       </div>
     `;
   },

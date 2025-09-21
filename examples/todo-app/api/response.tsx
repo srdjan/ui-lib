@@ -1,5 +1,5 @@
 /** @jsx h */
-import { h } from "../../../lib/simple.tsx";
+import { h } from "jsx";
 import { Alert, renderToString } from "../../../mod-simple.ts";
 import type { DatabaseError } from "./types.ts";
 

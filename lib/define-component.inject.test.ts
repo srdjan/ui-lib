@@ -50,4 +50,3 @@ Deno.test("does not duplicate data-component if already present", () => {
   // Should remain unchanged with existing data-component value
   assertEquals(html, '<div data-component="pre">X</div>');
 });
-
