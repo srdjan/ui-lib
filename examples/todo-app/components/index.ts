@@ -4,15 +4,15 @@
  */
 
 // Component definitions
-export * from "./todo-item.ts";
-export * from "./todo-form.ts";
-export * from "./todo-list.ts";
-export * from "./todo-stats.ts";
-export * from "./todo-app.ts";
+export * from "./todo-item.tsx";
+export * from "./todo-form.tsx";
+export * from "./todo-list.tsx";
+export * from "./todo-stats.tsx";
+export * from "./todo-app.tsx";
 
 // Component names for convenience
-export { TodoItem } from "./todo-item.ts";
-export { TodoForm } from "./todo-form.ts";
-export { TodoList } from "./todo-list.ts";
-export { TodoStats } from "./todo-stats.ts";
-export { TodoApp } from "./todo-app.ts";
+export { TodoItem } from "./todo-item.tsx";
+export { TodoForm } from "./todo-form.tsx";
+export { TodoList } from "./todo-list.tsx";
+export { TodoStats } from "./todo-stats.tsx";
+export { TodoApp } from "./todo-app.tsx";

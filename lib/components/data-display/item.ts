@@ -5,9 +5,8 @@
  * Refactored to use modern CSS-in-TS with design tokens and cascade layers
  */
 
-import { defineComponent } from "../../define-component.ts";
-import { renderComponent } from "../../component-state.ts";
 import { css } from "../../css-in-ts.ts";
+import { defineComponent } from "../../define-component.ts";
 import { componentTokens } from "../../themes/component-tokens.ts";
 import type { ComponentSize } from "../types.ts";
 
@@ -33,7 +32,8 @@ function createItemStyles() {
       boxShadow: componentTokens.shadows.sm,
 
       // Animation
-      transition: `all ${componentTokens.animation.duration.normal} ${componentTokens.animation.easing.out}`,
+      transition:
+        `all ${componentTokens.animation.duration.normal} ${componentTokens.animation.easing.out}`,
 
       // Hover state
       "&:hover": {
@@ -235,7 +235,8 @@ function createItemStyles() {
       borderRadius: componentTokens.radius.sm,
       cursor: "pointer",
       fontSize: componentTokens.typography.sizes.sm,
-      transition: `all ${componentTokens.animation.duration.fast} ${componentTokens.animation.easing.out}`,
+      transition:
+        `all ${componentTokens.animation.duration.fast} ${componentTokens.animation.easing.out}`,
       minWidth: componentTokens.spacing[8],
       minHeight: componentTokens.spacing[8],
 
@@ -289,7 +290,12 @@ export type ItemProps = {
 // Enhanced props with better typing
 export type ItemVariant = "default" | "completed" | "selected" | "priority";
 export type ItemPriority = "low" | "medium" | "high";
-export type BadgeVariant = "primary" | "success" | "warning" | "danger" | "neutral";
+export type BadgeVariant =
+  | "primary"
+  | "success"
+  | "warning"
+  | "danger"
+  | "neutral";
 export type ActionVariant = "default" | "primary" | "danger";
 
 export type ItemBadge = {
@@ -299,7 +305,10 @@ export type ItemBadge = {
 
 export type ItemAction = {
   readonly text: string;
-  readonly action: string;
+  /** Optional legacy onclick JS handler (kept for backward compatibility) */
+  readonly action?: string;
+  /** Preferred: raw attribute string (e.g., hx-* attrs) to spread on the button */
+  readonly attributes?: string;
   readonly variant?: ActionVariant;
 };
 
@@ -338,11 +347,16 @@ defineComponent<ItemProps>("item", {
     const getBadgeClass = (variant?: BadgeVariant) => {
       const baseClass = styles.classMap.badge;
       switch (variant) {
-        case "primary": return `${baseClass} ${styles.classMap.badgePrimary}`;
-        case "success": return `${baseClass} ${styles.classMap.badgeSuccess}`;
-        case "warning": return `${baseClass} ${styles.classMap.badgeWarning}`;
-        case "danger": return `${baseClass} ${styles.classMap.badgeDanger}`;
-        default: return `${baseClass} ${styles.classMap.badgeNeutral}`;
+        case "primary":
+          return `${baseClass} ${styles.classMap.badgePrimary}`;
+        case "success":
+          return `${baseClass} ${styles.classMap.badgeSuccess}`;
+        case "warning":
+          return `${baseClass} ${styles.classMap.badgeWarning}`;
+        case "danger":
+          return `${baseClass} ${styles.classMap.badgeDanger}`;
+        default:
+          return `${baseClass} ${styles.classMap.badgeNeutral}`;
       }
     };
 
@@ -350,69 +364,93 @@ defineComponent<ItemProps>("item", {
     const getActionClass = (variant?: ActionVariant) => {
       const baseClass = styles.classMap.action;
       switch (variant) {
-        case "primary": return `${baseClass} ${styles.classMap.actionPrimary}`;
-        case "danger": return `${baseClass} ${styles.classMap.actionDanger}`;
-        default: return baseClass;
+        case "primary":
+          return `${baseClass} ${styles.classMap.actionPrimary}`;
+        case "danger":
+          return `${baseClass} ${styles.classMap.actionDanger}`;
+        default:
+          return baseClass;
       }
     };
 
     // Render icon
-    const iconHtml = icon ? `
+    const iconHtml = icon
+      ? `
       <div class="${styles.classMap.icon}">
         ${icon}
       </div>
-    ` : "";
+    `
+      : "";
 
     // Render badges
-    const badgesHtml = badges.length > 0 ? `
+    const badgesHtml = badges.length > 0
+      ? `
       <div class="${styles.classMap.badges}">
-        ${badges.map(badge => `
+        ${
+        badges.map((badge) => `
           <span class="${getBadgeClass(badge.variant)}">
             ${badge.text}
           </span>
-        `).join("")}
+        `).join("")
+      }
       </div>
-    ` : "";
+    `
+      : "";
 
     // Render metadata
-    const metadataHtml = timestamp ? `
+    const metadataHtml = timestamp
+      ? `
       <div class="${styles.classMap.metadata}">
         <span>${timestamp}</span>
       </div>
-    ` : "";
+    `
+      : "";
 
     // Render actions
-    const actionsHtml = actions.length > 0 ? `
+    const actionsHtml = actions.length > 0
+      ? `
       <div class="${styles.classMap.actions}">
-        ${actions.map(action => `
+        ${
+        actions.map((action) => {
+          const extra = action.attributes
+            ? ` ${action.attributes}`
+            : (action.action
+              ? ` onclick=\"${action.action.replace(/\"/g, "&quot;")}\"`
+              : "");
+          return `
           <button
-            type="button"
-            class="${getActionClass(action.variant)}"
-            onclick="${action.action}"
+            type=\"button\"
+            class=\"${getActionClass(action.variant)}\"${extra}
           >
             ${action.text}
-          </button>
-        `).join("")}
+          </button>`;
+        }).join("")
+      }
       </div>
-    ` : "";
+    `
+      : "";
 
     return `
       <style>${styles.css}</style>
       <div
-        ${id ? `id="${id}"` : ''}
+        ${id ? `id="${id}"` : ""}
         class="${itemClasses}"
         data-component="item"
         data-variant="${variant}"
         data-size="${size}"
-        ${priority ? `data-priority="${priority}"` : ''}
+        ${priority ? `data-priority="${priority}"` : ""}
         data-completed="${completed.toString()}"
         data-selected="${selected.toString()}"
       >
         <div class="${styles.classMap.content}">
           ${iconHtml}
           <div class="${styles.classMap.main}">
-            ${title ? `<h3 class="${styles.classMap.title}">${title}</h3>` : ''}
-            ${description ? `<p class="${styles.classMap.description}">${description}</p>` : ''}
+            ${title ? `<h3 class="${styles.classMap.title}">${title}</h3>` : ""}
+            ${
+      description
+        ? `<p class="${styles.classMap.description}">${description}</p>`
+        : ""
+    }
             ${metadataHtml}
             ${badgesHtml}
           </div>

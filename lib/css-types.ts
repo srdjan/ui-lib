@@ -26,6 +26,10 @@ export type CSSProperties = {
   left?: string | number;
   zIndex?: number | string;
   content?: string;
+  container?: string;
+  containerName?: string;
+  containerType?: string;
+  contain?: string;
 
   // Flexbox
   flexDirection?: "row" | "row-reverse" | "column" | "column-reverse";
@@ -75,6 +79,15 @@ export type CSSProperties = {
   gridColumn?: string;
   gridRow?: string;
   gridArea?: string;
+  blockSize?: string | number;
+  minBlockSize?: string | number;
+  maxBlockSize?: string | number;
+  inlineSize?: string | number;
+  minInlineSize?: string | number;
+  maxInlineSize?: string | number;
+  scrollSnapType?: string;
+  scrollSnapAlign?: string;
+  scrollSnapStop?: string;
 
   // Box Model
   width?: string | number;
@@ -97,6 +110,14 @@ export type CSSProperties = {
   marginLeft?: string | number;
   marginBlock?: string | number;
   marginInline?: string | number;
+  marginBlockStart?: string | number;
+  marginBlockEnd?: string | number;
+  marginInlineStart?: string | number;
+  marginInlineEnd?: string | number;
+  paddingBlockStart?: string | number;
+  paddingBlockEnd?: string | number;
+  paddingInlineStart?: string | number;
+  paddingInlineEnd?: string | number;
 
   // Border
   border?: string | number;
@@ -126,6 +147,10 @@ export type CSSProperties = {
   borderTopRightRadius?: string | number;
   borderBottomLeftRadius?: string | number;
   borderBottomRightRadius?: string | number;
+  borderInlineStart?: string | number;
+  borderInlineEnd?: string | number;
+  borderBlockStart?: string | number;
+  borderBlockEnd?: string | number;
 
   // Typography
   verticalAlign?:
@@ -224,6 +249,12 @@ export type CSSProperties = {
   animationFillMode?: "none" | "forwards" | "backwards" | "both";
   animationPlayState?: "paused" | "running";
 
+  // Vendor-specific helpers
+  WebkitLineClamp?: string | number;
+  WebkitBoxOrient?: string;
+  WebkitBoxAlign?: string;
+  WebkitBoxPack?: string;
+
   // Other
   clip?: string;
   resize?: "none" | "both" | "horizontal" | "vertical" | "block" | "inline";
@@ -262,6 +293,9 @@ export type CSSProperties = {
 
   // CSS Variables (custom properties)
   [key: `--${string}`]: string | number;
+
+  // Allow any additional modern property (catch-all)
+  [property: string]: unknown;
 };
 
 // Pseudo-selectors and pseudo-elements

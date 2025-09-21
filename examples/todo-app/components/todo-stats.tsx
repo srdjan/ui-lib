@@ -5,10 +5,6 @@
  */
 
 import { defineComponent, h } from "../../../lib/define-component.ts";
-import { renderComponent } from "../../../lib/component-state.ts";
-import "../../../lib/components/data-display/stat.ts";
-import "../../../lib/components/layout/grid.tsx";
-import "../../../lib/components/layout/card.ts";
 
 export type TodoStatsProps = {
   stats: {
@@ -22,32 +18,26 @@ defineComponent<TodoStatsProps>("todo-stats", {
   render: (props) => {
     const { stats } = props;
 
-    const statsGrid = renderComponent("grid", { columns: 3, gap: "md" }).replace(
-      "{{children}}",
-      [
-        renderComponent("stat", {
-          value: stats.active.toString(),
-          label: "active",
-          color: "primary"
-        }),
-        renderComponent("stat", {
-          value: stats.completed.toString(),
-          label: "completed",
-          color: "success"
-        }),
-        renderComponent("stat", {
-          value: stats.total.toString(),
-          label: "total",
-          color: "default"
-        }),
-      ].join("")
-    );
-
-    return renderComponent("card", { size: "md" }).replace(
-      "{{children}}",
-      statsGrid
+    return (
+      <section class="todo-stats">
+        <div class="todo-stats__grid">
+          <article class="todo-stat todo-stat--primary">
+            <span class="todo-stat__value">{stats.active}</span>
+            <span class="todo-stat__label">Active</span>
+          </article>
+          <article class="todo-stat todo-stat--success">
+            <span class="todo-stat__value">{stats.completed}</span>
+            <span class="todo-stat__label">Completed</span>
+          </article>
+          <article class="todo-stat">
+            <span class="todo-stat__value">{stats.total}</span>
+            <span class="todo-stat__label">Total</span>
+          </article>
+        </div>
+      </section>
     );
   },
 });
 
 export const TodoStats = "todo-stats";
+

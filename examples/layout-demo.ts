@@ -1,15 +1,15 @@
 #!/usr/bin/env deno run --allow-net --allow-read --allow-env
 
+/** @jsx h */
 /**
  * Layout Components Demo
  * Demonstrates the different layout options available in ui-lib
  */
 
-import { html, Router } from "../mod-simple.ts";
-import { defineComponent } from "../lib/define-component.ts";
+import { Router } from "../mod-simple.ts";
+import { defineComponent, h } from "../lib/define-component.ts";
 import { renderComponent } from "../lib/component-state.ts";
 
-// Import layout components
 import "../lib/components/layout/page.ts";
 import "../lib/components/layout/stack.ts";
 import "../lib/components/layout/section.ts";
@@ -23,13 +23,12 @@ const router = new Router();
 // Demo page showing different layout options
 defineComponent<{}>("layout-demo", {
   render: () => {
-    // Create examples of different layouts
     const pageExamples = [
       {
         title: "Constrained Page (Default)",
         code: `renderComponent("page", { variant: "constrained" })`,
         preview: renderComponent("page", { variant: "constrained" }).replace("{{children}}", `
-          <div style="background: #f0f0f0; padding: 1rem; text-align: center;">
+          <div style=\"background: #f0f0f0; padding: 1rem; text-align: center;\">
             Constrained page with max-width and centered content
           </div>
         `),
@@ -38,7 +37,7 @@ defineComponent<{}>("layout-demo", {
         title: "Fluid Page",
         code: `renderComponent("page", { variant: "fluid" })`,
         preview: renderComponent("page", { variant: "fluid" }).replace("{{children}}", `
-          <div style="background: #f0f0f0; padding: 1rem; text-align: center;">
+          <div style=\"background: #f0f0f0; padding: 1rem; text-align: center;\">
             Fluid page that takes full width
           </div>
         `),
@@ -47,7 +46,7 @@ defineComponent<{}>("layout-demo", {
         title: "Narrow Page",
         code: `renderComponent("page", { variant: "narrow" })`,
         preview: renderComponent("page", { variant: "narrow" }).replace("{{children}}", `
-          <div style="background: #f0f0f0; padding: 1rem; text-align: center;">
+          <div style=\"background: #f0f0f0; padding: 1rem; text-align: center;\">
             Narrow page for content-focused layouts
           </div>
         `),
@@ -59,18 +58,18 @@ defineComponent<{}>("layout-demo", {
         title: "Stack with Medium Spacing",
         code: `renderComponent("stack", { spacing: "md" })`,
         preview: renderComponent("stack", { spacing: "md" }).replace("{{children}}", `
-          <div style="background: #e0e0e0; padding: 0.5rem;">Item 1</div>
-          <div style="background: #d0d0d0; padding: 0.5rem;">Item 2</div>
-          <div style="background: #c0c0c0; padding: 0.5rem;">Item 3</div>
+          <div style=\"background: #e0e0e0; padding: 0.5rem;\">Item 1</div>
+          <div style=\"background: #d0d0d0; padding: 0.5rem;\">Item 2</div>
+          <div style=\"background: #c0c0c0; padding: 0.5rem;\">Item 3</div>
         `),
       },
       {
         title: "Stack with Large Spacing",
         code: `renderComponent("stack", { spacing: "xl" })`,
         preview: renderComponent("stack", { spacing: "xl" }).replace("{{children}}", `
-          <div style="background: #e0e0e0; padding: 0.5rem;">Item 1</div>
-          <div style="background: #d0d0d0; padding: 0.5rem;">Item 2</div>
-          <div style="background: #c0c0c0; padding: 0.5rem;">Item 3</div>
+          <div style=\"background: #e0e0e0; padding: 0.5rem;\">Item 1</div>
+          <div style=\"background: #d0d0d0; padding: 0.5rem;\">Item 2</div>
+          <div style=\"background: #c0c0c0; padding: 0.5rem;\">Item 3</div>
         `),
       },
     ];
@@ -96,103 +95,160 @@ defineComponent<{}>("layout-demo", {
       },
     ];
 
-    const headerContent = renderComponent("header", {
-      title: "Layout Components Demo",
-      subtitle: "Comprehensive layout system for ui-lib applications",
-      description: "Explore the different layout components and options available for building consistent, responsive interfaces.",
-      level: 1,
-      centered: true,
-    });
+    const styles = `
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        background: #f8fafc;
+        color: #0f172a;
+      }
 
-    const pageSection = renderComponent("section", {
-      title: "Page Layouts",
-      subtitle: "Different page container options",
-    }).replace("{{children}}", pageExamples.map(example =>
-      renderComponent("card", { title: example.title }).replace("{{children}}", `
-        <p><strong>Usage:</strong> <code>${example.code}</code></p>
-        <div style="border: 1px solid #ddd; margin: 1rem 0;">
-          ${example.preview}
+      .layout-demo {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 3rem 1.5rem 4rem;
+        display: grid;
+        gap: 3rem;
+      }
+
+      .layout-demo__hero {
+        text-align: center;
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .layout-demo__hero h1 {
+        margin: 0;
+        font-size: clamp(2rem, 4vw, 2.5rem);
+      }
+
+      .layout-demo__hero p {
+        margin: 0;
+        color: #64748b;
+      }
+
+      .demo-section {
+        display: grid;
+        gap: 1.5rem;
+      }
+
+      .demo-section__header h2 {
+        margin: 0;
+        font-size: 1.4rem;
+      }
+
+      .demo-section__header p {
+        margin: 0.35rem 0 0;
+        color: #64748b;
+      }
+
+      .demo-section__grid {
+        display: grid;
+        gap: 1.6rem;
+      }
+
+      @media (min-width: 960px) {
+        .demo-section__grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      code {
+        background: rgba(15, 23, 42, 0.07);
+        padding: 0.15em 0.4em;
+        border-radius: 0.35rem;
+        font-size: 0.9rem;
+      }
+
+      .demo-card {
+        background: #ffffff;
+        border-radius: 1.25rem;
+        padding: 1.75rem;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        display: grid;
+        gap: 1rem;
+      }
+
+      .demo-card__preview {
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        border-radius: 1rem;
+        padding: 1.25rem;
+        background: rgba(248, 250, 252, 0.9);
+      }
+
+      .demo-card__preview > * {
+        margin: 0;
+      }
+    `;
+
+    const renderExampleCard = (example: { title: string; code: string; preview: string }) => (
+      <article class="demo-card">
+        <header>
+          <h3>{example.title}</h3>
+        </header>
+        <p>
+          <strong>Usage:</strong> <code>{example.code}</code>
+        </p>
+        <div class="demo-card__preview" dangerouslySetInnerHTML={{ __html: example.preview }} />
+      </article>
+    );
+
+    const renderSection = (
+      title: string,
+      subtitle: string,
+      examples: readonly { title: string; code: string; preview: string }[],
+    ) => (
+      <section class="demo-section">
+        <div class="demo-section__header">
+          <h2>{title}</h2>
+          <p>{subtitle}</p>
         </div>
-      `)
-    ).join(""));
-
-    const stackSection = renderComponent("section", {
-      title: "Stack Layouts",
-      subtitle: "Vertical spacing with design tokens",
-    }).replace("{{children}}", stackExamples.map(example =>
-      renderComponent("card", { title: example.title }).replace("{{children}}", `
-        <p><strong>Usage:</strong> <code>${example.code}</code></p>
-        <div style="border: 1px solid #ddd; margin: 1rem 0;">
-          ${example.preview}
+        <div class="demo-section__grid">
+          {examples.map(renderExampleCard)}
         </div>
-      `)
-    ).join(""));
+      </section>
+    );
 
-    const gridSection = renderComponent("section", {
-      title: "Grid Layouts",
-      subtitle: "Flexible CSS Grid with responsive options",
-    }).replace("{{children}}", gridExamples.map(example =>
-      renderComponent("card", { title: example.title }).replace("{{children}}", `
-        <p><strong>Usage:</strong> <code>${example.code}</code></p>
-        <div style="border: 1px solid #ddd; margin: 1rem 0;">
-          ${example.preview}
-        </div>
-      `)
-    ).join(""));
+    const pageSection = renderSection(
+      "Page Layouts",
+      "Different page container options",
+      pageExamples,
+    );
+    const stackSection = renderSection(
+      "Stack Layouts",
+      "Vertical spacing with design tokens",
+      stackExamples,
+    );
+    const gridSection = renderSection(
+      "Grid Layouts",
+      "Flexible CSS Grid with responsive options",
+      gridExamples,
+    );
 
-    const stackContent = renderComponent("stack", {
-      spacing: "2xl",
-    }).replace("{{children}}", [
-      headerContent,
-      pageSection,
-      stackSection,
-      gridSection,
-    ].join(""));
-
-    const pageContent = renderComponent("page", {
-      variant: "constrained",
-      maxWidth: "1200px",
-    }).replace("{{children}}", stackContent);
-
-    return `
-      <!DOCTYPE html>
+    return "<!DOCTYPE html>" + (
       <html lang="en">
         <head>
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <title>Layout Components Demo - ui-lib</title>
-          <style>
-            body {
-              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-              line-height: 1.6;
-              margin: 0;
-              padding: 0;
-              background: #fafafa;
-            }
-            code {
-              background: #f5f5f5;
-              padding: 0.2em 0.4em;
-              border-radius: 3px;
-              font-family: Monaco, Consolas, monospace;
-              font-size: 0.9em;
-            }
-            .header { text-align: center; }
-            .header__title { color: #333; margin-bottom: 0.5rem; }
-            .header__subtitle { color: #666; margin-bottom: 0.5rem; }
-            .header__description { color: #888; max-width: 600px; margin: 0 auto; }
-            .card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-            .card__title { margin-top: 0; color: #333; }
-            .section__title { color: #333; border-bottom: 2px solid #e0e0e0; padding-bottom: 0.5rem; }
-            .stat { text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 6px; }
-            .stat__value { display: block; font-size: 2rem; font-weight: bold; color: #2563eb; }
-            .stat__label { display: block; font-size: 0.875rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; }
-          </style>
+          <style dangerouslySetInnerHTML={{ __html: styles }} />
         </head>
         <body>
-          ${pageContent}
+          <main class="layout-demo">
+            <header class="layout-demo__hero">
+              <h1>Layout Components Demo</h1>
+              <p>Explore constrained layouts, responsive stacks, and adaptive grids.</p>
+            </header>
+            {pageSection}
+            {stackSection}
+            {gridSection}
+          </main>
         </body>
       </html>
-    `;
+    );
   },
 });
 

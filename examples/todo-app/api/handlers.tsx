@@ -5,25 +5,7 @@
  * Request handlers for todo operations
  */
 
-import { renderComponent } from "../../../lib/component-state.ts";
-// Import to register the Item component
-import "../../../lib/components/data-display/item.ts";
-
-// Define ItemProps type locally (since it's not exported from the component)
-type ItemProps = {
-  id?: string;
-  title?: string;
-  description?: string;
-  icon?: string;
-  timestamp?: string;
-  badges?: Array<{ text: string; variant?: string }>;
-  actions?: Array<{ text: string; action: string; variant?: string }>;
-  variant?: "default" | "completed" | "selected" | "priority";
-  size?: "sm" | "md" | "lg";
-  priority?: "low" | "medium" | "high";
-  completed?: boolean;
-  selected?: boolean;
-};
+import { h } from "../../../lib/define-component.ts";
 import { getRepository } from "./repository-factory.ts";
 import {
   errorResponse,
@@ -31,45 +13,39 @@ import {
   htmlResponse,
   jsonResponse,
 } from "./response.tsx";
-import type { CreateTodoData, TodoFilter, UpdateTodoData } from "./types.ts";
+import type {
+  CreateTodoData,
+  Todo,
+  TodoFilter,
+  UpdateTodoData,
+} from "./types.ts";
 
-// Helper functions to convert todos to generic components
-function todoToItem(todo: any): string {
-  const itemProps: ItemProps = {
-    id: todo.id,
-    title: todo.text,
-    completed: todo.completed,
-    priority: todo.priority,
-    timestamp: new Date(todo.createdAt).toLocaleDateString(),
-    badges: [{ text: todo.priority, variant: getPriorityVariant(todo.priority) }],
-    icon: `<input type="checkbox" ${todo.completed ? 'checked' : ''} />`,
-    actions: [
-      { text: "Edit", action: `editTodo('${todo.id}')` },
-      { text: "Delete", variant: "danger", action: `deleteTodo('${todo.id}')` },
-    ],
-  };
-  return renderComponent("item", itemProps);
-}
-
-function getPriorityVariant(priority: string): string {
-  switch (priority) {
-    case "high": return "danger";
-    case "medium": return "warning";
-    case "low": return "success";
-    default: return "neutral";
-  }
-}
-
-function todosToList(todos: readonly any[]): string {
+function todosToList(todos: readonly Todo[]): string {
   if (todos.length === 0) {
-    return `<div style="text-align: center; padding: 2rem; color: #6b7280;">
-      <p>No todos found. Add some todos to get started!</p>
-    </div>`;
+    return (
+      <div
+        style={{
+          textAlign: "center",
+          padding: "2rem",
+          color: "#6b7280",
+        }}
+      >
+        <p>No todos found. Add some todos to get started!</p>
+      </div>
+    );
   }
 
-  return `<div style="display: flex; flex-direction: column; gap: 1rem;">
-    ${todos.map(todoToItem).join("")}
-  </div>`;
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+      }}
+    >
+      {todos.map((todo) => <todo-item todo={todo} />)}
+    </div>
+  );
 }
 
 // Moved shared response helpers to ./response.ts
@@ -166,8 +142,6 @@ export const todoAPI = {
       const todosResult = await repository.getAll(userId);
       if (!todosResult.ok) return handleDatabaseError(todosResult.error);
 
-      const filter: TodoFilter = { status: "all" };
-
       return htmlResponse(
         todosToList(todosResult.value),
       );
@@ -204,8 +178,6 @@ export const todoAPI = {
       const todosResult = await repository.getAll(todoResult.value.userId);
       if (!todosResult.ok) return handleDatabaseError(todosResult.error);
 
-      const filter: TodoFilter = { status: "all" };
-
       return htmlResponse(
         todosToList(todosResult.value),
       );
@@ -234,21 +206,8 @@ export const todoAPI = {
     if (!updateResult.ok) return handleDatabaseError(updateResult.error);
 
     // Return just the updated todo item
-    const itemProps: ItemProps = {
-      id: updateResult.value.id,
-      title: updateResult.value.text,
-      completed: updateResult.value.completed,
-      priority: updateResult.value.priority,
-      timestamp: new Date(updateResult.value.createdAt).toLocaleDateString(),
-      badges: [{ text: updateResult.value.priority, variant: getPriorityVariant(updateResult.value.priority) }],
-      icon: `<input type="checkbox" ${updateResult.value.completed ? 'checked' : ''} />`,
-      actions: [
-        { text: "Edit", action: `editTodo('${updateResult.value.id}')` },
-        { text: "Delete", variant: "danger", action: `deleteTodo('${updateResult.value.id}')` },
-      ],
-    };
     return htmlResponse(
-      renderComponent("item", itemProps),
+      <todo-item todo={updateResult.value} />,
     );
   },
 
@@ -266,8 +225,10 @@ export const todoAPI = {
     if (!usersResult.ok) return handleDatabaseError(usersResult.error);
 
     const userId = url.searchParams.get("user") || usersResult.value[0];
-    const status = (url.searchParams.get("status") as TodoFilter["status"]) || "all";
-    const priority = (url.searchParams.get("priority") as TodoFilter["priority"]) || undefined;
+    const status = (url.searchParams.get("status") as TodoFilter["status"]) ||
+      "all";
+    const priority =
+      (url.searchParams.get("priority") as TodoFilter["priority"]) || undefined;
 
     const filter: TodoFilter = { status, priority };
 
@@ -280,7 +241,7 @@ export const todoAPI = {
     if (!statsResult.ok) return handleDatabaseError(statsResult.error);
 
     return htmlResponse(
-      todosToList(todosResult.value)
+      todosToList(todosResult.value),
     );
   },
 
@@ -315,8 +276,6 @@ export const todoAPI = {
     // Return updated todo list
     const todosResult = await repository.getAll(userId);
     if (!todosResult.ok) return handleDatabaseError(todosResult.error);
-
-    const filter: TodoFilter = { status: "all" };
 
     return htmlResponse(
       todosToList(todosResult.value),

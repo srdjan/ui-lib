@@ -44,13 +44,435 @@ We implement a **5-layer cascade architecture** that provides clear separation o
 - Use **semantic CSS classes** from the design system
 - Application-specific styles in separate layer
 - Compose using utility classes for layout
+Great! Let me show you a complete setup for your custom SSR JSX implementation with proper types and a factory function.
+
+## Complete JSX Type Definitions
+
+First, let's create comprehensive type definitions with proper HTML attributes:
+
+```typescript
+// jsx-types.d.ts
+declare global {
+  namespace JSX {
+    // Your JSX Element structure
+    interface Element {
+      type: string | ((props: any) => Element);
+      props: Record<string, any> | null;
+      key?: string | number | null;
+    }
+
+    // HTML attribute types
+    interface HTMLAttributes {
+      // Standard attributes
+      id?: string;
+      class?: string;
+      className?: string; // React-style alias
+      style?: string | Record<string, string | number>;
+      title?: string;
+      lang?: string;
+      dir?: 'ltr' | 'rtl' | 'auto';
+      hidden?: boolean;
+      tabIndex?: number;
+      
+      // Data attributes
+      [key: `data-${string}`]: any;
+      
+      // Event handlers
+      onClick?: string | ((e: Event) => void);
+      onSubmit?: string | ((e: Event) => void);
+      onChange?: string | ((e: Event) => void);
+      onInput?: string | ((e: Event) => void);
+      onFocus?: string | ((e: Event) => void);
+      onBlur?: string | ((e: Event) => void);
+      
+      // ARIA
+      role?: string;
+      [key: `aria-${string}`]: any;
+    }
+
+    interface InputHTMLAttributes extends HTMLAttributes {
+      type?: 'text' | 'password' | 'email' | 'number' | 'tel' | 'url' | 'search' | 'date' | 'checkbox' | 'radio';
+      value?: string | number;
+      placeholder?: string;
+      name?: string;
+      required?: boolean;
+      disabled?: boolean;
+      readonly?: boolean;
+      checked?: boolean;
+      min?: string | number;
+      max?: string | number;
+      step?: string | number;
+      pattern?: string;
+      autocomplete?: string;
+    }
+
+    interface AnchorHTMLAttributes extends HTMLAttributes {
+      href?: string;
+      target?: '_blank' | '_self' | '_parent' | '_top';
+      rel?: string;
+      download?: boolean | string;
+    }
+
+    interface ImgHTMLAttributes extends HTMLAttributes {
+      src?: string;
+      alt?: string;
+      width?: string | number;
+      height?: string | number;
+      loading?: 'lazy' | 'eager';
+      decoding?: 'async' | 'sync' | 'auto';
+      srcset?: string;
+      sizes?: string;
+    }
+
+    interface FormHTMLAttributes extends HTMLAttributes {
+      action?: string;
+      method?: 'get' | 'post';
+      enctype?: string;
+      novalidate?: boolean;
+    }
+
+    // Map elements to their attribute types
+    interface IntrinsicElements {
+      // Layout
+      div: HTMLAttributes;
+      span: HTMLAttributes;
+      header: HTMLAttributes;
+      footer: HTMLAttributes;
+      main: HTMLAttributes;
+      section: HTMLAttributes;
+      article: HTMLAttributes;
+      aside: HTMLAttributes;
+      nav: HTMLAttributes;
+      
+      // Text
+      h1: HTMLAttributes;
+      h2: HTMLAttributes;
+      h3: HTMLAttributes;
+      h4: HTMLAttributes;
+      h5: HTMLAttributes;
+      h6: HTMLAttributes;
+      p: HTMLAttributes;
+      strong: HTMLAttributes;
+      em: HTMLAttributes;
+      small: HTMLAttributes;
+      
+      // Links & Media
+      a: AnchorHTMLAttributes;
+      img: ImgHTMLAttributes;
+      video: HTMLAttributes & { src?: string; controls?: boolean; autoplay?: boolean };
+      audio: HTMLAttributes & { src?: string; controls?: boolean; autoplay?: boolean };
+      
+      // Forms
+      form: FormHTMLAttributes;
+      input: InputHTMLAttributes;
+      textarea: HTMLAttributes & { rows?: number; cols?: number; value?: string; placeholder?: string };
+      button: HTMLAttributes & { type?: 'button' | 'submit' | 'reset'; disabled?: boolean };
+      select: HTMLAttributes & { value?: string; multiple?: boolean };
+      option: HTMLAttributes & { value?: string; selected?: boolean };
+      label: HTMLAttributes & { for?: string };
+      
+      // Lists
+      ul: HTMLAttributes;
+      ol: HTMLAttributes;
+      li: HTMLAttributes;
+      
+      // Table
+      table: HTMLAttributes;
+      thead: HTMLAttributes;
+      tbody: HTMLAttributes;
+      tr: HTMLAttributes;
+      th: HTMLAttributes & { colspan?: number; rowspan?: number };
+      td: HTMLAttributes & { colspan?: number; rowspan?: number };
+      
+      // Other
+      br: HTMLAttributes;
+      hr: HTMLAttributes;
+      script: HTMLAttributes & { src?: string; type?: string; async?: boolean; defer?: boolean };
+      style: HTMLAttributes & { type?: string };
+      link: HTMLAttributes & { href?: string; rel?: string; type?: string };
+      meta: HTMLAttributes & { name?: string; content?: string; charset?: string };
+    }
+
+    // Support for functional components
+    interface ElementChildrenAttribute {
+      children: {};
+    }
+  }
+}
+
+export {};
+```
+
+## JSX Factory Function Implementation
+
+Now let's create the actual factory function with proper SSR rendering:
+
+```typescript
+// jsx-factory.ts
+
+// The VNode structure (internal representation)
+export interface VNode {
+  type: string | ((props: any) => VNode);
+  props: Record<string, any> | null;
+  key?: string | number | null;
+}
+
+// JSX Factory function (what TypeScript will compile JSX to)
+export function h(
+  type: string | ((props: any) => VNode),
+  props: Record<string, any> | null,
+  ...children: any[]
+): JSX.Element {
+  // Flatten children arrays and filter out null/undefined
+  const flatChildren = children
+    .flat(Infinity)
+    .filter(child => child != null && child !== false);
+
+  return {
+    type,
+    props: {
+      ...props,
+      children: flatChildren.length > 0 ? flatChildren : undefined
+    }
+  };
+}
+
+// Fragment support (optional)
+export function Fragment({ children }: { children?: any }): JSX.Element {
+  return h('fragment', null, children);
+}
+
+// SSR Render to String
+export function renderToString(vnode: JSX.Element | string | number): string {
+  // Handle primitives
+  if (typeof vnode === 'string') return escapeHtml(vnode);
+  if (typeof vnode === 'number') return String(vnode);
+  if (!vnode || typeof vnode !== 'object') return '';
+
+  const { type, props } = vnode;
+
+  // Handle functional components
+  if (typeof type === 'function') {
+    const componentResult = type(props || {});
+    return renderToString(componentResult);
+  }
+
+  // Handle fragments
+  if (type === 'fragment') {
+    const children = props?.children || [];
+    return Array.isArray(children) 
+      ? children.map(renderToString).join('')
+      : renderToString(children);
+  }
+
+  // Handle void elements
+  const voidElements = new Set(['br', 'hr', 'img', 'input', 'link', 'meta']);
+  const isVoid = voidElements.has(type);
+
+  // Build opening tag
+  let html = `<${type}`;
+
+  // Add attributes
+  if (props) {
+    for (const [key, value] of Object.entries(props)) {
+      if (key === 'children') continue;
+      
+      const attrName = key === 'className' ? 'class' : key;
+      
+      if (value === true) {
+        html += ` ${attrName}`;
+      } else if (value !== false && value != null) {
+        if (key === 'style' && typeof value === 'object') {
+          const styleStr = Object.entries(value)
+            .map(([k, v]) => `${kebabCase(k)}: ${v}`)
+            .join('; ');
+          html += ` ${attrName}="${escapeHtml(styleStr)}"`;
+        } else {
+          html += ` ${attrName}="${escapeHtml(String(value))}"`;
+        }
+      }
+    }
+  }
+
+  if (isVoid) {
+    return html + ' />';
+  }
+
+  html += '>';
+
+  // Add children
+  const children = props?.children;
+  if (children) {
+    if (Array.isArray(children)) {
+      html += children.map(renderToString).join('');
+    } else {
+      html += renderToString(children);
+    }
+  }
+
+  html += `</${type}>`;
+  
+  return html;
+}
+
+// Helper functions
+function escapeHtml(str: string): string {
+  const htmlEscapes: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  };
+  
+  return str.replace(/[&<>"']/g, char => htmlEscapes[char]);
+}
+
+function kebabCase(str: string): string {
+  return str.replace(/([A-Z])/g, '-$1').toLowerCase();
+}
+```
+
+## TypeScript Configuration
+
+Update your `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["ES2020", "DOM"],
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "types": ["node"]
+  },
+  "include": ["src/**/*", "jsx-types.d.ts"]
+}
+```
+
+## Complete Working Example
+
+Here's everything tied together:
+
+```typescript
+// app.tsx
+import { h, Fragment, renderToString } from './jsx-factory';
+
+// Functional component with typed props
+interface CardProps {
+  title: string;
+  description: string;
+  imageUrl?: string;
+}
+
+function Card({ title, description, imageUrl }: CardProps): JSX.Element {
+  return (
+    <div class="card">
+      {imageUrl && <img src={imageUrl} alt={title} loading="lazy" />}
+      <div class="card-body">
+        <h2>{title}</h2>
+        <p>{description}</p>
+      </div>
+    </div>
+  );
+}
+
+// Layout component
+function Layout({ children }: { children?: any }): JSX.Element {
+  return (
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>My SSR App</title>
+        <style>{`
+          .card { border: 1px solid #ddd; padding: 1rem; }
+          .card-body { margin-top: 1rem; }
+        `}</style>
+      </head>
+      <body>
+        <header>
+          <h1>My SSR Application</h1>
+        </header>
+        <main>
+          {children}
+        </main>
+      </body>
+    </html>
+  );
+}
+
+// Page component
+function HomePage(): JSX.Element {
+  const cards = [
+    { title: 'Card 1', description: 'First card' },
+    { title: 'Card 2', description: 'Second card', imageUrl: '/image.jpg' }
+  ];
+
+  return (
+    <Layout>
+      <section>
+        <h2>Welcome!</h2>
+        <div class="card-grid">
+          {cards.map(card => (
+            <Card {...card} />
+          ))}
+        </div>
+      </section>
+    </Layout>
+  );
+}
+
+// SSR Rendering
+const html = renderToString(<HomePage />);
+console.log(html);
+
+// For use with Node.js HTTP server
+export function handleRequest(): string {
+  return '<!DOCTYPE html>' + renderToString(<HomePage />);
+}
+```
+
+## Server Integration Example
+
+```typescript
+// server.ts
+import { createServer } from 'http';
+import { handleRequest } from './app';
+
+const server = createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+  res.end(handleRequest());
+});
+
+server.listen(3000, () => {
+  console.log('Server running at http://localhost:3000');
+});
+```
+
+This gives you:
+- ✅ Full TypeScript support with autocomplete for HTML attributes
+- ✅ Type-safe functional components
+- ✅ Proper SSR rendering to HTML strings
+- ✅ Support for styles, events (as strings for SSR), and all HTML attributes
+- ✅ Automatic HTML escaping for security
+- ✅ Fragment support for returning multiple elements
+
+The return type `JSX.Element` is now fully defined and ready to use!
 
 ## Implementation Examples
 
 ### Library Component Pattern
 
 ```typescript
-// lib/components/data-display/item.ts
+// lib/components/data-display/item.tsx
 import { css } from "../../css-in-ts.ts";
 import { componentTokens } from "../../themes/component-tokens.ts";
 

@@ -4,11 +4,11 @@
  */
 
 // Core layout components
-export { Page } from "./page.ts";
-export { Stack } from "./stack.ts";
+export { Page } from "./page.tsx";
+export { Stack } from "./stack.tsx";
 export { Grid } from "./grid.ts";
-export { Section } from "./section.ts";
-export { Header } from "./header.ts";
+export { Section } from "./section.tsx";
+export { Header } from "./header.tsx";
 export { Footer } from "./footer.ts";
 export { Container } from "./container.ts";
 export { Card } from "./card.ts";

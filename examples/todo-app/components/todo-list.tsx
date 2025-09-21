@@ -5,10 +5,7 @@
  */
 
 import { defineComponent, h } from "../../../lib/define-component.ts";
-import { renderComponent } from "../../../lib/component-state.ts";
-import "../../../lib/components/layout/stack.tsx";
 import type { Todo } from "../api/types.ts";
-import { todoToItem } from "./todo-item.tsx";
 
 export type TodoListProps = {
   todos: readonly Todo[];
@@ -17,21 +14,27 @@ export type TodoListProps = {
 
 defineComponent<TodoListProps>("todo-list", {
   render: (props) => {
-    const { todos, emptyMessage = "No todos yet. Add a todo above to get started!" } = props;
+    const {
+      todos,
+      emptyMessage = "No todos yet. Add a todo above to get started!",
+    } = props;
 
     if (todos.length === 0) {
-      return renderComponent("card", { size: "lg" }).replace(
-        "{{children}}",
-        `<p>${emptyMessage}</p>`
+      return (
+        <div class="todo-list todo-list--empty">
+          <p>{emptyMessage}</p>
+        </div>
       );
     }
 
-    // Convert todos to items using the todo-item component
-    const todoItems = todos.map(todoToItem);
-
-    return renderComponent("stack", { spacing: "md" }).replace(
-      "{{children}}",
-      todoItems.join("")
+    return (
+      <ul class="todo-list">
+        {todos.map((todo) => (
+          <li class="todo-list__item">
+            <todo-item todo={todo} />
+          </li>
+        ))}
+      </ul>
     );
   },
 });

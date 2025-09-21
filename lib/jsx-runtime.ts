@@ -115,7 +115,8 @@ export function h(
 
     if (registry[tag]) {
       // Registered ui-lib component: render immediately to HTML
-      const funcwcProps = convertJSXPropsToFuncwcProps(props);
+      // IMPORTANT: SSR path - pass raw typed props through
+      const ssrProps = { ...(props as Record<string, unknown>) };
 
       // Flatten and stringify children
       let childrenHtml = "";
@@ -129,10 +130,10 @@ export function h(
 
       // Pass children through to component render
       if (childrenHtml) {
-        (funcwcProps as any).children = childrenHtml;
+        (ssrProps as any).children = childrenHtml;
       }
 
-      return renderComponent(tag, funcwcProps);
+      return renderComponent(tag, ssrProps);
     }
   }
 
