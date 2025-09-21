@@ -372,10 +372,7 @@ const Component = defineComponent({
 Seamless integration with HTMX for interactivity:
 
 ```tsx
-<button
-  hx-post="/api/action"
-  hx-target="#result"
->
+<button onAction={{ api: "doAction", attributes: { "hx-target": "#result" } }}>
   Click Me
 </button>;
 ```

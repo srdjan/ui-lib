@@ -48,7 +48,7 @@ deno task bundle:state  # Emit dist/ui-lib-state.js for browser progressive enha
 Let's create a simple greeting component:
 
 ```tsx
-import { defineComponent, string } from "ui-lib";
+import { defineComponent, h } from "ui-lib";
 
 defineComponent("greeting", {
   styles: {
@@ -57,16 +57,16 @@ defineComponent("greeting", {
     borderRadius: "8px",
     textAlign: "center",
   },
-  render: ({ name = string("World") }) => `
+  render: ({ name = "World" }) => (
     <div class="greeting">
-      <h1>Hello, ${name}!</h1>
+      <h1>Hello, {name}!</h1>
       <p>Welcome to ui-lib</p>
     </div>
-  `,
+  ),
 });
 
-// Use the component
-const html = renderComponent("greeting", { name: "Developer" });
+// Use the component (JSX → HTML string)
+const html = <greeting name="Developer" />;
 console.log(html);
 ```
 
@@ -85,13 +85,13 @@ defineComponent("todo-list", {
     maxItems = number(10),
   }) => {
     const itemsToShow = items.slice(0, maxItems);
-    const itemsHtml = itemsToShow.map(item => `<li>${item}</li>`).join('');
+    const itemsHtml = itemsToShow.map((item) => `<li>${item}</li>`).join("");
 
     return `
       <div class="todo-list">
         <h2>${title}</h2>
         <ul>${itemsHtml}</ul>
-        ${showCompleted ? '<p>Showing completed items</p>' : ''}
+        ${showCompleted ? "<p>Showing completed items</p>" : ""}
       </div>
     `;
   },
@@ -101,56 +101,55 @@ defineComponent("todo-list", {
 const html = renderComponent("todo-list", {
   title: "Shopping List",
   items: '["Milk", "Bread", "Eggs"]',
-  maxItems: "5"
+  maxItems: "5",
 });
 ```
 
 ## API Integration
 
-Integrate server endpoints using the `api` property with the `hx()` wrapper for complete HTMX configuration:
+Integrate server endpoints using the `api` property with the `hx()` wrapper for
+complete HTMX configuration:
 
 ```tsx
-import { defineComponent, hx, string } from "ui-lib";
+import { defineComponent, h } from "ui-lib";
 
 defineComponent("interactive-button", {
   api: {
-    like: ["POST", "/api/posts/:id/like", async (req, { id }) => {
-      // Server handler for liking a post
-      return new Response("Liked!");
-    }],
-    share: ["POST", "/api/posts/:id/share", async (req, { id }) => {
-      // Server handler for sharing a post
-      return new Response("Shared!");
-    }],
+    like: ["POST", "/api/posts/:id/like", likeHandler],
+    share: ["POST", "/api/posts/:id/share", shareHandler],
   },
-  render: ({
-    postId = string(),
-    likes = string("0")
-  }, api) => {
-    const likeAttrs = api?.like?.(postId, hx({
-      target: "#like-count",
-      swap: "innerHTML",
-      trigger: "click"
-    })) || "";
-
-    const shareAttrs = api?.share?.(postId, hx({
-      target: "#share-status",
-      swap: "innerHTML",
-      confirm: "Share this post?"
-    })) || "";
-
-    return `
-      <div class="post-actions">
-        <button ${likeAttrs}>❤️ <span id="like-count">${likes}</span></button>
-        <button ${shareAttrs}>📤 Share</button>
-        <div id="share-status"></div>
-      </div>
-    `;
-  },
+  render: ({ postId, likes = 0 }, api) => (
+    <div class="post-actions">
+      <button
+        onAction={{
+          api: "like",
+          args: [postId],
+          attributes: { "hx-target": "#like-count", "hx-swap": "innerHTML" },
+        }}
+      >
+        ❤️ <span id="like-count">{likes}</span>
+      </button>
+      <button
+        onAction={{
+          api: "share",
+          args: [postId],
+          attributes: {
+            "hx-target": "#share-status",
+            "hx-swap": "innerHTML",
+            "hx-confirm": "Share this post?",
+          },
+        }}
+      >
+        📤 Share
+      </button>
+      <div id="share-status"></div>
+    </div>
+  ),
 });
 ```
 
 The `hx()` wrapper supports all HTMX configuration options:
+
 - `target`: Element to update
 - `swap`: How to replace content (innerHTML, outerHTML, etc.)
 - `confirm`: Show confirmation dialog
@@ -179,7 +178,8 @@ defineComponent("styled-card", {
       transform: "translateY(-2px)",
     },
   }),
-  render: ({ children = string() }) => `<div class="styled-card">${children}</div>`,
+  render: ({ children = string() }) =>
+    `<div class="styled-card">${children}</div>`,
 });
 ```
 
@@ -288,15 +288,22 @@ const ContactForm = () => (
 ```tsx
 const SearchBox = defineComponent({
   name: "search-box",
-  render: () => (
+  api: {
+    search: ["GET", "/api/search", searchHandler],
+  },
+  render: (props, api) => (
     <div class="search-box">
       <input
         type="search"
         name="q"
         placeholder="Search..."
-        hx-get="/api/search"
-        hx-trigger="keyup changed delay:500ms"
-        hx-target="#search-results"
+        onAction={{
+          api: "search",
+          attributes: {
+            "hx-trigger": "keyup changed delay:500ms",
+            "hx-target": "#search-results",
+          },
+        }}
       />
       <div id="search-results"></div>
     </div>

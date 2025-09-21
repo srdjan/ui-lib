@@ -5,26 +5,25 @@ hybrid reactivity.
 
 ## Features
 
-- 🚀 **Zero Runtime Overhead** - Pure HTML/CSS output, no client-side framework
-  needed
-- 🎯 **DOM-Native State** - State lives in CSS classes, data attributes, and
-  element content
-- ⚡ **Hybrid Reactivity** - Three-tier system: CSS properties, pub/sub, and DOM
-  events
-- 🔧 **Type-Safe** - Full TypeScript support with strict typing
-- 🎨 **CSS-in-TS** - Auto-generated class names from CSS properties
-- 📦 **50+ Components** - Enterprise-grade component library included
-- 🌐 **SSR-First** - Designed for server-side rendering from the ground up
-- 🔄 **Progressive Enhancement** - Works without JS, enhanced with HTMX
+- 🌐 SSR-first, JSX-always rendering
+- 🧭 Light Functional Programming: types-first, pure functions, Result<T,E>, no
+  classes
+- 🧩 DOM-native state: classes, data-* attributes, element content, CSS custom
+  properties
+- 🕵️ HTMX encapsulated via component APIs (no hx-* in application code)
+- 📦 Component-colocated API, styles, and reactivity
+- 🎨 CSS-in-TS with collision-free class names
+- 🔧 Type-safe end-to-end with strict TypeScript
+- 📚 50+ components; progressive enhancement optional (zero framework runtime)
 
 ## Quick Start
 
 ### Choosing an Entry Point
 
-| Entry Point        | Use When                                                                                                  | Highlights                                                            |
-| ------------------ | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `mod.ts`           | You need the stable SSR-focused surface with registry-driven components.                                  | Full prop helpers, CSS-in-TS, reactive helpers, router, API bindings. |
-| `mod-simple.ts`    | You want direct JSX functions and minimal ceremony.                                                       | JSX runtime, lightweight state helpers, curated component subset.     |
+| Entry Point     | Use When                                                                 | Highlights                                                            |
+| --------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------- |
+| `mod.ts`        | You need the stable SSR-focused surface with registry-driven components. | Full prop helpers, CSS-in-TS, reactive helpers, router, API bindings. |
+| `mod-simple.ts` | You want direct JSX functions and minimal ceremony.                      | JSX runtime, lightweight state helpers, curated component subset.     |
 
 > Tip: mix and match by importing from multiple entry points when prototyping,
 > then converge on one surface before release.
@@ -32,20 +31,20 @@ hybrid reactivity.
 ### Installation
 
 ```bash
-# Using Deno (recommended)
-import * as ui from "https://deno.land/x/ui_lib/mod.ts";
-
-# Or clone and use locally
-git clone https://github.com/yourusername/ui-lib.git
+# Local clone (recommended)
+git clone https://github.com/srdjan/ui-lib.git
 cd ui-lib
-deno task start
-deno task bundle:state # emits dist/ui-lib-state.js for browser hydration helpers
+
+# Dev server & tasks
+deno task start         # type-check then start the Todo demo
+deno task serve         # start the Todo demo directly
+deno task bundle:state  # emits dist/ui-lib-state.js for optional client helpers
 ```
 
 ### Basic Usage
 
 ```tsx
-import { defineComponent, h, renderComponent, string } from "ui-lib";
+import { defineComponent, h } from "ui-lib";
 
 // Define a component
 defineComponent("card", {
@@ -55,10 +54,7 @@ defineComponent("card", {
     backgroundColor: "white",
     boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
   },
-  render: ({
-    title = string("Title"),
-    content = string("Content")
-  }) => (
+  render: ({ title = "Title", content = "Content" }) => (
     <div class="card">
       <h2>{title}</h2>
       <p>{content}</p>
@@ -66,14 +62,21 @@ defineComponent("card", {
   ),
 });
 
-// Use it
-const html = renderComponent("card", { title: "Hello", content: "World" });
+// Use it (JSX evaluates to an HTML string in SSR)
+const html = <card title="Hello" content="World" />;
 ```
 
 ### With Function-Style Props
 
 ```tsx
-import { boolean, defineComponent, h, number, renderComponent, string } from "ui-lib";
+import {
+  boolean,
+  defineComponent,
+  h,
+  number,
+  renderComponent,
+  string,
+} from "ui-lib";
 
 defineComponent("counter", {
   render: ({
@@ -115,49 +118,39 @@ const Page = () => (
 ### API Integration
 
 ```tsx
-import { defineComponent, hx, string } from "ui-lib";
+import { defineComponent, h } from "ui-lib";
 
 defineComponent("todo-item", {
   api: {
-    toggle: ["PATCH", "/api/todos/:id/toggle", async (req, { id }) => {
-      // Server handler implementation
-      return new Response("OK");
-    }],
-    remove: ["DELETE", "/api/todos/:id", async (req, { id }) => {
-      // Server handler implementation
-      return new Response("OK");
-    }],
+    toggle: ["POST", "/api/todos/:id/toggle", toggleTodo],
+    deleteTodo: ["DELETE", "/api/todos/:id", deleteTodo],
   },
-  render: ({
-    id = string(),
-    text = string(),
-    done = string("false")
-  }, api) => {
-    const toggleAttrs = api?.toggle?.(id, hx({
-      target: "#todo-list",
-      swap: "outerHTML"
-    })) || "";
-
-    const removeAttrs = api?.remove?.(id, hx({
-      target: "#todo-list",
-      swap: "outerHTML",
-      confirm: "Are you sure?"
-    })) || "";
-
-    return `
-      <div class="todo-item" id="todo-${id}">
-        <span class="${done === "true" ? "done" : ""}">${text}</span>
-        <button ${toggleAttrs}>Toggle</button>
-        <button ${removeAttrs}>Delete</button>
-      </div>
-    `;
-  },
+  render: ({ id, text, done }, api) => (
+    <div class="todo-item" data-component>
+      <input
+        type="checkbox"
+        checked={!!done}
+        onAction={{ api: "toggle", args: [id] }}
+      />
+      <span class={done ? "done" : ""}>{text}</span>
+      <button
+        class="btn btn--danger"
+        onAction={{
+          api: "deleteTodo",
+          args: [id],
+          attributes: { "hx-confirm": "Delete this todo?" },
+        }}
+      >
+        Delete
+      </button>
+    </div>
+  ),
 });
 ```
 
-The `api` property automatically generates HTMX attributes for your endpoints.
-Use the `hx()` wrapper to configure target, swap behavior, confirmations, and
-other HTMX options. All HTMX functionality is encapsulated within the API property.
+The `api` property defines server endpoints and the JSX `onAction` prop binds
+elements to them. HTMX is encapsulated by the library; defaults
+(target/swap/headers) apply automatically.
 
 ## Three-Tier Reactivity
 
@@ -228,7 +221,7 @@ ui-lib includes 50+ production-ready components:
 Run the showcase server to see all components in action:
 
 ```bash
-# Start the example server
+# Start the Todo app demo
 deno task serve
 
 # Open http://localhost:8080
@@ -238,13 +231,10 @@ Repo layout (examples)
 
 ```
 examples/
-└── showcase/
-    ├── server.ts           # Showcase server entry
-    ├── router.ts           # Showcase API endpoints (forms, etc.)
-    ├── index.html          # Showcase shell
-    ├── components/         # Showcase SSR components
-    ├── utilities/          # Shared styles/utilities for showcase
-    └── assets/             # Static assets (logo, favicon)
+└── todo-app/
+    ├── server.tsx         # Demo server entry
+    ├── api/               # Handlers, types, repository
+    └── components/        # SSR components with colocated API/styles/reactivity
 ```
 
 Notes
@@ -264,11 +254,10 @@ Notes
 ## Documentation
 
 - [Getting Started](docs/getting-started.md)
-  - Typing Topics and Events (optional)
 - [Architecture](docs/architecture.md)
 - [Component API](docs/component-api.md)
 - [Examples](docs/examples.md)
-- [Best Practices](docs/best-practices.md)
+- [Modern CSS Architecture](docs/modern-css-architecture.md)
 
 ## Development
 

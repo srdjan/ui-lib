@@ -41,46 +41,56 @@ const MyComponent = defineComponent("my-component", {
 
 #### API Property
 
-The `api` property allows you to define server endpoints that automatically generate HTMX attributes.
-All HTMX functionality is encapsulated within the API property using the `hx()` wrapper:
+The `api` property allows you to define server endpoints whose client bindings
+are generated for you. In JSX, prefer the `onAction` prop so applications never
+hand-craft hx-* attributes.
 
 ```tsx
-import { defineComponent, hx, string } from "ui-lib";
+import { defineComponent, h } from "ui-lib";
 
 defineComponent("user-card", {
   api: {
     updateUser: ["PUT", "/api/users/:id", updateHandler],
     deleteUser: ["DELETE", "/api/users/:id", deleteHandler],
   },
-  render: ({ id = string(), name = string() }, api) => {
-    const updateAttrs = api?.updateUser?.(id, hx({
-      target: "#user-list",
-      swap: "outerHTML"
-    })) || "";
-
-    const deleteAttrs = api?.deleteUser?.(id, hx({
-      target: "#user-list",
-      swap: "outerHTML",
-      confirm: "Are you sure you want to delete this user?"
-    })) || "";
-
-    return `
-      <div class="user-card" id="user-${id}">
-        <h3>${name}</h3>
-        <button ${updateAttrs}>Edit</button>
-        <button ${deleteAttrs}>Delete</button>
-      </div>
-    `;
-  },
+  render: ({ id, name }, api) => (
+    <div class="user-card" data-component>
+      <h3>{name}</h3>
+      <button
+        onAction={{
+          api: "updateUser",
+          args: [id],
+          attributes: { "hx-target": "#user-list", "hx-swap": "outerHTML" },
+        }}
+      >
+        Edit
+      </button>
+      <button
+        onAction={{
+          api: "deleteUser",
+          args: [id],
+          attributes: {
+            "hx-target": "#user-list",
+            "hx-swap": "outerHTML",
+            "hx-confirm": "Delete this user?",
+          },
+        }}
+      >
+        Delete
+      </button>
+    </div>
+  ),
 });
 ```
 
 **API Definition Format**: `[method, path, handler]`
+
 - `method`: HTTP method (GET, POST, PUT, PATCH, DELETE)
 - `path`: URL path with optional parameters (`:id`)
 - `handler`: Server-side request handler function
 
 **hx() Wrapper Options**:
+
 - `target`: Element to update with response
 - `swap`: How to swap content (innerHTML, outerHTML, etc.)
 - `confirm`: Confirmation message before request
@@ -693,39 +703,28 @@ const attrs = client.toggle("42", { optimistic: true });
 
 ### generateClientHx & hx
 
-The `generateClientHx` function is used internally by `defineComponent` to create enhanced
-API functions that return formatted HTMX attribute strings. The `hx()` wrapper allows
-you to configure all HTMX behavior declaratively.
+`generateClientHx` is used internally to create per-method client functions that
+return HTMX attribute strings. Most applications won’t call these
+directly—prefer `onAction` in JSX. The `hx()` helper remains available for
+advanced per-call configuration.
 
 ```typescript
 import { generateClientHx, hx } from "ui-lib";
 
-// API definitions
 const api = {
-  toggle: ["PATCH", "/api/todos/:id/toggle", handler],
-  delete: ["DELETE", "/api/todos/:id", handler],
+  toggle: ["POST", "/api/todos/:id/toggle", handler],
+  remove: ["DELETE", "/api/todos/:id", handler],
 };
 
-// Generate enhanced client functions
-const actions = generateClientHx(api, { target: "#main" });
+const actions = generateClientHx(api, { target: "#main", swap: "outerHTML" });
 
-// Use in templates with hx() configuration
-const toggleAttrs = actions.toggle(
-  "42", // path parameter
-  { optimistic: true }, // payload data
-  hx({ // HTMX configuration
-    indicator: "#spinner",
-    swap: "outerHTML",
-    confirm: "Are you sure?",
-    trigger: "click"
-  })
-);
-
-// Inject into HTML templates
+// Advanced: build attribute string manually (usually not needed)
+const toggleAttrs = actions.toggle("42", hx({ indicator: "#spinner" }));
 const buttonHtml = `<button ${toggleAttrs}>Toggle</button>`;
 ```
 
 **hx() Options**:
+
 - `target`: Element selector to update
 - `swap`: Content swap method (innerHTML, outerHTML, etc.)
 - `confirm`: Confirmation dialog message

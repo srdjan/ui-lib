@@ -2,23 +2,23 @@
 
 Real-world examples demonstrating ui-lib's capabilities.
 
-## Running the Showcase
+## Running the Todo App Example
 
-The showcase lives under `examples/showcase` and includes a small server, router, and SSR components.
+The Todo demo lives under `examples/todo-app` and demonstrates SSR-first,
+JSX-only components with colocated API, styles, and reactivity.
 
 ```bash
 deno task serve
-# Opens http://localhost:8080 and serves examples/showcase/server.ts
+# Opens http://localhost:8080 and serves examples/todo-app/server.tsx
 ```
 
 Key files:
 
 ```
-examples/showcase/
-├── server.ts     # HTTP server for the showcase
-├── router.ts     # Demo API endpoints (e.g., forms)
-├── index.html    # Showcase shell
-└── components/   # SSR components used by the showcase
+examples/todo-app/
+├── server.tsx     # HTTP server for the demo
+├── api/           # Handlers, types, repository
+└── components/    # SSR components (colocated API/styles/reactivity)
 ```
 
 ## Basic Examples
@@ -32,7 +32,7 @@ import { defineComponent, h } from "ui-lib";
 
 const HelloWorld = defineComponent({
   name: "hello-world",
-  render: () => <h1>Hello, World!</h1>
+  render: () => <h1>Hello, World!</h1>,
 });
 
 // Usage
@@ -45,23 +45,23 @@ console.log(html); // <h1>Hello, World!</h1>
 Using typed props with defaults:
 
 ```tsx
-import { defineComponent, string, number, h } from "ui-lib";
+import { defineComponent, h, number, string } from "ui-lib";
 
 const Greeting = defineComponent({
   name: "greeting",
   render: (
     name = string("Guest"),
-    age = number(0)
+    age = number(0),
   ) => (
     <div class="greeting">
       <h2>Hello, {name}!</h2>
       {age > 0 && <p>You are {age} years old.</p>}
     </div>
-  )
+  ),
 });
 
 // Usage
-<Greeting name="Alice" age={25} />
+<Greeting name="Alice" age={25} />;
 ```
 
 ### Styled Component
@@ -69,7 +69,7 @@ const Greeting = defineComponent({
 Component with CSS-in-TypeScript styling:
 
 ```tsx
-import { defineComponent, css, h } from "ui-lib";
+import { css, defineComponent, h } from "ui-lib";
 
 const StyledBox = defineComponent({
   name: "styled-box",
@@ -81,14 +81,14 @@ const StyledBox = defineComponent({
     transition: "transform 0.2s",
     "&:hover": {
       transform: "translateY(-2px)",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
-    }
+      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+    },
   }),
   render: ({ content }) => (
     <div class="styled-box">
       {content}
     </div>
-  )
+  ),
 });
 ```
 
@@ -100,14 +100,14 @@ Complete login form with validation:
 
 ```tsx
 import { defineComponent, h } from "ui-lib";
-import { Input, Button, Card, Alert } from "ui-lib/components";
+import { Alert, Button, Card, Input } from "ui-lib/components";
 
 const LoginForm = defineComponent({
   name: "login-form",
   render: ({ error }) => (
     <Card title="Login">
       {error && <Alert type="error">{error}</Alert>}
-      
+
       <form method="POST" action="/api/login">
         <Input
           type="email"
@@ -116,7 +116,7 @@ const LoginForm = defineComponent({
           placeholder="your@email.com"
           required
         />
-        
+
         <Input
           type="password"
           name="password"
@@ -124,7 +124,7 @@ const LoginForm = defineComponent({
           placeholder="Enter your password"
           required
         />
-        
+
         <div class="form-footer">
           <Button
             type="submit"
@@ -136,7 +136,7 @@ const LoginForm = defineComponent({
         </div>
       </form>
     </Card>
-  )
+  ),
 });
 ```
 
@@ -146,7 +146,7 @@ Form with multiple steps and progress indicator:
 
 ```tsx
 import { defineComponent, h } from "ui-lib";
-import { Stepper, Input, Select, Button } from "ui-lib/components";
+import { Button, Input, Select, Stepper } from "ui-lib/components";
 
 const MultiStepForm = defineComponent({
   name: "multi-step-form",
@@ -156,11 +156,11 @@ const MultiStepForm = defineComponent({
         steps={[
           { label: "Personal Info", completed: currentStep > 1 },
           { label: "Contact Details", completed: currentStep > 2 },
-          { label: "Preferences", completed: currentStep > 3 }
+          { label: "Preferences", completed: currentStep > 3 },
         ]}
         current={currentStep - 1}
       />
-      
+
       <div class="form-content">
         {currentStep === 1 && (
           <div class="step-1">
@@ -172,12 +172,12 @@ const MultiStepForm = defineComponent({
               options={[
                 { value: "male", label: "Male" },
                 { value: "female", label: "Female" },
-                { value: "other", label: "Other" }
+                { value: "other", label: "Other" },
               ]}
             />
           </div>
         )}
-        
+
         {currentStep === 2 && (
           <div class="step-2">
             <Input label="Email" type="email" name="email" />
@@ -185,14 +185,14 @@ const MultiStepForm = defineComponent({
             <Input label="Address" name="address" />
           </div>
         )}
-        
+
         {currentStep === 3 && (
           <div class="step-3">
             {/* Preferences content */}
           </div>
         )}
       </div>
-      
+
       <div class="form-actions">
         {currentStep > 1 && (
           <Button
@@ -202,22 +202,24 @@ const MultiStepForm = defineComponent({
             Previous
           </Button>
         )}
-        
-        {currentStep < 3 ? (
-          <Button
-            variant="primary"
-            onclick={`setStep(${currentStep + 1})`}
-          >
-            Next
-          </Button>
-        ) : (
-          <Button variant="primary">
-            Submit
-          </Button>
-        )}
+
+        {currentStep < 3
+          ? (
+            <Button
+              variant="primary"
+              onclick={`setStep(${currentStep + 1})`}
+            >
+              Next
+            </Button>
+          )
+          : (
+            <Button variant="primary">
+              Submit
+            </Button>
+          )}
       </div>
     </>
-  )
+  ),
 });
 ```
 
@@ -281,36 +283,37 @@ Analytics dashboard with metric cards:
 
 ```typescript
 import { defineComponent } from "ui-lib";
-import { Card, Progress, Badge } from "ui-lib/components";
+import { Badge, Card, Progress } from "ui-lib/components";
 
 const MetricCard = defineComponent({
   name: "metric-card",
-  render: ({ title, value, change, trend }) => Card({
-    children: `
+  render: ({ title, value, change, trend }) =>
+    Card({
+      children: `
       <div class="metric">
         <h3>${title}</h3>
         <div class="value">${value}</div>
         <div class="change ${trend}">
-          ${Badge({
-            variant: trend === "up" ? "success" : "danger",
-            children: `${change}%`
-          })}
+          ${
+        Badge({
+          variant: trend === "up" ? "success" : "danger",
+          children: `${change}%`,
+        })
+      }
           <span>${trend === "up" ? "↑" : "↓"}</span>
         </div>
       </div>
-    `
-  })
+    `,
+    }),
 });
 
 const Dashboard = defineComponent({
   name: "dashboard",
   render: ({ metrics }) => `
     <div class="dashboard-grid">
-      ${metrics.map(metric => 
-        MetricCard(metric)
-      ).join('')}
+      ${metrics.map((metric) => MetricCard(metric)).join("")}
     </div>
-  `
+  `,
 });
 ```
 
@@ -330,14 +333,14 @@ const ThemeSwitcher = defineComponent({
     css: {
       "--bg-color": "data-theme-bg",
       "--text-color": "data-theme-text",
-      "--accent-color": "data-theme-accent"
-    }
+      "--accent-color": "data-theme-accent",
+    },
   },
   styles: {
     backgroundColor: "var(--bg-color)",
     color: "var(--text-color)",
     padding: "2rem",
-    transition: "all 0.3s ease"
+    transition: "all 0.3s ease",
   },
   render: () => `
     <div class="theme-switcher" 
@@ -347,23 +350,27 @@ const ThemeSwitcher = defineComponent({
       <h2>Theme Demo</h2>
       <p>Click buttons to change theme instantly</p>
       
-      ${Button({
-        children: "Light Theme",
-        onclick: `
+      ${
+    Button({
+      children: "Light Theme",
+      onclick: `
           this.closest('.theme-switcher').dataset.themeBg = '#ffffff';
           this.closest('.theme-switcher').dataset.themeText = '#000000';
-        `
-      })}
+        `,
+    })
+  }
       
-      ${Button({
-        children: "Dark Theme",
-        onclick: `
+      ${
+    Button({
+      children: "Dark Theme",
+      onclick: `
           this.closest('.theme-switcher').dataset.themeBg = '#1a1a1a';
           this.closest('.theme-switcher').dataset.themeText = '#ffffff';
-        `
-      })}
+        `,
+    })
+  }
     </div>
-  `
+  `,
 });
 ```
 
@@ -373,14 +380,14 @@ State management with pub/sub:
 
 ```typescript
 import { defineComponent } from "ui-lib";
-import { Button, Badge } from "ui-lib/components";
+import { Badge, Button } from "ui-lib/components";
 
 const CartButton = defineComponent({
   name: "cart-button",
   reactive: {
     state: {
-      "cart-count": "data-count"
-    }
+      "cart-count": "data-count",
+    },
   },
   render: () => (
     <>
@@ -390,7 +397,7 @@ const CartButton = defineComponent({
           <span class="cart-count">0</span>
         </Badge>
       </button>
-      
+
       <script>
         {`
           subscribeToState('cart-count', (count) => {
@@ -399,24 +406,27 @@ const CartButton = defineComponent({
         `}
       </script>
     </>
-  )
+  ),
 });
 
 const ProductCard = defineComponent({
   name: "product-card",
-  render: ({ name, price }) => Card({
-    title: name,
-    children: `
+  render: ({ name, price }) =>
+    Card({
+      title: name,
+      children: `
       <p class="price">$${price}</p>
-      ${Button({
-        children: "Add to Cart",
-        onclick: `
+      ${
+        Button({
+          children: "Add to Cart",
+          onclick: `
           const count = getState('cart-count') || 0;
           publishState('cart-count', count + 1);
-        `
-      })}
-    `
-  })
+        `,
+        })
+      }
+    `,
+    }),
 });
 ```
 
@@ -434,34 +444,37 @@ const NotificationCenter = defineComponent({
     on: {
       "app:notify": "showNotification",
       "app:error": "showError",
-      "app:success": "showSuccess"
+      "app:success": "showSuccess",
     },
     mount: `
       this.showNotification = (e) => {
-        const toast = ${Toast({ 
-          message: 'e.detail.message',
-          type: 'e.detail.type'
-        })};
+        const toast = ${
+      Toast({
+        message: "e.detail.message",
+        type: "e.detail.type",
+      })
+    };
         this.appendChild(toast);
       };
-    `
+    `,
   },
   render: () => `
     <div class="notification-center"></div>
-  `
+  `,
 });
 
 // Trigger notifications from anywhere
 const TriggerButton = defineComponent({
-  render: () => Button({
-    children: "Show Notification",
-    onclick: `
+  render: () =>
+    Button({
+      children: "Show Notification",
+      onclick: `
       dispatchEvent('app:notify', {
         message: 'Hello from ui-lib!',
         type: 'success'
       });
-    `
-  })
+    `,
+    }),
 });
 ```
 
@@ -477,55 +490,58 @@ import { defineComponent } from "ui-lib";
 
 const AdminDashboard = defineComponent({
   name: "admin-dashboard",
-  render: ({ content, user }) => AppLayout({
-    navbar: Navbar({
-      brand: { 
-        name: "Admin Panel",
-        logo: "🎛️"
-      },
-      items: [
-        { label: "Dashboard", href: "/admin" },
-        { label: "Users", href: "/admin/users" },
-        { label: "Settings", href: "/admin/settings" }
-      ],
-      actions: `
-        <span>Welcome, ${user.name}</span>
-        ${Button({ 
-          variant: "ghost", 
-          size: "sm",
-          children: "Logout" 
-        })}
-      `
-    }),
-    
-    sidebar: Sidebar({
-      items: [
-        { 
-          label: "Analytics",
-          icon: "📊",
-          items: [
-            { label: "Overview", href: "/analytics" },
-            { label: "Reports", href: "/analytics/reports" }
-          ]
+  render: ({ content, user }) =>
+    AppLayout({
+      navbar: Navbar({
+        brand: {
+          name: "Admin Panel",
+          logo: "🎛️",
         },
-        {
-          label: "Content",
-          icon: "📝",
-          items: [
-            { label: "Pages", href: "/content/pages" },
-            { label: "Posts", href: "/content/posts" }
-          ]
+        items: [
+          { label: "Dashboard", href: "/admin" },
+          { label: "Users", href: "/admin/users" },
+          { label: "Settings", href: "/admin/settings" },
+        ],
+        actions: `
+        <span>Welcome, ${user.name}</span>
+        ${
+          Button({
+            variant: "ghost",
+            size: "sm",
+            children: "Logout",
+          })
         }
-      ],
-      collapsible: true
-    }),
-    
-    content: content,
-    
-    footer: `
+      `,
+      }),
+
+      sidebar: Sidebar({
+        items: [
+          {
+            label: "Analytics",
+            icon: "📊",
+            items: [
+              { label: "Overview", href: "/analytics" },
+              { label: "Reports", href: "/analytics/reports" },
+            ],
+          },
+          {
+            label: "Content",
+            icon: "📝",
+            items: [
+              { label: "Pages", href: "/content/pages" },
+              { label: "Posts", href: "/content/posts" },
+            ],
+          },
+        ],
+        collapsible: true,
+      }),
+
+      content: content,
+
+      footer: `
       <p>&copy; 2024 Your Company. All rights reserved.</p>
-    `
-  })
+    `,
+    }),
 });
 ```
 
@@ -537,28 +553,21 @@ Dynamic content loading with HTMX:
 
 ```typescript
 import { defineComponent } from "ui-lib";
-import { Button, Spinner } from "ui-lib/components";
 
 const HTMXExample = defineComponent({
   name: "htmx-example",
-  render: () => `
+  api: {
+    load: ["GET", "/api/content", loadHandler],
+  },
+  render: (props, api) => `
     <div class="htmx-demo">
-      ${Button({
-        children: "Load Content",
-        "hx-get": "/api/content",
-        "hx-target": "#content",
-        "hx-indicator": "#spinner"
-      })}
-      
-      <div id="spinner" class="htmx-indicator">
-        ${Spinner()}
-      </div>
-      
-      <div id="content">
-        <!-- Content loads here -->
-      </div>
+      <button onAction={{ api: "load", attributes: { "hx-target": "#content", "hx-indicator": "#spinner" } }}>
+        Load Content
+      </button>
+      <div id="spinner" class="htmx-indicator" hidden></div>
+      <div id="content"><!-- Content loads here --></div>
     </div>
-  `
+  `,
 });
 ```
 
@@ -576,21 +585,25 @@ const SearchComponent = defineComponent({
       const { query } = await req.json();
       const results = await searchDatabase(query);
       return Response.json(results);
-    })
+    }),
   },
   render: () => `
     <form hx-post="/api/search" hx-target="#results">
-      ${Input({
-        name: "query",
-        placeholder: "Search..."
-      })}
-      ${Button({
-        type: "submit",
-        children: "Search"
-      })}
+      ${
+    Input({
+      name: "query",
+      placeholder: "Search...",
+    })
+  }
+      ${
+    Button({
+      type: "submit",
+      children: "Search",
+    })
+  }
     </form>
     <div id="results"></div>
-  `
+  `,
 });
 ```
 
@@ -601,30 +614,26 @@ const SearchComponent = defineComponent({
 Components with render caching:
 
 ```typescript
-import { defineComponent, cachedRender } from "ui-lib";
+import { cachedRender, defineComponent } from "ui-lib";
 
 const ExpensiveComponent = defineComponent({
   name: "expensive",
   render: cachedRender(
     ({ data }) => {
       // Expensive computation
-      const processed = data.map(item => 
-        complexTransform(item)
-      );
-      
+      const processed = data.map((item) => complexTransform(item));
+
       return `
         <div class="results">
-          ${processed.map(item => 
-            `<div>${item}</div>`
-          ).join('')}
+          ${processed.map((item) => `<div>${item}</div>`).join("")}
         </div>
       `;
     },
     {
       ttl: 60000, // Cache for 1 minute
-      key: (props) => props.data.length // Cache key
-    }
-  )
+      key: (props) => props.data.length, // Cache key
+    },
+  ),
 });
 ```
 
@@ -639,19 +648,19 @@ const StreamingList = defineComponent({
   name: "streaming-list",
   render: async function* ({ items }) {
     yield `<ul class="streaming-list">`;
-    
+
     for (const item of items) {
       // Yield each item as it's processed
       yield `<li>${item.name}</li>`;
-      
+
       // Allow other work to happen
       if (items.indexOf(item) % 100 === 0) {
-        await new Promise(resolve => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
       }
     }
-    
+
     yield `</ul>`;
-  }
+  },
 });
 ```
 
@@ -664,18 +673,18 @@ import { assertEquals } from "https://deno.land/std/assert/mod.ts";
 import { MyComponent } from "./my-component.ts";
 
 Deno.test("MyComponent renders correctly", () => {
-  const result = MyComponent({ 
+  const result = MyComponent({
     title: "Test",
-    content: "Content" 
+    content: "Content",
   });
-  
+
   assertEquals(result.includes("Test"), true);
   assertEquals(result.includes("Content"), true);
 });
 
 Deno.test("MyComponent handles missing props", () => {
   const result = MyComponent({});
-  
+
   assertEquals(result.includes("Default Title"), true);
 });
 ```
@@ -689,7 +698,7 @@ import { assertEquals } from "https://deno.land/std/assert/mod.ts";
 Deno.test("Server renders homepage", async () => {
   const response = await fetch("http://localhost:8000/");
   const html = await response.text();
-  
+
   assertEquals(response.status, 200);
   assertEquals(html.includes("<h1>Welcome</h1>"), true);
 });
@@ -703,24 +712,19 @@ Complete product page example:
 
 ```typescript
 import { defineComponent } from "ui-lib";
-import { 
-  Card, 
-  Button, 
-  Badge, 
-  Tabs, 
-  Rating,
-  Gallery 
-} from "ui-lib/components";
+import { Badge, Button, Card, Gallery, Rating, Tabs } from "ui-lib/components";
 
 const ProductPage = defineComponent({
   name: "product-page",
   render: ({ product }) => `
     <div class="product-page">
       <div class="product-gallery">
-        ${Gallery({
-          images: product.images,
-          thumbnails: true
-        })}
+        ${
+    Gallery({
+      images: product.images,
+      thumbnails: true,
+    })
+  }
       </div>
       
       <div class="product-info">
@@ -728,88 +732,110 @@ const ProductPage = defineComponent({
         
         <div class="price-section">
           <span class="price">$${product.price}</span>
-          ${product.oldPrice ? `
+          ${
+    product.oldPrice
+      ? `
             <span class="old-price">$${product.oldPrice}</span>
-            ${Badge({
-              variant: "success",
-              children: `${Math.round((1 - product.price/product.oldPrice) * 100)}% OFF`
-            })}
-          ` : ''}
+            ${
+        Badge({
+          variant: "success",
+          children: `${
+            Math.round((1 - product.price / product.oldPrice) * 100)
+          }% OFF`,
+        })
+      }
+          `
+      : ""
+  }
         </div>
         
-        ${Rating({
-          value: product.rating,
-          reviews: product.reviewCount
-        })}
+        ${
+    Rating({
+      value: product.rating,
+      reviews: product.reviewCount,
+    })
+  }
         
         <div class="add-to-cart">
-          ${Select({
-            label: "Size",
-            options: product.sizes
-          })}
+          ${
+    Select({
+      label: "Size",
+      options: product.sizes,
+    })
+  }
           
-          ${Input({
-            type: "number",
-            label: "Quantity",
-            value: "1",
-            min: "1",
-            max: product.stock
-          })}
+          ${
+    Input({
+      type: "number",
+      label: "Quantity",
+      value: "1",
+      min: "1",
+      max: product.stock,
+    })
+  }
           
-          ${Button({
-            variant: "primary",
-            size: "lg",
-            fullWidth: true,
-            leftIcon: "🛒",
-            children: "Add to Cart",
-            onclick: "addToCart()"
-          })}
+          ${
+    Button({
+      variant: "primary",
+      size: "lg",
+      fullWidth: true,
+      leftIcon: "🛒",
+      children: "Add to Cart",
+      onclick: "addToCart()",
+    })
+  }
         </div>
         
-        ${Tabs({
-          items: [
-            {
-              id: "description",
-              label: "Description",
-              content: product.description
-            },
-            {
-              id: "specifications",
-              label: "Specifications",
-              content: renderSpecs(product.specs)
-            },
-            {
-              id: "reviews",
-              label: `Reviews (${product.reviewCount})`,
-              content: renderReviews(product.reviews)
-            }
-          ]
-        })}
+        ${
+    Tabs({
+      items: [
+        {
+          id: "description",
+          label: "Description",
+          content: product.description,
+        },
+        {
+          id: "specifications",
+          label: "Specifications",
+          content: renderSpecs(product.specs),
+        },
+        {
+          id: "reviews",
+          label: `Reviews (${product.reviewCount})`,
+          content: renderReviews(product.reviews),
+        },
+      ],
+    })
+  }
       </div>
     </div>
-  `
+  `,
 });
 ```
 
 ## Running the Examples
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/yourusername/ui-lib.git
 cd ui-lib
 ```
 
 2. Start the example server:
+
 ```bash
 deno task serve
 ```
 
 3. Open your browser:
+
 ```
 http://localhost:8080
 ```
 
 4. Explore the showcase:
+
 - Component Gallery
 - Interactive Demos
 - Form Examples

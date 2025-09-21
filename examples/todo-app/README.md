@@ -48,9 +48,12 @@ todo-app/
 - **Functional programming** - Pure functions, immutable data, Result types for
   error handling
 - **Type-safe** - Full TypeScript with strict typing throughout
-- **SSR-first** - Server-side rendering with HTMX enhancements
-- **DOM-native state** - State lives in the DOM, not JavaScript memory
-- **Zero runtime** - No client-side framework needed
+- **SSR-first, JSX-always** - Server-side rendering with JSX-only components
+- **DOM-native state** - State lives in the DOM (classes, data-*, content, CSS
+  vars)
+- **HTMX encapsulated** - No hx-* in app code; use `onAction`/`itemAction`
+  helpers
+- **Zero framework runtime** - Progressive enhancement optional
 
 ## 📦 Component Details
 
@@ -59,7 +62,7 @@ todo-app/
 - Displays individual todo with priority badge
 - Checkbox for completion toggle
 - Edit and delete actions
-- HTMX-powered interactions with `generateClientApi` helpers
+- Interactions via `onAction` using colocated `api` definitions (HTMX hidden)
 - Self-contained styles
 
 ### TodoForm (`components/TodoForm.tsx`)
@@ -69,7 +72,8 @@ todo-app/
 - Form validation
 - Auto-reset after submission
 - Clean form layout
-- Submits via HTMX JSON (`json-enc`) so handlers receive structured payloads
+- Submits to real handlers; progressive enhancement via HTMX happens under the
+  hood
 
 ### TodoList (`components/TodoList.tsx`)
 
@@ -109,7 +113,8 @@ export interface Todo {
 - In-memory storage (easily replaceable with database)
 - Pure validation functions
 - No throwing errors - all errors as values
-- Handlers expect HTMX JSON bodies (`Content-Type: application/json`); see `handlers.test.ts` for examples
+- Handlers expect HTMX JSON bodies (`Content-Type: application/json`); see
+  `handlers.test.ts` for examples
 
 ### Handlers (`api/handlers.ts`)
 
@@ -147,17 +152,22 @@ if (!result.ok) {
 - Components are pure functions
 - No side effects in render functions
 
-### HTMX Integration
+### HTMX Integration (encapsulated)
 
-```html
-<!-- Form submission updates todo list -->
-<form hx-post="/api/todos" hx-target="#todo-list">
+All HTMX attributes are generated for you. Components bind to real handlers
+using `onAction`:
 
-<!-- Toggle completion -->
-<input type="checkbox" hx-post="/api/todos/123/toggle">
+```tsx
+// In components/todo-item.tsx
+<button onAction={{ api: "deleteTodo", args: [todo.id], attributes: { "hx-confirm": "Are you sure?" } }}>
+  Delete
+</button>
+<input type="checkbox" checked={todo.completed} onAction={{ api: "toggle", args: [todo.id] }} />
 
-<!-- Delete with confirmation -->
-<button hx-delete="/api/todos/123" hx-confirm="Are you sure?">
+// In components/todo-list.tsx
+<button class="btn btn--danger" onAction={{ api: "clearCompleted" }}>
+  Clear completed
+</button>
 ```
 
 ## 🚀 Customization
