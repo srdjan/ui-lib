@@ -66,17 +66,13 @@ defineComponent("card", {
 const html = <card title="Hello" content="World" />;
 ```
 
+> Note: In application code, render components using JSX exclusively.
+> `renderComponent` is an internal library helper.
+
 ### With Function-Style Props
 
 ```tsx
-import {
-  boolean,
-  defineComponent,
-  h,
-  number,
-  renderComponent,
-  string,
-} from "ui-lib";
+import { boolean, defineComponent, h, number, string } from "ui-lib";
 
 defineComponent("counter", {
   render: ({
@@ -91,8 +87,8 @@ defineComponent("counter", {
   ),
 });
 
-// Type-safe usage
-const html = renderComponent("counter", { label: "Items", value: "5" });
+// Type-safe usage (JSX-only in app code)
+const html = <counter label="Items" value={5} />;
 ```
 
 ### Using Built-in Components

@@ -3,8 +3,9 @@
  * Can be used for todo filters, product filters, search filters, etc.
  */
 
+import { renderComponent } from "../../component-state.ts";
+import { defineComponent } from "../../define-component.ts";
 import { css, token } from "../../modern-css.ts";
-import { defineComponent, renderComponent } from "../../define-component.ts";
 
 // Create modern CSS styles for the filters component
 const filtersStyles = css.responsive("filters", {
@@ -123,7 +124,9 @@ const filtersStyles = css.responsive("filters", {
     fontSize: token("typography", "sm-size"),
     fontWeight: token("typography", "medium"),
     color: token("color", "text-secondary"),
-    transition: `all ${token("animation", "fast")} ${token("animation", "ease")}`,
+    transition: `all ${token("animation", "fast")} ${
+      token("animation", "ease")
+    }`,
     position: "relative",
 
     "&:hover": {
@@ -250,7 +253,9 @@ const filtersStyles = css.responsive("filters", {
       fontSize: token("typography", "xs-size"),
       fontWeight: token("typography", "medium"),
       cursor: "pointer",
-      transition: `all ${token("animation", "fast")} ${token("animation", "ease")}`,
+      transition: `all ${token("animation", "fast")} ${
+        token("animation", "ease")
+      }`,
 
       "&:hover": {
         backgroundColor: token("surface", "background-hover"),
@@ -284,7 +289,8 @@ defineComponent("filters", {
     const { classMap } = filtersStyles;
 
     // Parse data from JSON strings
-    let parsedButtons: Array<{ key: string; label: string; count?: number }> = [];
+    let parsedButtons: Array<{ key: string; label: string; count?: number }> =
+      [];
     let parsedStats: Array<{ label: string; value: string | number }> = [];
     let parsedSecondaryFilters: Array<{
       type: "select" | "input";
@@ -298,7 +304,9 @@ defineComponent("filters", {
     try {
       if (buttons) parsedButtons = JSON.parse(buttons);
       if (stats) parsedStats = JSON.parse(stats);
-      if (secondaryFilters) parsedSecondaryFilters = JSON.parse(secondaryFilters);
+      if (secondaryFilters) {
+        parsedSecondaryFilters = JSON.parse(secondaryFilters);
+      }
       if (actions) parsedActions = JSON.parse(actions);
     } catch {
       // Ignore invalid JSON
@@ -318,37 +326,49 @@ defineComponent("filters", {
     };
 
     // Render statistics
-    const statsHtml = parsedStats.length > 0 ? `
+    const statsHtml = parsedStats.length > 0
+      ? `
       <div class="${classMap.stats}">
-        ${parsedStats.map(stat => `
+        ${
+        parsedStats.map((stat) => `
           <div class="stat">
             <span class="value">${stat.value}</span>
             <span class="label">${stat.label}</span>
           </div>
-        `).join("")}
+        `).join("")
+      }
       </div>
-    ` : "";
+    `
+      : "";
 
     // Render filter buttons
-    const buttonsHtml = parsedButtons.length > 0 ? `
+    const buttonsHtml = parsedButtons.length > 0
+      ? `
       <div class="${classMap.buttons}">
-        ${parsedButtons.map(button => `
+        ${
+        parsedButtons.map((button) => `
           <button
             type="button"
             class="${classMap.button}"
             data-filter="${button.key}"
             data-active="${button.key === activeButton}"
           >
-            ${button.label}${button.count !== undefined ? ` (${button.count})` : ""}
+            ${button.label}${
+          button.count !== undefined ? ` (${button.count})` : ""
+        }
           </button>
-        `).join("")}
+        `).join("")
+      }
       </div>
-    ` : "";
+    `
+      : "";
 
     // Render secondary filters
-    const secondaryFiltersHtml = (parsedSecondaryFilters.length > 0 || search) ? `
+    const secondaryFiltersHtml = (parsedSecondaryFilters.length > 0 || search)
+      ? `
       <div class="${classMap.secondaryFilters}">
-        ${parsedSecondaryFilters.map(filter => {
+        ${
+        parsedSecondaryFilters.map((filter) => {
           if (filter.type === "select" && filter.options) {
             return `
               <select
@@ -356,10 +376,18 @@ defineComponent("filters", {
                 name="${filter.name}"
                 data-active="${Boolean(filter.value)}"
               >
-                ${filter.placeholder ? `<option value="">${filter.placeholder}</option>` : ""}
-                ${filter.options.map(opt =>
-                  `<option value="${opt.value}" ${opt.value === filter.value ? "selected" : ""}>${opt.label}</option>`
-                ).join("")}
+                ${
+              filter.placeholder
+                ? `<option value="">${filter.placeholder}</option>`
+                : ""
+            }
+                ${
+              filter.options.map((opt) =>
+                `<option value="${opt.value}" ${
+                  opt.value === filter.value ? "selected" : ""
+                }>${opt.label}</option>`
+              ).join("")
+            }
               </select>
             `;
           } else if (filter.type === "input") {
@@ -375,9 +403,12 @@ defineComponent("filters", {
             `;
           }
           return "";
-        }).join("")}
+        }).join("")
+      }
 
-        ${search ? `
+        ${
+        search
+          ? `
           <div class="${classMap.search}">
             <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
@@ -389,23 +420,33 @@ defineComponent("filters", {
               value="${search || ""}"
             />
           </div>
-        ` : ""}
+        `
+          : ""
+      }
       </div>
-    ` : "";
+    `
+      : "";
 
     // Render actions
-    const actionsHtml = parsedActions.length > 0 ? `
+    const actionsHtml = parsedActions.length > 0
+      ? `
       <div class="${classMap.actions}">
-        ${parsedActions.map(action => `
+        ${
+        parsedActions.map((action) => `
           <button type="button" class="action" onclick="${action.action}">
             ${action.label}
           </button>
-        `).join("")}
+        `).join("")
+      }
       </div>
-    ` : "";
+    `
+      : "";
 
     return `
-      <div ${Object.entries(containerProps).map(([k, v]) => v ? `${k}="${v}"` : "").join(" ")}>
+      <div ${
+      Object.entries(containerProps).map(([k, v]) => v ? `${k}="${v}"` : "")
+        .join(" ")
+    }>
         ${statsHtml}
         ${buttonsHtml}
         ${secondaryFiltersHtml}
@@ -439,9 +480,13 @@ export const Filters = (props: {
   if (props.buttons) attrs.buttons = JSON.stringify(props.buttons);
   if (props.activeButton) attrs.activeButton = props.activeButton;
   if (props.stats) attrs.stats = JSON.stringify(props.stats);
-  if (props.secondaryFilters) attrs.secondaryFilters = JSON.stringify(props.secondaryFilters);
+  if (props.secondaryFilters) {
+    attrs.secondaryFilters = JSON.stringify(props.secondaryFilters);
+  }
   if (props.search) attrs.search = props.search;
-  if (props.searchPlaceholder) attrs.searchPlaceholder = props.searchPlaceholder;
+  if (props.searchPlaceholder) {
+    attrs.searchPlaceholder = props.searchPlaceholder;
+  }
   if (props.actions) attrs.actions = JSON.stringify(props.actions);
   if (props.variant) attrs.variant = props.variant;
   if (props.size) attrs.size = props.size;

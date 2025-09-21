@@ -1,22 +1,21 @@
 #!/usr/bin/env deno run --allow-net --allow-read --allow-env
 
+/** @jsx h */
 /**
  * Todo App - Clean Component Architecture
  * Demonstrates clean separation of concerns with no inline CSS
  */
 
-import { html, Router } from "../../mod-simple.ts";
+import { h } from "../../lib/jsx-runtime.ts";
 
-// Import component system
-import { renderComponent } from "../../lib/component-state.ts";
+import { html, Router } from "../../mod-simple.ts";
 
 // Import all todo components
 import "./components/todo-app.tsx";
 
 // Import API functionality
-import { todoAPI } from "./api/index.ts";
-import type { Todo, TodoFilter } from "./api/types.ts";
-import { ensureRepository, getRepository } from "./api/index.ts";
+import { ensureRepository, getRepository, todoAPI } from "./api/index.ts";
+import type { TodoFilter } from "./api/types.ts";
 
 const router = new Router();
 
@@ -62,10 +61,7 @@ router.register("GET", "/", async (req: Request) => {
   const todos = await getTodos(filter, currentUser);
 
   // Use the clean TodoApp component
-  const appHtml = renderComponent("todo-app", {
-    todos,
-    stats,
-  });
+  const appHtml = <todo-app todos={todos} stats={stats} /> as unknown as string;
 
   return new Response(appHtml, {
     headers: { "Content-Type": "text/html" },
@@ -98,7 +94,7 @@ router.register(
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-  }
+  },
 );
 
 router.register("GET", "/health", async () => {

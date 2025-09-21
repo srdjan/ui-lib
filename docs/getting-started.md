@@ -2,6 +2,9 @@
 
 This guide will help you get up and running with ui-lib in minutes.
 
+> Note: In application code, render components using JSX exclusively.
+> `renderComponent` is an internal library helper.
+
 ## Prerequisites
 
 - [Deno](https://deno.land/) 2.0 or higher
@@ -97,12 +100,14 @@ defineComponent("todo-list", {
   },
 });
 
-// Usage
-const html = renderComponent("todo-list", {
-  title: "Shopping List",
-  items: '["Milk", "Bread", "Eggs"]',
-  maxItems: "5",
-});
+// Usage (JSX-only in app code)
+const html = (
+  <todo-list
+    title="Shopping List"
+    items={["Milk", "Bread", "Eggs"]}
+    maxItems={5}
+  />
+);
 ```
 
 ## API Integration
@@ -323,7 +328,7 @@ const ThemeSwitch = defineComponent({
   },
   render: () => (
     <div class="theme-switch" data-theme="light">
-      <button onclick="this.parentElement.dataset.theme = 
+      <button onclick="this.parentElement.dataset.theme =
         this.parentElement.dataset.theme === 'light' ? 'dark' : 'light'">
         Toggle Theme
       </button>
@@ -366,14 +371,14 @@ const ShoppingCart = defineComponent({
 
 ```tsx
 import { serve } from "https://deno.land/std/http/server.ts";
-import { renderComponent } from "ui-lib";
+import { h } from "ui-lib";
 import { HomePage } from "./components/HomePage.tsx";
 
 serve(async (req) => {
   const url = new URL(req.url);
 
   if (url.pathname === "/") {
-    const html = await renderComponent(<HomePage />);
+    const html = <HomePage />;
 
     return new Response(html, {
       headers: { "content-type": "text/html" },

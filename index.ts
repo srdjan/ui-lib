@@ -185,9 +185,6 @@ export type {
   SidebarProps,
 } from "./lib/layout/layout-types.ts";
 
-// Layout components are auto-registered when imported
-export * from "./lib/layout/index.ts";
-
 // Development Tools and Debugging (Phase 4)
 export {
   a11yChecker,

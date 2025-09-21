@@ -72,7 +72,7 @@ interface ComponentConfig {
 
 ```tsx
 // Simplified render pipeline
-function renderComponent(element: JSX.Element): string {
+function internalRender(element: JSX.Element): string {
   const component = getComponent(element.type);
   const processedProps = component.props(element.props);
   const styles = generateStyles(component.styles);

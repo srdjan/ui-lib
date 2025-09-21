@@ -32,7 +32,8 @@
     "coverage": "rm -rf coverage coverage.lcov && deno test --coverage=coverage && deno coverage coverage --lcov --exclude='(jsx-runtime|define-component)\\.ts$' --output=coverage.lcov",
     "serve": "deno run --allow-net --allow-read --allow-env --unstable-kv examples/todo-app/server-clean.tsx",
     "start": "deno task check && deno task serve",
-    "bundle:state": "deno run --allow-read --allow-write scripts/bundle_state.ts"
+    "bundle:state": "deno run --allow-read --allow-write scripts/bundle_state.ts",
+    "ci:examples-guard": "deno run --allow-read scripts/checks/no_rendercomponent_in_examples.ts"
   },
 
   "compilerOptions": {

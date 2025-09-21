@@ -1,20 +1,21 @@
 #!/usr/bin/env deno run --allow-net --allow-read --allow-env
 
+/** @jsx h */
 /**
  * Todo App - Generic Components Demo
  * Demonstrates building the todo app using only generic library components
  */
 
+import { h } from "../../lib/jsx-runtime.ts";
 import { html, Router } from "../../mod-simple.ts";
 
-import { renderComponent } from "../../lib/component-state.ts";
 import { todoAPI } from "./api/index.ts";
-import type { Todo, TodoFilter } from "./api/types.ts";
+import type { TodoFilter } from "./api/types.ts";
 import "./components/todo-app.tsx";
-import "./components/todo-item.tsx";
-import "./components/todo-form.tsx";
-import "./components/todo-stats.tsx";
 import type { TodoAppProps } from "./components/todo-app.tsx";
+import "./components/todo-form.tsx";
+import "./components/todo-item.tsx";
+import "./components/todo-stats.tsx";
 
 const router = new Router();
 
@@ -53,7 +54,6 @@ const getTodos = async (filter: TodoFilter, userId: string) => {
   return r.ok ? r.value : [];
 };
 
-
 // Main application page
 router.register("GET", "/", async (req: Request) => {
   const url = new URL(req.url);
@@ -68,13 +68,12 @@ router.register("GET", "/", async (req: Request) => {
     stats,
   };
 
-  const appHtml = renderComponent("todo-app", todoAppProps);
+  const appHtml = <todo-app {...todoAppProps} /> as unknown as string;
 
   return new Response(appHtml, {
     headers: { "Content-Type": "text/html" },
   });
 });
-
 
 // API Routes - reuse existing API
 router.register("POST", "/api/todos", async (req: Request) => {
@@ -102,9 +101,8 @@ router.register(
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-  }
+  },
 );
-
 
 router.register("GET", "/health", async () => {
   const users = await getUsers();
