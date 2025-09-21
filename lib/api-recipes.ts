@@ -117,3 +117,34 @@ function isTaggedHxOptions(value: unknown): value is TaggedHxOptions {
   return typeof value === "object" && value !== null &&
     (value as TaggedHxOptions).__hx === HX_MARKER;
 }
+
+// Sugar: call a generated API function in a way that reads like a semantic action
+export function onAction<T extends (...args: any[]) => string>(
+  fn: T,
+  ...args: Parameters<T>
+): string {
+  return fn(...(args as any[]));
+}
+
+// Helper to create an Item-compatible action object (no hx in app code)
+export type ItemActionLike = {
+  readonly text: string;
+  readonly attributes: string;
+  readonly confirm?: string;
+  readonly variant?: string;
+};
+
+export function itemAction<T extends (...args: any[]) => string>(
+  fn: T,
+  text: string,
+  args: Parameters<T>,
+  options?: { confirm?: string; variant?: string },
+): ItemActionLike {
+  const attributes = fn(...(args as any[]));
+  return {
+    text,
+    attributes,
+    ...(options?.confirm ? { confirm: options.confirm } : {}),
+    ...(options?.variant ? { variant: options.variant } : {}),
+  };
+}

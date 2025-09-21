@@ -4,6 +4,7 @@
  * Wraps the library Item component with todo-specific logic
  */
 
+import { itemAction, onAction } from "../../../lib/api-recipes.ts";
 import "../../../lib/components/data-display/item.ts";
 import { defineComponent } from "../../../lib/define-component.ts";
 import { h } from "../../../lib/jsx-runtime.ts";
@@ -79,9 +80,7 @@ defineComponent<{ todo: Todo }>("todo-item", {
   render: ({ todo }, api) => {
     const rootId = `todo-${todo.id}`;
 
-    const toggleAttrs = api ? api.toggle(todo.id) : "";
-
-    const deleteAttrs = api ? api.deleteTodo(todo.id) : "";
+    const toggleAttrs = api ? onAction(api.toggle, todo.id) : "";
 
     const itemProps: ItemProps = {
       id: rootId,
@@ -97,13 +96,11 @@ defineComponent<{ todo: Todo }>("todo-item", {
         todo.completed ? "checked" : ""
       } ${toggleAttrs} />`,
       actions: [
-        { text: "Edit" }, // keep UI, no JS action
-        {
-          text: "Delete",
+        { text: "Edit" },
+        itemAction(api!.deleteTodo, "Delete", [todo.id], {
           variant: "danger",
-          attributes: deleteAttrs,
           confirm: "Are you sure you want to delete this todo?",
-        },
+        }) as unknown as ItemAction,
       ],
     };
 

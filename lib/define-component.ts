@@ -1,22 +1,17 @@
 // Minimal defineComponent API with inline prop definitions
-import {
-  type ApiMap,
-} from "./api-generator.ts";
-import {
-  generateClientHx,
-  type HxActionMap,
-} from "./api-recipes.ts";
-import { getRegistry } from "./registry.ts";
+import { type ApiMap } from "./api-generator.ts";
+import { generateClientHx, type HxActionMap } from "./api-recipes.ts";
 import { getConfig } from "./config.ts";
+import "./jsx.d.ts";
+import { extractPropDefinitions } from "./prop-helpers.ts";
+import { applyReactiveAttrs } from "./reactive-system.ts";
+import { getRegistry } from "./registry.ts";
+import { parseRenderParameters } from "./render-parameter-parser.ts";
 import {
   isUnifiedStyles,
   parseUnifiedStyles,
   type UnifiedStyles,
 } from "./styles-parser.ts";
-import { applyReactiveAttrs } from "./reactive-system.ts";
-import { extractPropDefinitions } from "./prop-helpers.ts";
-import { parseRenderParameters } from "./render-parameter-parser.ts";
-import "./jsx.d.ts";
 // Re-export h function for JSX support
 export { h } from "./jsx-runtime.ts";
 
@@ -46,14 +41,14 @@ export type ComponentConfig<TProps = any> = {
   readonly render: (
     props: TProps,
     api?: HxActionMap<any>,
-    classes?: ClassMap
+    classes?: ClassMap,
   ) => string;
 };
 
 // New minimal defineComponent implementation with inline prop definitions
 export function defineComponent<TProps = any>(
   name: string,
-  config: ComponentConfig<TProps>
+  config: ComponentConfig<TProps>,
 ): DefinedComponent {
   const {
     styles: stylesInput,
@@ -135,21 +130,25 @@ export function defineComponent<TProps = any>(
   // Validate required configuration
   if (!render) {
     throw new Error(
-      `Component "${name}" is missing required render function.`
+      `Component "${name}" is missing required render function.`,
     );
   }
 
   // Generate API client functions if provided (using enhanced hx version)
   let generatedApi: HxActionMap<any> | undefined;
   if (apiMap) {
-    generatedApi = generateClientHx(apiMap);
+    generatedApi = generateClientHx(apiMap, {
+      swap: globalConfig.hx.swapDefault,
+      target: globalConfig.hx.targetDefault,
+      headers: globalConfig.hx.headers,
+    });
   }
 
   // Register the component in the SSR registry
   const registry = getRegistry();
   if (registry[name]) {
     console.warn(
-      `⚠️  Component "${name}" already exists and will be overwritten!`
+      `⚠️  Component "${name}" already exists and will be overwritten!`,
     );
   }
 
@@ -213,7 +212,16 @@ export function defineComponent<TProps = any>(
 // Helper to register component API routes externally
 export function registerComponentApi(
   componentName: string,
-  router: { register: (method: string, path: string, handler: (req: Request, params?: Record<string, string>) => Promise<Response> | Response) => void }
+  router: {
+    register: (
+      method: string,
+      path: string,
+      handler: (
+        req: Request,
+        params?: Record<string, string>,
+      ) => Promise<Response> | Response,
+    ) => void;
+  },
 ): void {
   const registry = getRegistry();
   const component = registry[componentName];
@@ -223,10 +231,12 @@ export function registerComponentApi(
     return;
   }
 
-  for (const [functionName, apiDefinition] of Object.entries(component.apiMap)) {
+  for (
+    const [functionName, apiDefinition] of Object.entries(component.apiMap)
+  ) {
     if (!Array.isArray(apiDefinition) || apiDefinition.length !== 3) {
       console.warn(
-        `Invalid API definition for "${functionName}". Expected format: [method, path, handler]`
+        `Invalid API definition for "${functionName}". Expected format: [method, path, handler]`,
       );
       continue;
     }
@@ -234,12 +244,19 @@ export function registerComponentApi(
     const [method, path, handler] = apiDefinition;
     if (!method || !path || !handler) {
       console.warn(
-        `Invalid API definition for "${functionName}": method, path, and handler are required`
+        `Invalid API definition for "${functionName}": method, path, and handler are required`,
       );
       continue;
     }
 
-    router.register(method, path, handler as (req: Request, params?: Record<string, string>) => Promise<Response> | Response);
+    router.register(
+      method,
+      path,
+      handler as (
+        req: Request,
+        params?: Record<string, string>,
+      ) => Promise<Response> | Response,
+    );
   }
 }
 
@@ -248,7 +265,7 @@ export function defineSimpleComponent(
   name: string,
   render: (props: any, api?: HxActionMap<any>, classes?: ClassMap) => string,
   styles?: Record<string, string>,
-  api?: ApiMap
+  api?: ApiMap,
 ): DefinedComponent {
   return defineComponent(name, {
     render,

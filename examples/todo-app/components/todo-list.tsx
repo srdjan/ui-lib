@@ -5,6 +5,7 @@
  */
 
 import { defineComponent, h } from "../../../lib/define-component.ts";
+import { todoAPI } from "../api/index.ts";
 import "./todo-item.tsx";
 
 import type { Todo } from "../api/types.ts";
@@ -15,11 +16,20 @@ export type TodoListProps = {
 };
 
 defineComponent<TodoListProps>("todo-list", {
-  render: (props) => {
+  api: {
+    clearCompleted: [
+      "POST",
+      "/api/todos/clear-completed",
+      todoAPI.clearCompleted,
+    ],
+  },
+  render: (props, api) => {
     const {
       todos,
       emptyMessage = "No todos yet. Add a todo above to get started!",
     } = props;
+
+    const hasCompleted = todos.some((t) => t.completed);
 
     if (todos.length === 0) {
       return (
@@ -30,13 +40,32 @@ defineComponent<TodoListProps>("todo-list", {
     }
 
     return (
-      <ul class="todo-list">
-        {todos.map((todo) => (
-          <li class="todo-list__item">
-            <todo-item todo={todo} />
-          </li>
-        ))}
-      </ul>
+      <div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginBottom: "0.5rem",
+          }}
+        >
+          {hasCompleted && (
+            <button
+              type="button"
+              class="btn btn--danger"
+              onAction={{ api: "clearCompleted" }}
+            >
+              Clear completed
+            </button>
+          )}
+        </div>
+        <ul class="todo-list">
+          {todos.map((todo) => (
+            <li class="todo-list__item">
+              <todo-item todo={todo} />
+            </li>
+          ))}
+        </ul>
+      </div>
     );
   },
 });
