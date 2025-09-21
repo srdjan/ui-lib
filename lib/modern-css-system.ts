@@ -1,9 +1,9 @@
 // Modern CSS system with container queries, cascade layers, and performance optimizations
 // Provides enhanced CSS-in-TS with full modern CSS features
 
-import type { CSSLayer } from './css-layers.ts';
-import { wrapInLayer } from './css-layers.ts';
-import { token } from './design-tokens.ts';
+import type { CSSLayer } from './styles/css-layers.ts';
+import { wrapInLayer } from './styles/css-layers.ts';
+import { token } from './styles/design-tokens.ts';
 
 /**
  * Enhanced CSS Properties with modern features

@@ -5,7 +5,7 @@
 
 import { defineComponent } from "../../../lib/define-component.ts";
 import { renderComponent } from "../../../lib/component-state.ts";
-import { generateCSS } from "../../../lib/css-generator.ts";
+import { generateCSS } from "../../../lib/styles/css-generator.ts";
 
 // Import all layout components
 import "../../../lib/components/layout/page.ts";

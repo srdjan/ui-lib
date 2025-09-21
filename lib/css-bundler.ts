@@ -1,8 +1,8 @@
 // CSS Bundling and Performance Optimization System
 // Provides intelligent CSS bundling, deduplication, and critical CSS extraction
 
-import { generateLayerDeclaration, CSS_RESET, UTILITY_CLASSES } from './css-layers.ts';
-import { generateTokenCSS } from './design-tokens.ts';
+import { generateLayerDeclaration, CSS_RESET, UTILITY_CLASSES } from './styles/css-layers.ts';
+import { generateTokenCSS } from './styles/design-tokens.ts';
 import { generateComponentCSS } from './component-system.ts';
 
 /**

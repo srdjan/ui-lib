@@ -1,8 +1,8 @@
 // Modern CSS Architecture - Main Integration
 // Provides a unified API for the modernized CSS system
 
-export * from './css-layers.ts';
-export * from './design-tokens.ts';
+export * from './styles/css-layers.ts';
+export * from './styles/design-tokens.ts';
 export * from './modern-css-system.ts';
 export * from './component-system.ts';
 export * from './css-bundler.ts';
@@ -11,8 +11,8 @@ export * from './css-migration.ts';
 import { CSSBundler, bundlePresets } from './css-bundler.ts';
 import { CSSMigration } from './css-migration.ts';
 import { modernCSS, responsiveComponent } from './modern-css-system.ts';
-import { token, generateTokenCSS } from './design-tokens.ts';
-import { generateLayerDeclaration, CSS_RESET, UTILITY_CLASSES } from './css-layers.ts';
+import { token, generateTokenCSS } from './styles/design-tokens.ts';
+import { generateLayerDeclaration, CSS_RESET, UTILITY_CLASSES } from './styles/css-layers.ts';
 import { generateComponentCSS } from './component-system.ts';
 
 /**

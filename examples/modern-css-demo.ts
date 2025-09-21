@@ -3,7 +3,7 @@
 
 import { css, dev, ModernCSS } from '../lib/modern-css.ts';
 import { modernCSS, cssUtils } from '../lib/modern-css-system.ts';
-import { token } from '../lib/design-tokens.ts';
+import { token } from '../lib/styles/design-tokens.ts';
 
 // Initialize the modern CSS system
 dev.init();

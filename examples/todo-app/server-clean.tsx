@@ -119,7 +119,7 @@ router.register("GET", "/health", async () => {
 });
 
 // Start server
-const port = Number(Deno.env.get("PORT")) || 8086;
+const port = Number(Deno.env.get("PORT")) || 8080;
 
 console.log(`
 🎯 Todo App - Clean Component Architecture

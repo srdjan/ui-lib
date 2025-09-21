@@ -2,8 +2,8 @@
 // Establishes semantic component classes and variant system
 
 import { modernCSS, responsiveComponent, cssUtils, type ModernStyleObject } from './modern-css-system.ts';
-import { token, SEMANTIC_TOKENS } from './design-tokens.ts';
-import { createComponent } from './css-layers.ts';
+import { token, SEMANTIC_TOKENS } from './styles/design-tokens.ts';
+import { createComponent } from './styles/css-layers.ts';
 
 /**
  * Public Component API

@@ -2,8 +2,8 @@
 // Provides smooth migration path from current CSS-in-TS to modern architecture
 
 import { modernCSS, type ModernStyleObject } from './modern-css-system.ts';
-import { token } from './design-tokens.ts';
-import { wrapInLayer } from './css-layers.ts';
+import { token } from './styles/design-tokens.ts';
+import { wrapInLayer } from './styles/css-layers.ts';
 import type { CSSProperties, StyleObject } from './css-types.ts';
 
 /**
