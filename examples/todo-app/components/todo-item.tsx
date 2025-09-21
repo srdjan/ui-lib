@@ -4,9 +4,9 @@
  * Wraps the library Item component with todo-specific logic
  */
 
-import { hx } from "../../../lib/api-recipes.ts";
 import "../../../lib/components/data-display/item.ts";
-import { defineComponent, h } from "../../../lib/define-component.ts";
+import { defineComponent } from "../../../lib/define-component.ts";
+import { h } from "../../../lib/jsx-runtime.ts";
 import { todoAPI } from "../api/index.ts";
 
 import type { Todo } from "../api/types.ts";
@@ -30,6 +30,7 @@ export type ItemAction = {
   readonly text: string;
   readonly action?: string; // legacy optional onclick
   readonly attributes?: string; // preferred: raw hx-* attributes string
+  readonly confirm?: string; // friendly confirm label (mapped by library)
   readonly variant?: ActionVariant;
 };
 
@@ -78,23 +79,9 @@ defineComponent<{ todo: Todo }>("todo-item", {
   render: ({ todo }, api) => {
     const rootId = `todo-${todo.id}`;
 
-    const toggleAttrs = api
-      ? api.toggle(
-        todo.id,
-        hx({ target: `#${rootId}`, swap: "outerHTML" }),
-      )
-      : `hx-post="/api/todos/${todo.id}/toggle" hx-target="#${rootId}" hx-swap="outerHTML"`;
+    const toggleAttrs = api ? api.toggle(todo.id) : "";
 
-    const deleteAttrs = api
-      ? api.deleteTodo(
-        todo.id,
-        hx({
-          target: `#${rootId}`,
-          swap: "outerHTML",
-          confirm: "Are you sure you want to delete this todo?",
-        }),
-      )
-      : `hx-delete="/api/todos/${todo.id}" hx-target="#${rootId}" hx-swap="outerHTML" hx-confirm="Are you sure you want to delete this todo?"`;
+    const deleteAttrs = api ? api.deleteTodo(todo.id) : "";
 
     const itemProps: ItemProps = {
       id: rootId,
@@ -111,7 +98,12 @@ defineComponent<{ todo: Todo }>("todo-item", {
       } ${toggleAttrs} />`,
       actions: [
         { text: "Edit" }, // keep UI, no JS action
-        { text: "Delete", variant: "danger", attributes: deleteAttrs },
+        {
+          text: "Delete",
+          variant: "danger",
+          attributes: deleteAttrs,
+          confirm: "Are you sure you want to delete this todo?",
+        },
       ],
     };
 

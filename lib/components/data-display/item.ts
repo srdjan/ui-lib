@@ -309,6 +309,8 @@ export type ItemAction = {
   readonly action?: string;
   /** Preferred: raw attribute string (e.g., hx-* attrs) to spread on the button */
   readonly attributes?: string;
+  /** Optional friendly confirmation label (library will map to hx-confirm) */
+  readonly confirm?: string;
   readonly variant?: ActionVariant;
 };
 
@@ -415,12 +417,15 @@ defineComponent<ItemProps>("item", {
           const extra = action.attributes
             ? ` ${action.attributes}`
             : (action.action
-              ? ` onclick=\"${action.action.replace(/\"/g, "&quot;")}\"`
+              ? ` onclick="${action.action.replace(/"/g, "&quot;")}"`
               : "");
+          const confirm = action.confirm
+            ? ` hx-confirm="${String(action.confirm).replace(/"/g, "&quot;")}"`
+            : "";
           return `
           <button
-            type=\"button\"
-            class=\"${getActionClass(action.variant)}\"${extra}
+            type="button"
+            class="${getActionClass(action.variant)}"${extra}${confirm}
           >
             ${action.text}
           </button>`;
