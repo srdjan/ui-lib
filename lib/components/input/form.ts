@@ -4,7 +4,8 @@
  */
 
 import { css, token } from "../../modern-css.ts";
-import { defineComponent, renderComponent } from "../../define-component.ts";
+import { defineComponent } from "../../define-component.ts";
+import { renderComponent } from "../../component-state.ts";
 
 // Create modern CSS styles for the form component
 const formStyles = css.responsive("form", {

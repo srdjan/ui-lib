@@ -7,7 +7,8 @@ export * from "./button/index.ts";
 // Input components
 export * from "./input/index.ts";
 
-// Layout components were removed as they were unused leftovers from refactoring
+// Layout components - semantic layout and structure
+export * from "./layout/index.ts";
 
 // Feedback components
 export * from "./feedback/index.ts";

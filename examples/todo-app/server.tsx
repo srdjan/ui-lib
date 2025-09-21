@@ -12,11 +12,49 @@ import { html, Router } from "../../mod-simple.ts";
 // Import component system
 import { defineComponent } from "../../lib/define-component.ts";
 import { renderComponent } from "../../lib/component-state.ts";
-// Import to register the Item component
-import "../../lib/components/data-display/item.ts";
 
-// Import types from the updated Item component
-import type { ItemProps } from "../../lib/components/data-display/item.ts";
+// Import to register working library components
+import "../../lib/components/data-display/item.ts";
+import "../../lib/components/data-display/stat.ts";
+import "../../lib/components/layout/page.ts";
+import "../../lib/components/layout/stack.ts";
+import "../../lib/components/layout/section.ts";
+import "../../lib/components/layout/header.ts";
+import "../../lib/components/layout/card.ts";
+import "../../lib/components/layout/grid.ts";
+
+// Define ItemProps type locally (since it's not exported from the component)
+type ItemProps = {
+  readonly id?: string;
+  readonly title?: string;
+  readonly description?: string;
+  readonly icon?: string;
+  readonly timestamp?: string;
+  readonly badges?: readonly ItemBadge[];
+  readonly actions?: readonly ItemAction[];
+  readonly variant?: ItemVariant;
+  readonly size?: ComponentSize;
+  readonly priority?: ItemPriority;
+  readonly completed?: boolean;
+  readonly selected?: boolean;
+};
+
+type ItemVariant = "default" | "completed" | "selected" | "priority";
+type ItemPriority = "low" | "medium" | "high";
+type BadgeVariant = "primary" | "success" | "warning" | "danger" | "neutral";
+type ActionVariant = "default" | "primary" | "danger";
+type ComponentSize = "sm" | "md" | "lg";
+
+type ItemBadge = {
+  readonly text: string;
+  readonly variant?: BadgeVariant;
+};
+
+type ItemAction = {
+  readonly text: string;
+  readonly action: string;
+  readonly variant?: ActionVariant;
+};
 
 import { todoAPI } from "./api/index.ts";
 import type { Todo, TodoFilter } from "./api/types.ts";
@@ -78,7 +116,7 @@ function todoToItem(todo: Todo): string {
   return renderComponent("item", itemProps);
 }
 
-function getPriorityVariant(priority: string): string {
+function getPriorityVariant(priority: string): BadgeVariant {
   switch (priority) {
     case "high": return "danger";
     case "medium": return "warning";
@@ -87,44 +125,80 @@ function getPriorityVariant(priority: string): string {
   }
 }
 
-// Modern semantic CSS classes using the design system
-const appSpecificStyles = `
-  /* Application-specific styles using semantic classes */
-  .header {
-    text-align: center;
-    margin-block-end: var(--space-2xl);
-  }
 
-  .title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-block-end: var(--space-md);
-  }
+// Simple Form component for the app (specific to todo functionality)
+defineComponent<{
+  method: string;
+  action: string;
+  variant: string;
+  fields: Array<{
+    type: string;
+    name: string;
+    label: string;
+    placeholder?: string;
+    required: boolean;
+    options?: Array<{ value: string; label: string }>;
+  }>;
+  submitButton: {
+    text: string;
+    variant: string;
+  };
+}>("form", {
+  render: (props) => {
+    const fieldsHtml = props.fields.map(field => {
+      if (field.type === "select") {
+        return `
+          <div class="field-group">
+            <label for="${field.name}">${field.label}</label>
+            <select name="${field.name}" ${field.required ? 'required' : ''}>
+              ${field.options?.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('') || ''}
+            </select>
+          </div>
+        `;
+      } else {
+        return `
+          <div class="field-group">
+            <label for="${field.name}">${field.label}</label>
+            <input
+              type="${field.type}"
+              name="${field.name}"
+              placeholder="${field.placeholder || ''}"
+              ${field.required ? 'required' : ''}
+            />
+          </div>
+        `;
+      }
+    }).join('');
 
-  .subtitle {
-    font-size: 1.125rem;
-    color: var(--text-secondary);
-    margin-block-end: var(--space-xs);
-  }
+    return `
+      <div class="card" data-size="md">
+        <form method="${props.method}" action="${props.action}">
+          ${fieldsHtml}
+          <button type="submit" class="button ${props.submitButton.variant}">${props.submitButton.text}</button>
+        </form>
+      </div>
+    `;
+  },
+});
 
-  .description {
-    font-size: 1rem;
-    color: var(--text-tertiary);
-    max-inline-size: 600px;
-    margin-inline: auto;
-    line-height: 1.6;
-  }
+// Simple List component
+defineComponent<{
+  layout: string;
+  items: string[];
+  emptyMessage: string;
+}>("list", {
+  render: (props) => {
+    if (props.items.length === 0) {
+      return `<div class="card" data-size="lg"><p>${props.emptyMessage}</p></div>`;
+    }
 
-  .section {
-    margin-block-end: var(--space-2xl);
-  }
-
-  /* Application container using utility classes */
-  .app-container {
-    min-block-size: 100vh;
-  }
-`;
+    return `
+      <div class="list-container" data-layout="${props.layout}">
+        ${props.items.join('')}
+      </div>
+    `;
+  },
+});
 
 // Define TodoApp component using defineComponent
 type TodoAppProps = {
@@ -139,6 +213,88 @@ defineComponent<TodoAppProps>("todo-app", {
     // Convert todos to items using the registry system
     const todoItems = todos.map(todoToItem);
 
+    // Build page content using layout components
+    const headerContent = renderComponent("header", {
+      title: "Generic Components Demo",
+      subtitle: "Todo App Built with Reusable Library Components",
+      description: "This demonstrates how applications can be built using only generic, reusable components from the ui-lib without any app-specific components.",
+    });
+
+    const addTodoSection = renderComponent("section", {
+      title: "Add New Todo",
+    }).replace("{{children}}", renderComponent("form", {
+      method: "POST",
+      action: "/api/todos",
+      variant: "card",
+      fields: [
+        {
+          type: "text",
+          name: "text",
+          label: "What needs to be done?",
+          placeholder: "Enter todo text...",
+          required: true,
+        },
+        {
+          type: "select",
+          name: "priority",
+          label: "Priority",
+          required: true,
+          options: [
+            { value: "", label: "Select priority" },
+            { value: "low", label: "Low Priority" },
+            { value: "medium", label: "Medium Priority" },
+            { value: "high", label: "High Priority" },
+          ],
+        },
+      ],
+      submitButton: {
+        text: "Add Todo",
+        variant: "primary",
+      },
+    }));
+
+    const statsSection = renderComponent("section", {}).replace("{{children}}",
+      renderComponent("card", { size: "md" }).replace("{{children}}",
+        renderComponent("grid", { columns: 3 }).replace("{{children}}", [
+          renderComponent("stat", { value: stats.active, label: "active" }),
+          renderComponent("stat", { value: stats.completed, label: "completed" }),
+          renderComponent("stat", { value: stats.total, label: "total" }),
+        ].join(""))
+      )
+    );
+
+    const todosSection = renderComponent("section", {
+      title: `Your Todos (${todos.length} items)`,
+    }).replace("{{children}}",
+      renderComponent("list", {
+        layout: "stack",
+        items: todoItems,
+        emptyMessage: "No todos yet. Add a todo above to get started!",
+      })
+    );
+
+    const comparisonSection = renderComponent("section", {}).replace("{{children}}",
+      renderComponent("card", { size: "md", title: "Component Comparison" }).replace("{{children}}",
+        renderComponent("grid", { columns: 3 }).replace("{{children}}", [
+          renderComponent("stat", { value: "800+", label: "App-Specific LOC" }),
+          renderComponent("stat", { value: "50", label: "Generic Component LOC" }),
+          renderComponent("stat", { value: "94%", label: "Code Reduction" }),
+        ].join(""))
+      )
+    );
+
+    const stackContent = renderComponent("stack", {
+      spacing: "var(--space-2xl)",
+    }).replace("{{children}}", [
+      headerContent,
+      addTodoSection,
+      statsSection,
+      todosSection,
+      comparisonSection,
+    ].join(""));
+
+    const pageContent = renderComponent("page", {}).replace("{{children}}", stackContent);
+
     return `
       <!DOCTYPE html>
       <html lang="en">
@@ -146,7 +302,6 @@ defineComponent<TodoAppProps>("todo-app", {
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <title>Generic Components Demo - ui-lib</title>
-          <link rel="stylesheet" href="/styles/base.css">
           <script src="https://unpkg.com/htmx.org@1.9.10"></script>
           <script src="https://unpkg.com/htmx.org@1.9.10/dist/ext/json-enc.js"></script>
           <script>
@@ -158,95 +313,9 @@ defineComponent<TodoAppProps>("todo-app", {
               }
             };
           </script>
-          <style>${appSpecificStyles}</style>
         </head>
-        <body class="page">
-          <div class="u-center app-container">
-            <div class="u-flow" style="--flow-space: var(--space-2xl)">
-              <header class="header">
-                <h1 class="title">Generic Components Demo</h1>
-                <p class="subtitle">Todo App Built with Reusable Library Components</p>
-                <p class="description">
-                  This demonstrates how applications can be built using only generic,
-                  reusable components from the ui-lib without any app-specific components.
-                </p>
-              </header>
-
-              <section class="section">
-                <div class="card" data-size="lg">
-                  <h2 style="margin: 0 0 var(--space-lg) 0; font-size: 1.25rem; font-weight: 600;">Add New Todo</h2>
-                  <form method="POST" action="/api/todos" class="u-flow">
-                    <div class="form-group">
-                      <label for="text" class="form-label">What needs to be done?</label>
-                      <input type="text" id="text" name="text" class="form-input" placeholder="Enter todo text..." required />
-                    </div>
-                    <div class="form-group">
-                      <label for="priority" class="form-label">Priority</label>
-                      <select id="priority" name="priority" class="form-input" required>
-                        <option value="">Select priority</option>
-                        <option value="low">Low Priority</option>
-                        <option value="medium">Medium Priority</option>
-                        <option value="high">High Priority</option>
-                      </select>
-                    </div>
-                    <button type="submit" class="btn" data-variant="primary">Add Todo</button>
-                  </form>
-                </div>
-              </section>
-
-              <section class="section">
-                <div class="card" data-size="md">
-                  <div class="stats-grid">
-                    <div class="stat">
-                      <span class="stat-value">${stats.active}</span>
-                      <span class="stat-label">active</span>
-                    </div>
-                    <div class="stat">
-                      <span class="stat-value">${stats.completed}</span>
-                      <span class="stat-label">completed</span>
-                    </div>
-                    <div class="stat">
-                      <span class="stat-value">${stats.total}</span>
-                      <span class="stat-label">total</span>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              <section class="section">
-                <h2 style="margin-bottom: var(--space-md);">Your Todos (${todos.length} items)</h2>
-                ${todos.length === 0 ? `
-                  <div class="card" data-size="lg">
-                    <p>No todos yet. Add a todo above to get started!</p>
-                  </div>
-                ` : `
-                  <div class="u-stack todos-list">
-                    ${todoItems.join('')}
-                  </div>
-                `}
-              </section>
-
-              <section class="section">
-                <div class="card" data-size="md">
-                  <h3 style="text-align: center; margin-bottom: var(--space-md);">Component Comparison</h3>
-                  <div class="stats-grid">
-                    <div class="stat">
-                      <span class="stat-value">800+</span>
-                      <span class="stat-label">App-Specific LOC</span>
-                    </div>
-                    <div class="stat">
-                      <span class="stat-value">50</span>
-                      <span class="stat-label">Generic Component LOC</span>
-                    </div>
-                    <div class="stat">
-                      <span class="stat-value">94%</span>
-                      <span class="stat-label">Code Reduction</span>
-                    </div>
-                  </div>
-                </div>
-              </section>
-            </div>
-          </div>
+        <body>
+          ${pageContent}
         </body>
       </html>
     `;
@@ -294,7 +363,7 @@ router.register(
   "DELETE",
   "/api/todos/:id",
   async (req: Request, params: Record<string, string>) => {
-    const response = await todoAPI.deleteTodo(req, params as { id: string });
+    await todoAPI.deleteTodo(req, params as { id: string });
 
     // Return JSON response for AJAX requests
     return new Response(JSON.stringify({ success: true }), {
@@ -304,21 +373,6 @@ router.register(
   }
 );
 
-// Serve CSS files
-router.register("GET", "/styles/base.css", async () => {
-  try {
-    const cssContent = await Deno.readTextFile("./styles/base.css");
-    return new Response(cssContent, {
-      headers: { "Content-Type": "text/css" },
-    });
-  } catch (error) {
-    console.error("Failed to load CSS:", error);
-    return new Response("/* CSS file not found */", {
-      status: 404,
-      headers: { "Content-Type": "text/css" },
-    });
-  }
-});
 
 router.register("GET", "/health", async () => {
   const users = await getUsers();
