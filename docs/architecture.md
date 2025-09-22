@@ -4,15 +4,20 @@ Deep dive into ui-lib's architecture and design decisions.
 
 ## Core Philosophy
 
-ui-lib is built on five fundamental principles:
+ui-lib is built on six fundamental principles:
 
 1. **DOM-Native State** - State lives in the DOM, not in JavaScript memory
 2. **Zero Runtime** - No client-side framework needed for basic functionality
 3. **Progressive Enhancement** - Works without JavaScript, enhanced with it
 4. **Type Safety** - Full TypeScript support from props to rendering
 5. **Functional Approach** - Pure functions, immutable data, no classes
+6. **Token-Based Customization** - Components sealed with CSS variable interface
 
 ## System Architecture
+
+ui-lib now offers two distinct architectures:
+
+### Traditional Architecture (mod.ts)
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -46,9 +51,48 @@ ui-lib is built on five fundamental principles:
 └──────────────────────────────────────────────────────────┘
 ```
 
+### Token-Based Architecture (mod-token.ts) - Recommended
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                     Application Layer                     │
+│  (Uses sealed components + token customization only)     │
+└─────────────────┬───────────────────────────────────────┘
+                  │
+┌─────────────────▼───────────────────────────────────────┐
+│                   Token System                           │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
+│  │ defineTokens │  │ applyTheme   │  │ customizeComp│  │
+│  │              │  │              │  │              │  │
+│  └──────────────┘  └──────────────┘  └──────────────┘  │
+└─────────────────┬───────────────────────────────────────┘
+                  │ CSS Variables Only
+┌─────────────────▼───────────────────────────────────────┐
+│                 Sealed Components                        │
+│  ┌─────────────────────────────────────────────────────┐ │
+│  │ Component Factory (createTokenComponent)            │ │
+│  │ • CSS variable injection                            │ │
+│  │ • Style encapsulation                              │ │
+│  │ • No internal access                               │ │
+│  └─────────────────────────────────────────────────────┘ │
+└─────────────────┬───────────────────────────────────────┘
+                  │
+┌─────────────────▼───────────────────────────────────────┐
+│                      SSR Engine                          │
+│  (Components render with CSS variables)                 │
+└─────────────────┬───────────────────────────────────────┘
+                  │
+┌─────────────────▼───────────────────────────────────────┐
+│              HTML + CSS Variables                        │
+│  (Instantly themeable via CSS custom properties)       │
+└──────────────────────────────────────────────────────────┘
+```
+
 ## Component System
 
-### Component Definition
+ui-lib supports two component definition approaches:
+
+### Traditional Components (mod.ts)
 
 Components are defined using a declarative configuration object:
 
@@ -62,7 +106,31 @@ interface ComponentConfig {
 }
 ```
 
+### Token-Based Components (mod-token.ts) - Recommended
+
+Components are created as sealed functions with CSS variable interfaces:
+
+```tsx
+interface TokenComponentConfig<TTokens, TProps> {
+  name: string;
+  tokens: ComponentTokens<TTokens>; // CSS variable contract
+  render: (props: TProps, cssVars: TokenVarMap<TTokens>) => string;
+  styles?: (cssVars: TokenVarMap<TTokens>) => string; // Static styles
+}
+
+// Creates a sealed component function
+const Component = createTokenComponent(config);
+```
+
+**Key differences:**
+- **Sealed**: No access to internal implementation
+- **Token Contract**: Explicit CSS variable interface
+- **Type Safety**: Full IntelliSense for available tokens
+- **Encapsulation**: Complete style isolation
+
 ### Render Pipeline
+
+#### Traditional Components
 
 1. **Props Processing** - Transform raw attributes to typed props
 2. **Style Generation** - Convert CSS-in-TS to class names
@@ -71,13 +139,38 @@ interface ComponentConfig {
 5. **HTML Generation** - Convert JSX to HTML string
 
 ```tsx
-// Simplified render pipeline
+// Simplified traditional render pipeline
 function internalRender(element: JSX.Element): string {
   const component = getComponent(element.type);
   const processedProps = component.props(element.props);
   const styles = generateStyles(component.styles);
   const jsx = component.render(processedProps);
   return renderToString(jsx, component.reactive);
+}
+```
+
+#### Token-Based Components
+
+1. **Token Injection** - Generate CSS variables from token contract
+2. **Props Processing** - Parse component props
+3. **Variable Mapping** - Map token paths to CSS variable references
+4. **Rendering** - Execute render function with CSS variable map
+5. **Style Injection** - Include component styles with CSS variables
+
+```tsx
+// Token-based render pipeline
+function tokenRender(props: TProps): string {
+  const cssVars = generateVarMap(componentName, tokens);
+  const html = renderFunction(props, cssVars);
+  const styledHtml = addComponentClass(html, componentName);
+  return styledHtml;
+}
+
+// CSS generation (separate)
+function generateStyles(): string {
+  const cssVarDefinitions = tokensToCSS(componentName, tokens);
+  const staticStyles = stylesFunction(cssVars);
+  return `:root { ${cssVarDefinitions} } ${staticStyles}`;
 }
 ```
 

@@ -10,9 +10,10 @@ hybrid reactivity.
   classes
 - 🧩 DOM-native state: classes, data-* attributes, element content, CSS custom
   properties
+- 🔒 **Token-Based Customization**: Components sealed with CSS variable interface
+- 🎨 **Zero Style Conflicts**: All customization through standardized tokens
 - 🕵️ HTMX encapsulated via component APIs (no hx-* in application code)
 - 📦 Component-colocated API, styles, and reactivity
-- 🎨 CSS-in-TS with collision-free class names
 - 🔧 Type-safe end-to-end with strict TypeScript
 - 📚 50+ components; progressive enhancement optional (zero framework runtime)
 
@@ -22,11 +23,11 @@ hybrid reactivity.
 
 | Entry Point     | Use When                                                                 | Highlights                                                            |
 | --------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------- |
+| `mod-token.ts`  | **Recommended**: Token-based sealed components with CSS variable customization | Block-level components only, token customization API, theme support |
 | `mod.ts`        | You need the stable SSR-focused surface with registry-driven components. | Full prop helpers, CSS-in-TS, reactive helpers, router, API bindings. |
 | `mod-simple.ts` | You want direct JSX functions and minimal ceremony.                      | JSX runtime, lightweight state helpers, curated component subset.     |
 
-> Tip: mix and match by importing from multiple entry points when prototyping,
-> then converge on one surface before release.
+> **New**: The `mod-token.ts` entry point provides sealed components that can only be customized through CSS variables, ensuring complete style encapsulation and preventing conflicts.
 
 ### Installation
 
@@ -41,10 +42,37 @@ deno task serve         # start the Todo demo directly
 deno task bundle:state  # emits dist/ui-lib-state.js for optional client helpers
 ```
 
-### Basic Usage
+### Basic Usage (Token-Based - Recommended)
 
 ```tsx
-import { defineComponent, h } from "ui-lib";
+import { Button, defineTokens, applyTheme, themes } from "ui-lib/mod-token.ts";
+
+// Option 1: Use pre-built themes
+const styles = applyTheme(themes.dark);
+
+// Option 2: Define custom tokens
+const customStyles = defineTokens({
+  button: {
+    primary: {
+      background: "#007bff",
+      backgroundHover: "#0056b3",
+      textColor: "white",
+    }
+  }
+});
+
+// Use sealed components - no access to internals
+const button = Button({
+  variant: "primary",
+  size: "md",
+  children: "Click Me"
+});
+```
+
+### Basic Usage (Traditional)
+
+```tsx
+import { defineComponent, h } from "ui-lib/mod.ts";
 
 // Define a component
 defineComponent("card", {
@@ -199,13 +227,55 @@ defineComponent("notification", {
 });
 ```
 
+## Token-Based Component System
+
+### Why Token-Based Components?
+
+ui-lib components are **sealed** - they can only be customized through CSS variables (tokens). This ensures:
+
+- **No style conflicts**: Component internals are completely isolated
+- **Consistent theming**: All customization through standardized tokens
+- **Type safety**: Full IntelliSense for available tokens
+- **Performance**: CSS variables enable instant theming without re-rendering
+- **Maintainability**: Component updates won't break your customizations
+
+### Token Customization
+
+```tsx
+import { defineTokens, customizeComponent, responsiveTokens } from "ui-lib/mod-token.ts";
+
+// Global token overrides
+const globalStyles = defineTokens({
+  button: {
+    primary: {
+      background: "#FF5722",
+      backgroundHover: "#E64A19"
+    }
+  }
+});
+
+// Scoped overrides for specific sections
+const darkModeStyles = customizeComponent(".dark-mode", "button", {
+  primary: {
+    background: "#1a1a1a",
+    textColor: "#ffffff"
+  }
+});
+
+// Responsive token values
+const mobileStyles = responsiveTokens("button", {
+  mobile: { base: { fontSize: "0.75rem" } },
+  desktop: { base: { fontSize: "1rem" } }
+});
+```
+
 ## Component Library
 
-ui-lib includes 50+ production-ready components:
+ui-lib includes 50+ production-ready components (being migrated to token-based):
 
 - **Layout**: AppLayout, Navbar, Sidebar, MainContent
 - **Forms**: Input, Select, Textarea, Checkbox, Radio, Switch
-- **Buttons**: Button, ButtonGroup, IconButton
+- **Buttons**: Button (token-based), ButtonGroup, IconButton
 - **Data**: Table, Card, List, Tree
 - **Feedback**: Alert, Toast, Progress, Skeleton
 - **Overlays**: Modal, Drawer, Popover, Tooltip
@@ -221,6 +291,9 @@ Run the showcase server to see all components in action:
 deno task serve
 
 # Open http://localhost:8080
+
+# Run token-based component demo
+deno run --allow-net examples/todo-app/token-demo.tsx
 ```
 
 Repo layout (examples)
@@ -228,17 +301,17 @@ Repo layout (examples)
 ```
 examples/
 └── todo-app/
-    ├── server.tsx         # Demo server entry
+    ├── server.tsx         # Traditional demo server entry
+    ├── token-demo.tsx     # Token-based component demo
     ├── api/               # Handlers, types, repository
     └── components/        # SSR components with colocated API/styles/reactivity
 ```
 
 Notes
 
-- Public API is exported via `mod.ts` (e.g.,
-  `import { defineComponent } from 'ui-lib'`).
-- You can optionally type your pub/sub topics and custom events. See “Typing
-  Topics and Events” in Getting Started.
+- **Token-based API** (recommended): `import { Button, defineTokens } from 'ui-lib/mod-token.ts'`
+- Traditional API: `import { defineComponent } from 'ui-lib/mod.ts'`
+- Simple API: `import { h } from 'ui-lib/mod-simple.ts'`
 
 ## Performance
 
@@ -250,6 +323,8 @@ Notes
 ## Documentation
 
 - [Getting Started](docs/getting-started.md)
+- [Token System Guide](docs/token-system.md) **← New!**
+- [Migration Guide](docs/migration-guide.md) **← New!**
 - [Architecture](docs/architecture.md)
 - [Component API](docs/component-api.md)
 - [Examples](docs/examples.md)
