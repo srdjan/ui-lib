@@ -262,10 +262,8 @@ defineComponent<TodoAppProps>("todo-app", {
           />
           <title>Clean Component Architecture Demo - ui-lib</title>
           <style dangerouslySetInnerHTML={{ __html: styles }} />
-          <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-          <script src="https://unpkg.com/htmx.org@1.9.10/dist/ext/json-enc.js">
-          </script>
-        </head>
+          <script src="https://unpkg.com/htmx.org"></script>
+<script src="https://unpkg.com/htmx-ext-json-enc@2.0.1/json-enc.js"></script>        </head>
         <body>
           {appContent}
         </body>

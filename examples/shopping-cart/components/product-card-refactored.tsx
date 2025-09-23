@@ -194,13 +194,80 @@ defineComponent("product-card", {
   api: {
     addToCart: ["POST", "/api/cart/add", async (req) => {
       try {
-        const body = await req.json();
-        const { productId, quantity = 1, sessionId } = body;
+        const hxValuesHeader = req.headers.get("hx-values");
+        let body: {
+          productId?: string;
+          quantity?: number | string;
+          sessionId?: string;
+        } | null = null;
+
+        if (hxValuesHeader) {
+          try {
+            const parsed = JSON.parse(hxValuesHeader) as Record<
+              string,
+              unknown
+            >;
+            body = {
+              productId: String(parsed.productId ?? parsed["product_id"] ?? ""),
+              quantity: parsed.quantity as number | string | undefined,
+              sessionId: parsed.sessionId as string | undefined,
+            };
+          } catch {
+            // Ignore header parse errors and fall back to request body
+            body = null;
+          }
+        }
+
+        if (!body) {
+          const contentType = req.headers.get("content-type") || "";
+
+          if (contentType.includes("application/json")) {
+            try {
+              body = await req.json();
+            } catch {
+              body = null;
+            }
+          }
+
+          if (!body) {
+            if (contentType.includes("application/x-www-form-urlencoded")) {
+              const text = await req.text();
+              const params = new URLSearchParams(text);
+              body = {
+                productId: params.get("productId") ?? undefined,
+                quantity: params.get("quantity") ?? undefined,
+                sessionId: params.get("sessionId") ?? undefined,
+              };
+            } else {
+              const formData = await req.formData();
+              body = {
+                productId: formData.get("productId") as string | null ??
+                  undefined,
+                quantity: formData.get("quantity") as string | null ??
+                  undefined,
+                sessionId: formData.get("sessionId") as string | null ??
+                  undefined,
+              };
+            }
+          }
+        }
+
+        const { productId, quantity = 1, sessionId } = body ?? {};
+
+        if (!productId) {
+          return json({ error: "Product id missing" }, { status: 400 });
+        }
+
+        const headerSession = req.headers.get("x-session-id") ??
+          req.headers.get("X-Session-ID");
+        const finalSessionId = sessionId || headerSession ||
+          `session_${crypto.randomUUID()}`;
+        const finalQuantity = Math.max(1, Number(quantity) || 1);
 
         const repository = getRepository();
-        const result = await repository.addToCart(sessionId, {
+        const result = await repository.addToCart(finalSessionId, {
           productId,
-          quantity,
+          quantity: finalQuantity,
         });
 
         if (!result.ok) {

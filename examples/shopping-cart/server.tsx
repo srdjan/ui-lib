@@ -30,7 +30,14 @@ import { CartSidebar } from "./components/cart-sidebar-simple.tsx";
 import { CheckoutFlow } from "./components/checkout-flow-simple.tsx";
 
 // Import API handlers for non-component endpoints
-import { getCart, getProducts, searchProducts, addToCart, updateCartItem, removeFromCart } from "./api/handlers.tsx";
+import {
+  addToCart,
+  getCart,
+  getProducts,
+  removeFromCart,
+  searchProducts,
+  updateCartItem,
+} from "./api/handlers.tsx";
 
 import {
   completeCheckout,
@@ -67,8 +74,8 @@ function Layout({
       <title>${title} - Shopping Cart Demo</title>
 
       <!-- HTMX for progressive enhancement -->
-      <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
-      <script src="https://unpkg.com/htmx.org@1.9.10/dist/ext/json-enc.js" defer></script>
+      <script src="https://unpkg.com/htmx.org@2.0.7" defer></script>
+      <script src="https://unpkg.com/htmx.org@2.0.7/dist/ext/json-enc.js" defer></script>
 
       <!-- Basic theme styles -->
       <style>
