@@ -148,13 +148,23 @@ export const Counter = defineComponent("counter", {
   api: {
     increment: post("/api/counter/:id/increment", async (req, params) => {
       const result = updateCounter(params.id, 0, step);
-      if (!result.ok) return html("<span data-count>error</span>", { status: 400 });
-      return html(`<span data-count>${result.value.count}</span>`);
+      if (!result.ok) {
+        return html(<span data-count>error</span>, { status: 400 });
+      }
+
+      return html(
+        <span data-count>{result.value.count}</span>,
+      );
     }),
     reset: post("/api/counter/:id/reset", async (_req, params) => {
       const result = updateCounter(params.id, 0, reset);
-      if (!result.ok) return html("<span data-count>error</span>", { status: 400 });
-      return html(`<span data-count>${result.value.count}</span>`);
+      if (!result.ok) {
+        return html(<span data-count>error</span>, { status: 400 });
+      }
+
+      return html(
+        <span data-count>{result.value.count}</span>,
+      );
     }),
   },
 
