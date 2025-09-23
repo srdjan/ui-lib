@@ -75,24 +75,24 @@ import {
   css,
   defineComponent,
   h,
-  hx,
   number,
   post,
   string,
-} from "../mod.ts";
-import { html } from "../lib/response.ts";
-import { ok, type Result } from "../lib/result.ts";
-import { Button as UIButton } from "../lib/components/button/token-button.ts";
+} from "../mod.ts"
+import { html } from "../lib/response.ts"
+import { ok, type Result } from "../lib/result.ts"
+import { Button } from "../lib/components/button/token-button.ts"
+import { actionProps } from "../lib/ui/action-props.ts" // forward-looking helper
 
 // --- Light FP domain helpers (no classes, errors as values) ---
-type Counter = { readonly id: string; readonly count: number };
-type CounterError = { readonly type: "invalid"; readonly message: string };
+type Counter = { readonly id: string; readonly count: number }
+type CounterError = { readonly type: "invalid"; readonly message: string }
 
 const store = new Map<string, Counter>();
 const ensure = (id: string, start: number): Counter => {
-  const initial = store.get(id) ?? { id, count: start };
-  if (!store.has(id)) store.set(id, initial);
-  return initial;
+  const initial = store.get(id) ?? { id, count: start }
+  if (!store.has(id)) store.set(id, initial)
+  return initial
 };
 
 const updateCounter = (
@@ -100,38 +100,19 @@ const updateCounter = (
   start: number,
   mutate: (counter: Counter) => Result<Counter, CounterError>,
 ): Result<Counter, CounterError> => {
-  const next = mutate(ensure(id, start));
-  if (next.ok) store.set(id, next.value);
-  return next;
-};
+  const next = mutate(ensure(id, start))
+  if (next.ok) store.set(id, next.value)
+  return next
+}
 
 const step = (counter: Counter): Result<Counter, CounterError> =>
-  ok({ ...counter, count: counter.count + 1 });
+  ok({ ...counter, count: counter.count + 1 })
 const reset = (counter: Counter): Result<Counter, CounterError> =>
-  ok({ ...counter, count: 0 });
-
-// CSS-in-TS styles
-const shell = css({
-  display: "inline-flex",
-  alignItems: "center",
-  gap: "0.75rem",
-  padding: "0.75rem 1rem",
-  borderRadius: "12px",
-  border: "1px solid var(--accent, #4f46e5)",
-  background: "rgba(79, 70, 229, 0.08)",
-});
-
-const buttonStyles = UIButton.injectStyles();
-
-const mergeHx = (markup: string, attrs: string): string => {
-  const trimmed = attrs?.trim();
-  if (!trimmed) return markup;
-  return markup.replace("<button", `<button ${trimmed} `);
-};
+  ok({ ...counter, count: 0 })
 
 // --- Component with collocated API, inline props, SSR, and reactivity ---
 export const Counter = defineComponent("counter", {
-  styles: buttonStyles,
+  styles: Button.styles,
   reactive: {
     on: {
       "ui-lib:toggle-accent":
@@ -147,24 +128,19 @@ export const Counter = defineComponent("counter", {
 
   api: {
     increment: post("/api/counter/:id/increment", async (req, params) => {
-      const result = updateCounter(params.id, 0, step);
+      const result = updateCounter(params.id, 0, step)
       if (!result.ok) {
-        return html(<span data-count>error</span>, { status: 400 });
+        return render({}, _api)(<span data-count>error</span>, { status: 400 })
       }
-
-      return html(
-        <span data-count>{result.value.count}</span>,
-      );
+      return render({}, _api)(<span data-count>{result.value.count}</span>, {status: 200})
     }),
     reset: post("/api/counter/:id/reset", async (_req, params) => {
       const result = updateCounter(params.id, 0, reset);
       if (!result.ok) {
-        return html(<span data-count>error</span>, { status: 400 });
+        return render({}, _api)(<span data-count>error</span>, { status: 400 })
       }
-
-      return html(
-        <span data-count>{result.value.count}</span>,
-      );
+      return render({}, _api)(
+        <span data-count>{result.value.count}</span>, {status: 200})
     }),
   },
 
@@ -174,39 +150,32 @@ export const Counter = defineComponent("counter", {
     start = number(0),
     disabled = boolean(false),
   }, api) => {
-    const counter = ensure(id, start);
-    const target = `[data-id="${id}"] [data-count]`;
-
-    const resetMarkup = mergeHx(
-      UIButton({
-        variant: "outline",
-        size: "md",
-        disabled,
-        children: "Reset",
-      }),
-      api?.reset?.(id, hx({ target, swap: "outerHTML" })) ?? "",
-    );
-
-    const incrementMarkup = mergeHx(
-      UIButton({
-        variant: "primary",
-        size: "md",
-        disabled,
-        children: "+",
-      }),
-      api?.increment?.(id, hx({ target, swap: "outerHTML" })) ?? "",
-    );
+    const counter = ensure(id, start)
 
     return (
       <div class={shell} data-id={id}>
         <span>{label}</span>
-        <span dangerouslySetInnerHTML={{ __html: resetMarkup }} />
+        <ButtonFragment
+          variant="outline"
+          size="md"
+          disabled={disabled}
+          children="Reset"
+          target = `[data-id="${id}"] [data-count]`
+          action={api?.reset?.(id)
+        />
         <span data-count>{String(counter.count)}</span>
-        <span dangerouslySetInnerHTML={{ __html: incrementMarkup }} />
+        <ButtonFragment
+          variant="primary"
+          size="md"
+          disabled={disabled}
+          children="+"
+          target = `[data-id="${id}"] [data-count]`
+          action={api?.increment?.(id)
+        />
       </div>
     );
-  },
-});
+  }
+})
 ```
 
 ---
