@@ -123,6 +123,7 @@ const Component = createTokenComponent(config);
 ```
 
 **Key differences:**
+
 - **Sealed**: No access to internal implementation
 - **Token Contract**: Explicit CSS variable interface
 - **Type Safety**: Full IntelliSense for available tokens
@@ -137,6 +138,10 @@ const Component = createTokenComponent(config);
 3. **JSX Rendering** - Execute JSX render function with props
 4. **Reactivity Injection** - Add reactive attributes if configured
 5. **HTML Generation** - Convert JSX to HTML string
+
+Note: The following internalRender example illustrates the library's internal
+pipeline. In application code, prefer JSX directly; SSR evaluation returns an
+HTML string without calling renderToString yourself.
 
 ```tsx
 // Simplified traditional render pipeline
@@ -472,6 +477,10 @@ Seamless integration with HTMX for interactivity:
 
 ### Web Components
 
+Note: For Web Component interop we show explicit renderToString usage. In normal
+application code, use JSX directly and let SSR evaluation return the HTML
+string.
+
 Can be wrapped as standard Web Components:
 
 ```tsx
@@ -484,6 +493,9 @@ customElements.define("my-element", MyElement);
 ```
 
 ### Framework Adapters
+
+Note: Framework adapters may call renderToString internally for interop.
+Application code should continue to use JSX only.
 
 Adapters available for popular frameworks:
 

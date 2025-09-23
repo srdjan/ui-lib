@@ -363,14 +363,17 @@ export const defaultButtonTokens: ButtonTokens = {
 };
 
 // Utility to generate CSS variable names
-export function generateTokenVarName(component: string, path: string[]): string {
+export function generateTokenVarName(
+  component: string,
+  path: string[],
+): string {
   return `--${component}-${path.join("-")}`;
 }
 
 // Utility to flatten token object to CSS variables
 export function tokensToCSS<T extends Record<string, TokenSet>>(
   component: string,
-  tokens: ComponentTokens<T>
+  tokens: ComponentTokens<T>,
 ): string {
   const cssVars: string[] = [];
 
@@ -402,7 +405,7 @@ export type AllComponentTokens = {
 // Deep merge utility for token overrides
 export function mergeTokens<T extends Record<string, TokenSet>>(
   defaults: ComponentTokens<T>,
-  overrides?: Partial<ComponentTokens<T>>
+  overrides?: Partial<ComponentTokens<T>>,
 ): ComponentTokens<T> {
   if (!overrides) return defaults;
 

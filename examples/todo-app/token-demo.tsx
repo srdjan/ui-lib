@@ -154,7 +154,9 @@ export function TodoAppButtons() {
         <div class="demo-section">
           <h2>States</h2>
           <div class="button-group">
-            ${Button({ loading: true, loadingText: "Saving...", children: "Save" })}
+            ${
+    Button({ loading: true, loadingText: "Saving...", children: "Save" })
+  }
             ${Button({ disabled: true, children: "Disabled" })}
             ${Button({ leftIcon: "✅", children: "Complete" })}
             ${Button({ rightIcon: "→", children: "Next" })}
@@ -173,7 +175,9 @@ export function TodoAppButtons() {
         <div class="demo-section cta-section">
           <h2>CTA Section (Inline Token Override)</h2>
           <div class="button-group">
-            ${Button({ variant: "primary", size: "lg", children: "Get Started Now" })}
+            ${
+    Button({ variant: "primary", size: "lg", children: "Get Started Now" })
+  }
           </div>
         </div>
 
@@ -181,7 +185,9 @@ export function TodoAppButtons() {
           <h2>Danger Zone (Inline Token Override)</h2>
           <div class="button-group">
             ${Button({ variant: "destructive", children: "Delete Account" })}
-            ${Button({ variant: "destructive", size: "sm", children: "Remove Item" })}
+            ${
+    Button({ variant: "destructive", size: "sm", children: "Remove Item" })
+  }
           </div>
         </div>
 

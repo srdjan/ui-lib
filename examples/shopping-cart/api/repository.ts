@@ -3,23 +3,23 @@
 // Implements all CRUD operations for products, cart, users, and orders
 
 import type { Result } from "../../../lib/result.ts";
-import { ok, err } from "../../../lib/result.ts";
+import { err, ok } from "../../../lib/result.ts";
 import type {
-  Product,
+  AddToCartRequest,
+  ApiError,
   Cart,
   CartItem,
-  User,
-  Order,
-  ProductFilter,
-  AddToCartRequest,
-  UpdateCartItemRequest,
-  CreateUserRequest,
-  CreateOrderRequest,
-  ProductSummary,
   CartSummary,
+  CreateOrderRequest,
+  CreateUserRequest,
+  Order,
   OrderSummary,
   PaginatedResponse,
-  ApiError,
+  Product,
+  ProductFilter,
+  ProductSummary,
+  UpdateCartItemRequest,
+  User,
 } from "./types.ts";
 import { sampleProducts, sampleUsers } from "../data/seed.ts";
 
@@ -29,16 +29,30 @@ import { sampleProducts, sampleUsers } from "../data/seed.ts";
 
 export interface ShoppingRepository {
   // Product operations
-  getProducts(filter?: ProductFilter): Promise<Result<PaginatedResponse<Product>, ApiError>>;
+  getProducts(
+    filter?: ProductFilter,
+  ): Promise<Result<PaginatedResponse<Product>, ApiError>>;
   getProduct(id: string): Promise<Result<Product, ApiError>>;
   getProductSummary(): Promise<Result<ProductSummary, ApiError>>;
-  getFeaturedProducts(limit?: number): Promise<Result<readonly Product[], ApiError>>;
+  getFeaturedProducts(
+    limit?: number,
+  ): Promise<Result<readonly Product[], ApiError>>;
 
   // Cart operations
   getCart(sessionId: string): Promise<Result<Cart, ApiError>>;
-  addToCart(sessionId: string, request: AddToCartRequest): Promise<Result<Cart, ApiError>>;
-  updateCartItem(sessionId: string, itemId: string, request: UpdateCartItemRequest): Promise<Result<Cart, ApiError>>;
-  removeFromCart(sessionId: string, itemId: string): Promise<Result<Cart, ApiError>>;
+  addToCart(
+    sessionId: string,
+    request: AddToCartRequest,
+  ): Promise<Result<Cart, ApiError>>;
+  updateCartItem(
+    sessionId: string,
+    itemId: string,
+    request: UpdateCartItemRequest,
+  ): Promise<Result<Cart, ApiError>>;
+  removeFromCart(
+    sessionId: string,
+    itemId: string,
+  ): Promise<Result<Cart, ApiError>>;
   clearCart(sessionId: string): Promise<Result<void, ApiError>>;
   getCartSummary(sessionId: string): Promise<Result<CartSummary, ApiError>>;
 
@@ -46,7 +60,10 @@ export interface ShoppingRepository {
   createUser(request: CreateUserRequest): Promise<Result<User, ApiError>>;
   getUser(id: string): Promise<Result<User, ApiError>>;
   getUserByEmail(email: string): Promise<Result<User, ApiError>>;
-  updateUser(id: string, updates: Partial<User>): Promise<Result<User, ApiError>>;
+  updateUser(
+    id: string,
+    updates: Partial<User>,
+  ): Promise<Result<User, ApiError>>;
 
   // Order operations
   createOrder(request: CreateOrderRequest): Promise<Result<Order, ApiError>>;
@@ -55,8 +72,14 @@ export interface ShoppingRepository {
   getOrderSummary(userId: string): Promise<Result<OrderSummary, ApiError>>;
 
   // Search operations
-  searchProducts(query: string, limit?: number): Promise<Result<readonly Product[], ApiError>>;
-  getRecommendedProducts(userId?: string, limit?: number): Promise<Result<readonly Product[], ApiError>>;
+  searchProducts(
+    query: string,
+    limit?: number,
+  ): Promise<Result<readonly Product[], ApiError>>;
+  getRecommendedProducts(
+    userId?: string,
+    limit?: number,
+  ): Promise<Result<readonly Product[], ApiError>>;
 }
 
 // ============================================================
@@ -76,7 +99,9 @@ export class KvShoppingRepository implements ShoppingRepository {
 
     try {
       // Seed initial data if not exists
-      const productsResult = await this.kv.list<Product>({ prefix: ["products"] });
+      const productsResult = await this.kv.list<Product>({
+        prefix: ["products"],
+      });
       const products = [];
       for await (const entry of productsResult) {
         products.push(entry.value);
@@ -86,7 +111,11 @@ export class KvShoppingRepository implements ShoppingRepository {
         console.log("Seeding initial product data...");
         for (const product of sampleProducts) {
           await this.kv.set(["products", product.id], product);
-          await this.kv.set(["productsByCategory", product.category, product.id], product);
+          await this.kv.set([
+            "productsByCategory",
+            product.category,
+            product.id,
+          ], product);
         }
       }
 
@@ -120,7 +149,9 @@ export class KvShoppingRepository implements ShoppingRepository {
   // Product Operations
   // ============================================================
 
-  async getProducts(filter: ProductFilter = {}): Promise<Result<PaginatedResponse<Product>, ApiError>> {
+  async getProducts(
+    filter: ProductFilter = {},
+  ): Promise<Result<PaginatedResponse<Product>, ApiError>> {
     try {
       const {
         category,
@@ -147,25 +178,35 @@ export class KvShoppingRepository implements ShoppingRepository {
           products.push(entry.value);
         }
       } else {
-        const allResults = await this.kv.list<Product>({ prefix: ["products"] });
+        const allResults = await this.kv.list<Product>({
+          prefix: ["products"],
+        });
         for await (const entry of allResults) {
           products.push(entry.value);
         }
       }
 
       // Apply filters
-      products = products.filter(product => {
+      products = products.filter((product) => {
         if (minPrice !== undefined && product.price < minPrice) return false;
         if (maxPrice !== undefined && product.price > maxPrice) return false;
         if (inStock !== undefined && product.inStock !== inStock) return false;
-        if (featured !== undefined && product.featured !== featured) return false;
+        if (featured !== undefined && product.featured !== featured) {
+          return false;
+        }
         if (rating !== undefined && product.rating < rating) return false;
-        if (tags?.length && !tags.some(tag => product.tags.includes(tag))) return false;
+        if (tags?.length && !tags.some((tag) => product.tags.includes(tag))) {
+          return false;
+        }
         if (search) {
           const query = search.toLowerCase();
           const matchesName = product.name.toLowerCase().includes(query);
-          const matchesDescription = product.description.toLowerCase().includes(query);
-          const matchesTags = product.tags.some(tag => tag.toLowerCase().includes(query));
+          const matchesDescription = product.description.toLowerCase().includes(
+            query,
+          );
+          const matchesTags = product.tags.some((tag) =>
+            tag.toLowerCase().includes(query)
+          );
           if (!matchesName && !matchesDescription && !matchesTags) return false;
         }
         return true;
@@ -250,8 +291,8 @@ export class KvShoppingRepository implements ShoppingRepository {
         return acc;
       }, {} as Record<string, number>);
 
-      const prices = products.map(p => p.price);
-      const ratings = products.map(p => p.rating);
+      const prices = products.map((p) => p.price);
+      const ratings = products.map((p) => p.rating);
 
       return ok({
         total: products.length,
@@ -271,7 +312,9 @@ export class KvShoppingRepository implements ShoppingRepository {
     }
   }
 
-  async getFeaturedProducts(limit = 6): Promise<Result<readonly Product[], ApiError>> {
+  async getFeaturedProducts(
+    limit = 6,
+  ): Promise<Result<readonly Product[], ApiError>> {
     try {
       const products: Product[] = [];
       const results = await this.kv.list<Product>({ prefix: ["products"] });
@@ -329,16 +372,21 @@ export class KvShoppingRepository implements ShoppingRepository {
     }
   }
 
-  async addToCart(sessionId: string, request: AddToCartRequest): Promise<Result<Cart, ApiError>> {
+  async addToCart(
+    sessionId: string,
+    request: AddToCartRequest,
+  ): Promise<Result<Cart, ApiError>> {
     try {
       const cartResult = await this.getCart(sessionId);
       if (!cartResult.ok) return cartResult;
 
       const productResult = await this.getProduct(request.productId);
-      if (!productResult.ok) return err({
-        code: "PRODUCT_NOT_FOUND",
-        message: `Product ${request.productId} not found`,
-      });
+      if (!productResult.ok) {
+        return err({
+          code: "PRODUCT_NOT_FOUND",
+          message: `Product ${request.productId} not found`,
+        });
+      }
 
       const product = productResult.value;
       if (!product.inStock) {
@@ -349,7 +397,9 @@ export class KvShoppingRepository implements ShoppingRepository {
       }
 
       const cart = cartResult.value;
-      const existingItemIndex = cart.items.findIndex(item => item.productId === request.productId);
+      const existingItemIndex = cart.items.findIndex((item) =>
+        item.productId === request.productId
+      );
 
       let updatedItems: CartItem[];
 
@@ -390,13 +440,17 @@ export class KvShoppingRepository implements ShoppingRepository {
     }
   }
 
-  async updateCartItem(sessionId: string, itemId: string, request: UpdateCartItemRequest): Promise<Result<Cart, ApiError>> {
+  async updateCartItem(
+    sessionId: string,
+    itemId: string,
+    request: UpdateCartItemRequest,
+  ): Promise<Result<Cart, ApiError>> {
     try {
       const cartResult = await this.getCart(sessionId);
       if (!cartResult.ok) return cartResult;
 
       const cart = cartResult.value;
-      const itemIndex = cart.items.findIndex(item => item.id === itemId);
+      const itemIndex = cart.items.findIndex((item) => item.id === itemId);
 
       if (itemIndex === -1) {
         return err({
@@ -407,8 +461,8 @@ export class KvShoppingRepository implements ShoppingRepository {
 
       const updatedItems = request.quantity > 0
         ? cart.items.map((item, index) =>
-            index === itemIndex ? { ...item, quantity: request.quantity } : item
-          )
+          index === itemIndex ? { ...item, quantity: request.quantity } : item
+        )
         : cart.items.filter((_, index) => index !== itemIndex);
 
       const updatedCart = this.calculateCartTotals({
@@ -428,7 +482,10 @@ export class KvShoppingRepository implements ShoppingRepository {
     }
   }
 
-  async removeFromCart(sessionId: string, itemId: string): Promise<Result<Cart, ApiError>> {
+  async removeFromCart(
+    sessionId: string,
+    itemId: string,
+  ): Promise<Result<Cart, ApiError>> {
     return this.updateCartItem(sessionId, itemId, { quantity: 0 });
   }
 
@@ -454,7 +511,9 @@ export class KvShoppingRepository implements ShoppingRepository {
     }
   }
 
-  async getCartSummary(sessionId: string): Promise<Result<CartSummary, ApiError>> {
+  async getCartSummary(
+    sessionId: string,
+  ): Promise<Result<CartSummary, ApiError>> {
     try {
       const cartResult = await this.getCart(sessionId);
       if (!cartResult.ok) return err(cartResult.error);
@@ -478,7 +537,9 @@ export class KvShoppingRepository implements ShoppingRepository {
   // User Operations (Simplified for demo)
   // ============================================================
 
-  async createUser(request: CreateUserRequest): Promise<Result<User, ApiError>> {
+  async createUser(
+    request: CreateUserRequest,
+  ): Promise<Result<User, ApiError>> {
     try {
       const existingResult = await this.kv.get(["usersByEmail", request.email]);
       if (existingResult.value) {
@@ -558,7 +619,10 @@ export class KvShoppingRepository implements ShoppingRepository {
     }
   }
 
-  async updateUser(id: string, updates: Partial<User>): Promise<Result<User, ApiError>> {
+  async updateUser(
+    id: string,
+    updates: Partial<User>,
+  ): Promise<Result<User, ApiError>> {
     try {
       const userResult = await this.getUser(id);
       if (!userResult.ok) return userResult;
@@ -589,7 +653,9 @@ export class KvShoppingRepository implements ShoppingRepository {
   // Order Operations (Simplified for demo)
   // ============================================================
 
-  async createOrder(request: CreateOrderRequest): Promise<Result<Order, ApiError>> {
+  async createOrder(
+    request: CreateOrderRequest,
+  ): Promise<Result<Order, ApiError>> {
     try {
       const cartResult = await this.getCart(request.cartId);
       if (!cartResult.ok) return err(cartResult.error);
@@ -607,7 +673,7 @@ export class KvShoppingRepository implements ShoppingRepository {
         orderNumber: `ORD-${Date.now()}`,
         userId: cart.userId || "guest",
         status: "pending",
-        items: cart.items.map(item => ({
+        items: cart.items.map((item) => ({
           id: item.id,
           productId: item.productId,
           productName: item.product.name,
@@ -666,16 +732,22 @@ export class KvShoppingRepository implements ShoppingRepository {
     }
   }
 
-  async getUserOrders(userId: string): Promise<Result<readonly Order[], ApiError>> {
+  async getUserOrders(
+    userId: string,
+  ): Promise<Result<readonly Order[], ApiError>> {
     try {
       const orders: Order[] = [];
-      const results = await this.kv.list<Order>({ prefix: ["ordersByUser", userId] });
+      const results = await this.kv.list<Order>({
+        prefix: ["ordersByUser", userId],
+      });
       for await (const entry of results) {
         orders.push(entry.value);
       }
 
       // Sort by creation date (newest first)
-      orders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      orders.sort((a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
 
       return ok(orders);
     } catch (error) {
@@ -687,7 +759,9 @@ export class KvShoppingRepository implements ShoppingRepository {
     }
   }
 
-  async getOrderSummary(userId: string): Promise<Result<OrderSummary, ApiError>> {
+  async getOrderSummary(
+    userId: string,
+  ): Promise<Result<OrderSummary, ApiError>> {
     try {
       const ordersResult = await this.getUserOrders(userId);
       if (!ordersResult.ok) return err(ordersResult.error);
@@ -718,13 +792,19 @@ export class KvShoppingRepository implements ShoppingRepository {
   // Search Operations
   // ============================================================
 
-  async searchProducts(query: string, limit = 10): Promise<Result<readonly Product[], ApiError>> {
+  async searchProducts(
+    query: string,
+    limit = 10,
+  ): Promise<Result<readonly Product[], ApiError>> {
     const filter: ProductFilter = { search: query, limit };
     const result = await this.getProducts(filter);
     return result.ok ? ok(result.value.items) : err(result.error);
   }
 
-  async getRecommendedProducts(userId?: string, limit = 4): Promise<Result<readonly Product[], ApiError>> {
+  async getRecommendedProducts(
+    userId?: string,
+    limit = 4,
+  ): Promise<Result<readonly Product[], ApiError>> {
     try {
       // Simple recommendation: return random featured products
       const featuredResult = await this.getFeaturedProducts(limit * 2);
@@ -751,8 +831,13 @@ export class KvShoppingRepository implements ShoppingRepository {
   // Helper Methods
   // ============================================================
 
-  private calculateCartTotals(cart: Omit<Cart, 'subtotal' | 'tax' | 'total' | 'itemCount'>): Cart {
-    const subtotal = cart.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+  private calculateCartTotals(
+    cart: Omit<Cart, "subtotal" | "tax" | "total" | "itemCount">,
+  ): Cart {
+    const subtotal = cart.items.reduce(
+      (sum, item) => sum + (item.unitPrice * item.quantity),
+      0,
+    );
     const itemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
     const tax = subtotal * 0.08; // 8% tax rate
     const shipping = subtotal > 50 ? 0 : 5.99; // Free shipping over $50
@@ -775,7 +860,9 @@ export class KvShoppingRepository implements ShoppingRepository {
 
 let repository: ShoppingRepository | null = null;
 
-export async function createRepository(): Promise<Result<ShoppingRepository, ApiError>> {
+export async function createRepository(): Promise<
+  Result<ShoppingRepository, ApiError>
+> {
   try {
     const kv = await Deno.openKv();
     const repo = new KvShoppingRepository(kv);
@@ -796,7 +883,9 @@ export async function createRepository(): Promise<Result<ShoppingRepository, Api
 
 export function getRepository(): ShoppingRepository {
   if (!repository) {
-    throw new Error("Repository not initialized. Call createRepository() first.");
+    throw new Error(
+      "Repository not initialized. Call createRepository() first.",
+    );
   }
   return repository;
 }

@@ -14,33 +14,33 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { Router } from "../../lib/router.ts";
 import { html } from "../../lib/response.ts";
+import { registerComponentApi } from "../../lib/define-component.ts";
 import { createRepository } from "./api/repository.ts";
 
-// Import components
+// Import refactored components with collocated APIs
+import "./components/product-card-refactored.tsx";
+import "./components/product-grid-refactored.tsx";
+import "./components/cart-sidebar-refactored.tsx";
+import "./components/cart-item-refactored.tsx";
+
+// Import simple components for fallback
 import { ProductCard } from "./components/product-card-simple.tsx";
 import { ProductGrid } from "./components/product-grid-simple.tsx";
 import { CartSidebar } from "./components/cart-sidebar-simple.tsx";
 import { CheckoutFlow } from "./components/checkout-flow-simple.tsx";
 
-// Import API handlers
-import {
-  getProducts,
-  searchProducts,
-  addToCart,
-  getCart,
-  updateCartItem,
-  removeFromCart,
-} from "./api/handlers.tsx";
+// Import API handlers for non-component endpoints
+import { getCart, getProducts, searchProducts, addToCart, updateCartItem, removeFromCart } from "./api/handlers.tsx";
 
 import {
-  getCheckoutStep,
-  submitShipping,
-  submitPayment,
   completeCheckout,
+  getCheckoutStep,
   initializeCheckout,
+  submitPayment,
+  submitShipping,
 } from "./api/checkout-handlers.tsx";
 
-import type { Product, Cart } from "./api/types.ts";
+import type { Cart, Product } from "./api/types.ts";
 import { seedData } from "./data/seed.ts";
 
 // ============================================================
@@ -51,7 +51,7 @@ function Layout({
   title,
   children,
   includeSidebar = true,
-  sessionId = 'default'
+  sessionId = "default",
 }: {
   title: string;
   children: string;
@@ -327,7 +327,7 @@ function Layout({
         </footer>
       </div>
 
-      ${includeSidebar ? CartSidebar({ sessionId }) : ''}
+      ${includeSidebar ? CartSidebar({ sessionId }) : ""}
 
       <!-- Cart overlay -->
       <div class="cart-overlay" onclick="closeCart()"></div>
@@ -403,6 +403,7 @@ function HomePage(products: Product[], sessionId: string) {
             hx-get="/api/products?featured=true"
             hx-target="#product-grid"
             hx-swap="innerHTML"
+            hx-headers='{"Accept": "text/html"}'
           >
             🌟 Featured Products
           </button>
@@ -411,6 +412,7 @@ function HomePage(products: Product[], sessionId: string) {
             hx-get="/api/products?category=electronics"
             hx-target="#product-grid"
             hx-swap="innerHTML"
+            hx-headers='{"Accept": "text/html"}'
           >
             📱 Electronics
           </button>
@@ -419,6 +421,7 @@ function HomePage(products: Product[], sessionId: string) {
             hx-get="/api/products?category=clothing"
             hx-target="#product-grid"
             hx-swap="innerHTML"
+            hx-headers='{"Accept": "text/html"}'
           >
             👕 Clothing
           </button>
@@ -426,13 +429,15 @@ function HomePage(products: Product[], sessionId: string) {
       </div>
 
       <div id="product-grid">
-        ${ProductGrid({
-          products,
-          sessionId,
-          showFilters: true,
-          showSearch: true,
-          showSort: true
-        })}
+        ${
+      ProductGrid({
+        products,
+        sessionId,
+        showFilters: true,
+        showSearch: true,
+        showSort: true,
+      })
+    }
       </div>
 
       <!-- Loading indicator -->
@@ -447,8 +452,144 @@ function HomePage(products: Product[], sessionId: string) {
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
+
+        /* Product Card Styles */
+        .product-card {
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          overflow: hidden;
+          transition: all 200ms ease;
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+        }
+
+        .product-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-card__image {
+          position: relative;
+          width: 100%;
+          padding-bottom: 100%; /* 1:1 aspect ratio */
+          overflow: hidden;
+          background: #f5f5f5;
+        }
+
+        .product-card__image img {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .product-card__badge {
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          background: #ef4444;
+          color: white;
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          text-transform: uppercase;
+        }
+
+        .product-card__content {
+          padding: 1rem;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .product-card__title {
+          font-size: 1rem;
+          font-weight: 600;
+          color: #1f2937;
+          margin: 0 0 0.5rem 0;
+          line-height: 1.3;
+        }
+
+        .product-card__description {
+          font-size: 0.875rem;
+          color: #6b7280;
+          margin: 0 0 0.75rem 0;
+          line-height: 1.4;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .product-card__rating {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          margin-bottom: 0.75rem;
+          font-size: 0.875rem;
+        }
+
+        .product-card__stars {
+          color: #fbbf24;
+        }
+
+        .product-card__review-count {
+          color: #6b7280;
+          font-size: 0.75rem;
+        }
+
+        .product-card__pricing {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 1rem;
+          margin-top: auto;
+        }
+
+        .product-card__price {
+          font-size: 1.25rem;
+          font-weight: 700;
+          color: #059669;
+        }
+
+        .product-card__original-price {
+          font-size: 1rem;
+          color: #9ca3af;
+          text-decoration: line-through;
+        }
+
+        .product-card__actions {
+          margin-top: auto;
+        }
+
+        .product-card__add-btn {
+          width: 100%;
+          padding: 0.75rem;
+          background: #6366f1;
+          color: white;
+          border: none;
+          border-radius: 8px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 200ms ease;
+        }
+
+        .product-card__add-btn:hover:not(:disabled) {
+          background: #4f46e5;
+        }
+
+        .product-card__add-btn:disabled {
+          background: #d1d5db;
+          color: #6b7280;
+          cursor: not-allowed;
+        }
       </style>
-    `
+    `,
   });
 }
 
@@ -467,12 +608,14 @@ function CheckoutPage(cart: Cart, sessionId: string, step = 1) {
         </p>
       </div>
 
-      ${CheckoutFlow({
+      ${
+      CheckoutFlow({
         cart,
         sessionId,
-        currentStep: step
-      })}
-    `
+        currentStep: step,
+      })
+    }
+    `,
   });
 }
 
@@ -534,7 +677,7 @@ function AboutPage() {
           </ul>
         </div>
       </div>
-    `
+    `,
   });
 }
 
@@ -551,12 +694,18 @@ if (!repositoryResult.ok) {
   Deno.exit(1);
 }
 
+// Register component APIs with unique endpoints to avoid conflicts
+registerComponentApi("product-card", router); // Handles /api/cart/add with enhanced reactivity
+// registerComponentApi("product-grid", router); // Would handle /api/products/filter
+// registerComponentApi("cart-sidebar", router); // Would conflict with /api/cart
+// registerComponentApi("cart-item", router); // Would handle /api/cart/items/:id for updates/deletes
+
 // ============================================================
 // Page Routes
 // ============================================================
 
 router.get("/", async (req) => {
-  const sessionId = req.headers.get('X-Session-ID') || 'default';
+  const sessionId = req.headers.get("X-Session-ID") || "default";
   const productsResult = await repositoryResult.value.getProducts();
   const products = productsResult.ok ? productsResult.value.items : [];
 
@@ -565,14 +714,14 @@ router.get("/", async (req) => {
 
 router.get("/checkout", async (req) => {
   const url = new URL(req.url);
-  const sessionId = url.searchParams.get('session') || 'default';
-  const step = parseInt(url.searchParams.get('step') || '1');
+  const sessionId = url.searchParams.get("session") || "default";
+  const step = parseInt(url.searchParams.get("step") || "1");
 
   const cartResult = await repositoryResult.value.getCart(sessionId);
   if (!cartResult.ok || cartResult.value.items.length === 0) {
     return new Response(null, {
       status: 302,
-      headers: { Location: '/' }
+      headers: { Location: "/" },
     });
   }
 
@@ -594,10 +743,10 @@ router.get("/api/products/search", searchProducts);
 // API Routes - Cart
 // ============================================================
 
-router.post("/api/cart/add", addToCart);
-router.get("/api/cart", getCart);
-router.patch("/api/cart/items/:itemId", updateCartItem);
-router.delete("/api/cart/items/:itemId", removeFromCart);
+// router.post("/api/cart/add", addToCart); // Now handled by product-card component with enhanced reactivity
+router.get("/api/cart", getCart); // Keep this for direct cart loading
+router.patch("/api/cart/items/:itemId", updateCartItem); // Temporary fallback
+router.delete("/api/cart/items/:itemId", removeFromCart); // Temporary fallback
 
 // ============================================================
 // API Routes - Checkout
@@ -618,7 +767,7 @@ router.get("/static/theme-system.js", () => {
   return new Response(
     `// Theme system module would be bundled here
      console.log('Theme system loaded');`,
-    { headers: { 'Content-Type': 'application/javascript' } }
+    { headers: { "Content-Type": "application/javascript" } },
   );
 });
 
@@ -627,7 +776,7 @@ router.get("/static/cart-state.js", () => {
   return new Response(
     `// Cart state module would be bundled here
      console.log('Cart state loaded');`,
-    { headers: { 'Content-Type': 'application/javascript' } }
+    { headers: { "Content-Type": "application/javascript" } },
   );
 });
 
@@ -650,9 +799,10 @@ async function handleRequest(req: Request): Promise<Response> {
     }
 
     // 404 - No route matched
-    return html(Layout({
-      title: "Page Not Found",
-      children: `
+    return html(
+      Layout({
+        title: "Page Not Found",
+        children: `
         <div style="text-align: center; padding: 3rem;">
           <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem; color: var(--color-text);">
             404 - Page Not Found
@@ -667,12 +817,13 @@ async function handleRequest(req: Request): Promise<Response> {
             Go Home
           </a>
         </div>
-      `
-    }), { status: 404 });
-
+      `,
+      }),
+      { status: 404 },
+    );
   } catch (error) {
-    console.error('Request error:', error);
-    return new Response('Internal Server Error', { status: 500 });
+    console.error("Request error:", error);
+    return new Response("Internal Server Error", { status: 500 });
   }
 }
 
@@ -683,7 +834,9 @@ async function handleRequest(req: Request): Promise<Response> {
 const PORT = parseInt(Deno.env.get("PORT") || "8080");
 
 console.log(`🚀 Shopping Cart Demo starting on port ${PORT}`);
-console.log(`📦 Features: Token components, SSR, DOM-native state, 3-tier reactivity`);
+console.log(
+  `📦 Features: Token components, SSR, DOM-native state, 3-tier reactivity`,
+);
 console.log(`🎯 Visit: http://localhost:${PORT}`);
 
 await serve(handleRequest, { port: PORT });

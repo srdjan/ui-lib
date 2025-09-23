@@ -1,7 +1,7 @@
 // Sample Data for Shopping Cart Demo
 // Realistic product catalog with various categories and price points
 
-import type { Product, User, ProductCategory } from "../api/types.ts";
+import type { Product, ProductCategory, User } from "../api/types.ts";
 
 // ============================================================
 // Sample Products
@@ -12,15 +12,17 @@ export const sampleProducts: readonly Product[] = [
   {
     id: "prod_001",
     name: "Wireless Bluetooth Headphones",
-    description: "Premium over-ear headphones with active noise cancellation and 30-hour battery life. Perfect for music lovers and professionals.",
+    description:
+      "Premium over-ear headphones with active noise cancellation and 30-hour battery life. Perfect for music lovers and professionals.",
     price: 199.99,
     originalPrice: 249.99,
     category: "electronics",
     tags: ["bluetooth", "wireless", "noise-cancelling", "premium"],
-    imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
+    imageUrl:
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
     images: [
       "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=800&h=600&fit=crop"
+      "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=800&h=600&fit=crop",
     ],
     rating: 4.5,
     reviewCount: 2847,
@@ -34,14 +36,16 @@ export const sampleProducts: readonly Product[] = [
   {
     id: "prod_002",
     name: "Smart Fitness Watch",
-    description: "Advanced fitness tracking with heart rate monitoring, GPS, and 7-day battery life. Water-resistant design for all activities.",
+    description:
+      "Advanced fitness tracking with heart rate monitoring, GPS, and 7-day battery life. Water-resistant design for all activities.",
     price: 299.99,
     category: "electronics",
     tags: ["fitness", "smartwatch", "gps", "waterproof"],
-    imageUrl: "https://images.unsplash.com/photo-1544117519-31a4b719223d?w=400&h=400&fit=crop",
+    imageUrl:
+      "https://images.unsplash.com/photo-1544117519-31a4b719223d?w=400&h=400&fit=crop",
     images: [
       "https://images.unsplash.com/photo-1544117519-31a4b719223d?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=800&h=600&fit=crop"
+      "https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=800&h=600&fit=crop",
     ],
     rating: 4.3,
     reviewCount: 1523,
@@ -55,13 +59,15 @@ export const sampleProducts: readonly Product[] = [
   {
     id: "prod_003",
     name: "4K Ultra HD Webcam",
-    description: "Professional webcam with auto-focus, noise reduction microphone, and wide-angle lens. Perfect for streaming and video calls.",
+    description:
+      "Professional webcam with auto-focus, noise reduction microphone, and wide-angle lens. Perfect for streaming and video calls.",
     price: 129.99,
     category: "electronics",
     tags: ["webcam", "4k", "streaming", "professional"],
-    imageUrl: "https://images.unsplash.com/photo-1587202372634-32705e3bf49c?w=400&h=400&fit=crop",
+    imageUrl:
+      "https://images.unsplash.com/photo-1587202372634-32705e3bf49c?w=400&h=400&fit=crop",
     images: [
-      "https://images.unsplash.com/photo-1587202372634-32705e3bf49c?w=800&h=600&fit=crop"
+      "https://images.unsplash.com/photo-1587202372634-32705e3bf49c?w=800&h=600&fit=crop",
     ],
     rating: 4.2,
     reviewCount: 892,
@@ -76,15 +82,17 @@ export const sampleProducts: readonly Product[] = [
   {
     id: "prod_004",
     name: "Premium Cotton T-Shirt",
-    description: "Ultra-soft organic cotton t-shirt with a relaxed fit. Available in multiple colors and sustainably made.",
+    description:
+      "Ultra-soft organic cotton t-shirt with a relaxed fit. Available in multiple colors and sustainably made.",
     price: 24.99,
     originalPrice: 34.99,
     category: "clothing",
     tags: ["cotton", "organic", "comfortable", "sustainable"],
-    imageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop",
+    imageUrl:
+      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop",
     images: [
       "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&h=600&fit=crop"
+      "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&h=600&fit=crop",
     ],
     rating: 4.7,
     reviewCount: 3241,
@@ -98,14 +106,16 @@ export const sampleProducts: readonly Product[] = [
   {
     id: "prod_005",
     name: "Classic Denim Jeans",
-    description: "Timeless straight-leg jeans made from premium denim. Comfortable fit that works for any occasion.",
+    description:
+      "Timeless straight-leg jeans made from premium denim. Comfortable fit that works for any occasion.",
     price: 79.99,
     category: "clothing",
     tags: ["denim", "jeans", "classic", "versatile"],
-    imageUrl: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&h=400&fit=crop",
+    imageUrl:
+      "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&h=400&fit=crop",
     images: [
       "https://images.unsplash.com/photo-1542272604-787c3835535d?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800&h=600&fit=crop"
+      "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800&h=600&fit=crop",
     ],
     rating: 4.4,
     reviewCount: 1876,
@@ -120,13 +130,15 @@ export const sampleProducts: readonly Product[] = [
   {
     id: "prod_006",
     name: "The Art of Web Development",
-    description: "Comprehensive guide to modern web development covering React, TypeScript, and best practices. Written by industry experts.",
+    description:
+      "Comprehensive guide to modern web development covering React, TypeScript, and best practices. Written by industry experts.",
     price: 39.99,
     category: "books",
     tags: ["programming", "web-development", "react", "typescript"],
-    imageUrl: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=400&fit=crop",
+    imageUrl:
+      "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=400&fit=crop",
     images: [
-      "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800&h=600&fit=crop"
+      "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800&h=600&fit=crop",
     ],
     rating: 4.8,
     reviewCount: 567,
@@ -140,13 +152,15 @@ export const sampleProducts: readonly Product[] = [
   {
     id: "prod_007",
     name: "Mindfulness and Meditation Guide",
-    description: "Practical guide to developing mindfulness practices and meditation techniques for stress reduction and mental clarity.",
+    description:
+      "Practical guide to developing mindfulness practices and meditation techniques for stress reduction and mental clarity.",
     price: 19.99,
     category: "books",
     tags: ["mindfulness", "meditation", "wellness", "self-help"],
-    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+    imageUrl:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
     images: [
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop"
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop",
     ],
     rating: 4.6,
     reviewCount: 423,
@@ -161,14 +175,16 @@ export const sampleProducts: readonly Product[] = [
   {
     id: "prod_008",
     name: "Ceramic Coffee Mug Set",
-    description: "Set of 4 handcrafted ceramic mugs with ergonomic handles. Microwave and dishwasher safe.",
+    description:
+      "Set of 4 handcrafted ceramic mugs with ergonomic handles. Microwave and dishwasher safe.",
     price: 34.99,
     category: "home",
     tags: ["ceramic", "coffee", "handcrafted", "set"],
-    imageUrl: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=400&fit=crop",
+    imageUrl:
+      "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=400&fit=crop",
     images: [
       "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=800&h=600&fit=crop"
+      "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=800&h=600&fit=crop",
     ],
     rating: 4.5,
     reviewCount: 1234,
@@ -182,14 +198,16 @@ export const sampleProducts: readonly Product[] = [
   {
     id: "prod_009",
     name: "Aromatherapy Essential Oil Diffuser",
-    description: "Ultrasonic essential oil diffuser with color-changing LED lights and timer settings. Creates a calming atmosphere.",
+    description:
+      "Ultrasonic essential oil diffuser with color-changing LED lights and timer settings. Creates a calming atmosphere.",
     price: 49.99,
     originalPrice: 69.99,
     category: "home",
     tags: ["aromatherapy", "essential-oils", "diffuser", "wellness"],
-    imageUrl: "https://images.unsplash.com/photo-1585855741519-c76b60c4a7a2?w=400&h=400&fit=crop",
+    imageUrl:
+      "https://images.unsplash.com/photo-1585855741519-c76b60c4a7a2?w=400&h=400&fit=crop",
     images: [
-      "https://images.unsplash.com/photo-1585855741519-c76b60c4a7a2?w=800&h=600&fit=crop"
+      "https://images.unsplash.com/photo-1585855741519-c76b60c4a7a2?w=800&h=600&fit=crop",
     ],
     rating: 4.3,
     reviewCount: 987,
@@ -204,14 +222,16 @@ export const sampleProducts: readonly Product[] = [
   {
     id: "prod_010",
     name: "Yoga Mat with Carrying Strap",
-    description: "Non-slip yoga mat made from eco-friendly materials. Includes carrying strap and alignment guides.",
+    description:
+      "Non-slip yoga mat made from eco-friendly materials. Includes carrying strap and alignment guides.",
     price: 32.99,
     category: "sports",
     tags: ["yoga", "eco-friendly", "non-slip", "exercise"],
-    imageUrl: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop",
+    imageUrl:
+      "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop",
     images: [
       "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop"
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop",
     ],
     rating: 4.4,
     reviewCount: 756,
@@ -226,13 +246,15 @@ export const sampleProducts: readonly Product[] = [
   {
     id: "prod_011",
     name: "Natural Face Moisturizer",
-    description: "Hydrating face moisturizer with organic ingredients and SPF 15. Suitable for all skin types.",
+    description:
+      "Hydrating face moisturizer with organic ingredients and SPF 15. Suitable for all skin types.",
     price: 28.99,
     category: "beauty",
     tags: ["skincare", "moisturizer", "organic", "spf"],
-    imageUrl: "https://images.unsplash.com/photo-1570194065650-d99fb4bedf0a?w=400&h=400&fit=crop",
+    imageUrl:
+      "https://images.unsplash.com/photo-1570194065650-d99fb4bedf0a?w=400&h=400&fit=crop",
     images: [
-      "https://images.unsplash.com/photo-1570194065650-d99fb4bedf0a?w=800&h=600&fit=crop"
+      "https://images.unsplash.com/photo-1570194065650-d99fb4bedf0a?w=800&h=600&fit=crop",
     ],
     rating: 4.6,
     reviewCount: 2134,
@@ -247,14 +269,16 @@ export const sampleProducts: readonly Product[] = [
   {
     id: "prod_012",
     name: "Educational Building Blocks Set",
-    description: "Colorful wooden building blocks that promote creativity and problem-solving skills. Safe for children 3+.",
+    description:
+      "Colorful wooden building blocks that promote creativity and problem-solving skills. Safe for children 3+.",
     price: 45.99,
     category: "toys",
     tags: ["educational", "wooden", "building-blocks", "kids"],
-    imageUrl: "https://images.unsplash.com/photo-1558060370-d1a1d5d906c0?w=400&h=400&fit=crop",
+    imageUrl:
+      "https://images.unsplash.com/photo-1558060370-d1a1d5d906c0?w=400&h=400&fit=crop",
     images: [
       "https://images.unsplash.com/photo-1558060370-d1a1d5d906c0?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=800&h=600&fit=crop"
+      "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=800&h=600&fit=crop",
     ],
     rating: 4.7,
     reviewCount: 1456,
@@ -276,7 +300,8 @@ export const sampleUsers: readonly User[] = [
     email: "alice@example.com",
     firstName: "Alice",
     lastName: "Johnson",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612c913?w=150&h=150&fit=crop&crop=face",
+    avatar:
+      "https://images.unsplash.com/photo-1494790108755-2616b612c913?w=150&h=150&fit=crop&crop=face",
     preferences: {
       theme: "light",
       currency: "USD",
@@ -295,7 +320,8 @@ export const sampleUsers: readonly User[] = [
     email: "bob@example.com",
     firstName: "Bob",
     lastName: "Smith",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+    avatar:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
     preferences: {
       theme: "dark",
       currency: "USD",
@@ -315,33 +341,40 @@ export const sampleUsers: readonly User[] = [
 // Helper Functions
 // ============================================================
 
-export function getProductsByCategory(category: ProductCategory): readonly Product[] {
-  return sampleProducts.filter(product => product.category === category);
+export function getProductsByCategory(
+  category: ProductCategory,
+): readonly Product[] {
+  return sampleProducts.filter((product) => product.category === category);
 }
 
 export function getFeaturedProducts(): readonly Product[] {
-  return sampleProducts.filter(product => product.featured);
+  return sampleProducts.filter((product) => product.featured);
 }
 
 export function getInStockProducts(): readonly Product[] {
-  return sampleProducts.filter(product => product.inStock);
+  return sampleProducts.filter((product) => product.inStock);
 }
 
-export function getProductsByPriceRange(min: number, max: number): readonly Product[] {
-  return sampleProducts.filter(product => product.price >= min && product.price <= max);
+export function getProductsByPriceRange(
+  min: number,
+  max: number,
+): readonly Product[] {
+  return sampleProducts.filter((product) =>
+    product.price >= min && product.price <= max
+  );
 }
 
 export function searchProducts(query: string): readonly Product[] {
   const lowerQuery = query.toLowerCase();
-  return sampleProducts.filter(product =>
+  return sampleProducts.filter((product) =>
     product.name.toLowerCase().includes(lowerQuery) ||
     product.description.toLowerCase().includes(lowerQuery) ||
-    product.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
+    product.tags.some((tag) => tag.toLowerCase().includes(lowerQuery))
   );
 }
 
 export function getProductById(id: string): Product | undefined {
-  return sampleProducts.find(product => product.id === id);
+  return sampleProducts.find((product) => product.id === id);
 }
 
 export function getCategoryStats(): Record<ProductCategory, number> {
@@ -355,7 +388,7 @@ export function getCategoryStats(): Record<ProductCategory, number> {
     toys: 0,
   };
 
-  sampleProducts.forEach(product => {
+  sampleProducts.forEach((product) => {
     stats[product.category]++;
   });
 
@@ -363,7 +396,7 @@ export function getCategoryStats(): Record<ProductCategory, number> {
 }
 
 export function getPriceRange(): { min: number; max: number } {
-  const prices = sampleProducts.map(p => p.price);
+  const prices = sampleProducts.map((p) => p.price);
   return {
     min: Math.min(...prices),
     max: Math.max(...prices),
@@ -371,24 +404,35 @@ export function getPriceRange(): { min: number; max: number } {
 }
 
 export function getAverageRating(): number {
-  const totalRating = sampleProducts.reduce((sum, product) => sum + product.rating, 0);
+  const totalRating = sampleProducts.reduce(
+    (sum, product) => sum + product.rating,
+    0,
+  );
   return totalRating / sampleProducts.length;
 }
 
 // Generate random product recommendations
-export function getRecommendedProducts(excludeId?: string, limit = 4): readonly Product[] {
-  const available = sampleProducts.filter(p => p.id !== excludeId && p.inStock);
+export function getRecommendedProducts(
+  excludeId?: string,
+  limit = 4,
+): readonly Product[] {
+  const available = sampleProducts.filter((p) =>
+    p.id !== excludeId && p.inStock
+  );
   const shuffled = [...available].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, limit);
 }
 
 // Get products related to a specific product (same category or tags)
-export function getRelatedProducts(product: Product, limit = 4): readonly Product[] {
-  const related = sampleProducts.filter(p =>
+export function getRelatedProducts(
+  product: Product,
+  limit = 4,
+): readonly Product[] {
+  const related = sampleProducts.filter((p) =>
     p.id !== product.id &&
     p.inStock &&
     (p.category === product.category ||
-     p.tags.some(tag => product.tags.includes(tag)))
+      p.tags.some((tag) => product.tags.includes(tag)))
   );
 
   return related.slice(0, limit);

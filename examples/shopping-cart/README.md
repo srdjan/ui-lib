@@ -1,6 +1,7 @@
 # Shopping Cart Demo
 
-Comprehensive e-commerce application demonstrating ui-lib's token-based component system, DOM-native state management, and three-tier reactivity.
+Comprehensive e-commerce application demonstrating ui-lib's token-based
+component system, DOM-native state management, and three-tier reactivity.
 
 ## 🚀 Quick Start
 
@@ -21,6 +22,7 @@ open http://localhost:8080
 ## ✨ Features Demonstrated
 
 ### 🎨 Token-Based Component System
+
 - **Complete Component Sealing**: Components expose only CSS variable interfaces
 - **Type-Safe Customization**: Full TypeScript support for token contracts
 - **Superior DX**: IntelliSense autocompletion for all customization options
@@ -28,6 +30,7 @@ open http://localhost:8080
 - **Consistent Theming**: Unified token system across all components
 
 ### 🏗️ DOM-Native State Management
+
 - **State in DOM**: Data attributes, CSS classes, element content
 - **Zero Hydration**: State is already present in server-rendered HTML
 - **Instant Updates**: CSS custom properties for immediate visual feedback
@@ -35,11 +38,15 @@ open http://localhost:8080
 - **Cross-Tab Sync**: State changes propagate across browser tabs
 
 ### ⚡ Three-Tier Reactivity System
+
 1. **CSS Property Reactivity**: Instant visual updates via CSS custom properties
-2. **Pub/Sub State Manager**: Cross-component communication via lightweight message bus
-3. **DOM Event Communication**: Component-to-component messaging via custom events
+2. **Pub/Sub State Manager**: Cross-component communication via lightweight
+   message bus
+3. **DOM Event Communication**: Component-to-component messaging via custom
+   events
 
 ### 🛒 Complete E-Commerce Flow
+
 - **Product Catalog**: Grid layout with filtering, search, and sorting
 - **Shopping Cart**: Add/remove items, quantity updates, persistent storage
 - **Multi-Step Checkout**: Shipping, payment, and order review
@@ -47,6 +54,7 @@ open http://localhost:8080
 - **Form Validation**: Client and server-side validation with error handling
 
 ### 🎭 Theme System
+
 - **Light/Dark Modes**: Automatic system preference detection
 - **Manual Override**: User can choose light, dark, or auto
 - **CSS Custom Properties**: Seamless theme switching without JavaScript
@@ -54,6 +62,7 @@ open http://localhost:8080
 - **Comprehensive Tokens**: Colors, typography, spacing, layout, and animation
 
 ### 📱 Progressive Enhancement
+
 - **HTMX Integration**: Server-rendered fragments for dynamic behavior
 - **Graceful Degradation**: Full functionality without JavaScript
 - **Accessibility First**: WCAG AA compliance with proper ARIA labels
@@ -62,27 +71,29 @@ open http://localhost:8080
 ## Architecture Highlights
 
 ### Token-Based Components
+
 All components are sealed and can only be customized through CSS variables:
 
 ```typescript
-import { ProductCard, defineTokens } from "ui-lib/mod-token.ts";
+import { defineTokens, ProductCard } from "ui-lib/mod-token.ts";
 
 // Customize product cards
 const customTheme = defineTokens({
   productCard: {
     base: {
       borderRadius: "12px",
-      shadow: "0 4px 12px rgba(0,0,0,0.1)"
+      shadow: "0 4px 12px rgba(0,0,0,0.1)",
     },
     price: {
       color: "#059669",
-      fontSize: "1.25rem"
-    }
-  }
+      fontSize: "1.25rem",
+    },
+  },
 });
 ```
 
 ### DOM-Native State Management
+
 State lives in the DOM, not JavaScript memory:
 
 - **Cart Count**: Data attributes + CSS counters
@@ -91,6 +102,7 @@ State lives in the DOM, not JavaScript memory:
 - **Form State**: HTML validation + visual feedback
 
 ### Three-Tier Reactivity
+
 1. **CSS Properties** - Instant visual updates (theme switching)
 2. **Pub/Sub** - Cross-component communication (cart updates)
 3. **DOM Events** - Component messaging (notifications)
@@ -107,6 +119,7 @@ deno run --allow-net --allow-read --allow-env --allow-write examples/shopping-ca
 ## Component Architecture
 
 ### Core Components (Token-Based)
+
 - `ProductCard` - Sealed component with token customization
 - `ProductGrid` - Responsive catalog with filtering
 - `CartSidebar` - Sliding cart overlay
@@ -114,6 +127,7 @@ deno run --allow-net --allow-read --allow-env --allow-write examples/shopping-ca
 - `ThemeToggle` - Token-based theme switching
 
 ### Features Demonstrated
+
 - **Component Sealing**: No access to internal implementation
 - **Type Safety**: Full TypeScript inference for tokens
 - **Performance**: CSS variables for instant updates
@@ -141,22 +155,22 @@ const ecommerceTheme = defineTokens({
     base: {
       background: "white",
       borderRadius: "8px",
-      shadow: "0 2px 8px rgba(0,0,0,0.1)"
+      shadow: "0 2px 8px rgba(0,0,0,0.1)",
     },
     image: {
       aspectRatio: "1/1",
-      borderRadius: "4px"
+      borderRadius: "4px",
     },
     title: {
       fontSize: "1rem",
-      fontWeight: "600"
+      fontWeight: "600",
     },
     price: {
       fontSize: "1.125rem",
       fontWeight: "700",
-      color: "#DC2626"
-    }
-  }
+      color: "#DC2626",
+    },
+  },
 });
 
 // Luxury theme
@@ -165,17 +179,17 @@ const luxuryTheme = defineTokens({
     base: {
       background: "#1F2937",
       borderRadius: "12px",
-      shadow: "0 8px 24px rgba(0,0,0,0.3)"
+      shadow: "0 8px 24px rgba(0,0,0,0.3)",
     },
     title: {
       color: "#F9FAFB",
-      fontSize: "1.125rem"
+      fontSize: "1.125rem",
     },
     price: {
       color: "#FCD34D",
-      fontSize: "1.25rem"
-    }
-  }
+      fontSize: "1.25rem",
+    },
+  },
 });
 ```
 
@@ -185,12 +199,12 @@ const luxuryTheme = defineTokens({
 const responsiveTokens = responsiveTokens("productCard", {
   mobile: {
     base: { padding: "0.75rem" },
-    title: { fontSize: "0.875rem" }
+    title: { fontSize: "0.875rem" },
   },
   desktop: {
     base: { padding: "1.5rem" },
-    title: { fontSize: "1.125rem" }
-  }
+    title: { fontSize: "1.125rem" },
+  },
 });
 ```
 
@@ -210,4 +224,5 @@ const responsiveTokens = responsiveTokens("productCard", {
 - **Color Contrast**: WCAG AA compliant themes
 - **Focus Management**: Logical tab order
 
-This example showcases ui-lib's philosophy: powerful, type-safe components that are completely sealed yet highly customizable through a clean token interface.
+This example showcases ui-lib's philosophy: powerful, type-safe components that
+are completely sealed yet highly customizable through a clean token interface.

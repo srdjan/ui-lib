@@ -17,7 +17,9 @@ export interface ProductCardProps {
   className?: string;
 }
 
-export function ProductCard({ product, sessionId, className = "" }: ProductCardProps): string {
+export function ProductCard(
+  { product, sessionId, className = "" }: ProductCardProps,
+): string {
   const isOnSale = product.salePrice && product.salePrice < product.price;
   const displayPrice = isOnSale ? product.salePrice! : product.price;
   const originalPrice = isOnSale ? product.price : null;
@@ -35,16 +37,24 @@ export function ProductCard({ product, sessionId, className = "" }: ProductCardP
           loading="lazy"
           decoding="async"
         >
-        ${isOnSale ? `
+        ${
+    isOnSale
+      ? `
           <div class="product-card__badge">
             ${discountPercent}% OFF
           </div>
-        ` : ''}
-        ${!product.inStock ? `
+        `
+      : ""
+  }
+        ${
+    !product.inStock
+      ? `
           <div class="product-card__out-of-stock">
             Out of Stock
           </div>
-        ` : ''}
+        `
+      : ""
+  }
       </div>
 
       <!-- Product Info -->
@@ -55,37 +65,60 @@ export function ProductCard({ product, sessionId, className = "" }: ProductCardP
 
         <!-- Price -->
         <div class="product-card__price">
-          <span class="product-card__current-price">$${displayPrice.toFixed(2)}</span>
-          ${originalPrice ? `
-            <span class="product-card__original-price">$${originalPrice.toFixed(2)}</span>
-          ` : ''}
+          <span class="product-card__current-price">$${
+    displayPrice.toFixed(2)
+  }</span>
+          ${
+    originalPrice
+      ? `
+            <span class="product-card__original-price">$${
+        originalPrice.toFixed(2)
+      }</span>
+          `
+      : ""
+  }
         </div>
 
         <!-- Rating -->
-        ${product.rating ? `
+        ${
+    product.rating
+      ? `
           <div class="product-card__rating" aria-label="Rating: ${product.rating} out of 5 stars">
             <div class="product-card__stars">
-              ${Array.from({ length: 5 }, (_, i) =>
-                `<span class="star ${i < Math.floor(product.rating!) ? 'star--filled' : ''}">${i < Math.floor(product.rating!) ? '★' : '☆'}</span>`
-              ).join('')}
+              ${
+        Array.from({ length: 5 }, (_, i) =>
+          `<span class="star ${
+            i < Math.floor(product.rating!) ? "star--filled" : ""
+          }">${i < Math.floor(product.rating!) ? "★" : "☆"}</span>`).join("")
+      }
             </div>
             <span class="product-card__rating-text">(${product.rating})</span>
           </div>
-        ` : ''}
+        `
+      : ""
+  }
 
         <!-- Add to Cart Button -->
         <button
-          class="product-card__add-to-cart ${!product.inStock ? 'product-card__add-to-cart--disabled' : ''}"
-          ${product.inStock ? `
+          class="product-card__add-to-cart ${
+    !product.inStock ? "product-card__add-to-cart--disabled" : ""
+  }"
+          ${
+    product.inStock
+      ? `
             hx-post="/api/cart/add"
             hx-vals='{"productId": "${product.id}", "quantity": 1}'
             hx-headers='{"X-Session-ID": "${sessionId}"}'
             hx-target="#cart-feedback"
             hx-swap="innerHTML"
-          ` : 'disabled'}
-          aria-label="${product.inStock ? `Add ${product.name} to cart` : 'Product out of stock'}"
+          `
+      : "disabled"
+  }
+          aria-label="${
+    product.inStock ? `Add ${product.name} to cart` : "Product out of stock"
+  }"
         >
-          ${product.inStock ? '🛒 Add to Cart' : 'Out of Stock'}
+          ${product.inStock ? "🛒 Add to Cart" : "Out of Stock"}
         </button>
       </div>
     </div>

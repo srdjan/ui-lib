@@ -10,7 +10,8 @@ hybrid reactivity.
   classes
 - 🧩 DOM-native state: classes, data-* attributes, element content, CSS custom
   properties
-- 🔒 **Token-Based Customization**: Components sealed with CSS variable interface
+- 🔒 **Token-Based Customization**: Components sealed with CSS variable
+  interface
 - 🎨 **Zero Style Conflicts**: All customization through standardized tokens
 - 🕵️ HTMX encapsulated via component APIs (no hx-* in application code)
 - 📦 Component-colocated API, styles, and reactivity
@@ -21,13 +22,15 @@ hybrid reactivity.
 
 ### Choosing an Entry Point
 
-| Entry Point     | Use When                                                                 | Highlights                                                            |
-| --------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------- |
-| `mod-token.ts`  | **Recommended**: Token-based sealed components with CSS variable customization | Block-level components only, token customization API, theme support |
-| `mod.ts`        | You need the stable SSR-focused surface with registry-driven components. | Full prop helpers, CSS-in-TS, reactive helpers, router, API bindings. |
-| `mod-simple.ts` | You want direct JSX functions and minimal ceremony.                      | JSX runtime, lightweight state helpers, curated component subset.     |
+| Entry Point     | Use When                                                                       | Highlights                                                            |
+| --------------- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
+| `mod-token.ts`  | **Recommended**: Token-based sealed components with CSS variable customization | Block-level components only, token customization API, theme support   |
+| `mod.ts`        | You need the stable SSR-focused surface with registry-driven components.       | Full prop helpers, CSS-in-TS, reactive helpers, router, API bindings. |
+| `mod-simple.ts` | You want direct JSX functions and minimal ceremony.                            | JSX runtime, lightweight state helpers, curated component subset.     |
 
-> **New**: The `mod-token.ts` entry point provides sealed components that can only be customized through CSS variables, ensuring complete style encapsulation and preventing conflicts.
+> **New**: The `mod-token.ts` entry point provides sealed components that can
+> only be customized through CSS variables, ensuring complete style
+> encapsulation and preventing conflicts.
 
 ### Installation
 
@@ -45,7 +48,7 @@ deno task bundle:state  # emits dist/ui-lib-state.js for optional client helpers
 ### Basic Usage (Token-Based - Recommended)
 
 ```tsx
-import { Button, defineTokens, applyTheme, themes } from "ui-lib/mod-token.ts";
+import { applyTheme, Button, defineTokens, themes } from "ui-lib/mod-token.ts";
 
 // Option 1: Use pre-built themes
 const styles = applyTheme(themes.dark);
@@ -57,15 +60,15 @@ const customStyles = defineTokens({
       background: "#007bff",
       backgroundHover: "#0056b3",
       textColor: "white",
-    }
-  }
+    },
+  },
 });
 
 // Use sealed components - no access to internals
 const button = Button({
   variant: "primary",
   size: "md",
-  children: "Click Me"
+  children: "Click Me",
 });
 ```
 
@@ -231,7 +234,8 @@ defineComponent("notification", {
 
 ### Why Token-Based Components?
 
-ui-lib components are **sealed** - they can only be customized through CSS variables (tokens). This ensures:
+ui-lib components are **sealed** - they can only be customized through CSS
+variables (tokens). This ensures:
 
 - **No style conflicts**: Component internals are completely isolated
 - **Consistent theming**: All customization through standardized tokens
@@ -242,30 +246,34 @@ ui-lib components are **sealed** - they can only be customized through CSS varia
 ### Token Customization
 
 ```tsx
-import { defineTokens, customizeComponent, responsiveTokens } from "ui-lib/mod-token.ts";
+import {
+  customizeComponent,
+  defineTokens,
+  responsiveTokens,
+} from "ui-lib/mod-token.ts";
 
 // Global token overrides
 const globalStyles = defineTokens({
   button: {
     primary: {
       background: "#FF5722",
-      backgroundHover: "#E64A19"
-    }
-  }
+      backgroundHover: "#E64A19",
+    },
+  },
 });
 
 // Scoped overrides for specific sections
 const darkModeStyles = customizeComponent(".dark-mode", "button", {
   primary: {
     background: "#1a1a1a",
-    textColor: "#ffffff"
-  }
+    textColor: "#ffffff",
+  },
 });
 
 // Responsive token values
 const mobileStyles = responsiveTokens("button", {
   mobile: { base: { fontSize: "0.75rem" } },
-  desktop: { base: { fontSize: "1rem" } }
+  desktop: { base: { fontSize: "1rem" } },
 });
 ```
 
@@ -309,7 +317,8 @@ examples/
 
 Notes
 
-- **Token-based API** (recommended): `import { Button, defineTokens } from 'ui-lib/mod-token.ts'`
+- **Token-based API** (recommended):
+  `import { Button, defineTokens } from 'ui-lib/mod-token.ts'`
 - Traditional API: `import { defineComponent } from 'ui-lib/mod.ts'`
 - Simple API: `import { h } from 'ui-lib/mod-simple.ts'`
 

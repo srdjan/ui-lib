@@ -15,7 +15,7 @@
 import { h } from "jsx";
 import { createTokenComponent } from "../../../lib/tokens/component-factory.ts";
 import type { ComponentTokens } from "../../../lib/tokens/component-tokens.ts";
-import type { Product, ProductFilter, ProductCategory } from "../api/types.ts";
+import type { Product, ProductCategory, ProductFilter } from "../api/types.ts";
 
 // ============================================================
 // Token Contract Definition
@@ -375,7 +375,11 @@ const sortOptions = [
   { value: "newest", label: "Newest First" },
 ];
 
-function generatePagination(current: number, total: number, pageSize: number): number[] {
+function generatePagination(
+  current: number,
+  total: number,
+  pageSize: number,
+): number[] {
   const totalPages = Math.ceil(total / pageSize);
   const pages: number[] = [];
 
@@ -411,7 +415,10 @@ function generatePagination(current: number, total: number, pageSize: number): n
 // Sealed ProductGrid Component
 // ============================================================
 
-export const ProductGrid = createTokenComponent<ProductGridTokens, ProductGridProps>({
+export const ProductGrid = createTokenComponent<
+  ProductGridTokens,
+  ProductGridProps
+>({
   name: "product-grid",
   tokens: defaultProductGridTokens,
 
@@ -654,7 +661,9 @@ export const ProductGrid = createTokenComponent<ProductGridTokens, ProductGridPr
         ${filterChangeScript ? `<script>${filterChangeScript}</script>` : ""}
 
         <div class="ui-product-grid__layout">
-          ${showFilters ? `
+          ${
+      showFilters
+        ? `
             <aside class="ui-product-grid__filters">
               <div class="ui-product-grid__filter-group">
                 <label class="ui-product-grid__filter-label">Category</label>
@@ -663,11 +672,15 @@ export const ProductGrid = createTokenComponent<ProductGridTokens, ProductGridPr
                   onchange="updateFilter('category', this.value)"
                 >
                   <option value="">All Categories</option>
-                  ${categories.map(cat => `
-                    <option value="${cat.value}" ${filter.category === cat.value ? "selected" : ""}>
+                  ${
+          categories.map((cat) => `
+                    <option value="${cat.value}" ${
+            filter.category === cat.value ? "selected" : ""
+          }>
                       ${cat.label}
                     </option>
-                  `).join("")}
+                  `).join("")
+        }
                 </select>
               </div>
 
@@ -724,16 +737,26 @@ export const ProductGrid = createTokenComponent<ProductGridTokens, ProductGridPr
                   onchange="updateFilter('rating', this.value)"
                 >
                   <option value="">Any Rating</option>
-                  <option value="4" ${filter.rating === 4 ? "selected" : ""}>4+ Stars</option>
-                  <option value="3" ${filter.rating === 3 ? "selected" : ""}>3+ Stars</option>
-                  <option value="2" ${filter.rating === 2 ? "selected" : ""}>2+ Stars</option>
+                  <option value="4" ${
+          filter.rating === 4 ? "selected" : ""
+        }>4+ Stars</option>
+                  <option value="3" ${
+          filter.rating === 3 ? "selected" : ""
+        }>3+ Stars</option>
+                  <option value="2" ${
+          filter.rating === 2 ? "selected" : ""
+        }>2+ Stars</option>
                 </select>
               </div>
             </aside>
-          ` : ""}
+          `
+        : ""
+    }
 
           <main class="ui-product-grid__main">
-            ${showSearch ? `
+            ${
+      showSearch
+        ? `
               <input
                 type="text"
                 class="ui-product-grid__search"
@@ -741,9 +764,13 @@ export const ProductGrid = createTokenComponent<ProductGridTokens, ProductGridPr
                 value="${filter.search || ""}"
                 oninput="updateFilter('search', this.value)"
               >
-            ` : ""}
+            `
+        : ""
+    }
 
-            ${showSort ? `
+            ${
+      showSort
+        ? `
               <div class="ui-product-grid__sort">
                 <div class="ui-product-grid__results-count">
                   ${totalProducts} products found
@@ -753,39 +780,59 @@ export const ProductGrid = createTokenComponent<ProductGridTokens, ProductGridPr
                   class="ui-product-grid__sort-select"
                   onchange="updateFilter('sort', this.value)"
                 >
-                  ${sortOptions.map(option => {
-                    const [sortBy, sortOrder] = option.value.split("-");
-                    const isSelected = filter.sortBy === sortBy &&
-                                     (filter.sortOrder || "asc") === sortOrder;
-                    return `<option value="${option.value}" ${isSelected ? "selected" : ""}>${option.label}</option>`;
-                  }).join("")}
+                  ${
+          sortOptions.map((option) => {
+            const [sortBy, sortOrder] = option.value.split("-");
+            const isSelected = filter.sortBy === sortBy &&
+              (filter.sortOrder || "asc") === sortOrder;
+            return `<option value="${option.value}" ${
+              isSelected ? "selected" : ""
+            }>${option.label}</option>`;
+          }).join("")
+        }
                 </select>
               </div>
-            ` : ""}
+            `
+        : ""
+    }
 
-            ${loading ? `
+            ${
+      loading
+        ? `
               <div class="ui-product-grid__loading">
                 <div>Loading products...</div>
               </div>
-            ` : error ? `
+            `
+        : error
+        ? `
               <div class="ui-product-grid__empty">
                 <h3>Error loading products</h3>
                 <p>${error}</p>
                 <button onclick="location.reload()">Try Again</button>
               </div>
-            ` : products.length === 0 ? `
+            `
+        : products.length === 0
+        ? `
               <div class="ui-product-grid__empty">
                 <h3>No products found</h3>
                 <p>Try adjusting your filters or search terms.</p>
                 <button onclick="updateFilter('clear', true)">Clear Filters</button>
               </div>
-            ` : `
+            `
+        : `
               <div class="ui-product-grid__grid">
-                ${products.map(product => `
+                ${
+          products.map((product) => `
                   <div
                     class="product-grid-item"
                     data-product-id="${product.id}"
-                    ${onProductClick ? `onclick="(${onProductClick.toString()})(${JSON.stringify(product)})"` : ""}
+                    ${
+            onProductClick
+              ? `onclick="(${onProductClick.toString()})(${
+                JSON.stringify(product)
+              })"`
+              : ""
+          }
                   >
                     <!-- ProductCard component will be injected here -->
                     <product-card
@@ -795,10 +842,13 @@ export const ProductGrid = createTokenComponent<ProductGridTokens, ProductGridPr
                       data-show-description="true">
                     </product-card>
                   </div>
-                `).join("")}
+                `).join("")
+        }
               </div>
 
-              ${showPagination && totalProducts > pageSize ? `
+              ${
+          showPagination && totalProducts > pageSize
+            ? `
                 <nav class="ui-product-grid__pagination">
                   <button
                     class="ui-product-grid__page-btn"
@@ -808,29 +858,40 @@ export const ProductGrid = createTokenComponent<ProductGridTokens, ProductGridPr
                     Previous
                   </button>
 
-                  ${pages.map(page =>
-                    page === -1
-                      ? `<span>...</span>`
-                      : `
+                  ${
+              pages.map((page) =>
+                page === -1 ? `<span>...</span>` : `
                         <button
-                          class="ui-product-grid__page-btn ${page === currentPage ? "ui-product-grid__page-btn--active" : ""}"
+                          class="ui-product-grid__page-btn ${
+                  page === currentPage
+                    ? "ui-product-grid__page-btn--active"
+                    : ""
+                }"
                           onclick="updateFilter('page', ${page})"
                         >
                           ${page}
                         </button>
                       `
-                  ).join("")}
+              ).join("")
+            }
 
                   <button
                     class="ui-product-grid__page-btn"
-                    ${currentPage >= Math.ceil(totalProducts / pageSize) ? "disabled" : ""}
+                    ${
+              currentPage >= Math.ceil(totalProducts / pageSize)
+                ? "disabled"
+                : ""
+            }
                     onclick="updateFilter('page', ${currentPage + 1})"
                   >
                     Next
                   </button>
                 </nav>
-              ` : ""}
-            `}
+              `
+            : ""
+        }
+            `
+    }
           </main>
         </div>
       </div>

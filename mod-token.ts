@@ -24,25 +24,23 @@ export type { ButtonProps } from "./lib/components/button/token-button.ts";
 // ============================================================
 
 export {
+  applyTheme,
+  createTheme,
+  customizeComponent,
   // Main customization functions
   defineTokens,
-  customizeComponent,
-  createTheme,
-  applyTheme,
-  responsiveTokens,
-
-  // Pre-built themes
-  themes,
-
   // Utility
   getAllComponentStyles,
+  responsiveTokens,
+  // Pre-built themes
+  themes,
 } from "./lib/tokens/index.ts";
 
 // Token type definitions for IntelliSense
 export type {
+  ButtonTokens,
   Theme,
   TokenOverrides,
-  ButtonTokens,
   // Future token types:
   // InputTokens,
   // CardTokens,
@@ -59,7 +57,7 @@ export type {
 export { renderComponent } from "./lib/component-state.ts";
 
 // Response helpers for SSR
-export { html, json, error, text } from "./lib/response.ts";
+export { error, html, json, text } from "./lib/response.ts";
 
 // Router for SSR (if needed by applications)
 export { Router } from "./lib/router.ts";

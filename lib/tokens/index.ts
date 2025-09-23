@@ -6,7 +6,13 @@ import { applyTokenOverrides, scopedTokens } from "./component-factory.ts";
 
 // Re-export token types for each component
 export type { ButtonTokens } from "./component-tokens.ts";
-export type { InputTokens, CardTokens, ModalTokens, LayoutTokens, FeedbackTokens } from "./component-tokens.ts";
+export type {
+  CardTokens,
+  FeedbackTokens,
+  InputTokens,
+  LayoutTokens,
+  ModalTokens,
+} from "./component-tokens.ts";
 
 // Theme definition type
 export type Theme = {
@@ -152,7 +158,7 @@ export function responsiveTokens(
     mobile?: Partial<ComponentTokens<any>>;
     tablet?: Partial<ComponentTokens<any>>;
     desktop?: Partial<ComponentTokens<any>>;
-  }
+  },
 ): string {
   const styles: string[] = [];
 
@@ -163,7 +169,9 @@ export function responsiveTokens(
 
   if (breakpoints.tablet) {
     const tabletVars = applyTokenOverrides(component, breakpoints.tablet);
-    styles.push(`@media (min-width: 641px) and (max-width: 1024px) { :root { ${tabletVars}; } }`);
+    styles.push(
+      `@media (min-width: 641px) and (max-width: 1024px) { :root { ${tabletVars}; } }`,
+    );
   }
 
   if (breakpoints.desktop) {

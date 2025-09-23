@@ -23,19 +23,19 @@ import type { Cart, CartItem, CartSummary } from "../api/types.ts";
 // 4. Local storage: Cart session persistence
 
 const CART_SELECTORS = {
-  counter: '[data-cart-count]',
-  badge: '.cart-badge',
-  sidebar: '#cart-sidebar',
-  toggle: '[data-cart-toggle]',
-  overlay: '.cart-overlay',
-  summary: '.cart-summary',
-  items: '.cart-items',
-  total: '[data-cart-total]',
+  counter: "[data-cart-count]",
+  badge: ".cart-badge",
+  sidebar: "#cart-sidebar",
+  toggle: "[data-cart-toggle]",
+  overlay: ".cart-overlay",
+  summary: ".cart-summary",
+  items: ".cart-items",
+  total: "[data-cart-total]",
 } as const;
 
 const STORAGE_KEYS = {
-  sessionId: 'shopping-cart-session',
-  cart: 'shopping-cart-data',
+  sessionId: "shopping-cart-session",
+  cart: "shopping-cart-data",
 } as const;
 
 // ============================================================
@@ -59,7 +59,9 @@ export class CartStateManager {
   private getOrCreateSessionId(): string {
     let sessionId = localStorage.getItem(STORAGE_KEYS.sessionId);
     if (!sessionId) {
-      sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      sessionId = `session_${Date.now()}_${
+        Math.random().toString(36).substr(2, 9)
+      }`;
       localStorage.setItem(STORAGE_KEYS.sessionId, sessionId);
     }
     return sessionId;
@@ -76,8 +78,8 @@ export class CartStateManager {
   updateCartCount(count: number): void {
     // Update data attributes
     const counters = document.querySelectorAll(CART_SELECTORS.counter);
-    counters.forEach(counter => {
-      counter.setAttribute('data-cart-count', count.toString());
+    counters.forEach((counter) => {
+      counter.setAttribute("data-cart-count", count.toString());
       // Update text content if element has no children
       if (counter.children.length === 0) {
         counter.textContent = count.toString();
@@ -85,35 +87,41 @@ export class CartStateManager {
     });
 
     // Update CSS custom property for badges
-    document.documentElement.style.setProperty('--cart-count', count.toString());
+    document.documentElement.style.setProperty(
+      "--cart-count",
+      count.toString(),
+    );
 
     // Show/hide cart badge based on count
     const badges = document.querySelectorAll(CART_SELECTORS.badge);
-    badges.forEach(badge => {
+    badges.forEach((badge) => {
       if (count > 0) {
-        badge.classList.remove('hidden');
-        badge.setAttribute('data-count', count.toString());
+        badge.classList.remove("hidden");
+        badge.setAttribute("data-count", count.toString());
       } else {
-        badge.classList.add('hidden');
+        badge.classList.add("hidden");
       }
     });
 
     // Tier 2: Pub/Sub state update
-    this.publishState('cart-count', count);
+    this.publishState("cart-count", count);
   }
 
   updateCartTotal(total: number): void {
     const totalElements = document.querySelectorAll(CART_SELECTORS.total);
-    totalElements.forEach(element => {
-      element.setAttribute('data-cart-total', total.toFixed(2));
+    totalElements.forEach((element) => {
+      element.setAttribute("data-cart-total", total.toFixed(2));
       element.textContent = `$${total.toFixed(2)}`;
     });
 
     // Update CSS custom property
-    document.documentElement.style.setProperty('--cart-total', total.toString());
+    document.documentElement.style.setProperty(
+      "--cart-total",
+      total.toString(),
+    );
 
     // Pub/Sub update
-    this.publishState('cart-total', total);
+    this.publishState("cart-total", total);
   }
 
   updateCartSummary(summary: CartSummary): void {
@@ -121,7 +129,7 @@ export class CartStateManager {
     this.updateCartTotal(summary.total);
 
     const summaryElements = document.querySelectorAll(CART_SELECTORS.summary);
-    summaryElements.forEach(element => {
+    summaryElements.forEach((element) => {
       element.innerHTML = `
         <div class="cart-summary-content">
           <div class="cart-summary-line">
@@ -143,7 +151,7 @@ export class CartStateManager {
 
   updateCartItems(items: readonly CartItem[]): void {
     const itemsContainers = document.querySelectorAll(CART_SELECTORS.items);
-    itemsContainers.forEach(container => {
+    itemsContainers.forEach((container) => {
       if (items.length === 0) {
         container.innerHTML = `
           <div class="cart-empty-state">
@@ -152,7 +160,8 @@ export class CartStateManager {
           </div>
         `;
       } else {
-        container.innerHTML = items.map(item => this.renderCartItem(item)).join('');
+        container.innerHTML = items.map((item) => this.renderCartItem(item))
+          .join("");
       }
     });
 
@@ -173,13 +182,17 @@ export class CartStateManager {
         <div class="cart-item-quantity">
           <button
             class="quantity-btn"
-            onclick="cartState.updateQuantity('${item.id}', ${item.quantity - 1})"
-            ${item.quantity <= 1 ? 'disabled' : ''}
+            onclick="cartState.updateQuantity('${item.id}', ${
+      item.quantity - 1
+    })"
+            ${item.quantity <= 1 ? "disabled" : ""}
           >-</button>
           <span class="quantity-value" data-quantity="${item.quantity}">${item.quantity}</span>
           <button
             class="quantity-btn"
-            onclick="cartState.updateQuantity('${item.id}', ${item.quantity + 1})"
+            onclick="cartState.updateQuantity('${item.id}', ${
+      item.quantity + 1
+    })"
           >+</button>
         </div>
         <div class="cart-item-total">
@@ -200,30 +213,30 @@ export class CartStateManager {
 
   async addToCart(productId: string, quantity = 1): Promise<void> {
     try {
-      const response = await fetch('/api/cart/add', {
-        method: 'POST',
+      const response = await fetch("/api/cart/add", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'X-Session-ID': this.sessionId,
+          "Content-Type": "application/json",
+          "X-Session-ID": this.sessionId,
         },
         body: JSON.stringify({ productId, quantity }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to add to cart');
+        throw new Error("Failed to add to cart");
       }
 
       const cart: Cart = await response.json();
       this.updateCartFromServer(cart);
 
       // Tier 3: DOM Event communication
-      this.dispatchCartEvent('item-added', { productId, quantity, cart });
+      this.dispatchCartEvent("item-added", { productId, quantity, cart });
 
       // Show success feedback
-      this.showToast(`Added ${quantity} item(s) to cart`, 'success');
+      this.showToast(`Added ${quantity} item(s) to cart`, "success");
     } catch (error) {
-      console.error('Add to cart failed:', error);
-      this.showToast('Failed to add item to cart', 'error');
+      console.error("Add to cart failed:", error);
+      this.showToast("Failed to add item to cart", "error");
     }
   }
 
@@ -234,49 +247,49 @@ export class CartStateManager {
 
     try {
       const response = await fetch(`/api/cart/items/${itemId}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
-          'X-Session-ID': this.sessionId,
+          "Content-Type": "application/json",
+          "X-Session-ID": this.sessionId,
         },
         body: JSON.stringify({ quantity }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update quantity');
+        throw new Error("Failed to update quantity");
       }
 
       const cart: Cart = await response.json();
       this.updateCartFromServer(cart);
 
-      this.dispatchCartEvent('quantity-updated', { itemId, quantity, cart });
+      this.dispatchCartEvent("quantity-updated", { itemId, quantity, cart });
     } catch (error) {
-      console.error('Update quantity failed:', error);
-      this.showToast('Failed to update quantity', 'error');
+      console.error("Update quantity failed:", error);
+      this.showToast("Failed to update quantity", "error");
     }
   }
 
   async removeItem(itemId: string): Promise<void> {
     try {
       const response = await fetch(`/api/cart/items/${itemId}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'X-Session-ID': this.sessionId,
+          "X-Session-ID": this.sessionId,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to remove item');
+        throw new Error("Failed to remove item");
       }
 
       const cart: Cart = await response.json();
       this.updateCartFromServer(cart);
 
-      this.dispatchCartEvent('item-removed', { itemId, cart });
-      this.showToast('Item removed from cart', 'info');
+      this.dispatchCartEvent("item-removed", { itemId, cart });
+      this.showToast("Item removed from cart", "info");
     } catch (error) {
-      console.error('Remove item failed:', error);
-      this.showToast('Failed to remove item', 'error');
+      console.error("Remove item failed:", error);
+      this.showToast("Failed to remove item", "error");
     }
   }
 
@@ -284,13 +297,13 @@ export class CartStateManager {
     try {
       const response = await fetch(`/api/cart?session=${this.sessionId}`);
       if (!response.ok) {
-        throw new Error('Failed to load cart');
+        throw new Error("Failed to load cart");
       }
 
       const cart: Cart = await response.json();
       this.updateCartFromServer(cart);
     } catch (error) {
-      console.error('Load cart failed:', error);
+      console.error("Load cart failed:", error);
       // Initialize empty cart state
       this.updateCartSummary({ itemCount: 0, subtotal: 0, total: 0 });
       this.updateCartItems([]);
@@ -315,19 +328,21 @@ export class CartStateManager {
     const overlay = document.querySelector(CART_SELECTORS.overlay);
 
     if (sidebar) {
-      sidebar.classList.add('cart-sidebar--open');
-      document.body.classList.add('cart-open');
+      sidebar.classList.add("cart-sidebar--open");
+      document.body.classList.add("cart-open");
     }
 
     if (overlay) {
-      overlay.classList.add('cart-overlay--visible');
+      overlay.classList.add("cart-overlay--visible");
     }
 
     // Focus management for accessibility
-    const firstFocusable = sidebar?.querySelector('button, input, [tabindex]') as HTMLElement;
+    const firstFocusable = sidebar?.querySelector(
+      "button, input, [tabindex]",
+    ) as HTMLElement;
     firstFocusable?.focus();
 
-    this.dispatchCartEvent('cart-opened', {});
+    this.dispatchCartEvent("cart-opened", {});
   }
 
   closeCart(): void {
@@ -335,20 +350,20 @@ export class CartStateManager {
     const overlay = document.querySelector(CART_SELECTORS.overlay);
 
     if (sidebar) {
-      sidebar.classList.remove('cart-sidebar--open');
-      document.body.classList.remove('cart-open');
+      sidebar.classList.remove("cart-sidebar--open");
+      document.body.classList.remove("cart-open");
     }
 
     if (overlay) {
-      overlay.classList.remove('cart-overlay--visible');
+      overlay.classList.remove("cart-overlay--visible");
     }
 
-    this.dispatchCartEvent('cart-closed', {});
+    this.dispatchCartEvent("cart-closed", {});
   }
 
   toggleCart(): void {
     const sidebar = document.querySelector(CART_SELECTORS.sidebar);
-    const isOpen = sidebar?.classList.contains('cart-sidebar--open');
+    const isOpen = sidebar?.classList.contains("cart-sidebar--open");
 
     if (isOpen) {
       this.closeCart();
@@ -365,9 +380,11 @@ export class CartStateManager {
 
   // Tier 2: Pub/Sub State Manager
   private publishState(topic: string, data: any): void {
-    window.dispatchEvent(new CustomEvent('state-change', {
-      detail: { topic, data }
-    }));
+    window.dispatchEvent(
+      new CustomEvent("state-change", {
+        detail: { topic, data },
+      }),
+    );
   }
 
   subscribeToState(topic: string, callback: (data: any) => void): () => void {
@@ -378,8 +395,8 @@ export class CartStateManager {
       }
     };
 
-    window.addEventListener('state-change', handler);
-    return () => window.removeEventListener('state-change', handler);
+    window.addEventListener("state-change", handler);
+    return () => window.removeEventListener("state-change", handler);
   }
 
   // Tier 3: DOM Event Communication
@@ -401,16 +418,19 @@ export class CartStateManager {
   // UI Feedback
   // ============================================================
 
-  private showToast(message: string, type: 'success' | 'error' | 'info' = 'info'): void {
+  private showToast(
+    message: string,
+    type: "success" | "error" | "info" = "info",
+  ): void {
     // Create toast element if it doesn't exist
-    let toastContainer = document.querySelector('.toast-container');
+    let toastContainer = document.querySelector(".toast-container");
     if (!toastContainer) {
-      toastContainer = document.createElement('div');
-      toastContainer.className = 'toast-container';
+      toastContainer = document.createElement("div");
+      toastContainer.className = "toast-container";
       document.body.appendChild(toastContainer);
     }
 
-    const toast = document.createElement('div');
+    const toast = document.createElement("div");
     toast.className = `toast toast--${type}`;
     toast.innerHTML = `
       <span class="toast-message">${message}</span>
@@ -431,25 +451,31 @@ export class CartStateManager {
 
   private initializeEventListeners(): void {
     // Cart toggle buttons
-    document.addEventListener('click', (event) => {
+    document.addEventListener("click", (event) => {
       const target = event.target as HTMLElement;
 
-      if (target.matches('[data-cart-toggle]') || target.closest('[data-cart-toggle]')) {
+      if (
+        target.matches("[data-cart-toggle]") ||
+        target.closest("[data-cart-toggle]")
+      ) {
         event.preventDefault();
         this.toggleCart();
       }
 
       // Close cart when clicking overlay
-      if (target.matches('.cart-overlay')) {
+      if (target.matches(".cart-overlay")) {
         this.closeCart();
       }
 
       // Add to cart buttons
-      if (target.matches('[data-add-to-cart]') || target.closest('[data-add-to-cart]')) {
+      if (
+        target.matches("[data-add-to-cart]") ||
+        target.closest("[data-add-to-cart]")
+      ) {
         event.preventDefault();
-        const button = target.closest('[data-add-to-cart]') as HTMLElement;
+        const button = target.closest("[data-add-to-cart]") as HTMLElement;
         const productId = button.dataset.productId;
-        const quantity = parseInt(button.dataset.quantity || '1');
+        const quantity = parseInt(button.dataset.quantity || "1");
 
         if (productId) {
           this.addToCart(productId, quantity);
@@ -458,27 +484,27 @@ export class CartStateManager {
     });
 
     // Keyboard navigation
-    document.addEventListener('keydown', (event) => {
+    document.addEventListener("keydown", (event) => {
       // Escape key closes cart
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         const sidebar = document.querySelector(CART_SELECTORS.sidebar);
-        if (sidebar?.classList.contains('cart-sidebar--open')) {
+        if (sidebar?.classList.contains("cart-sidebar--open")) {
           this.closeCart();
         }
       }
     });
 
     // Listen for state changes from other components
-    this.subscribeToState('product-added', (data) => {
-      console.log('Product added to cart:', data);
+    this.subscribeToState("product-added", (data) => {
+      console.log("Product added to cart:", data);
     });
 
-    this.subscribeToState('cart-updated', (data) => {
-      console.log('Cart updated:', data);
+    this.subscribeToState("cart-updated", (data) => {
+      console.log("Cart updated:", data);
     });
 
     // Handle browser back/forward navigation
-    window.addEventListener('popstate', () => {
+    window.addEventListener("popstate", () => {
       this.closeCart();
     });
   }
@@ -491,8 +517,8 @@ export class CartStateManager {
 export const cartState = new CartStateManager();
 
 // Initialize cart on page load
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
+if (typeof document !== "undefined") {
+  document.addEventListener("DOMContentLoaded", () => {
     cartState.loadCart();
   });
 

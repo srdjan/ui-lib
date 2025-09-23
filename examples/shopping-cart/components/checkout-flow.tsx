@@ -10,7 +10,6 @@
  * - Form state management in DOM
  */
 
-import { defineComponent } from "../../../lib/define-component.ts";
 import type { Cart, OrderAddress, PaymentMethod } from "../api/types.ts";
 
 // ============================================================
@@ -186,7 +185,7 @@ export interface CheckoutFlowTokens {
     opacity: string;
     cursor: string;
   };
-}>;
+}
 
 // ============================================================
 // Component Props
@@ -207,9 +206,11 @@ export interface CheckoutFlowProps {
 // Component Implementation
 // ============================================================
 
-export const CheckoutFlow = createTokenComponent<CheckoutFlowProps, CheckoutFlowTokens>(
+export const CheckoutFlow = createTokenComponent<
+  CheckoutFlowProps,
+  CheckoutFlowTokens
+>(
   "checkout-flow",
-
   // Default token values
   {
     container: {
@@ -381,7 +382,6 @@ export const CheckoutFlow = createTokenComponent<CheckoutFlowProps, CheckoutFlow
       cursor: "not-allowed",
     },
   },
-
   // Styles function
   (tokens) => `
     .checkout-flow {
@@ -646,7 +646,6 @@ export const CheckoutFlow = createTokenComponent<CheckoutFlowProps, CheckoutFlow
       }
     }
   `,
-
   // Render function
   (props) => {
     const currentStep = props.currentStep || 1;
@@ -660,23 +659,29 @@ export const CheckoutFlow = createTokenComponent<CheckoutFlowProps, CheckoutFlow
       <div class="checkout-flow" data-step="${currentStep}" data-session="${props.sessionId}">
         <!-- Step Navigation -->
         <div class="checkout-stepper" role="tablist" aria-label="Checkout steps">
-          ${steps.map(step => `
+          ${
+      steps.map((step) => `
             <button
               role="tab"
               aria-selected="${currentStep === step.number}"
               aria-controls="checkout-${step.id}"
-              tabindex="${currentStep === step.number ? '0' : '-1'}"
-              class="checkout-step ${currentStep === step.number ? 'checkout-step--active' : ''} ${currentStep > step.number ? 'checkout-step--completed' : ''}"
+              tabindex="${currentStep === step.number ? "0" : "-1"}"
+              class="checkout-step ${
+        currentStep === step.number ? "checkout-step--active" : ""
+      } ${currentStep > step.number ? "checkout-step--completed" : ""}"
               data-step="${step.number}"
               hx-get="/api/checkout/step/${step.number}"
               hx-target=".checkout-content"
               hx-swap="innerHTML"
               hx-push-url="false"
             >
-              <span class="checkout-step__number">${currentStep > step.number ? '✓' : step.number}</span>
+              <span class="checkout-step__number">${
+        currentStep > step.number ? "✓" : step.number
+      }</span>
               <span>${step.title}</span>
             </button>
-          `).join('')}
+          `).join("")
+    }
         </div>
 
         <!-- Step Content -->
@@ -685,7 +690,7 @@ export const CheckoutFlow = createTokenComponent<CheckoutFlowProps, CheckoutFlow
         </div>
       </div>
     `;
-  }
+  },
 );
 
 // ============================================================
@@ -732,7 +737,7 @@ function renderShippingStep(props: CheckoutFlowProps): string {
                 id="shipping-firstName"
                 name="shipping.firstName"
                 class="checkout-input"
-                value="${shipping?.firstName || ''}"
+                value="${shipping?.firstName || ""}"
                 required
                 aria-describedby="shipping-firstName-error"
               >
@@ -746,7 +751,7 @@ function renderShippingStep(props: CheckoutFlowProps): string {
                 id="shipping-lastName"
                 name="shipping.lastName"
                 class="checkout-input"
-                value="${shipping?.lastName || ''}"
+                value="${shipping?.lastName || ""}"
                 required
                 aria-describedby="shipping-lastName-error"
               >
@@ -760,7 +765,7 @@ function renderShippingStep(props: CheckoutFlowProps): string {
                 id="shipping-street"
                 name="shipping.street"
                 class="checkout-input"
-                value="${shipping?.street || ''}"
+                value="${shipping?.street || ""}"
                 required
                 aria-describedby="shipping-street-error"
               >
@@ -774,7 +779,7 @@ function renderShippingStep(props: CheckoutFlowProps): string {
                 id="shipping-city"
                 name="shipping.city"
                 class="checkout-input"
-                value="${shipping?.city || ''}"
+                value="${shipping?.city || ""}"
                 required
                 aria-describedby="shipping-city-error"
               >
@@ -791,10 +796,18 @@ function renderShippingStep(props: CheckoutFlowProps): string {
                 aria-describedby="shipping-state-error"
               >
                 <option value="">Select State</option>
-                <option value="CA" ${shipping?.state === 'CA' ? 'selected' : ''}>California</option>
-                <option value="NY" ${shipping?.state === 'NY' ? 'selected' : ''}>New York</option>
-                <option value="TX" ${shipping?.state === 'TX' ? 'selected' : ''}>Texas</option>
-                <option value="FL" ${shipping?.state === 'FL' ? 'selected' : ''}>Florida</option>
+                <option value="CA" ${
+    shipping?.state === "CA" ? "selected" : ""
+  }>California</option>
+                <option value="NY" ${
+    shipping?.state === "NY" ? "selected" : ""
+  }>New York</option>
+                <option value="TX" ${
+    shipping?.state === "TX" ? "selected" : ""
+  }>Texas</option>
+                <option value="FL" ${
+    shipping?.state === "FL" ? "selected" : ""
+  }>Florida</option>
                 <!-- Add more states as needed -->
               </select>
               <div id="shipping-state-error" class="checkout-error-message" role="alert"></div>
@@ -807,7 +820,7 @@ function renderShippingStep(props: CheckoutFlowProps): string {
                 id="shipping-zipCode"
                 name="shipping.zipCode"
                 class="checkout-input"
-                value="${shipping?.zipCode || ''}"
+                value="${shipping?.zipCode || ""}"
                 required
                 pattern="[0-9]{5}(-[0-9]{4})?"
                 aria-describedby="shipping-zipCode-error"
@@ -824,8 +837,12 @@ function renderShippingStep(props: CheckoutFlowProps): string {
                 required
                 aria-describedby="shipping-country-error"
               >
-                <option value="US" ${shipping?.country === 'US' ? 'selected' : ''}>United States</option>
-                <option value="CA" ${shipping?.country === 'CA' ? 'selected' : ''}>Canada</option>
+                <option value="US" ${
+    shipping?.country === "US" ? "selected" : ""
+  }>United States</option>
+                <option value="CA" ${
+    shipping?.country === "CA" ? "selected" : ""
+  }>Canada</option>
               </select>
               <div id="shipping-country-error" class="checkout-error-message" role="alert"></div>
             </div>
@@ -842,14 +859,16 @@ function renderShippingStep(props: CheckoutFlowProps): string {
                 type="checkbox"
                 name="sameAsBilling"
                 class="checkout-checkbox"
-                ${sameAsBilling ? 'checked' : ''}
+                ${sameAsBilling ? "checked" : ""}
                 onchange="toggleBillingAddress(this)"
               >
               <span class="checkout-label">Same as shipping address</span>
             </label>
           </div>
 
-          <div id="billing-fields" style="${sameAsBilling ? 'display: none;' : ''}">
+          <div id="billing-fields" style="${
+    sameAsBilling ? "display: none;" : ""
+  }">
             <div class="checkout-form-grid">
               <div class="checkout-form-group">
                 <label for="billing-firstName" class="checkout-label">First Name *</label>
@@ -858,8 +877,8 @@ function renderShippingStep(props: CheckoutFlowProps): string {
                   id="billing-firstName"
                   name="billing.firstName"
                   class="checkout-input"
-                  value="${billing?.firstName || ''}"
-                  ${sameAsBilling ? '' : 'required'}
+                  value="${billing?.firstName || ""}"
+                  ${sameAsBilling ? "" : "required"}
                 >
               </div>
 
@@ -870,8 +889,8 @@ function renderShippingStep(props: CheckoutFlowProps): string {
                   id="billing-lastName"
                   name="billing.lastName"
                   class="checkout-input"
-                  value="${billing?.lastName || ''}"
-                  ${sameAsBilling ? '' : 'required'}
+                  value="${billing?.lastName || ""}"
+                  ${sameAsBilling ? "" : "required"}
                 >
               </div>
 
@@ -882,8 +901,8 @@ function renderShippingStep(props: CheckoutFlowProps): string {
                   id="billing-street"
                   name="billing.street"
                   class="checkout-input"
-                  value="${billing?.street || ''}"
-                  ${sameAsBilling ? '' : 'required'}
+                  value="${billing?.street || ""}"
+                  ${sameAsBilling ? "" : "required"}
                 >
               </div>
 
@@ -894,8 +913,8 @@ function renderShippingStep(props: CheckoutFlowProps): string {
                   id="billing-city"
                   name="billing.city"
                   class="checkout-input"
-                  value="${billing?.city || ''}"
-                  ${sameAsBilling ? '' : 'required'}
+                  value="${billing?.city || ""}"
+                  ${sameAsBilling ? "" : "required"}
                 >
               </div>
 
@@ -905,13 +924,21 @@ function renderShippingStep(props: CheckoutFlowProps): string {
                   id="billing-state"
                   name="billing.state"
                   class="checkout-select"
-                  ${sameAsBilling ? '' : 'required'}
+                  ${sameAsBilling ? "" : "required"}
                 >
                   <option value="">Select State</option>
-                  <option value="CA" ${billing?.state === 'CA' ? 'selected' : ''}>California</option>
-                  <option value="NY" ${billing?.state === 'NY' ? 'selected' : ''}>New York</option>
-                  <option value="TX" ${billing?.state === 'TX' ? 'selected' : ''}>Texas</option>
-                  <option value="FL" ${billing?.state === 'FL' ? 'selected' : ''}>Florida</option>
+                  <option value="CA" ${
+    billing?.state === "CA" ? "selected" : ""
+  }>California</option>
+                  <option value="NY" ${
+    billing?.state === "NY" ? "selected" : ""
+  }>New York</option>
+                  <option value="TX" ${
+    billing?.state === "TX" ? "selected" : ""
+  }>Texas</option>
+                  <option value="FL" ${
+    billing?.state === "FL" ? "selected" : ""
+  }>Florida</option>
                 </select>
               </div>
 
@@ -922,9 +949,9 @@ function renderShippingStep(props: CheckoutFlowProps): string {
                   id="billing-zipCode"
                   name="billing.zipCode"
                   class="checkout-input"
-                  value="${billing?.zipCode || ''}"
+                  value="${billing?.zipCode || ""}"
                   pattern="[0-9]{5}(-[0-9]{4})?"
-                  ${sameAsBilling ? '' : 'required'}
+                  ${sameAsBilling ? "" : "required"}
                 >
               </div>
 
@@ -934,10 +961,14 @@ function renderShippingStep(props: CheckoutFlowProps): string {
                   id="billing-country"
                   name="billing.country"
                   class="checkout-select"
-                  ${sameAsBilling ? '' : 'required'}
+                  ${sameAsBilling ? "" : "required"}
                 >
-                  <option value="US" ${billing?.country === 'US' ? 'selected' : ''}>United States</option>
-                  <option value="CA" ${billing?.country === 'CA' ? 'selected' : ''}>Canada</option>
+                  <option value="US" ${
+    billing?.country === "US" ? "selected" : ""
+  }>United States</option>
+                  <option value="CA" ${
+    billing?.country === "CA" ? "selected" : ""
+  }>Canada</option>
                 </select>
               </div>
             </div>
@@ -1002,14 +1033,16 @@ function renderPaymentStep(props: CheckoutFlowProps): string {
                 name="paymentType"
                 value="card"
                 class="checkout-checkbox"
-                ${payment?.type === 'card' || !payment ? 'checked' : ''}
+                ${payment?.type === "card" || !payment ? "checked" : ""}
                 onchange="togglePaymentMethod(this)"
               >
               <span class="checkout-label">Credit/Debit Card</span>
             </label>
           </div>
 
-          <div id="card-fields" style="${payment?.type === 'card' || !payment ? '' : 'display: none;'}">
+          <div id="card-fields" style="${
+    payment?.type === "card" || !payment ? "" : "display: none;"
+  }">
             <div class="checkout-form-grid">
               <div class="checkout-form-group checkout-form-group--full">
                 <label for="card-number" class="checkout-label">Card Number *</label>
@@ -1081,7 +1114,7 @@ function renderPaymentStep(props: CheckoutFlowProps): string {
                 name="paymentType"
                 value="paypal"
                 class="checkout-checkbox"
-                ${payment?.type === 'paypal' ? 'checked' : ''}
+                ${payment?.type === "paypal" ? "checked" : ""}
                 onchange="togglePaymentMethod(this)"
               >
               <span class="checkout-label">PayPal</span>
@@ -1158,12 +1191,16 @@ function renderReviewStep(props: CheckoutFlowProps): string {
       <section class="checkout-section">
         <h2 class="checkout-section__title">Shipping Address</h2>
         <div class="checkout-summary">
-          ${props.shippingAddress ? `
+          ${
+    props.shippingAddress
+      ? `
             <p>${props.shippingAddress.firstName} ${props.shippingAddress.lastName}</p>
             <p>${props.shippingAddress.street}</p>
             <p>${props.shippingAddress.city}, ${props.shippingAddress.state} ${props.shippingAddress.zipCode}</p>
             <p>${props.shippingAddress.country}</p>
-          ` : '<p>No shipping address provided</p>'}
+          `
+      : "<p>No shipping address provided</p>"
+  }
           <button
             type="button"
             class="checkout-button checkout-button--secondary"
@@ -1181,11 +1218,20 @@ function renderReviewStep(props: CheckoutFlowProps): string {
       <section class="checkout-section">
         <h2 class="checkout-section__title">Payment Method</h2>
         <div class="checkout-summary">
-          ${props.paymentMethod ? `
-            <p>${props.paymentMethod.type === 'card' ? 'Credit Card' : 'PayPal'}</p>
-            ${props.paymentMethod.type === 'card' && props.paymentMethod.last4 ?
-              `<p>**** **** **** ${props.paymentMethod.last4}</p>` : ''}
-          ` : '<p>No payment method selected</p>'}
+          ${
+    props.paymentMethod
+      ? `
+            <p>${
+        props.paymentMethod.type === "card" ? "Credit Card" : "PayPal"
+      }</p>
+            ${
+        props.paymentMethod.type === "card" && props.paymentMethod.last4
+          ? `<p>**** **** **** ${props.paymentMethod.last4}</p>`
+          : ""
+      }
+          `
+      : "<p>No payment method selected</p>"
+  }
           <button
             type="button"
             class="checkout-button checkout-button--secondary"
@@ -1231,12 +1277,14 @@ function renderReviewStep(props: CheckoutFlowProps): string {
 function renderOrderSummary(cart: Cart): string {
   return `
     <div class="checkout-summary">
-      ${cart.items.map(item => `
+      ${
+    cart.items.map((item) => `
         <div class="checkout-summary__item">
           <span>${item.product.name} × ${item.quantity}</span>
           <span>$${(item.unitPrice * item.quantity).toFixed(2)}</span>
         </div>
-      `).join('')}
+      `).join("")
+  }
 
       <div class="checkout-summary__item">
         <span>Subtotal</span>
@@ -1245,12 +1293,12 @@ function renderOrderSummary(cart: Cart): string {
 
       <div class="checkout-summary__item">
         <span>Shipping</span>
-        <span>$${cart.shipping?.toFixed(2) || '0.00'}</span>
+        <span>$${cart.shipping?.toFixed(2) || "0.00"}</span>
       </div>
 
       <div class="checkout-summary__item">
         <span>Tax</span>
-        <span>$${cart.tax?.toFixed(2) || '0.00'}</span>
+        <span>$${cart.tax?.toFixed(2) || "0.00"}</span>
       </div>
 
       <div class="checkout-summary__item checkout-summary__total">

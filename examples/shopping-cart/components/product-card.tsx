@@ -359,7 +359,10 @@ function calculateSalePercentage(original: number, current: number): number {
 // Sealed ProductCard Component
 // ============================================================
 
-export const ProductCard = createTokenComponent<ProductCardTokens, ProductCardProps>({
+export const ProductCard = createTokenComponent<
+  ProductCardTokens,
+  ProductCardProps
+>({
   name: "product-card",
   tokens: defaultProductCardTokens,
 
@@ -586,7 +589,8 @@ export const ProductCard = createTokenComponent<ProductCardTokens, ProductCardPr
       className = "",
     } = props;
 
-    const isOnSale = product.originalPrice && product.originalPrice > product.price;
+    const isOnSale = product.originalPrice &&
+      product.originalPrice > product.price;
     const salePercentage = isOnSale
       ? calculateSalePercentage(product.originalPrice!, product.price)
       : 0;
@@ -609,7 +613,11 @@ export const ProductCard = createTokenComponent<ProductCardTokens, ProductCardPr
 
     return `
       <div class="${classes}" data-product-id="${product.id}">
-        ${isOnSale ? `<div class="ui-product-card__sale-badge">${salePercentage}% OFF</div>` : ""}
+        ${
+      isOnSale
+        ? `<div class="ui-product-card__sale-badge">${salePercentage}% OFF</div>`
+        : ""
+    }
 
         <img
           class="ui-product-card__image"
@@ -621,25 +629,43 @@ export const ProductCard = createTokenComponent<ProductCardTokens, ProductCardPr
         <div class="ui-product-card__content">
           <h3 class="ui-product-card__title">${product.name}</h3>
 
-          ${showDescription ? `
+          ${
+      showDescription
+        ? `
             <p class="ui-product-card__description">${product.description}</p>
-          ` : ""}
+          `
+        : ""
+    }
 
           <div class="ui-product-card__rating">
-            <span class="ui-product-card__stars">${renderStars(product.rating)}</span>
+            <span class="ui-product-card__stars">${
+      renderStars(product.rating)
+    }</span>
             <span class="ui-product-card__review-count">(${product.reviewCount})</span>
           </div>
 
           <div class="ui-product-card__price-container">
-            <span class="ui-product-card__price">${formatPrice(product.price)}</span>
-            ${isOnSale ? `
-              <span class="ui-product-card__original-price">${formatPrice(product.originalPrice!)}</span>
-            ` : ""}
+            <span class="ui-product-card__price">${
+      formatPrice(product.price)
+    }</span>
+            ${
+      isOnSale
+        ? `
+              <span class="ui-product-card__original-price">${
+          formatPrice(product.originalPrice!)
+        }</span>
+            `
+        : ""
+    }
           </div>
 
-          ${(showQuickAdd || showWishlist) ? `
+          ${
+      (showQuickAdd || showWishlist)
+        ? `
             <div class="ui-product-card__actions">
-              ${showQuickAdd ? `
+              ${
+          showQuickAdd
+            ? `
                 <button
                   class="ui-product-card__button ui-product-card__button--primary"
                   ${!product.inStock ? "disabled" : ""}
@@ -647,25 +673,37 @@ export const ProductCard = createTokenComponent<ProductCardTokens, ProductCardPr
                 >
                   ${product.inStock ? "Add to Cart" : "Out of Stock"}
                 </button>
-              ` : ""}
+              `
+            : ""
+        }
 
-              ${showWishlist ? `
+              ${
+          showWishlist
+            ? `
                 <button
                   class="ui-product-card__button ui-product-card__button--secondary"
                   ${wishlistHandler}
                 >
                   ♡ Wishlist
                 </button>
-              ` : ""}
+              `
+            : ""
+        }
             </div>
-          ` : ""}
+          `
+        : ""
+    }
         </div>
 
-        ${!product.inStock ? `
+        ${
+      !product.inStock
+        ? `
           <div class="ui-product-card__out-of-stock-overlay">
             Out of Stock
           </div>
-        ` : ""}
+        `
+        : ""
+    }
       </div>
     `.trim();
   },

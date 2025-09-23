@@ -30,15 +30,19 @@ export function ProductGrid({
   showSort = true,
   currentCategory = "",
   currentSearch = "",
-  currentSort = "name"
+  currentSort = "name",
 }: ProductGridProps): string {
-  const categories = Array.from(new Set(products.map(p => p.category)));
+  const categories = Array.from(new Set(products.map((p) => p.category)));
 
   return `
     <div class="product-grid-container">
-      ${showFilters || showSearch || showSort ? `
+      ${
+    showFilters || showSearch || showSort
+      ? `
         <div class="product-filters">
-          ${showSearch ? `
+          ${
+        showSearch
+          ? `
             <div class="filter-group">
               <label for="product-search" class="filter-label">Search Products</label>
               <input
@@ -55,9 +59,13 @@ export function ProductGrid({
                 name="search"
               >
             </div>
-          ` : ''}
+          `
+          : ""
+      }
 
-          ${showFilters ? `
+          ${
+        showFilters
+          ? `
             <div class="filter-group">
               <label for="category-filter" class="filter-label">Category</label>
               <select
@@ -71,16 +79,24 @@ export function ProductGrid({
                 hx-include=".product-filters input, .product-filters select"
               >
                 <option value="">All Categories</option>
-                ${categories.map(category => `
-                  <option value="${category}" ${currentCategory === category ? 'selected' : ''}>
+                ${
+            categories.map((category) => `
+                  <option value="${category}" ${
+              currentCategory === category ? "selected" : ""
+            }>
                     ${category.charAt(0).toUpperCase() + category.slice(1)}
                   </option>
-                `).join('')}
+                `).join("")
+          }
               </select>
             </div>
-          ` : ''}
+          `
+          : ""
+      }
 
-          ${showSort ? `
+          ${
+        showSort
+          ? `
             <div class="filter-group">
               <label for="sort-filter" class="filter-label">Sort By</label>
               <select
@@ -93,30 +109,46 @@ export function ProductGrid({
                 hx-swap="innerHTML"
                 hx-include=".product-filters input, .product-filters select"
               >
-                <option value="name" ${currentSort === 'name' ? 'selected' : ''}>Name</option>
-                <option value="price-low" ${currentSort === 'price-low' ? 'selected' : ''}>Price: Low to High</option>
-                <option value="price-high" ${currentSort === 'price-high' ? 'selected' : ''}>Price: High to Low</option>
-                <option value="rating" ${currentSort === 'rating' ? 'selected' : ''}>Rating</option>
+                <option value="name" ${
+            currentSort === "name" ? "selected" : ""
+          }>Name</option>
+                <option value="price-low" ${
+            currentSort === "price-low" ? "selected" : ""
+          }>Price: Low to High</option>
+                <option value="price-high" ${
+            currentSort === "price-high" ? "selected" : ""
+          }>Price: High to Low</option>
+                <option value="rating" ${
+            currentSort === "rating" ? "selected" : ""
+          }>Rating</option>
               </select>
             </div>
-          ` : ''}
+          `
+          : ""
+      }
 
           <div class="filter-results">
-            <span class="results-count">${products.length} product${products.length !== 1 ? 's' : ''} found</span>
+            <span class="results-count">${products.length} product${
+        products.length !== 1 ? "s" : ""
+      } found</span>
           </div>
         </div>
-      ` : ''}
+      `
+      : ""
+  }
 
       <div id="product-grid" class="product-grid">
-        ${products.length > 0 ? products.map(product =>
-          ProductCard({ product, sessionId })
-        ).join('') : `
+        ${
+    products.length > 0
+      ? products.map((product) => ProductCard({ product, sessionId })).join("")
+      : `
           <div class="no-products">
             <div class="no-products__icon">📦</div>
             <h3 class="no-products__title">No products found</h3>
             <p class="no-products__message">Try adjusting your search or filters.</p>
           </div>
-        `}
+        `
+  }
       </div>
 
       <!-- Cart feedback area -->

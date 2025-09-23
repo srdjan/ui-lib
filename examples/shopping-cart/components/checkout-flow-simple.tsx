@@ -37,7 +37,7 @@ export function CheckoutFlow({
   shippingAddress,
   billingAddress,
   paymentMethod,
-  sameAsBilling = false
+  sameAsBilling = false,
 }: CheckoutFlowProps): string {
   const steps = [
     { number: 1, title: "Shipping", id: "shipping" },
@@ -49,28 +49,44 @@ export function CheckoutFlow({
     <div class="checkout-flow" data-step="${currentStep}" data-session="${sessionId}">
       <!-- Step Navigation -->
       <div class="checkout-stepper" role="tablist" aria-label="Checkout steps">
-        ${steps.map(step => `
+        ${
+    steps.map((step) => `
           <button
             role="tab"
             aria-selected="${currentStep === step.number}"
             aria-controls="checkout-${step.id}"
-            tabindex="${currentStep === step.number ? '0' : '-1'}"
-            class="checkout-step ${currentStep === step.number ? 'checkout-step--active' : ''} ${currentStep > step.number ? 'checkout-step--completed' : ''}"
+            tabindex="${currentStep === step.number ? "0" : "-1"}"
+            class="checkout-step ${
+      currentStep === step.number ? "checkout-step--active" : ""
+    } ${currentStep > step.number ? "checkout-step--completed" : ""}"
             data-step="${step.number}"
             hx-get="/api/checkout/step/${step.number}"
             hx-target=".checkout-content"
             hx-swap="innerHTML"
             hx-push-url="false"
           >
-            <span class="checkout-step__number">${currentStep > step.number ? '✓' : step.number}</span>
+            <span class="checkout-step__number">${
+      currentStep > step.number ? "✓" : step.number
+    }</span>
             <span>${step.title}</span>
           </button>
-        `).join('')}
+        `).join("")
+  }
       </div>
 
       <!-- Step Content -->
       <div class="checkout-content">
-        ${renderStepContent({ cart, currentStep, sessionId, shippingAddress, billingAddress, paymentMethod, sameAsBilling })}
+        ${
+    renderStepContent({
+      cart,
+      currentStep,
+      sessionId,
+      shippingAddress,
+      billingAddress,
+      paymentMethod,
+      sameAsBilling,
+    })
+  }
       </div>
     </div>
 
@@ -325,7 +341,7 @@ function renderShippingStep(props: CheckoutFlowProps): string {
               id="shipping-firstName"
               name="shipping.firstName"
               class="checkout-input"
-              value="${shipping?.firstName || ''}"
+              value="${shipping?.firstName || ""}"
               required
             >
           </div>
@@ -337,7 +353,7 @@ function renderShippingStep(props: CheckoutFlowProps): string {
               id="shipping-lastName"
               name="shipping.lastName"
               class="checkout-input"
-              value="${shipping?.lastName || ''}"
+              value="${shipping?.lastName || ""}"
               required
             >
           </div>
@@ -349,7 +365,7 @@ function renderShippingStep(props: CheckoutFlowProps): string {
               id="shipping-street"
               name="shipping.street"
               class="checkout-input"
-              value="${shipping?.street || ''}"
+              value="${shipping?.street || ""}"
               required
             >
           </div>
@@ -361,7 +377,7 @@ function renderShippingStep(props: CheckoutFlowProps): string {
               id="shipping-city"
               name="shipping.city"
               class="checkout-input"
-              value="${shipping?.city || ''}"
+              value="${shipping?.city || ""}"
               required
             >
           </div>
@@ -375,9 +391,15 @@ function renderShippingStep(props: CheckoutFlowProps): string {
               required
             >
               <option value="">Select State</option>
-              <option value="CA" ${shipping?.state === 'CA' ? 'selected' : ''}>California</option>
-              <option value="NY" ${shipping?.state === 'NY' ? 'selected' : ''}>New York</option>
-              <option value="TX" ${shipping?.state === 'TX' ? 'selected' : ''}>Texas</option>
+              <option value="CA" ${
+    shipping?.state === "CA" ? "selected" : ""
+  }>California</option>
+              <option value="NY" ${
+    shipping?.state === "NY" ? "selected" : ""
+  }>New York</option>
+              <option value="TX" ${
+    shipping?.state === "TX" ? "selected" : ""
+  }>Texas</option>
             </select>
           </div>
 
@@ -388,7 +410,7 @@ function renderShippingStep(props: CheckoutFlowProps): string {
               id="shipping-zipCode"
               name="shipping.zipCode"
               class="checkout-input"
-              value="${shipping?.zipCode || ''}"
+              value="${shipping?.zipCode || ""}"
               required
             >
           </div>
@@ -520,12 +542,14 @@ function renderOrderSummary(cart: Cart): string {
     <div class="checkout-summary" style="margin: 2rem 0;">
       <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">Order Summary</h3>
 
-      ${cart.items.map(item => `
+      ${
+    cart.items.map((item) => `
         <div class="checkout-summary__item">
           <span>${item.product.name} × ${item.quantity}</span>
           <span>$${(item.unitPrice * item.quantity).toFixed(2)}</span>
         </div>
-      `).join('')}
+      `).join("")
+  }
 
       <div class="checkout-summary__item">
         <span>Subtotal</span>
@@ -534,12 +558,12 @@ function renderOrderSummary(cart: Cart): string {
 
       <div class="checkout-summary__item">
         <span>Shipping</span>
-        <span>$${cart.shipping?.toFixed(2) || '0.00'}</span>
+        <span>$${cart.shipping?.toFixed(2) || "0.00"}</span>
       </div>
 
       <div class="checkout-summary__item">
         <span>Tax</span>
-        <span>$${cart.tax?.toFixed(2) || '0.00'}</span>
+        <span>$${cart.tax?.toFixed(2) || "0.00"}</span>
       </div>
 
       <div class="checkout-summary__item checkout-summary__total">

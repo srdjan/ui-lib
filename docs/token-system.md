@@ -1,12 +1,16 @@
 # Token System Guide
 
-ui-lib's token system provides a secure, type-safe way to customize component appearance without exposing internal implementation details. Components are completely sealed - they can only be modified through CSS variables (tokens).
+ui-lib's token system provides a secure, type-safe way to customize component
+appearance without exposing internal implementation details. Components are
+completely sealed - they can only be modified through CSS variables (tokens).
 
 ## Overview
 
 ### What Are Tokens?
 
-Tokens are CSS custom properties that define the visual aspects of components. Instead of directly modifying component styles, you customize components by setting token values.
+Tokens are CSS custom properties that define the visual aspects of components.
+Instead of directly modifying component styles, you customize components by
+setting token values.
 
 ```typescript
 // ❌ No direct style access (not possible)
@@ -17,9 +21,9 @@ const styles = defineTokens({
   button: {
     primary: {
       background: "#FF5722",
-      backgroundHover: "#E64A19"
-    }
-  }
+      backgroundHover: "#E64A19",
+    },
+  },
 });
 ```
 
@@ -46,15 +50,15 @@ const customStyles = defineTokens({
       background: "#007bff",
       backgroundHover: "#0056b3",
       textColor: "white",
-      borderRadius: "8px"
-    }
-  }
+      borderRadius: "8px",
+    },
+  },
 });
 
 // Use the component
 const button = Button({
   variant: "primary",
-  children: "Click Me"
+  children: "Click Me",
 });
 
 // Include styles in your HTML
@@ -74,9 +78,9 @@ const component = ComponentName(props);
 
 // Token contract - defines what can be customized
 type ComponentTokens = {
-  base: { /* common properties */ },
-  variants: { /* variant-specific properties */ },
-  states: { /* state-specific properties */ }
+  base: {/* common properties */};
+  variants: {/* variant-specific properties */};
+  states: {/* state-specific properties */};
 };
 
 // Generated CSS - includes all component styles with variables
@@ -109,10 +113,10 @@ type ButtonTokens = {
     focusRingColor: string;
   };
 
-  secondary: { /* ... */ };
-  outline: { /* ... */ };
-  ghost: { /* ... */ };
-  destructive: { /* ... */ };
+  secondary: {/* ... */};
+  outline: {/* ... */};
+  ghost: {/* ... */};
+  destructive: {/* ... */};
 
   // State tokens
   disabled: {
@@ -121,11 +125,11 @@ type ButtonTokens = {
   };
 
   // Size tokens
-  sizeXs: { height: string; paddingX: string; fontSize: string; };
-  sizeSm: { height: string; paddingX: string; fontSize: string; };
-  sizeMd: { height: string; paddingX: string; fontSize: string; };
-  sizeLg: { height: string; paddingX: string; fontSize: string; };
-  sizeXl: { height: string; paddingX: string; fontSize: string; };
+  sizeXs: { height: string; paddingX: string; fontSize: string };
+  sizeSm: { height: string; paddingX: string; fontSize: string };
+  sizeMd: { height: string; paddingX: string; fontSize: string };
+  sizeLg: { height: string; paddingX: string; fontSize: string };
+  sizeXl: { height: string; paddingX: string; fontSize: string };
 };
 ```
 
@@ -142,13 +146,13 @@ const globalStyles = defineTokens({
   button: {
     primary: {
       background: "#FF5722",
-      backgroundHover: "#E64A19"
+      backgroundHover: "#E64A19",
     },
     base: {
       borderRadius: "12px",
-      fontWeight: "600"
-    }
-  }
+      fontWeight: "600",
+    },
+  },
 });
 ```
 
@@ -164,16 +168,16 @@ const darkModeStyles = customizeComponent(".dark-mode", "button", {
   primary: {
     background: "#1a1a1a",
     backgroundHover: "#2a2a2a",
-    textColor: "#ffffff"
-  }
+    textColor: "#ffffff",
+  },
 });
 
 // CTA section with special styling
 const ctaStyles = customizeComponent(".cta-section", "button", {
   primary: {
     background: "linear-gradient(45deg, #FF6B6B, #4ECDC4)",
-    backgroundHover: "linear-gradient(45deg, #FF5252, #26C6DA)"
-  }
+    backgroundHover: "linear-gradient(45deg, #FF5252, #26C6DA)",
+  },
 });
 ```
 
@@ -187,22 +191,22 @@ import { responsiveTokens } from "ui-lib/mod-token.ts";
 const responsiveStyles = responsiveTokens("button", {
   mobile: {
     base: {
-      height: "48px",      // Larger for touch
-      fontSize: "16px"
-    }
+      height: "48px", // Larger for touch
+      fontSize: "16px",
+    },
   },
   tablet: {
     base: {
       height: "44px",
-      fontSize: "14px"
-    }
+      fontSize: "14px",
+    },
   },
   desktop: {
     base: {
       height: "40px",
-      fontSize: "14px"
-    }
-  }
+      fontSize: "14px",
+    },
+  },
 });
 ```
 
@@ -214,8 +218,8 @@ Override tokens directly in CSS:
 <style>
   /* Override specific tokens for this section */
   .special-section {
-    --button-primary-background: #7C3AED;
-    --button-primary-backgroundHover: #6D28D9;
+    --button-primary-background: #7c3aed;
+    --button-primary-backgroundHover: #6d28d9;
     --button-base-borderRadius: 24px;
   }
 </style>
@@ -230,7 +234,7 @@ Override tokens directly in CSS:
 ### Pre-built Themes
 
 ```typescript
-import { themes, applyTheme } from "ui-lib/mod-token.ts";
+import { applyTheme, themes } from "ui-lib/mod-token.ts";
 
 // Apply a pre-built theme
 const lightStyles = applyTheme(themes.light);
@@ -241,21 +245,21 @@ const highContrastStyles = applyTheme(themes.highContrast);
 ### Custom Themes
 
 ```typescript
-import { createTheme, applyTheme } from "ui-lib/mod-token.ts";
+import { applyTheme, createTheme } from "ui-lib/mod-token.ts";
 
 const corporateTheme = createTheme("corporate", {
   button: {
     primary: {
       background: "#003366",
       backgroundHover: "#002244",
-      textColor: "#FFFFFF"
+      textColor: "#FFFFFF",
     },
     secondary: {
       background: "#F5F5F5",
       backgroundHover: "#E0E0E0",
-      textColor: "#003366"
-    }
-  }
+      textColor: "#003366",
+    },
+  },
 });
 
 const styles = applyTheme(corporateTheme);
@@ -340,16 +344,16 @@ const theme = defineTokens({
     primary: { background: "#007bff" },
     secondary: { background: "#6c757d" },
     success: { background: "#28a745" },
-    danger: { background: "#dc3545" }
-  }
+    danger: { background: "#dc3545" },
+  },
 });
 
 // ❌ Avoid - implementation details
 const theme = defineTokens({
   button: {
     blueButton: { background: "#007bff" },
-    grayButton: { background: "#6c757d" }
-  }
+    grayButton: { background: "#6c757d" },
+  },
 });
 ```
 
@@ -359,11 +363,11 @@ const theme = defineTokens({
 const accessibleTheme = defineTokens({
   button: {
     primary: {
-      background: "#0066CC",      // 4.5:1 contrast ratio
-      textColor: "#FFFFFF",       // High contrast
-      focusRingColor: "#FFD700"   // Visible focus ring
-    }
-  }
+      background: "#0066CC", // 4.5:1 contrast ratio
+      textColor: "#FFFFFF", // High contrast
+      focusRingColor: "#FFD700", // Visible focus ring
+    },
+  },
 });
 ```
 
@@ -375,9 +379,9 @@ const baseStyles = defineTokens({
   button: {
     primary: {
       background: "#007bff",
-      textColor: "white"
-    }
-  }
+      textColor: "white",
+    },
+  },
 });
 
 // Enhanced styles for JavaScript-enabled clients
@@ -385,9 +389,9 @@ const enhancedStyles = defineTokens({
   button: {
     primary: {
       background: "linear-gradient(135deg, #007bff, #0056b3)",
-      transitionDuration: "200ms"
-    }
-  }
+      transitionDuration: "200ms",
+    },
+  },
 });
 ```
 
@@ -398,11 +402,11 @@ const enhancedStyles = defineTokens({
 const validTokens = defineTokens({
   button: {
     primary: {
-      background: "#FF5722",      // ✅ Valid CSS color
-      borderRadius: "8px",        // ✅ Valid CSS length
-      fontWeight: "600"           // ✅ Valid CSS font-weight
-    }
-  }
+      background: "#FF5722", // ✅ Valid CSS color
+      borderRadius: "8px", // ✅ Valid CSS length
+      fontWeight: "600", // ✅ Valid CSS font-weight
+    },
+  },
 });
 ```
 
@@ -418,9 +422,9 @@ function createBrandTheme(brandColor: string) {
       primary: {
         background: brandColor,
         backgroundHover: darken(brandColor, 0.1),
-        backgroundActive: darken(brandColor, 0.2)
-      }
-    }
+        backgroundActive: darken(brandColor, 0.2),
+      },
+    },
   });
 }
 
@@ -460,22 +464,25 @@ const mappedTokens = defineTokens({
       backgroundHover: designTokens.colors.primary.dark,
       textColor: designTokens.colors.primary.contrastText,
       borderRadius: designTokens.radii.medium,
-      fontSize: designTokens.typography.button.fontSize
-    }
-  }
+      fontSize: designTokens.typography.button.fontSize,
+    },
+  },
 });
 ```
 
 ## Migration from Traditional Components
 
-See the [Migration Guide](migration-guide.md) for detailed instructions on moving from traditional ui-lib components to token-based components.
+See the [Migration Guide](migration-guide.md) for detailed instructions on
+moving from traditional ui-lib components to token-based components.
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **Tokens not applying**: Ensure styles are included in the page before components
-2. **TypeScript errors**: Check token structure matches component's token contract
+1. **Tokens not applying**: Ensure styles are included in the page before
+   components
+2. **TypeScript errors**: Check token structure matches component's token
+   contract
 3. **Specificity issues**: Use CSS cascade properly with token overrides
 4. **Performance**: Group token definitions to minimize style recalculations
 

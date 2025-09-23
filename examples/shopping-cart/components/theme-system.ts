@@ -174,26 +174,27 @@ export const lightTheme: ThemeTokens = {
   },
 
   spacing: {
-    xs: "0.25rem",   // 4px
-    sm: "0.5rem",    // 8px
-    md: "1rem",      // 16px
-    lg: "1.5rem",    // 24px
-    xl: "2rem",      // 32px
-    xxl: "3rem",     // 48px
+    xs: "0.25rem", // 4px
+    sm: "0.5rem", // 8px
+    md: "1rem", // 16px
+    lg: "1.5rem", // 24px
+    xl: "2rem", // 32px
+    xxl: "3rem", // 48px
   },
 
   typography: {
     fontFamily: "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
-    fontFamilyMono: "'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace",
+    fontFamilyMono:
+      "'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace",
 
     // Font sizes
-    textXs: "0.75rem",    // 12px
-    textSm: "0.875rem",   // 14px
-    textBase: "1rem",     // 16px
-    textLg: "1.125rem",   // 18px
-    textXl: "1.25rem",    // 20px
-    text2xl: "1.5rem",    // 24px
-    text3xl: "1.875rem",  // 30px
+    textXs: "0.75rem", // 12px
+    textSm: "0.875rem", // 14px
+    textBase: "1rem", // 16px
+    textLg: "1.125rem", // 18px
+    textXl: "1.25rem", // 20px
+    text2xl: "1.5rem", // 24px
+    text3xl: "1.875rem", // 30px
 
     // Font weights
     weightRegular: "400",
@@ -208,15 +209,18 @@ export const lightTheme: ThemeTokens = {
   },
 
   layout: {
-    borderRadius: "0.375rem",     // 6px
-    borderRadiusLg: "0.5rem",     // 8px
+    borderRadius: "0.375rem", // 6px
+    borderRadiusLg: "0.5rem", // 8px
     borderWidth: "1px",
 
     // Shadows
     shadowSm: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-    shadowMd: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-    shadowLg: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-    shadowXl: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+    shadowMd:
+      "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+    shadowLg:
+      "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+    shadowXl:
+      "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
 
     // Z-index layers
     zTooltip: "100",
@@ -289,13 +293,13 @@ export const darkTheme: ThemeTokens = {
 // ============================================================
 
 export class ThemeManager {
-  private currentTheme: 'light' | 'dark' | 'auto' = 'auto';
+  private currentTheme: "light" | "dark" | "auto" = "auto";
   private eventTarget: EventTarget;
   private mediaQuery: MediaQueryList;
 
   constructor() {
     this.eventTarget = new EventTarget();
-    this.mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    this.mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     this.initializeTheme();
     this.setupEventListeners();
   }
@@ -306,8 +310,12 @@ export class ThemeManager {
 
   private initializeTheme(): void {
     // Load saved theme preference
-    const savedTheme = localStorage.getItem('shopping-cart-theme') as 'light' | 'dark' | 'auto' | null;
-    this.currentTheme = savedTheme || 'auto';
+    const savedTheme = localStorage.getItem("shopping-cart-theme") as
+      | "light"
+      | "dark"
+      | "auto"
+      | null;
+    this.currentTheme = savedTheme || "auto";
 
     // Apply initial theme
     this.applyTheme();
@@ -318,16 +326,16 @@ export class ThemeManager {
 
   private setupEventListeners(): void {
     // Listen for system theme changes
-    this.mediaQuery.addEventListener('change', () => {
-      if (this.currentTheme === 'auto') {
+    this.mediaQuery.addEventListener("change", () => {
+      if (this.currentTheme === "auto") {
         this.applyTheme();
       }
     });
 
     // Listen for storage changes (sync across tabs)
-    window.addEventListener('storage', (event) => {
-      if (event.key === 'shopping-cart-theme' && event.newValue) {
-        this.currentTheme = event.newValue as 'light' | 'dark' | 'auto';
+    window.addEventListener("storage", (event) => {
+      if (event.key === "shopping-cart-theme" && event.newValue) {
+        this.currentTheme = event.newValue as "light" | "dark" | "auto";
         this.applyTheme();
         this.updateThemeToggleUI();
       }
@@ -340,26 +348,29 @@ export class ThemeManager {
 
   private applyTheme(): void {
     const effectiveTheme = this.getEffectiveTheme();
-    const tokens = effectiveTheme === 'dark' ? darkTheme : lightTheme;
+    const tokens = effectiveTheme === "dark" ? darkTheme : lightTheme;
 
     // Apply theme tokens as CSS custom properties
     this.applyCSSTokens(tokens);
 
     // Update document attributes for CSS selectors
-    document.documentElement.setAttribute('data-theme', effectiveTheme);
-    document.documentElement.setAttribute('data-theme-preference', this.currentTheme);
+    document.documentElement.setAttribute("data-theme", effectiveTheme);
+    document.documentElement.setAttribute(
+      "data-theme-preference",
+      this.currentTheme,
+    );
 
     // Tier 1: CSS Property Reactivity (instant visual updates)
-    document.documentElement.style.setProperty('--theme-mode', effectiveTheme);
+    document.documentElement.style.setProperty("--theme-mode", effectiveTheme);
 
     // Tier 2: Pub/Sub State Update
     this.publishThemeChange(effectiveTheme, this.currentTheme);
 
     // Tier 3: DOM Event Communication
-    this.dispatchThemeEvent('theme-changed', {
+    this.dispatchThemeEvent("theme-changed", {
       theme: effectiveTheme,
       preference: this.currentTheme,
-      tokens
+      tokens,
     });
   }
 
@@ -392,38 +403,38 @@ export class ThemeManager {
     });
   }
 
-  private getEffectiveTheme(): 'light' | 'dark' {
-    if (this.currentTheme === 'auto') {
-      return this.mediaQuery.matches ? 'dark' : 'light';
+  private getEffectiveTheme(): "light" | "dark" {
+    if (this.currentTheme === "auto") {
+      return this.mediaQuery.matches ? "dark" : "light";
     }
     return this.currentTheme;
   }
 
   private kebabCase(str: string): string {
-    return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+    return str.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
   }
 
   // ============================================================
   // Public API
   // ============================================================
 
-  setTheme(theme: 'light' | 'dark' | 'auto'): void {
+  setTheme(theme: "light" | "dark" | "auto"): void {
     this.currentTheme = theme;
-    localStorage.setItem('shopping-cart-theme', theme);
+    localStorage.setItem("shopping-cart-theme", theme);
     this.applyTheme();
     this.updateThemeToggleUI();
   }
 
-  getTheme(): 'light' | 'dark' | 'auto' {
+  getTheme(): "light" | "dark" | "auto" {
     return this.currentTheme;
   }
 
-  getEffectiveThemeMode(): 'light' | 'dark' {
+  getEffectiveThemeMode(): "light" | "dark" {
     return this.getEffectiveTheme();
   }
 
   toggleTheme(): void {
-    const themes: ('light' | 'dark' | 'auto')[] = ['light', 'dark', 'auto'];
+    const themes: ("light" | "dark" | "auto")[] = ["light", "dark", "auto"];
     const currentIndex = themes.indexOf(this.currentTheme);
     const nextIndex = (currentIndex + 1) % themes.length;
     this.setTheme(themes[nextIndex]);
@@ -434,25 +445,34 @@ export class ThemeManager {
   // ============================================================
 
   // Tier 2: Pub/Sub State Manager
-  private publishThemeChange(theme: 'light' | 'dark', preference: 'light' | 'dark' | 'auto'): void {
-    window.dispatchEvent(new CustomEvent('state-change', {
-      detail: {
-        topic: 'theme-changed',
-        data: { theme, preference }
-      }
-    }));
+  private publishThemeChange(
+    theme: "light" | "dark",
+    preference: "light" | "dark" | "auto",
+  ): void {
+    window.dispatchEvent(
+      new CustomEvent("state-change", {
+        detail: {
+          topic: "theme-changed",
+          data: { theme, preference },
+        },
+      }),
+    );
   }
 
-  subscribeToThemeChanges(callback: (data: { theme: 'light' | 'dark'; preference: 'light' | 'dark' | 'auto' }) => void): () => void {
+  subscribeToThemeChanges(
+    callback: (
+      data: { theme: "light" | "dark"; preference: "light" | "dark" | "auto" },
+    ) => void,
+  ): () => void {
     const handler = (event: Event) => {
       const customEvent = event as CustomEvent;
-      if (customEvent.detail.topic === 'theme-changed') {
+      if (customEvent.detail.topic === "theme-changed") {
         callback(customEvent.detail.data);
       }
     };
 
-    window.addEventListener('state-change', handler);
-    return () => window.removeEventListener('state-change', handler);
+    window.addEventListener("state-change", handler);
+    return () => window.removeEventListener("state-change", handler);
   }
 
   // Tier 3: DOM Event Communication
@@ -475,30 +495,35 @@ export class ThemeManager {
   // ============================================================
 
   private updateThemeToggleUI(): void {
-    const toggles = document.querySelectorAll('[data-theme-toggle]');
+    const toggles = document.querySelectorAll("[data-theme-toggle]");
 
-    toggles.forEach(toggle => {
+    toggles.forEach((toggle) => {
       const button = toggle as HTMLElement;
 
       // Update button text/icon
       const icons = {
-        light: '☀️',
-        dark: '🌙',
-        auto: '💻'
+        light: "☀️",
+        dark: "🌙",
+        auto: "💻",
       };
 
       const labels = {
-        light: 'Light mode',
-        dark: 'Dark mode',
-        auto: 'System theme'
+        light: "Light mode",
+        dark: "Dark mode",
+        auto: "System theme",
       };
 
-      button.textContent = `${icons[this.currentTheme]} ${labels[this.currentTheme]}`;
-      button.setAttribute('aria-label', `Current theme: ${labels[this.currentTheme]}. Click to cycle themes.`);
+      button.textContent = `${icons[this.currentTheme]} ${
+        labels[this.currentTheme]
+      }`;
+      button.setAttribute(
+        "aria-label",
+        `Current theme: ${labels[this.currentTheme]}. Click to cycle themes.`,
+      );
 
       // Update data attributes for CSS styling
-      button.setAttribute('data-theme-current', this.currentTheme);
-      button.setAttribute('data-theme-effective', this.getEffectiveTheme());
+      button.setAttribute("data-theme-current", this.currentTheme);
+      button.setAttribute("data-theme-effective", this.getEffectiveTheme());
     });
   }
 
@@ -528,10 +553,10 @@ export class ThemeManager {
 export const themeManager = new ThemeManager();
 
 // Initialize theme on page load
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
+if (typeof document !== "undefined") {
+  document.addEventListener("DOMContentLoaded", () => {
     // Theme is already initialized in constructor
-    console.log('Theme system initialized');
+    console.log("Theme system initialized");
   });
 
   // Expose global methods for component integration

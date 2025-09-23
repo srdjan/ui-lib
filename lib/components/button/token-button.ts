@@ -326,8 +326,12 @@ export const Button = createTokenComponent<ButtonTokens, ButtonProps>({
 
     return `
       <button ${attributeString}>
-        <span class="ui-button__content ${loading ? "ui-button__content--loading" : ""}">${content}</span>
-        <span class="ui-button__loading ${loading ? "ui-button__loading--visible" : ""}">${loadingContent}</span>
+        <span class="ui-button__content ${
+      loading ? "ui-button__content--loading" : ""
+    }">${content}</span>
+        <span class="ui-button__loading ${
+      loading ? "ui-button__loading--visible" : ""
+    }">${loadingContent}</span>
       </button>
     `.trim();
   },

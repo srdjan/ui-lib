@@ -1,5 +1,8 @@
 // Tests for token-based Button component
-import { assertEquals, assertStringIncludes } from "https://deno.land/std@0.224.0/assert/mod.ts";
+import {
+  assertEquals,
+  assertStringIncludes,
+} from "https://deno.land/std@0.224.0/assert/mod.ts";
 import { Button } from "./token-button.ts";
 
 Deno.test("Button renders with default tokens", () => {
@@ -40,7 +43,11 @@ Deno.test("Button handles disabled state", () => {
 });
 
 Deno.test("Button handles loading state", () => {
-  const loading = Button({ loading: true, loadingText: "Saving...", children: "Save" });
+  const loading = Button({
+    loading: true,
+    loadingText: "Saving...",
+    children: "Save",
+  });
   assertStringIncludes(loading, "ui-button__content--loading");
   assertStringIncludes(loading, "ui-button__loading--visible");
   assertStringIncludes(loading, "Saving...");
@@ -51,7 +58,7 @@ Deno.test("Button handles icons", () => {
   const withIcons = Button({
     leftIcon: "📁",
     rightIcon: "→",
-    children: "File"
+    children: "File",
   });
   assertStringIncludes(withIcons, "📁");
   assertStringIncludes(withIcons, "→");

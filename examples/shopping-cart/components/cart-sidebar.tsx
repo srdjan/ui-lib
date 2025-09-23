@@ -344,7 +344,7 @@ function renderCartItem(item: CartItem): string {
             hx-vals='{"quantity": ${item.quantity - 1}}'
             hx-target="#cart-sidebar"
             hx-swap="innerHTML"
-            ${item.quantity <= 1 ? 'disabled' : ''}
+            ${item.quantity <= 1 ? "disabled" : ""}
             title="Decrease quantity"
           >
             <span aria-hidden="true">−</span>
@@ -392,7 +392,10 @@ function renderCartItem(item: CartItem): string {
 // Sealed CartSidebar Component
 // ============================================================
 
-export const CartSidebar = createTokenComponent<CartSidebarTokens, CartSidebarProps>({
+export const CartSidebar = createTokenComponent<
+  CartSidebarTokens,
+  CartSidebarProps
+>({
   name: "cart-sidebar",
   tokens: defaultCartSidebarTokens,
 
@@ -802,11 +805,15 @@ export const CartSidebar = createTokenComponent<CartSidebarTokens, CartSidebarPr
 
         <!-- Content -->
         <div class="ui-cart-sidebar__content">
-          ${loading ? `
+          ${
+      loading
+        ? `
             <div class="ui-cart-sidebar__loading">
               <span>Loading cart...</span>
             </div>
-          ` : !hasItems ? `
+          `
+        : !hasItems
+        ? `
             <div class="ui-cart-sidebar__empty">
               <h3>Your cart is empty</h3>
               <p>Add some products to get started!</p>
@@ -814,15 +821,19 @@ export const CartSidebar = createTokenComponent<CartSidebarTokens, CartSidebarPr
                 Continue Shopping
               </button>
             </div>
-          ` : `
+          `
+        : `
             <div class="ui-cart-sidebar__items">
-              ${cart!.items.map(item => renderCartItem(item)).join("")}
+              ${cart!.items.map((item) => renderCartItem(item)).join("")}
             </div>
-          `}
+          `
+    }
         </div>
 
         <!-- Footer with totals and checkout -->
-        ${hasItems ? `
+        ${
+      hasItems
+        ? `
           <footer class="ui-cart-sidebar__footer">
             <div class="ui-cart-sidebar__totals">
               <div class="ui-cart-sidebar__total-line">
@@ -835,7 +846,9 @@ export const CartSidebar = createTokenComponent<CartSidebarTokens, CartSidebarPr
               </div>
               <div class="ui-cart-sidebar__total-line">
                 <span>Shipping:</span>
-                <span>${cart!.shipping > 0 ? `$${cart!.shipping.toFixed(2)}` : "FREE"}</span>
+                <span>${
+          cart!.shipping > 0 ? `$${cart!.shipping.toFixed(2)}` : "FREE"
+        }</span>
               </div>
               <div class="ui-cart-sidebar__final-total">
                 <span>Total:</span>
@@ -855,7 +868,9 @@ export const CartSidebar = createTokenComponent<CartSidebarTokens, CartSidebarPr
               Continue Shopping
             </button>
           </footer>
-        ` : ""}
+        `
+        : ""
+    }
       </aside>
     `.trim();
   },

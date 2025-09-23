@@ -25,11 +25,11 @@ const config = {
 };
 
 console.log("🛍️ Shopping Cart Demo - Development Server");
-console.log("=" .repeat(50));
+console.log("=".repeat(50));
 console.log(`📍 Port: ${config.port}`);
 console.log(`🔄 Watch mode: ${config.watch ? "enabled" : "disabled"}`);
 console.log(`📝 Log level: ${config.logLevel}`);
-console.log("=" .repeat(50));
+console.log("=".repeat(50));
 
 // Check if Deno KV database exists
 const dbPath = "./shopping_cart.db";
@@ -51,7 +51,7 @@ const args = [
   "--allow-read",
   "--allow-write",
   "--allow-env",
-  "--unstable-kv"
+  "--unstable-kv",
 ];
 
 if (config.watch) {
@@ -69,7 +69,7 @@ const process = new Deno.Command("deno", {
   args,
   stdout: "inherit",
   stderr: "inherit",
-  stdin: "inherit"
+  stdin: "inherit",
 });
 
 const child = process.spawn();

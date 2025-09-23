@@ -323,7 +323,12 @@ export type CustomTheme = {
 // ============================================================
 
 export type AnalyticsEvent = {
-  readonly type: "page_view" | "product_view" | "add_to_cart" | "purchase" | "search";
+  readonly type:
+    | "page_view"
+    | "product_view"
+    | "add_to_cart"
+    | "purchase"
+    | "search";
   readonly productId?: string;
   readonly category?: string;
   readonly value?: number;
@@ -355,20 +360,20 @@ export type Percentage = number;
 // Type guards for runtime validation
 export function isProduct(obj: unknown): obj is Product {
   return typeof obj === "object" && obj !== null &&
-         typeof (obj as Product).id === "string" &&
-         typeof (obj as Product).name === "string" &&
-         typeof (obj as Product).price === "number";
+    typeof (obj as Product).id === "string" &&
+    typeof (obj as Product).name === "string" &&
+    typeof (obj as Product).price === "number";
 }
 
 export function isCartItem(obj: unknown): obj is CartItem {
   return typeof obj === "object" && obj !== null &&
-         typeof (obj as CartItem).id === "string" &&
-         typeof (obj as CartItem).quantity === "number" &&
-         isProduct((obj as CartItem).product);
+    typeof (obj as CartItem).id === "string" &&
+    typeof (obj as CartItem).quantity === "number" &&
+    isProduct((obj as CartItem).product);
 }
 
 export function isUser(obj: unknown): obj is User {
   return typeof obj === "object" && obj !== null &&
-         typeof (obj as User).id === "string" &&
-         typeof (obj as User).email === "string";
+    typeof (obj as User).id === "string" &&
+    typeof (obj as User).email === "string";
 }
