@@ -72,122 +72,127 @@ Example:
 ```tsx
 import {
   boolean,
+  css,
   defineComponent,
   h,
-  html,
+  hx,
   number,
-  type RouteHandlerFor,
+  post,
   string,
 } from "../mod.ts";
-import { err, ok, type Result } from "../lib/result.ts";
+import { html } from "../lib/response.ts";
+import { ok, type Result } from "../lib/result.ts";
 import { Button as UIButton } from "../lib/components/button/token-button.ts";
 
-// Using default theme and standard component styles via imports (no inline styles)
+// --- Light FP domain helpers (no classes, errors as values) ---
+type Counter = { readonly id: string; readonly count: number };
+type CounterError = { readonly type: "invalid"; readonly message: string };
 
-// --- Light FP domain (no classes, errors as values) ---
-export type Counter = { readonly id: string; readonly count: number };
-export type CounterError =
-  | { readonly type: "invalid_payload"; readonly message: string }
-  | { readonly type: "not_found"; readonly message: string };
-
-const incrementCounter = (c: Counter): Result<Counter, CounterError> =>
-  ok({ ...c, count: c.count + 1 });
-const resetCounter = (c: Counter): Result<Counter, CounterError> =>
-  ok({ ...c, count: 0 });
-
-// Minimal in-memory store for demo purposes
-const counters = new Map<string, Counter>();
-
-// --- API handlers colocated with the component ---
-const incrementHandler: RouteHandlerFor<"/api/counter/:id/increment"> = async (
-  _req,
-  params,
-) => {
-  const current = counters.get(params.id) ?? { id: params.id, count: 0 };
-  const next = incrementCounter(current);
-  if (!next.ok) return html("<div>Invalid</div>", { status: 400 });
-  counters.set(params.id, next.value);
-  // Return a small HTML fragment (HTMX swaps it in)
-  return html(`<span data-count>${next.value.count}</span>`);
+const store = new Map<string, Counter>();
+const ensure = (id: string, start: number): Counter => {
+  const initial = store.get(id) ?? { id, count: start };
+  if (!store.has(id)) store.set(id, initial);
+  return initial;
 };
 
-const resetHandler: RouteHandlerFor<"/api/counter/:id/reset"> = async (
-  _req,
-  params,
-) => {
-  const current = counters.get(params.id) ?? { id: params.id, count: 0 };
-  const next = resetCounter(current);
-  if (!next.ok) return html("<div>Invalid</div>", { status: 400 });
-  counters.set(params.id, next.value);
-  return html(`<span data-count>${next.value.count}</span>`);
+const updateCounter = (
+  id: string,
+  start: number,
+  mutate: (counter: Counter) => Result<Counter, CounterError>,
+): Result<Counter, CounterError> => {
+  const next = mutate(ensure(id, start));
+  if (next.ok) store.set(id, next.value);
+  return next;
 };
 
-// --- Comprehensive component using SSR, JSX, inline prop parsing, reactivity, and collocated API ---
+const step = (counter: Counter): Result<Counter, CounterError> =>
+  ok({ ...counter, count: counter.count + 1 });
+const reset = (counter: Counter): Result<Counter, CounterError> =>
+  ok({ ...counter, count: 0 });
+
+// CSS-in-TS styles
+const shell = css({
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "0.75rem",
+  padding: "0.75rem 1rem",
+  borderRadius: "12px",
+  border: "1px solid var(--accent, #4f46e5)",
+  background: "rgba(79, 70, 229, 0.08)",
+});
+
+const buttonStyles = UIButton.injectStyles();
+
+const mergeHx = (markup: string, attrs: string): string => {
+  const trimmed = attrs?.trim();
+  if (!trimmed) return markup;
+  return markup.replace("<button", `<button ${trimmed} `);
+};
+
+// --- Component with collocated API, inline props, SSR, and reactivity ---
 export const Counter = defineComponent("counter", {
-  // Reactivity: DOM events, pub/sub state, lifecycle, and CSS properties
+  styles: buttonStyles,
   reactive: {
     on: {
-      // Custom event to toggle accent color using CSS custom property
       "ui-lib:toggle-accent":
-        `document.documentElement.style.setProperty('--accent', getComputedStyle(document.documentElement).getPropertyValue('--accent')?.trim()==='#4f46e5' ? '#16a34a' : '#4f46e5')`,
+        "const root=document.documentElement;const next=root.style.getPropertyValue('--accent')?.trim()==='#16a34a'?'#4f46e5':'#16a34a';root.style.setProperty('--accent', next);",
     },
     state: {
-      // Update count when external state publishes to 'counter:update'
       "counter:update":
-        "const el=this.querySelector('[data-count]'); if(el){ el.textContent=String(data.count) }",
+        "const target=this.querySelector('[data-count]'); if(target){ target.textContent = String(data.count); }",
     },
-    mount: `this.style.setProperty('--accent', '#4f46e5')`,
+    mount: "this.style.setProperty('--accent', '#4f46e5')",
     inject: true,
   },
 
-  // Use the standard Button component styles (tokens + base styles)
-  styles: `${UIButton.injectStyles()}`,
-
-  // API collocated with the component
   api: {
-    increment: ["POST", "/api/counter/:id/increment", incrementHandler],
-    reset: ["POST", "/api/counter/:id/reset", resetHandler],
+    increment: post("/api/counter/:id/increment", async (req, params) => {
+      const result = updateCounter(params.id, 0, step);
+      if (!result.ok) return html("<span data-count>error</span>", { status: 400 });
+      return html(`<span data-count>${result.value.count}</span>`);
+    }),
+    reset: post("/api/counter/:id/reset", async (_req, params) => {
+      const result = updateCounter(params.id, 0, reset);
+      if (!result.ok) return html("<span data-count>error</span>", { status: 400 });
+      return html(`<span data-count>${result.value.count}</span>`);
+    }),
   },
 
-  // Inline props parsing and validation via render parameter defaults
-  render: (
-    {
-      id = string(), // required
-      label = string("Counter"), // optional with default
-      start = number(0), // number coercion
-      disabled = boolean(false), // presence boolean
-    },
-    api,
-    classes,
-  ) => {
-    // Initialize store on first render (SSR-safe, idempotent)
-    if (!counters.has(id)) counters.set(id, { id, count: start });
+  render: ({
+    id = string(),
+    label = string("Counter"),
+    start = number(0),
+    disabled = boolean(false),
+  }, api) => {
+    const counter = ensure(id, start);
+    const target = `[data-id="${id}"] [data-count]`;
 
-    const attrs = disabled ? { disabled: "true" } : {};
+    const resetMarkup = mergeHx(
+      UIButton({
+        variant: "outline",
+        size: "md",
+        disabled,
+        children: "Reset",
+      }),
+      api?.reset?.(id, hx({ target, swap: "outerHTML" })) ?? "",
+    );
+
+    const incrementMarkup = mergeHx(
+      UIButton({
+        variant: "primary",
+        size: "md",
+        disabled,
+        children: "+",
+      }),
+      api?.increment?.(id, hx({ target, swap: "outerHTML" })) ?? "",
+    );
 
     return (
-      <div data-id={id}>
+      <div class={shell} data-id={id}>
         <span>{label}</span>
-        <button class="ui-button ui-button--outline ui-button--md" {...attrs}>
-          −
-        </button>
-        <span data-count>
-          {String(counters.get(id)?.count ?? start)}
-        </span>
-        <button
-          class="ui-button ui-button--primary ui-button--md"
-          {...api?.increment?.(id)}
-          {...attrs}
-        >
-          +
-        </button>
-        <button
-          class="ui-button ui-button--secondary ui-button--md"
-          {...api?.reset?.(id)}
-          {...attrs}
-        >
-          Reset
-        </button>
+        <span dangerouslySetInnerHTML={{ __html: resetMarkup }} />
+        <span data-count>{String(counter.count)}</span>
+        <span dangerouslySetInnerHTML={{ __html: incrementMarkup }} />
       </div>
     );
   },
