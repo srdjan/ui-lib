@@ -2,8 +2,10 @@
 
 import type { ComponentAction } from "./actions.ts";
 import type { HxActionMap } from "./api-recipes.ts";
+import { parseActionPlan, resolveActionTarget } from "./action-dsl.ts";
 import { renderComponent } from "./component-state.ts";
 import { escape, spreadAttrs } from "./dom-helpers.ts";
+import { parseArgumentList } from "./expression-args.ts";
 import { normalizeClass, normalizeStyle } from "./jsx-normalize.ts";
 import { getRegistry } from "./registry.ts";
 
@@ -104,6 +106,25 @@ export function h(
 ): string {
   props = props || {};
 
+  const consumedProps = new Set<string>();
+  let inferredActionAttrs: string | undefined;
+
+  if (props && typeof props === "object" && "action" in props) {
+    const actionValue = props.action;
+    if (typeof actionValue === "string" && actionValue.trim().length > 0) {
+      const overrides = {
+        target: typeof props.target === "string" ? props.target : undefined,
+        swap: typeof props.swap === "string" ? props.swap : undefined,
+      };
+      inferredActionAttrs = buildActionAttributes(actionValue, overrides);
+      if (inferredActionAttrs) {
+        consumedProps.add("action");
+        if (overrides.target !== undefined) consumedProps.add("target");
+        if (overrides.swap !== undefined) consumedProps.add("swap");
+      }
+    }
+  }
+
   if (typeof tag === "function") {
     const fn = tag as (p: Record<string, unknown>) => string;
     return fn({ ...props, children });
@@ -141,6 +162,7 @@ export function h(
   let dangerousInnerHTML = "";
   for (const [key, value] of Object.entries(props)) {
     if (key === "children" || value == null || value === false) continue;
+    if (consumedProps.has(key)) continue;
 
     if (key === "dangerouslySetInnerHTML" && isDangerousInnerHTML(value)) {
       dangerousInnerHTML = String(value.__html);
@@ -180,6 +202,10 @@ export function h(
     } else {
       attributes += ` ${key}="${escape(String(value))}"`;
     }
+  }
+
+  if (inferredActionAttrs) {
+    attributes += ` ${inferredActionAttrs}`;
   }
 
   const openTag = `<${tag}${attributes}>`;
@@ -246,6 +272,76 @@ function renderActionToString(action: ComponentAction): string {
     default:
       return "";
   }
+}
+
+function buildActionAttributes(
+  actionValue: string,
+  overrides: { target?: string; swap?: string },
+): string | undefined {
+  const plan = parseActionPlan(actionValue);
+  if (!plan) {
+    console.warn(`ui-lib: unable to parse action expression "${actionValue}"`);
+    return undefined;
+  }
+
+  if (plan.calls.length === 0) return undefined;
+
+  if (plan.calls.length > 1) {
+    console.warn(
+      "ui-lib: action sequences are not yet supported; ignoring extra calls",
+    );
+    return undefined;
+  }
+
+  const call = plan.calls[0];
+  const context = getCurrentContext();
+  const apiMethod = context?.apiMap?.[call.name];
+
+  if (!apiMethod) {
+    console.warn(`ui-lib: action method "${call.name}" not found in API map`);
+    return undefined;
+  }
+
+  let apiResult: unknown;
+  try {
+    apiResult = apiMethod(...call.args);
+  } catch (error) {
+    console.warn(
+      `ui-lib: failed to invoke action method "${call.name}"`,
+      error,
+    );
+    return undefined;
+  }
+
+  let attrsRecord: Record<string, string> = {};
+  if (typeof apiResult === "string") {
+    attrsRecord = parseAttributeString(apiResult);
+  } else if (apiResult && typeof apiResult === "object") {
+    attrsRecord = Object.fromEntries(
+      Object.entries(apiResult as Record<string, unknown>).map(([
+        key,
+        value,
+      ]) => [key, String(value)]),
+    );
+  }
+
+  const hxVals = safeParseJson(attrsRecord["hx-vals"]);
+  hxVals.args = call.args.map((arg) => {
+    const serialized = serializeForJson(arg);
+    return serialized === undefined ? null : serialized;
+  });
+  attrsRecord["hx-vals"] = JSON.stringify(hxVals);
+
+  const resolvedTarget = resolveActionTarget(overrides.target);
+  if (resolvedTarget) {
+    attrsRecord["hx-target"] = resolvedTarget;
+  }
+
+  if (overrides.swap) {
+    attrsRecord["hx-swap"] = overrides.swap;
+  }
+
+  return spreadAttrs(attrsRecord);
 }
 
 // Helper function to parse action strings and convert to HTMX attributes
@@ -394,6 +490,43 @@ function parseAttributeString(attrString: string): Record<string, string> {
   return attrs;
 }
 
+function safeParseJson(value: string | undefined): Record<string, unknown> {
+  if (!value) return {};
+  try {
+    const parsed = JSON.parse(value);
+    return typeof parsed === "object" && parsed !== null
+      ? parsed as Record<string, unknown>
+      : {};
+  } catch {
+    return {};
+  }
+}
+
+function serializeForJson(value: unknown): unknown {
+  if (value === undefined) return null;
+  if (value === null) return null;
+  if (Array.isArray(value)) {
+    return value.map((entry) => {
+      const serialized = serializeForJson(entry);
+      return serialized === undefined ? null : serialized;
+    });
+  }
+  if (value instanceof Date) return value.toISOString();
+  if (value && typeof value === "object") {
+    const result: Record<string, unknown> = {};
+    for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
+      const serialized = serializeForJson(entry);
+      if (serialized !== undefined) {
+        result[key] = serialized;
+      }
+    }
+    return result;
+  }
+  if (typeof value === "function") return undefined;
+  if (typeof value === "symbol") return String(value);
+  return value;
+}
+
 function isAttributeRecord(value: object): boolean {
   const keys = Object.keys(value);
   if (keys.length === 0) return false;
@@ -408,113 +541,4 @@ function isAttributeRecord(value: object): boolean {
     }
   }
   return hasAttributePrefix;
-}
-
-function parseArgumentList(argsString: string): unknown[] {
-  const trimmed = argsString.trim();
-  if (!trimmed) return [];
-
-  const segments = splitArguments(trimmed);
-  return segments.map(deserializeArgument);
-}
-
-function splitArguments(source: string): string[] {
-  const segments: string[] = [];
-  let current = "";
-  let depthParen = 0;
-  let depthBrace = 0;
-  let depthBracket = 0;
-  let inSingle = false;
-  let inDouble = false;
-  let inTemplate = false;
-  let escaped = false;
-
-  for (let i = 0; i < source.length; i++) {
-    const char = source[i];
-
-    if (escaped) {
-      current += char;
-      escaped = false;
-      continue;
-    }
-
-    if (char === "\\" && (inSingle || inDouble || inTemplate)) {
-      current += char;
-      escaped = true;
-      continue;
-    }
-
-    if (char === "'" && !inDouble && !inTemplate) {
-      inSingle = !inSingle;
-      current += char;
-      continue;
-    }
-
-    if (char === '"' && !inSingle && !inTemplate) {
-      inDouble = !inDouble;
-      current += char;
-      continue;
-    }
-
-    if (char === "`" && !inSingle && !inDouble) {
-      inTemplate = !inTemplate;
-      current += char;
-      continue;
-    }
-
-    if (!inSingle && !inDouble && !inTemplate) {
-      if (char === "(") depthParen++;
-      if (char === ")") depthParen--;
-      if (char === "{") depthBrace++;
-      if (char === "}") depthBrace--;
-      if (char === "[") depthBracket++;
-      if (char === "]") depthBracket--;
-
-      if (
-        char === "," && depthParen === 0 && depthBrace === 0 &&
-        depthBracket === 0
-      ) {
-        segments.push(current.trim());
-        current = "";
-        continue;
-      }
-    }
-
-    current += char;
-  }
-
-  if (current.trim().length > 0) {
-    segments.push(current.trim());
-  }
-
-  return segments.filter((segment) => segment.length > 0);
-}
-
-function deserializeArgument(raw: string): unknown {
-  const value = raw.trim();
-  if (!value) return undefined;
-
-  if (
-    (value.startsWith("'") && value.endsWith("'")) ||
-    (value.startsWith('"') && value.endsWith('"'))
-  ) {
-    return unescapeQuoted(value.slice(1, -1), value[0]);
-  }
-
-  if (value === "true" || value === "false") {
-    return value === "true";
-  }
-
-  if (value === "null") return null;
-  if (value === "undefined") return undefined;
-
-  const num = Number(value);
-  if (!Number.isNaN(num)) return num;
-
-  return value;
-}
-
-function unescapeQuoted(value: string, quote: string): string {
-  const pattern = quote === '"' ? /\\"/g : /\\'/g;
-  return value.replace(/\\\\/g, "\\").replace(pattern, quote);
 }

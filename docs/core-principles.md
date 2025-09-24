@@ -1,193 +1,167 @@
-# Core Principles (Next-Gen Authoring Model)
+Here’s a **Core Design Principles document** for your SSR UI library — fully updated with the **Action DSL**, **role-driven state extraction**, and **automatic wiring** approach.
+It uses your `Counter` example as a centerpiece to demonstrate how all principles come together.
 
-This document captures the desired developer experience for the next evolution
-of the library. All code shown here is **aspirational**—it guides the
-implementation roadmap and highlights the feature set we want to deliver.
+---
 
-## Guiding Values
+# **Core Design Principles — SSR UI Library**
 
-1. **SSR-First Rendering** – the server produces HTML; the client swaps
-   fragments and runs a tiny runtime. No hydration, no re-rendering.
-2. **Pure JSX Authoring** – both component renders _and_ API handlers return
-   JSX. No string templates, no helper wrappers.
-3. **Declarative Actions** – developers express intent via an `action` DSL
-   (`action="reset(id)"`). The library expands this to concrete HTTP routes and
-   HX attributes.
-4. **Role-Driven DOM State** – `data-role="count"`, `data-role="theme-toggle"`,
-   etc., allow the library to infer wiring, derive payloads, and scope updates.
-5. **Automatic Wiring** – the runtime reads library-generated metadata
-   (`data-scope`, topics, roles) and applies updates without developer code.
-6. **Light FP Everywhere** – mutations live in pure helpers, errors as values,
-   zero classes.
+## 1. **SSR-First, Minimal Client**
 
-## Ideal Authoring Experience
+* **Principle:** The server is the renderer. The client only updates what the server tells it to update.
+* **Why:** Avoids hydration costs, enables instant-first-paint UX, and guarantees parity between server and client rendering.
+* **Implementation:**
+
+  * Render HTML on the server with `render(<JSX/>, "componentName")`.
+  * Use HTMX or plain form posts to receive HTML fragments back.
+  * Client runtime just swaps fragments and re-applies wiring — never rebuilds state.
+
+---
+
+## 2. **Action DSL Instead of HTTP Paths**
+
+* **Principle:** Developers write *intent*, not URLs.
+* **Why:** Eliminates path repetition, centralizes routing in the library, keeps authoring consistent and expressive.
+* **Implementation:**
+
+  * Developers write `action="reset(id)"`.
+  * Library compiles to `hx-post="/api/counter/reset"` + `hx-vals='{"args":[id]}'`.
+  * Works for any verb: `increment(123)`, `remove({id:1})`, `setTheme("dark")`.
+
+---
+
+## 3. **Role-Driven Markup**
+
+* **Principle:** The DOM is the source of truth. *Roles* annotate stateful parts of the UI.
+* **Why:** Simplifies reactivity — the library can wire everything automatically by scanning roles.
+* **Implementation:**
+
+  * `data-role="count"` → text updates mapped to `count` field in state payload.
+  * `data-role="theme-toggle"` → event emitter to toggle CSS vars.
+  * Roles drive:
+
+    * **Serialization** → compile-time `data-wire` generation.
+    * **State extraction** → derive JSON payload from server-returned fragments.
+    * **Effect mapping** → update DOM/CSS on topic publish.
+
+---
+
+## 4. **Automatic Wiring**
+
+* **Principle:** Developers never manually call `wire()` or `afterSwap()`.
+* **Why:** Boilerplate-free, consistent behavior across components.
+* **Implementation:**
+
+  * Server pipeline scans roles and generates compact `data-wire`.
+  * Runtime subscribes to standardized topics (e.g., `counter:update`).
+  * HTMX triggers auto-publish payloads after swaps.
+  * Client runtime applies effects without developer involvement.
+
+---
+
+## 5. **Plain JSX Returns from API Handlers**
+
+* **Principle:** API handlers focus only on business logic and returned HTML.
+* **Why:** Removes `.state(...)` ceremony and afterSwap publishing.
+* **Implementation:**
+
+  * Handlers return JSX fragments, not special wrapper calls.
+  * Library extracts state payload from roles inside returned fragment.
+  * HX-Trigger headers (or inline dispatcher for non-HTMX clients) are auto-attached.
+
+---
+
+## 6. **Scoped, Declarative Reactivity**
+
+* **Principle:** All reactivity is **scoped to `data-scope` roots**, preventing global leaks.
+* **Why:** Encourages component isolation, supports multiple instances safely.
+* **Implementation:**
+
+  * Each root gets `data-topic-scope` and unique ID.
+  * Topics publish only to their scope.
+  * Role-based effects execute in nearest scope.
+
+---
+
+## 7. **Type-Safe, Pure, Testable Core Logic**
+
+* **Principle:** All state mutations are pure functions and easily testable.
+* **Why:** Encourages separation of concerns and predictable behavior.
+* **Implementation:**
+
+  * `updateCounter(id, start, step)` is pure and returns `{ id, count }`.
+  * Components just render the result; no in-component mutation side-effects.
+
+---
+
+## 8. **Minimal, Ergonomic Developer Experience**
+
+* **Principle:** Devs should write mostly JSX and pure logic — nothing else.
+* **Why:** Reduces cognitive load, improves readability, makes onboarding trivial.
+* **Implementation:**
+
+  * No manual HTMX attributes.
+  * No manual pub/sub or custom events.
+  * No `afterSwap` or wiring calls.
+  * Roles + Action DSL + automatic HX-Trigger handle everything.
+
+---
+
+## Example: **Counter Component**
+
+### Author’s Code (Minimal)
 
 ```tsx
-import {
-  boolean,
-  defineComponent,
-  h,
-  number,
-  post,
-  string,
-} from "../mod.ts";
-import { html } from "../lib/response.ts";
-import { ok, type Result } from "../lib/result.ts";
-import { Button } from "../lib/components/button/token-button.ts";
-
-// Pure domain helpers -------------------------------------------------
-type Counter = { readonly id: string; readonly count: number };
-type CounterError = { readonly type: "invalid"; readonly message: string };
-const counters = new Map<string, Counter>();
-const ensure = (id: string, start: number): Counter => {
-  const next = counters.get(id) ?? { id, count: start };
-  if (!counters.has(id)) counters.set(id, next);
-  return next;
-};
-const mutate = (
-  id: string,
-  start: number,
-  fn: (c: Counter) => Result<Counter, CounterError>,
-): Result<Counter, CounterError> => {
-  const result = fn(ensure(id, start));
-  if (result.ok) counters.set(id, result.value);
-  return result;
-};
-const step = (c: Counter) => ok({ ...c, count: c.count + 1 });
-const reset = (c: Counter) => ok({ ...c, count: 0 });
-
-// Component ------------------------------------------------------------
 export const Counter = defineComponent("counter", {
-  reactive: {
-    on: {
-      "ui-lib:toggle-accent":
-        "const root=document.documentElement;const next=root.style.getPropertyValue('--accent')?.trim()==='#16a34a'?'#4f46e5':'#16a34a';root.style.setProperty('--accent', next);",
-    },
-    state: {
-      "counter:update":
-        "const el=this.querySelector('[data-role=\\"count\\"]'); if(el){ el.textContent = String(data.count); }",
-    },
-    mount: "this.style.setProperty('--accent', '#4f46e5')",
-    inject: true,
-  },
+  render: ({ id = string(), label = string("Counter"), start = number(0) }) =>
+    render((
+      <div data-scope>
+        <span>{label}</span>
+        <button action={`reset(${id})`}  target="role:count">Reset</button>
+        <span data-role="count">{String(start)}</span>
+        <button action={`increment(${id})`} target="role:count">+</button>
+        <button data-role="theme-toggle">Toggle theme</button>
+      </div>
+    ), "counter"),
 
   api: {
     increment: post("/api/counter/increment", async (req) => {
-      const { args: [id] = [] } = await req.json();
-      const result = mutate(String(id), 0, step);
-      if (!result.ok) return html(<span data-role="count">error</span>, { status: 400 });
-      return html(<span data-role="count">{result.value.count}</span>);
+      const { args: [id] } = await req.json()
+      const next = updateCounter(String(id), 0, step).value
+      return <span data-role="count">{next.count}</span>  // ← JSX only
     }),
     reset: post("/api/counter/reset", async (req) => {
-      const { args: [id] = [] } = await req.json();
-      const result = mutate(String(id), 0, reset);
-      if (!result.ok) return html(<span data-role="count">error</span>, { status: 400 });
-      return html(<span data-role="count">{result.value.count}</span>);
+      const { args: [id] } = await req.json()
+      const next = updateCounter(String(id), 0, reset).value
+      return <span data-role="count">{next.count}</span>  // ← JSX only
     }),
   },
-
-  render: ({
-    id = string(),
-    label = string("Counter"),
-    start = number(0),
-    disabled = boolean(false),
-  }) => {
-    const counter = ensure(id, start);
-
-    return (
-      <section data-scope="counter" data-topic-scope={`counter:${id}`}>
-        <header>{label}</header>
-        <Button
-          variant="outline"
-          disabled={disabled}
-          action={`reset(${id})`}
-          target="role:count"
-        >
-          Reset
-        </Button>
-        <span data-role="count">{String(counter.count)}</span>
-        <Button
-          variant="primary"
-          disabled={disabled}
-          action={`increment(${id})`}
-          target="role:count"
-        >
-          +
-        </Button>
-        <Button
-          variant="ghost"
-          action="toggleTheme()"
-          target="role:theme-toggle"
-        >
-          Toggle theme
-        </Button>
-      </section>
-    );
-  },
-});
+})
 ```
 
-### Notes for Implementers
+### What the Library Does Behind the Scenes
 
-1. **Action DSL**
-   - parse `action="method(args)"` → `{ method, args }`.
-   - synthesize `hx-post`, `hx-vals`, defaults for `hx-target`/`hx-swap`.
-   - allow optional `target="role:count"` to override target inference.
+* Converts `action="reset(id)"` → `hx-post="/api/counter/reset"` + `hx-vals='{"args":[id]}'`.
+* Auto-generates `data-wire` describing that `count` role should update on `counter:update`.
+* Wraps returned JSX into a Response with:
 
-2. **JSX API Returns**
-   - detect JSX responses in `post()` wrappers.
-   - render them to HTML and attach `HX-Trigger` with payload derived from
-     roles.
-   - fallback to inline `<script>` dispatcher if request isn’t HTMX.
-
-3. **Role Extraction**
-   - walk returned JSX → collect `data-role` values.
-   - convert text roles (`count`) to numbers when possible.
-   - store payload → runtime publishes `counter:update` with derived JSON.
-
-4. **Runtime Wiring**
-   - SSR pipeline emits `data-wire` describing topics + roles.
-   - client runtime reads `data-wire` & `data-topic-scope`, subscribes
-     automatically.
-   - after swap, HTMX (or fallback) triggers `counter:update` with payload.
+  * **Body:** rendered `<span data-role="count">N</span>`
+  * **HX-Trigger:** `{ "counter:update": { count: N } }`
+* Runtime listens for `counter:update` in that scope and updates `[data-role=count]`.
 
 ---
 
-## Implementation Roadmap
+## Summary Table
 
-1. **DSL Parser & Authoring Props**
-   - Implement `parseAction(expr)`.
-   - Extend render pipeline to swap `action/target` props for HTMX attributes.
-   - Define ergonomics for optional `target`, `swap`, indicators, etc.
-
-2. **Render Pipeline Enhancements**
-   - Wrap JSX VNodes with helpers: add `data-scope`, compute `data-wire`, apply
-     action inference.
-   - Ensure pipeline remains pure and composable.
-
-3. **API Wrapper Enhancements**
-   - Update `post()` (and other verbs) to accept handlers returning JSX or
-     Response.
-   - Integrate `wrapApiResult()` for state extraction + HX trigger.
-
-4. **Runtime Updates**
-   - Teach client runtime to read `data-wire`, ignore manual `wire()` calls.
-   - Translate HX-Trigger payloads into scoped topic publishes.
-   - Provide non-HTMX fallback (inline dispatcher or event bus).
-
-5. **Developer Tooling & Docs**
-   - Document reserved `data-role` names and how to combine roles.
-   - Add lint/error rules for unsupported `action` expressions.
-   - Provide codemods/migrations from manual HTMX usage to Action DSL.
-
-6. **Testing & Validation**
-   - Unit-test parser, state extraction, HX inference.
-   - Integration tests: click events → HTMX payload → server JSX → runtime
-     update.
-   - Perf benchmarks comparing legacy template literal approach vs. new DSL.
+| Principle            | Dev Work                        | Library Work                                               |
+| -------------------- | ------------------------------- | ---------------------------------------------------------- |
+| SSR-first            | Write JSX → server returns HTML | Ensure SSR render pipeline & minimal client runtime        |
+| Action DSL           | Write `action="reset(id)"`      | Compile to HTMX attrs, handle args                         |
+| Role-driven markup   | Add `data-role` attributes      | Serialize roles to data-wire, extract state from fragments |
+| Auto wiring          | Nothing                         | Generate data-wire, subscribe topics, handle afterSwap     |
+| JSX in APIs          | Return JSX                      | Wrap to Response, derive state, add HX-Trigger             |
+| Scoped reactivity    | Nothing                         | Attach `data-scope`, restrict bus to scope                 |
+| Type-safe core logic | Pure functions                  | Just call them inside API handlers                         |
 
 ---
 
-By following this plan, the next iteration of the library will deliver a truly
-**pure JSX** developer experience, hide HTMX completely, and keep all the Light
-FP + DOM-native strengths that make the current system attractive.
+Would you like me to add a **visual diagram** (sequence diagram or flow chart) showing end-to-end flow: *user clicks → HTMX request → server returns JSX → HX-Trigger → runtime updates DOM*? It would make this principles document even more compelling for onboarding new developers.

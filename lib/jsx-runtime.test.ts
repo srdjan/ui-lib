@@ -1,7 +1,10 @@
 // Tests for JSX runtime with type-safe event handlers
 
-import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
-import { Fragment, h } from "./jsx-runtime.ts";
+import {
+  assertEquals,
+  assertStringIncludes,
+} from "https://deno.land/std@0.224.0/assert/mod.ts";
+import { Fragment, clearRenderContext, h, setRenderContext } from "./jsx-runtime.ts";
 import { chain, toggleClass, toggleClasses } from "./dom-helpers.ts";
 
 Deno.test("h function renders basic elements", () => {
@@ -124,4 +127,24 @@ Deno.test("h function lowercases event attribute names", () => {
 
   const res3 = h("button", { onChange: "update()" }, "Ok");
   assertEquals(res3, '<button onchange="update()">Ok</button>');
+});
+
+Deno.test("action DSL converts to HTMX attributes", () => {
+  const apiMap = {
+    increment: () => 'hx-post="/api/counter/increment" hx-vals="{}"',
+  };
+
+  setRenderContext({ apiMap, componentId: "counter:test" });
+  const markup = h(
+    "button",
+    { action: "increment('counter-1')", target: "role:count" },
+    "+",
+  );
+  clearRenderContext();
+
+  assertStringIncludes(markup, 'hx-post="/api/counter/increment"');
+  assertStringIncludes(markup, 'hx-target="[data-role=&quot;count&quot;]"');
+  assertStringIncludes(markup, 'hx-vals="{&quot;args&quot;:[&quot;counter-1&quot;]}"');
+  assertEquals(markup.includes("action="), false);
+  assertEquals(markup.includes(' target="role:count"'), false);
 });

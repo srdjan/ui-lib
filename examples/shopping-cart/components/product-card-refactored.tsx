@@ -278,47 +278,44 @@ defineComponent("product-card", {
         const acceptsHtml = req.headers.get("accept")?.includes("text/html") ||
           req.headers.get("hx-request") === "true";
 
+        const cart = result.value;
+
         if (acceptsHtml) {
-          const cart = result.value;
-          return html(`
+          return html(
+            `
             <div class="cart-feedback success" role="alert">
               ✓ Added to cart (${cart.itemCount} items)
-              <script>
-                // Update cart count in header
-                const cartBadge = document.querySelector('[data-cart-count]');
-                if (cartBadge) {
-                  cartBadge.textContent = '${cart.itemCount}';
-                  cartBadge.setAttribute('data-cart-count', '${cart.itemCount}');
-                  cartBadge.style.display = '${
-            cart.itemCount > 0 ? "inline-flex" : "none"
-          }';
-                }
-
-                // Update all cart total elements
-                const cartTotals = document.querySelectorAll('[data-cart-total]');
-                cartTotals.forEach(el => {
-                  el.textContent = '$${cart.total.toFixed(2)}';
-                });
-
-                // Update cart subtotal (in sidebar)
-                const cartSubtotals = document.querySelectorAll('[data-cart-subtotal]');
-                cartSubtotals.forEach(el => {
-                  el.textContent = '$${cart.total.toFixed(2)}';
-                });
-
-                // Trigger HTMX event to reload cart sidebar
-                htmx.trigger(document.body, 'cart-updated');
-
-                // Also trigger custom event for any additional listeners
-                document.body.dispatchEvent(new CustomEvent('cart-updated', {
-                  detail: { count: ${cart.itemCount}, total: ${cart.total} }
-                }));
-              </script>
             </div>
-          `);
+          `.trim(),
+            {
+              headers: {
+                "HX-Trigger": JSON.stringify({
+                  "cart-updated": {
+                    itemCount: cart.itemCount,
+                    count: cart.itemCount,
+                    total: cart.total,
+                    subtotal: cart.subtotal,
+                    sessionId: finalSessionId,
+                  },
+                }),
+              },
+            },
+          );
         }
 
-        return json({ success: true, cart: result.value });
+        return json({
+          success: true,
+          cart,
+          trigger: {
+            "cart-updated": {
+              itemCount: cart.itemCount,
+              count: cart.itemCount,
+              total: cart.total,
+              subtotal: cart.subtotal,
+              sessionId: finalSessionId,
+            },
+          },
+        });
       } catch (err) {
         return json({ error: "Failed to add to cart" }, { status: 500 });
       }

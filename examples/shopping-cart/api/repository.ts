@@ -889,3 +889,9 @@ export function getRepository(): ShoppingRepository {
   }
   return repository;
 }
+
+export function setRepositoryForTesting(
+  instance: ShoppingRepository | null,
+): void {
+  repository = instance;
+}

@@ -370,6 +370,57 @@ function Layout({
         }
 
         // HTMX configuration
+        const updateCartIndicators = (detail) => {
+          if (!detail || typeof detail !== 'object') return;
+
+          const count = typeof detail.count === 'number'
+            ? detail.count
+            : typeof detail.itemCount === 'number'
+            ? detail.itemCount
+            : undefined;
+
+          if (typeof count === 'number' && Number.isFinite(count)) {
+            const badge = document.getElementById('cart-count');
+            if (badge) {
+              badge.textContent = String(count);
+              if (count > 0) {
+                badge.classList.remove('hidden');
+              } else {
+                badge.classList.add('hidden');
+              }
+            }
+
+            document.querySelectorAll('[data-cart-count]').forEach((el) => {
+              el.setAttribute('data-cart-count', String(count));
+              if (el.children.length === 0) {
+                el.textContent = String(count);
+              }
+            });
+          }
+
+          const subtotal = typeof detail.subtotal === 'number'
+            ? detail.subtotal
+            : undefined;
+          const total = typeof detail.total === 'number' ? detail.total : subtotal;
+
+          if (typeof total === 'number' && Number.isFinite(total)) {
+            const formatted = '$' + total.toFixed(2);
+            document.querySelectorAll('[data-cart-total]').forEach((el) => {
+              el.setAttribute('data-cart-total', total.toFixed(2));
+              el.textContent = formatted;
+            });
+
+            document.querySelectorAll('[data-cart-subtotal]').forEach((el) => {
+              el.textContent = formatted;
+            });
+          }
+        };
+
+        document.body.addEventListener('cart-updated', (event) => {
+          const detail = event && event.detail ? event.detail : {};
+          updateCartIndicators(detail);
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
           // Configure HTMX
           if (typeof htmx !== 'undefined') {
