@@ -99,6 +99,7 @@ Deno.test("product-card addToCart emits cart-updated trigger", async () => {
     assertExists(cartUpdated, "cart-updated trigger should be present");
     assertEquals(cartUpdated.itemCount, sampleCart.itemCount);
     assertEquals(cartUpdated.total, sampleCart.total);
+    assertEquals(cartUpdated.target, "body");
 
     const body = await response.text();
     assertStringIncludes(body, "Added to cart");

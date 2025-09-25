@@ -754,9 +754,9 @@ if (!repositoryResult.ok) {
 
 // Register component APIs with unique endpoints to avoid conflicts
 registerComponentApi("product-card", router); // Handles /api/cart/add with enhanced reactivity
+registerComponentApi("cart-item", router); // Handles /api/cart/items/:id for updates/deletes
 // registerComponentApi("product-grid", router); // Would handle /api/products/filter
 // registerComponentApi("cart-sidebar", router); // Would conflict with /api/cart
-// registerComponentApi("cart-item", router); // Would handle /api/cart/items/:id for updates/deletes
 
 // ============================================================
 // Page Routes
@@ -803,8 +803,8 @@ router.get("/api/products/search", searchProducts);
 
 // router.post("/api/cart/add", addToCart); // Now handled by product-card component with enhanced reactivity
 router.get("/api/cart", getCart); // Keep this for direct cart loading
-router.patch("/api/cart/items/:itemId", updateCartItem); // Temporary fallback
-router.delete("/api/cart/items/:itemId", removeFromCart); // Temporary fallback
+// router.patch("/api/cart/items/:itemId", updateCartItem); // Handled via cart-item component API
+// router.delete("/api/cart/items/:itemId", removeFromCart); // Handled via cart-item component API
 
 // ============================================================
 // API Routes - Checkout

@@ -291,6 +291,7 @@ defineComponent("product-card", {
               headers: {
                 "HX-Trigger": JSON.stringify({
                   "cart-updated": {
+                    target: "body",
                     itemCount: cart.itemCount,
                     count: cart.itemCount,
                     total: cart.total,
@@ -308,6 +309,7 @@ defineComponent("product-card", {
           cart,
           trigger: {
             "cart-updated": {
+              target: "body",
               itemCount: cart.itemCount,
               count: cart.itemCount,
               total: cart.total,

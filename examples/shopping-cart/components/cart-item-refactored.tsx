@@ -13,6 +13,7 @@
 import { h } from "../../../lib/jsx-runtime.ts";
 import { defineComponent } from "../../../lib/define-component.ts";
 import { composeStyles, css } from "../../../lib/css-in-ts.ts";
+import { hx } from "../../../lib/api-recipes.ts";
 import { html, json } from "../../../lib/response.ts";
 import type { CartItem } from "../api/types.ts";
 import { getRepository } from "../api/repository.ts";
@@ -148,9 +149,53 @@ defineComponent("cart-item", {
   api: {
     updateQuantity: ["PATCH", "/api/cart/items/:id", async (req, params) => {
       try {
-        const { quantity } = await req.json();
         const itemId = params.id;
         const sessionId = req.headers.get("x-session-id") || "default";
+
+        const hxValuesHeader = req.headers.get("hx-values");
+        let desiredQuantity: number | undefined;
+
+        if (hxValuesHeader) {
+          try {
+            const parsed = JSON.parse(hxValuesHeader) as Record<
+              string,
+              unknown
+            >;
+            if (parsed && typeof parsed.quantity !== "undefined") {
+              desiredQuantity = Number(parsed.quantity);
+            }
+          } catch {
+            // Ignore parse failure and fall back to body parsing
+          }
+        }
+
+        if (desiredQuantity === undefined) {
+          const contentType = req.headers.get("content-type") || "";
+          if (contentType.includes("application/json")) {
+            try {
+              const body = await req.json() as { quantity?: unknown };
+              if (typeof body?.quantity !== "undefined") {
+                desiredQuantity = Number(body.quantity);
+              }
+            } catch {
+              // Ignore and continue to next strategy
+            }
+          }
+        }
+
+        if (desiredQuantity === undefined) {
+          const formData = await req.formData().catch(() => null);
+          if (formData) {
+            const value = formData.get("quantity");
+            if (value !== null) desiredQuantity = Number(value);
+          }
+        }
+
+        if (!Number.isFinite(desiredQuantity)) {
+          return json({ error: "Invalid quantity" }, { status: 400 });
+        }
+
+        const quantity = Math.max(0, Math.trunc(desiredQuantity));
 
         const repository = getRepository();
         const result = await repository.updateCartItem(sessionId, itemId, {
@@ -164,12 +209,35 @@ defineComponent("cart-item", {
         const acceptsHtml = req.headers.get("accept")?.includes("text/html") ||
           req.headers.get("hx-request") === "true";
 
+        const cart = result.value;
+        const triggerPayload = {
+          "cart-updated": {
+            target: "body",
+            itemId,
+            itemCount: cart.itemCount,
+            count: cart.itemCount,
+            total: cart.total,
+            subtotal: cart.subtotal,
+            sessionId,
+          },
+        };
+
         if (acceptsHtml) {
-          // Return updated cart HTML
-          return html(`<div class="cart-update-success">Cart updated</div>`);
+          return html(
+            `<div class="cart-update-success">Cart updated</div>`,
+            {
+              headers: {
+                "HX-Trigger": JSON.stringify(triggerPayload),
+              },
+            },
+          );
         }
 
-        return json({ success: true, cart: result.value });
+        return json({
+          success: true,
+          cart,
+          trigger: triggerPayload,
+        });
       } catch (err) {
         return json({ error: "Failed to update quantity" }, { status: 500 });
       }
@@ -190,12 +258,35 @@ defineComponent("cart-item", {
         const acceptsHtml = req.headers.get("accept")?.includes("text/html") ||
           req.headers.get("hx-request") === "true";
 
+        const cart = result.value;
+        const triggerPayload = {
+          "cart-updated": {
+            target: "body",
+            removedItemId: itemId,
+            itemCount: cart.itemCount,
+            count: cart.itemCount,
+            total: cart.total,
+            subtotal: cart.subtotal,
+            sessionId,
+          },
+        };
+
         if (acceptsHtml) {
-          // Return empty to remove the item from DOM
-          return html("");
+          return html(
+            `<div class="cart-update-success">Removed from cart</div>`,
+            {
+              headers: {
+                "HX-Trigger": JSON.stringify(triggerPayload),
+              },
+            },
+          );
         }
 
-        return json({ success: true, cart: result.value });
+        return json({
+          success: true,
+          cart,
+          trigger: triggerPayload,
+        });
       } catch (err) {
         return json({ error: "Failed to remove item" }, { status: 500 });
       }
@@ -236,15 +327,16 @@ defineComponent("cart-item", {
             <button
               class={styles.quantityBtn}
               disabled={item.quantity <= 1}
-              {...api.updateQuantity({
-                id: item.id,
-                quantity: Math.max(1, item.quantity - 1),
-              })}
+              {...api.updateQuantity(
+                item.id,
+                { quantity: Math.max(1, item.quantity - 1) },
+                hx({
+                  trigger: "click",
+                  swap: "none",
+                  headers: { "x-session-id": sessionId },
+                }),
+              )}
               data-action="decrement"
-              hx-trigger="click"
-              hx-target={`[data-item-id="${item.id}"]`}
-              hx-swap="outerHTML"
-              hx-headers={`{"x-session-id": "${sessionId}"}`}
             >
               -
             </button>
@@ -253,15 +345,16 @@ defineComponent("cart-item", {
 
             <button
               class={styles.quantityBtn}
-              {...api.updateQuantity({
-                id: item.id,
-                quantity: item.quantity + 1,
-              })}
+              {...api.updateQuantity(
+                item.id,
+                { quantity: item.quantity + 1 },
+                hx({
+                  trigger: "click",
+                  swap: "none",
+                  headers: { "x-session-id": sessionId },
+                }),
+              )}
               data-action="increment"
-              hx-trigger="click"
-              hx-target={`[data-item-id="${item.id}"]`}
-              hx-swap="outerHTML"
-              hx-headers={`{"x-session-id": "${sessionId}"}`}
             >
               +
             </button>
@@ -275,13 +368,17 @@ defineComponent("cart-item", {
         <button
           class={styles.removeBtn}
           title="Remove item"
-          {...api.removeItem({ id: item.id })}
+          {...api.removeItem(
+            item.id,
+            undefined,
+            hx({
+              trigger: "click",
+              swap: "none",
+              headers: { "x-session-id": sessionId },
+              confirm: "Remove this item from cart?",
+            }),
+          )}
           data-action="remove"
-          hx-trigger="click"
-          hx-target={`[data-item-id="${item.id}"]`}
-          hx-swap="outerHTML"
-          hx-headers={`{"x-session-id": "${sessionId}"}`}
-          hx-confirm="Remove this item from cart?"
         >
           ×
         </button>
