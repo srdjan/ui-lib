@@ -75,7 +75,7 @@ const button = Button({
 ### Basic Usage (Traditional)
 
 ```tsx
-import { defineComponent, h } from "ui-lib/mod.ts";
+import { defineComponent, h, render } from "ui-lib/mod.ts";
 
 // Define a component
 defineComponent("card", {
@@ -93,12 +93,12 @@ defineComponent("card", {
   ),
 });
 
-// Use it (JSX evaluates to an HTML string in SSR)
-const html = <card title="Hello" content="World" />;
+// Use it (JSX + render to produce HTML on the server)
+const html = render(<card title="Hello" content="World" />);
 ```
 
-> Note: In application code, render components using JSX exclusively.
-> `renderComponent` is an internal library helper.
+> Note: In application code, call `render(<Component />)` to produce HTML.
+> `renderComponent` is still available for low-level access when needed.
 
 ### With Function-Style Props
 

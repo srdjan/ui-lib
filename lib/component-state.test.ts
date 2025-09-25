@@ -6,6 +6,10 @@ import {
   assertStringIncludes,
 } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import { generateComponentId, renderComponent } from "./component-state.ts";
+import { render } from "./render.ts";
+import { defineComponent } from "./define-component.ts";
+import { string } from "./prop-helpers.ts";
+import { h } from "./jsx-runtime.ts";
 import { getRegistry, resetRegistry } from "./registry.ts";
 import type { SSRRegistryEntry } from "./registry.ts";
 
@@ -257,4 +261,26 @@ Deno.test("renderComponent handles render function errors", () => {
     result.includes("failed to render"),
     `Expected error comment, got: ${result}`,
   );
+});
+
+Deno.test("render() converts JSX element to HTML", () => {
+  clearRegistry();
+
+  defineComponent("test-render", {
+    render: ({ message = string("Hi") }) => `<div>${message}</div>`,
+  });
+
+  const html = render(h("test-render", { message: "Hello" }));
+  assertEquals(html, '<div data-component="test-render">Hello</div>');
+});
+
+Deno.test("render() accepts component function and props", () => {
+  clearRegistry();
+
+  const TestRender = defineComponent("test-render-fn", {
+    render: ({ message = string("Hi") }) => `<div>${message}</div>`,
+  });
+
+  const html = render(TestRender, { message: "Howdy" });
+  assertEquals(html, '<div data-component="test-render-fn">Howdy</div>');
 });

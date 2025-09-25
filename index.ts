@@ -2,6 +2,7 @@
 
 // Core component system
 export { renderComponent } from "./lib/component-state.ts";
+export { render } from "./lib/render.ts";
 export { defineComponent } from "./lib/define-component.ts";
 export type { DefinedComponent } from "./lib/define-component.ts";
 export { h } from "./lib/jsx-runtime.ts";

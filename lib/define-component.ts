@@ -16,6 +16,7 @@ import {
   parseUnifiedStyles,
   type UnifiedStyles,
 } from "./styles-parser.ts";
+import { renderComponent } from "./component-state.ts";
 // Re-export h function for JSX support
 export { h } from "./jsx-runtime.ts";
 
@@ -24,7 +25,11 @@ export type { HxActionMap };
 // Minimal types
 export type ClassMap = Record<string, string>;
 export type StylesInput = string | UnifiedStyles | Record<string, string>;
-export type DefinedComponent = { readonly name: string };
+export type DefinedComponent<TProps = any> =
+  & (
+    (props?: TProps & { children?: unknown }) => string
+  )
+  & { readonly componentName: string };
 
 // Consolidated reactive configuration
 export type ReactiveConfig = {
@@ -55,7 +60,7 @@ export type ComponentConfig<TProps = any> = {
 export function defineComponent<TProps = any>(
   name: string,
   config: ComponentConfig<TProps>,
-): DefinedComponent {
+): DefinedComponent<TProps> {
   const {
     styles: stylesInput,
     api: apiMap,
@@ -232,7 +237,18 @@ export function defineComponent<TProps = any>(
     console.log(`✅ Component "${name}" registered with inline props`);
   }
 
-  return { name };
+  const component = ((props?: TProps & { children?: unknown }) => {
+    const finalProps = (props ?? {}) as Record<string, unknown>;
+    return renderComponent(name, finalProps);
+  }) as DefinedComponent<TProps>;
+
+  Object.defineProperty(component, "componentName", {
+    value: name,
+    writable: false,
+    enumerable: false,
+  });
+
+  return component;
 }
 
 // Helper to register component API routes externally

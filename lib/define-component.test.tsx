@@ -95,7 +95,7 @@ Deno.test("Minimal API: Component with API", () => {
   const mockHandler = async () =>
     new Response(JSON.stringify({ success: true }));
 
-  defineComponent("test-api", {
+  const TestApi = defineComponent("test-api", {
     api: {
       save: ["POST", "/api/save", mockHandler],
       delete: ["DELETE", "/api/delete/:id", mockHandler],
@@ -114,6 +114,8 @@ Deno.test("Minimal API: Component with API", () => {
 
   assertExists(registry["test-api"].api);
   assertExists(registry["test-api"].apiMap);
+  assertEquals(typeof TestApi, "function");
+  assertEquals(TestApi.componentName, "test-api");
 
   const result = renderComponent("test-api", {});
   assertEquals(

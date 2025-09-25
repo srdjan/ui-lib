@@ -2,8 +2,9 @@
 
 This guide will help you get up and running with ui-lib in minutes.
 
-> Note: In application code, render components using JSX exclusively.
-> `renderComponent` is an internal library helper.
+> Note: In application code, render components with `render(<Component />)`.
+> `renderComponent` remains available for low-level access, but most users can
+> stick with JSX.
 
 ## Prerequisites
 
