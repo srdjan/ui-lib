@@ -1,7 +1,7 @@
 // Demo Viewer Component - Interactive demo viewer with HTMX integration
 // Extracted from showcase inline JavaScript for broader reuse
 
-import { defineComponent } from "../../define-component.ts";
+import { defineComponent } from "../../internal.ts";
 import type { ComponentProps } from "../../types.ts";
 
 /**

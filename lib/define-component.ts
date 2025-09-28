@@ -56,6 +56,19 @@ export type ComponentConfig<TProps = any> = {
   ) => string;
 };
 
+// App component configuration - restricted version without styling capabilities
+// Apps must compose pre-styled library components with variants
+export type AppComponentConfig<TProps = any> = {
+  readonly reactive?: ReactiveConfig;
+  readonly api?: ApiMap;
+  readonly props?: (attrs: Record<string, string>) => TProps;
+  readonly render: (
+    props: TProps,
+    api?: HxActionMap<any>,
+    classes?: ClassMap,
+  ) => string;
+};
+
 // New minimal defineComponent implementation with inline prop definitions
 export function defineComponent<TProps = any>(
   name: string,

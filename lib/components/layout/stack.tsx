@@ -4,7 +4,7 @@
  * Uses CSS logical properties and design tokens
  */
 
-import { defineComponent, h } from "../../define-component.ts";
+import { defineComponent, h } from "../../internal.ts";
 import type { StackProps } from "./types.ts";
 
 defineComponent<StackProps>("stack", {

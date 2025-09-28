@@ -3,7 +3,7 @@
  * Provides various card styles and interactive states
  */
 
-import { defineComponent } from "../../define-component.ts";
+import { defineComponent } from "../../internal.ts";
 import type { CardProps } from "./types.ts";
 
 defineComponent<CardProps>("card", {

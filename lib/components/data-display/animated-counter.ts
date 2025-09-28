@@ -1,7 +1,7 @@
 // Animated Counter Component - Number animation with easing
 // Extracted from showcase metrics animation for broader reuse
 
-import { defineComponent } from "../../define-component.ts";
+import { defineComponent } from "../../internal.ts";
 import type { ComponentProps } from "../../types.ts";
 
 /**

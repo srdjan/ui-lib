@@ -4,7 +4,7 @@
  * Provides consistent page structure and centering
  */
 
-import { defineComponent, h } from "../../define-component.ts";
+import { defineComponent, h } from "../../internal.ts";
 import type { PageProps } from "./types.ts";
 
 defineComponent<PageProps>("page", {

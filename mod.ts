@@ -4,11 +4,34 @@
 export { renderComponent } from "./lib/component-state.ts";
 export { render } from "./lib/render.ts";
 export {
-  defineComponent,
   registerComponentApi,
 } from "./lib/define-component.ts";
-export type { DefinedComponent } from "./lib/define-component.ts";
+export type {
+  AppComponentConfig,
+  DefinedComponent,
+} from "./lib/define-component.ts";
 export { h } from "./lib/jsx-runtime.ts";
+
+// App-level defineComponent - restricted to composition only (no custom styles)
+// Apps must use pre-styled library components with variants
+import {
+  defineComponent as defineComponentInternal,
+  type AppComponentConfig as AppComponentConfigInternal,
+  type DefinedComponent as DefinedComponentInternal,
+} from "./lib/define-component.ts";
+
+export function defineComponent<TProps = any>(
+  name: string,
+  config: AppComponentConfigInternal<TProps>,
+): DefinedComponentInternal<TProps> {
+  if ("styles" in config || "clientScript" in config) {
+    throw new Error(
+      `Component "${name}": Custom styles and clientScript are not allowed in app components. ` +
+        `Please use library components with variants instead.`,
+    );
+  }
+  return defineComponentInternal(name, config);
+}
 
 // HTTP method helpers (curated subset)
 export {
@@ -33,17 +56,8 @@ export {
   string,
 } from "./lib/prop-helpers.ts";
 
-// CSS-in-TS utilities
-export {
-  composeStyles,
-  createTheme,
-  css,
-  cssHelpers,
-  type CSSProperties,
-  type StyleMap,
-  type StyleObject,
-  type ThemeTokens,
-} from "./lib/css-in-ts.ts";
+// CSS-in-TS utilities removed from public API
+// Apps should use library components with variants instead of custom styling
 
 // Router (stable minimal)
 export { type RouteHandler, type RouteParams, Router } from "./lib/router.ts";

@@ -4,7 +4,7 @@
  * Provides proper semantic structure for content sections
  */
 
-import { defineComponent, h } from "../../define-component.ts";
+import { defineComponent, h } from "../../internal.ts";
 import type { SectionProps } from "./types.ts";
 
 defineComponent<SectionProps>("section", {

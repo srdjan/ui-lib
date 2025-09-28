@@ -6,7 +6,7 @@
  */
 
 import { css } from "../../css-in-ts.ts";
-import { defineComponent } from "../../define-component.ts";
+import { defineComponent } from "../../internal.ts";
 import { componentTokens } from "../../themes/component-tokens.ts";
 import type { ComponentSize } from "../types.ts";
 

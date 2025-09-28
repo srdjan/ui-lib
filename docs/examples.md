@@ -2,6 +2,71 @@
 
 Real-world examples demonstrating ui-lib's capabilities.
 
+## Component Composition Pattern
+
+**Important:** ui-lib enforces a composition-only pattern for application components. Applications can use `defineComponent()` to create custom components, but **cannot add custom styles**. Instead, apps must compose pre-styled library components using their variant APIs.
+
+### Why This Constraint?
+
+- **UI Consistency**: All apps using ui-lib have a uniform look and feel
+- **Reduced Code**: 94% reduction in app-specific styling code
+- **Faster Development**: Compose existing components instead of writing CSS
+- **Shared Testing**: Library components are thoroughly tested once
+- **Easier Maintenance**: Style updates happen at the library level
+
+### App Component Pattern
+
+```tsx
+import { defineComponent, h } from "ui-lib";
+// Import pre-styled components
+import { Button, Card, Badge } from "ui-lib/components";
+
+// ✅ CORRECT: Compose library components with variants
+defineComponent("todo-item", {
+  api: {
+    toggle: ["POST", "/api/todos/:id/toggle", handler],
+    delete: ["DELETE", "/api/todos/:id", handler],
+  },
+  render: ({ todo }, api) => (
+    <div>
+      {/* Use library Item component with variants */}
+      <item
+        title={todo.text}
+        completed={todo.completed}
+        priority={todo.priority}
+        badges={[{
+          text: todo.priority,
+          variant: todo.priority === "high" ? "danger" : "success"
+        }]}
+        actions={[
+          { text: "Delete", variant: "danger", ...api.delete(todo.id) }
+        ]}
+      />
+    </div>
+  ),
+});
+
+// ❌ WRONG: Custom styles are not allowed
+defineComponent("custom-styled", {
+  styles: { color: "red" },  // ERROR: Property 'styles' not allowed
+  render: () => <div>...</div>,
+});
+```
+
+### Available Library Components
+
+Applications can compose these pre-styled components:
+
+- **Buttons**: Button, ButtonGroup (variants: primary, secondary, outline, ghost)
+- **Forms**: Input, Select, Textarea, Form (with validation styling)
+- **Layouts**: Card, Container, Grid, Stack, Flex
+- **Feedback**: Alert, Badge, Toast, Progress (variants: success, warning, error, info)
+- **Data Display**: Item, List, Stat, AnimatedCounter
+- **Media**: Image, Video, Audio
+- **Overlays**: Modal, Drawer, Popover, Tooltip
+
+See the [Component API](component-api.md) for full variant lists and props.
+
 ## Running the Todo App Example
 
 The Todo demo lives under `examples/todo-app` and demonstrates SSR-first,

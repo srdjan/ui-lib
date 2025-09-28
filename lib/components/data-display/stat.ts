@@ -3,7 +3,7 @@
  * Provides consistent styling for numerical data display
  */
 
-import { defineComponent } from "../../define-component.ts";
+import { defineComponent } from "../../internal.ts";
 
 export type StatProps = {
   readonly value: string | number;

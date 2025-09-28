@@ -4,7 +4,7 @@
  */
 
 import { renderComponent } from "../../component-state.ts";
-import { defineComponent } from "../../define-component.ts";
+import { defineComponent } from "../../internal.ts";
 import { css, token } from "../../modern-css.ts";
 
 // Create modern CSS styles for the filters component

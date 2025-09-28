@@ -4,7 +4,7 @@
  * Provides semantic header structure with proper heading levels
  */
 
-import { defineComponent, h } from "../../define-component.ts";
+import { defineComponent, h } from "../../internal.ts";
 import type { HeaderProps } from "./types.ts";
 
 defineComponent<HeaderProps>("header", {

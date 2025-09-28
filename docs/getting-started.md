@@ -49,23 +49,20 @@ deno task bundle:state  # Emit dist/ui-lib-state.js for browser progressive enha
 
 ## Your First Component
 
-Let's create a simple greeting component:
+**Important:** Applications use `defineComponent()` to compose pre-styled library components, not to add custom styles. Custom styling is reserved for library components only.
+
+Let's create a greeting component using library components:
 
 ```tsx
 import { defineComponent, h } from "ui-lib";
+import { Card } from "ui-lib/components";
 
 defineComponent("greeting", {
-  styles: {
-    padding: "2rem",
-    backgroundColor: "#f0f0f0",
-    borderRadius: "8px",
-    textAlign: "center",
-  },
   render: ({ name = "World" }) => (
-    <div class="greeting">
+    <card variant="elevated" padding="lg">
       <h1>Hello, {name}!</h1>
       <p>Welcome to ui-lib</p>
-    </div>
+    </card>
   ),
 });
 
@@ -73,6 +70,17 @@ defineComponent("greeting", {
 const html = <greeting name="Developer" />;
 console.log(html);
 ```
+
+### Why No Custom Styles in Apps?
+
+ui-lib enforces UI consistency by providing a rich library of pre-styled components with variants. Applications compose these components rather than adding custom CSS. This provides:
+
+- **Consistency**: Uniform UI across all applications
+- **Speed**: No CSS authoring needed
+- **Quality**: Library components are rigorously tested
+- **Maintainability**: Style updates happen at the library level
+
+If you need to create styled components for the library itself, see the [Library Development Guide](./library-development.md).
 
 ## Using Function-Style Props
 

@@ -3,7 +3,7 @@
  * Provides a complete application layout with header, main content, and footer
  */
 
-import { defineComponent } from "../../define-component.ts";
+import { defineComponent } from "../../internal.ts";
 import { renderComponent } from "../../component-state.ts";
 import type { LayoutProps } from "./types.ts";
 

@@ -4,7 +4,7 @@
  * Provides responsive grid layouts with design token integration
  */
 
-import { defineComponent, h } from "../../define-component.ts";
+import { defineComponent, h } from "../../internal.ts";
 import type { GridProps } from "./types.ts";
 
 defineComponent<GridProps>("grid", {
