@@ -4,7 +4,10 @@ Real-world examples demonstrating ui-lib's capabilities.
 
 ## Component Composition Pattern
 
-**Important:** ui-lib enforces a composition-only pattern for application components. Applications can use `defineComponent()` to create custom components, but **cannot add custom styles**. Instead, apps must compose pre-styled library components using their variant APIs.
+**Important:** ui-lib enforces a composition-only pattern for application
+components. Applications can use `defineComponent()` to create custom
+components, but **cannot add custom styles**. Instead, apps must compose
+pre-styled library components using their variant APIs.
 
 ### Why This Constraint?
 
@@ -19,7 +22,7 @@ Real-world examples demonstrating ui-lib's capabilities.
 ```tsx
 import { defineComponent, h } from "ui-lib";
 // Import pre-styled components
-import { Button, Card, Badge } from "ui-lib/components";
+import { Badge, Button, Card } from "ui-lib/components";
 
 // ✅ CORRECT: Compose library components with variants
 defineComponent("todo-item", {
@@ -36,10 +39,10 @@ defineComponent("todo-item", {
         priority={todo.priority}
         badges={[{
           text: todo.priority,
-          variant: todo.priority === "high" ? "danger" : "success"
+          variant: todo.priority === "high" ? "danger" : "success",
         }]}
         actions={[
-          { text: "Delete", variant: "danger", ...api.delete(todo.id) }
+          { text: "Delete", variant: "danger", ...api.delete(todo.id) },
         ]}
       />
     </div>
@@ -48,7 +51,7 @@ defineComponent("todo-item", {
 
 // ❌ WRONG: Custom styles are not allowed
 defineComponent("custom-styled", {
-  styles: { color: "red" },  // ERROR: Property 'styles' not allowed
+  styles: { color: "red" }, // ERROR: Property 'styles' not allowed
   render: () => <div>...</div>,
 });
 ```
@@ -57,10 +60,12 @@ defineComponent("custom-styled", {
 
 Applications can compose these pre-styled components:
 
-- **Buttons**: Button, ButtonGroup (variants: primary, secondary, outline, ghost)
+- **Buttons**: Button, ButtonGroup (variants: primary, secondary, outline,
+  ghost)
 - **Forms**: Input, Select, Textarea, Form (with validation styling)
 - **Layouts**: Card, Container, Grid, Stack, Flex
-- **Feedback**: Alert, Badge, Toast, Progress (variants: success, warning, error, info)
+- **Feedback**: Alert, Badge, Toast, Progress (variants: success, warning,
+  error, info)
 - **Data Display**: Item, List, Stat, AnimatedCounter
 - **Media**: Image, Video, Audio
 - **Overlays**: Modal, Drawer, Popover, Tooltip

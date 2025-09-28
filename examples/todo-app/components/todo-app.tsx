@@ -39,7 +39,8 @@ defineComponent<TodoAppProps>("todo-app", {
           <header style="text-align: center;">
             <h1>Composition-Only Architecture Demo</h1>
             <p style="color: #6b7280;">
-              Todo app using only library components with variants - no custom CSS
+              Todo app using only library components with variants - no custom
+              CSS
             </p>
           </header>
 
@@ -96,7 +97,8 @@ defineComponent<TodoAppProps>("todo-app", {
           />
           <title>Composition-Only Architecture Demo - ui-lib</title>
           <script src="https://unpkg.com/htmx.org"></script>
-          <script src="https://unpkg.com/htmx-ext-json-enc@2.0.1/json-enc.js"></script>
+          <script src="https://unpkg.com/htmx-ext-json-enc@2.0.1/json-enc.js">
+          </script>
         </head>
         <body>
           {appContent}

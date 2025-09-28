@@ -22,6 +22,9 @@ export * from "./media/index.ts";
 // Overlay components
 export * from "./overlay/index.ts";
 
+// Form components
+export * from "./forms/index.ts";
+
 // Showcase components are internal to the examples and not part of the public library bundle for MVP
 
 // Component types

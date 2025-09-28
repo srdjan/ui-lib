@@ -5,8 +5,9 @@
  * Demonstrates integration between ui-lib components and server APIs
  */
 
-import { h } from "jsx";
+import { ProductCard } from "../../../lib/components/data-display/product-card.tsx";
 import { error, html, json } from "../../../lib/response.ts";
+import { renderComponent } from "../../../mod.ts";
 import { getRepository } from "./repository.ts";
 import type {
   AddToCartRequest,
@@ -24,69 +25,48 @@ function renderProductCard(
   product: any,
   sessionId: string = "default",
 ): string {
-  const isOnSale = product.originalPrice &&
-    product.originalPrice > product.price;
-  const displayPrice = product.price;
-  const originalPrice = product.originalPrice;
+  // Compose the library ProductCard with standard tokens/variants and actions
+  const availability = product.inStock ? "in_stock" : "out_of_stock";
 
-  return `
-    <div class="product-card" data-product-id="${product.id}" style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); overflow: hidden; transition: all 200ms ease; display: flex; flex-direction: column; height: 100%;">
-      <div class="product-card__image" style="position: relative; width: 100%; padding-bottom: 100%; overflow: hidden; background: #f5f5f5;">
-        <img src="${product.imageUrl}" alt="${product.name}" loading="lazy" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;" />
-        ${
-    isOnSale
-      ? '<span class="product-card__badge" style="position: absolute; top: 12px; right: 12px; background: #ef4444; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;">Sale</span>'
-      : ""
-  }
-      </div>
-
-      <div class="product-card__content" style="padding: 1rem; flex: 1; display: flex; flex-direction: column;">
-        <h3 class="product-card__title" style="font-size: 1rem; font-weight: 600; color: #1f2937; margin: 0 0 0.5rem 0; line-height: 1.3;">${product.name}</h3>
-        <p class="product-card__description" style="font-size: 0.875rem; color: #6b7280; margin: 0 0 0.75rem 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${product.description}</p>
-
-        <div class="product-card__rating" style="display: flex; align-items: center; gap: 0.25rem; margin-bottom: 0.75rem; font-size: 0.875rem;">
-          <span class="product-card__stars" style="color: #fbbf24;">★★★★☆</span>
-          <span class="product-card__review-count" style="color: #6b7280; font-size: 0.75rem;">(${product.reviewCount})</span>
-        </div>
-
-        <div class="product-card__pricing" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; margin-top: auto;">
-          <span class="product-card__price" style="font-size: 1.25rem; font-weight: 700; color: #059669;">$${
-    displayPrice.toFixed(2)
-  }</span>
-          ${
-    isOnSale
-      ? `<span class="product-card__original-price" style="font-size: 1rem; color: #9ca3af; text-decoration: line-through;">$${
-        originalPrice.toFixed(2)
-      }</span>`
-      : ""
-  }
-        </div>
-
-        <div class="product-card__actions" style="margin-top: auto;">
-          <button
-            class="product-card__add-btn"
-            style="width: 100%; padding: 0.75rem; background: ${
-    product.inStock ? "#6366f1" : "#d1d5db"
-  }; color: ${
-    product.inStock ? "white" : "#6b7280"
-  }; border: none; border-radius: 8px; font-weight: 600; cursor: ${
-    product.inStock ? "pointer" : "not-allowed"
-  }; transition: all 200ms ease;"
-            onmouseover="if(!this.disabled) this.style.background='#4f46e5'"
-            onmouseout="if(!this.disabled) this.style.background='#6366f1'"
-            hx-post="/api/cart/add"
-            hx-vals='{"productId": "${product.id}", "quantity": 1, "sessionId": "${sessionId}"}'
-            hx-target="#cart-feedback"
-            hx-swap="innerHTML"
-            hx-ext="json-enc"
-            ${!product.inStock ? "disabled" : ""}
-          >
-            ${product.inStock ? "Add to Cart" : "Out of Stock"}
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
+  return renderComponent(ProductCard, {
+    product: {
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      imageUrl: product.imageUrl,
+      price: product.price,
+      currency: product.currency ?? "USD",
+      originalPrice: product.originalPrice,
+      rating: product.rating,
+      reviewCount: product.reviewCount,
+      badges: product.featured ? [{ label: "Featured", tone: "info" }] : [],
+      featured: Boolean(product.featured),
+      availability,
+    },
+    size: "md",
+    appearance: "default",
+    layout: "vertical",
+    showDescription: true,
+    showRating: true,
+    highlightSale: true,
+    primaryAction: {
+      label: product.inStock ? "Add to Cart" : "Out of Stock",
+      variant: "primary",
+      fullWidth: true,
+      disabled: !product.inStock,
+      attributes: {
+        "hx-post": "/api/cart/add",
+        "hx-vals": JSON.stringify({
+          productId: product.id,
+          quantity: 1,
+          sessionId,
+        }),
+        "hx-target": "#cart-feedback",
+        "hx-swap": "innerHTML",
+        "hx-ext": "json-enc",
+      },
+    },
+  });
 }
 
 function getSessionId(req: Request): string {
@@ -105,44 +85,44 @@ async function parseJsonBody<T>(req: Request): Promise<T> {
 }
 
 function extractProductFilter(url: URL): ProductFilter {
-  const filter: ProductFilter = {};
-
-  if (url.searchParams.has("category")) {
-    filter.category = url.searchParams.get("category") as any;
-  }
-  if (url.searchParams.has("minPrice")) {
-    filter.minPrice = parseFloat(url.searchParams.get("minPrice")!);
-  }
-  if (url.searchParams.has("maxPrice")) {
-    filter.maxPrice = parseFloat(url.searchParams.get("maxPrice")!);
-  }
-  if (url.searchParams.has("inStock")) {
-    filter.inStock = url.searchParams.get("inStock") === "true";
-  }
-  if (url.searchParams.has("featured")) {
-    filter.featured = url.searchParams.get("featured") === "true";
-  }
-  if (url.searchParams.has("rating")) {
-    filter.rating = parseFloat(url.searchParams.get("rating")!);
-  }
-  if (url.searchParams.has("tags")) {
-    filter.tags = url.searchParams.get("tags")!.split(",");
-  }
-  if (url.searchParams.has("search")) {
-    filter.search = url.searchParams.get("search")!;
-  }
-  if (url.searchParams.has("sortBy")) {
-    filter.sortBy = url.searchParams.get("sortBy") as any;
-  }
-  if (url.searchParams.has("sortOrder")) {
-    filter.sortOrder = url.searchParams.get("sortOrder") as any;
-  }
-  if (url.searchParams.has("limit")) {
-    filter.limit = parseInt(url.searchParams.get("limit")!);
-  }
-  if (url.searchParams.has("offset")) {
-    filter.offset = parseInt(url.searchParams.get("offset")!);
-  }
+  const filter: ProductFilter = {
+    ...(url.searchParams.has("category")
+      ? { category: url.searchParams.get("category") as any }
+      : {}),
+    ...(url.searchParams.has("minPrice")
+      ? { minPrice: parseFloat(url.searchParams.get("minPrice")!) }
+      : {}),
+    ...(url.searchParams.has("maxPrice")
+      ? { maxPrice: parseFloat(url.searchParams.get("maxPrice")!) }
+      : {}),
+    ...(url.searchParams.has("inStock")
+      ? { inStock: url.searchParams.get("inStock") === "true" }
+      : {}),
+    ...(url.searchParams.has("featured")
+      ? { featured: url.searchParams.get("featured") === "true" }
+      : {}),
+    ...(url.searchParams.has("rating")
+      ? { rating: parseFloat(url.searchParams.get("rating")!) }
+      : {}),
+    ...(url.searchParams.has("tags")
+      ? { tags: url.searchParams.get("tags")!.split(",") }
+      : {}),
+    ...(url.searchParams.has("search")
+      ? { search: url.searchParams.get("search")! }
+      : {}),
+    ...(url.searchParams.has("sortBy")
+      ? { sortBy: url.searchParams.get("sortBy") as any }
+      : {}),
+    ...(url.searchParams.has("sortOrder")
+      ? { sortOrder: url.searchParams.get("sortOrder") as any }
+      : {}),
+    ...(url.searchParams.has("limit")
+      ? { limit: parseInt(url.searchParams.get("limit")!) }
+      : {}),
+    ...(url.searchParams.has("offset")
+      ? { offset: parseInt(url.searchParams.get("offset")!) }
+      : {}),
+  };
 
   return filter;
 }
@@ -182,7 +162,8 @@ export async function getProducts(req: Request): Promise<Response> {
       return json(result.value);
     }
   } catch (err) {
-    return error(500, `Failed to fetch products: ${err.message}`);
+    const msg = err instanceof Error ? err.message : String(err);
+    return error(500, `Failed to fetch products: ${msg}`);
   }
 }
 
@@ -203,7 +184,8 @@ export async function getProduct(
 
     return json(result.value);
   } catch (err) {
-    return error(500, `Failed to fetch product: ${err.message}`);
+    const msg = err instanceof Error ? err.message : String(err);
+    return error(500, `Failed to fetch product: ${msg}`);
   }
 }
 
@@ -237,7 +219,8 @@ export async function getFeaturedProducts(req: Request): Promise<Response> {
       return json(result.value);
     }
   } catch (err) {
-    return error(500, `Failed to fetch featured products: ${err.message}`);
+    const msg = err instanceof Error ? err.message : String(err);
+    return error(500, `Failed to fetch featured products: ${msg}`);
   }
 }
 
@@ -283,7 +266,8 @@ export async function searchProducts(req: Request): Promise<Response> {
       return json(result.value);
     }
   } catch (err) {
-    return error(500, `Failed to search products: ${err.message}`);
+    const msg = err instanceof Error ? err.message : String(err);
+    return error(500, `Failed to search products: ${msg}`);
   }
 }
 
@@ -392,7 +376,8 @@ export async function getCart(req: Request): Promise<Response> {
       return json(result.value);
     }
   } catch (err) {
-    return error(500, `Failed to fetch cart: ${err.message}`);
+    const msg = err instanceof Error ? err.message : String(err);
+    return error(500, `Failed to fetch cart: ${msg}`);
   }
 }
 
@@ -436,7 +421,8 @@ export async function addToCart(req: Request): Promise<Response> {
       return json(result.value);
     }
   } catch (err) {
-    return error(500, `Failed to add to cart: ${err.message}`);
+    const msg = err instanceof Error ? err.message : String(err);
+    return error(500, `Failed to add to cart: ${msg}`);
   }
 }
 
@@ -465,7 +451,8 @@ export async function updateCartItem(
       return json(result.value);
     }
   } catch (err) {
-    return error(500, `Failed to update cart item: ${err.message}`);
+    const msg = err instanceof Error ? err.message : String(err);
+    return error(500, `Failed to update cart item: ${msg}`);
   }
 }
 
@@ -493,7 +480,8 @@ export async function removeFromCart(
       return json(result.value);
     }
   } catch (err) {
-    return error(500, `Failed to remove from cart: ${err.message}`);
+    const msg = err instanceof Error ? err.message : String(err);
+    return error(500, `Failed to remove from cart: ${msg}`);
   }
 }
 
@@ -523,7 +511,8 @@ export async function getCartSummary(req: Request): Promise<Response> {
       return json(result.value);
     }
   } catch (err) {
-    return error(500, `Failed to get cart summary: ${err.message}`);
+    const msg = err instanceof Error ? err.message : String(err);
+    return error(500, `Failed to get cart summary: ${msg}`);
   }
 }
 
@@ -542,9 +531,10 @@ export async function createUser(req: Request): Promise<Response> {
       return error(400, result.error.message);
     }
 
-    return json(result.value, 201);
+    return json(result.value, { status: 201 });
   } catch (err) {
-    return error(500, `Failed to create user: ${err.message}`);
+    const msg = err instanceof Error ? err.message : String(err);
+    return error(500, `Failed to create user: ${msg}`);
   }
 }
 
@@ -565,7 +555,8 @@ export async function getUser(
 
     return json(result.value);
   } catch (err) {
-    return error(500, `Failed to fetch user: ${err.message}`);
+    const msg = err instanceof Error ? err.message : String(err);
+    return error(500, `Failed to fetch user: ${msg}`);
   }
 }
 
@@ -607,10 +598,11 @@ export async function createOrder(req: Request): Promise<Response> {
         </div>
       `);
     } else {
-      return json(result.value, 201);
+      return json(result.value, { status: 201 });
     }
   } catch (err) {
-    return error(500, `Failed to create order: ${err.message}`);
+    const msg = err instanceof Error ? err.message : String(err);
+    return error(500, `Failed to create order: ${msg}`);
   }
 }
 
@@ -685,7 +677,8 @@ export async function getOrder(
       return json(result.value);
     }
   } catch (err) {
-    return error(500, `Failed to fetch order: ${err.message}`);
+    const msg = err instanceof Error ? err.message : String(err);
+    return error(500, `Failed to fetch order: ${msg}`);
   }
 }
 
@@ -739,7 +732,8 @@ export async function getUserOrders(
       return json(result.value);
     }
   } catch (err) {
-    return error(500, `Failed to fetch user orders: ${err.message}`);
+    const msg = err instanceof Error ? err.message : String(err);
+    return error(500, `Failed to fetch user orders: ${msg}`);
   }
 }
 
@@ -781,6 +775,7 @@ export async function getRecommendations(req: Request): Promise<Response> {
       return json(result.value);
     }
   } catch (err) {
-    return error(500, `Failed to get recommendations: ${err.message}`);
+    const msg = err instanceof Error ? err.message : String(err);
+    return error(500, `Failed to get recommendations: ${msg}`);
   }
 }

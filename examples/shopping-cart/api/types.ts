@@ -88,6 +88,7 @@ export type Cart = {
 export type AddToCartRequest = {
   readonly productId: string;
   readonly quantity: number;
+  readonly sessionId?: string;
 };
 
 export type UpdateCartItemRequest = {
@@ -279,6 +280,7 @@ export type FilterGroup = {
   readonly options: readonly FilterOption[];
   readonly min?: number;
   readonly max?: number;
+  readonly sessionId?: string;
 };
 
 // ============================================================

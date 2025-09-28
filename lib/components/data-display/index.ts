@@ -11,6 +11,14 @@ export type {
 } from "./item.ts";
 export * from "./list.ts";
 export * from "./stat.ts";
+export { ProductCard } from "./product-card.tsx";
+export type {
+  ProductAction,
+  ProductBadge,
+  ProductBadgeTone,
+  ProductCardProps,
+  ProductMeta,
+} from "./product-card.tsx";
 
 // Placeholder exports - to be implemented in future phases
 // export { Table } from "./table.ts";

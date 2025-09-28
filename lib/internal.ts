@@ -44,15 +44,7 @@ export {
 } from "./prop-helpers.ts";
 
 // API helpers
-export {
-  create,
-  del,
-  get,
-  patch,
-  post,
-  put,
-  remove,
-} from "./api-helpers.ts";
+export { create, del, get, patch, post, put, remove } from "./api-helpers.ts";
 
 // Reactive utilities
 export {

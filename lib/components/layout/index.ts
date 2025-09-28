@@ -9,6 +9,7 @@ export { Header } from "./header.tsx";
 export { Page } from "./page.tsx";
 export { Section } from "./section.tsx";
 export { Stack } from "./stack.tsx";
+export { ProductGrid } from "./product-grid.tsx";
 // Note: The following components are staged or not yet implemented; omit from public exports for now.
 // export { Footer } from "./footer.ts";
 // export { Container } from "./container.ts";

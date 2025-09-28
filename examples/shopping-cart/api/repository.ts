@@ -4,6 +4,7 @@
 
 import type { Result } from "../../../lib/result.ts";
 import { err, ok } from "../../../lib/result.ts";
+import { sampleProducts, sampleUsers } from "../data/seed.ts";
 import type {
   AddToCartRequest,
   ApiError,
@@ -21,7 +22,10 @@ import type {
   UpdateCartItemRequest,
   User,
 } from "./types.ts";
-import { sampleProducts, sampleUsers } from "../data/seed.ts";
+
+// Safe error message extraction
+const toMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error);
 
 // ============================================================
 // Repository Interface
@@ -140,7 +144,7 @@ export class KvShoppingRepository implements ShoppingRepository {
       return err({
         code: "INITIALIZATION_FAILED",
         message: "Failed to initialize repository",
-        details: { error: error.message },
+        details: { error: toMessage(error) },
       });
     }
   }
@@ -254,7 +258,7 @@ export class KvShoppingRepository implements ShoppingRepository {
       return err({
         code: "PRODUCTS_FETCH_FAILED",
         message: "Failed to fetch products",
-        details: { error: error.message },
+        details: { error: toMessage(error) },
       });
     }
   }
@@ -273,7 +277,7 @@ export class KvShoppingRepository implements ShoppingRepository {
       return err({
         code: "PRODUCT_FETCH_FAILED",
         message: "Failed to fetch product",
-        details: { error: error.message },
+        details: { error: toMessage(error) },
       });
     }
   }
@@ -307,7 +311,7 @@ export class KvShoppingRepository implements ShoppingRepository {
       return err({
         code: "SUMMARY_FETCH_FAILED",
         message: "Failed to fetch product summary",
-        details: { error: error.message },
+        details: { error: toMessage(error) },
       });
     }
   }
@@ -329,7 +333,7 @@ export class KvShoppingRepository implements ShoppingRepository {
       return err({
         code: "FEATURED_FETCH_FAILED",
         message: "Failed to fetch featured products",
-        details: { error: error.message },
+        details: { error: toMessage(error) },
       });
     }
   }
@@ -367,7 +371,7 @@ export class KvShoppingRepository implements ShoppingRepository {
       return err({
         code: "CART_FETCH_FAILED",
         message: "Failed to fetch cart",
-        details: { error: error.message },
+        details: { error: toMessage(error) },
       });
     }
   }
@@ -435,7 +439,7 @@ export class KvShoppingRepository implements ShoppingRepository {
       return err({
         code: "ADD_TO_CART_FAILED",
         message: "Failed to add item to cart",
-        details: { error: error.message },
+        details: { error: toMessage(error) },
       });
     }
   }
@@ -477,7 +481,7 @@ export class KvShoppingRepository implements ShoppingRepository {
       return err({
         code: "UPDATE_CART_FAILED",
         message: "Failed to update cart item",
-        details: { error: error.message },
+        details: { error: toMessage(error) },
       });
     }
   }
@@ -506,7 +510,7 @@ export class KvShoppingRepository implements ShoppingRepository {
       return err({
         code: "CLEAR_CART_FAILED",
         message: "Failed to clear cart",
-        details: { error: error.message },
+        details: { error: toMessage(error) },
       });
     }
   }
@@ -528,7 +532,7 @@ export class KvShoppingRepository implements ShoppingRepository {
       return err({
         code: "CART_SUMMARY_FAILED",
         message: "Failed to get cart summary",
-        details: { error: error.message },
+        details: { error: toMessage(error) },
       });
     }
   }
@@ -576,7 +580,7 @@ export class KvShoppingRepository implements ShoppingRepository {
       return err({
         code: "USER_CREATION_FAILED",
         message: "Failed to create user",
-        details: { error: error.message },
+        details: { error: toMessage(error) },
       });
     }
   }
@@ -595,7 +599,7 @@ export class KvShoppingRepository implements ShoppingRepository {
       return err({
         code: "USER_FETCH_FAILED",
         message: "Failed to fetch user",
-        details: { error: error.message },
+        details: { error: toMessage(error) },
       });
     }
   }
@@ -614,7 +618,7 @@ export class KvShoppingRepository implements ShoppingRepository {
       return err({
         code: "USER_FETCH_FAILED",
         message: "Failed to fetch user",
-        details: { error: error.message },
+        details: { error: toMessage(error) },
       });
     }
   }
@@ -644,7 +648,7 @@ export class KvShoppingRepository implements ShoppingRepository {
       return err({
         code: "USER_UPDATE_FAILED",
         message: "Failed to update user",
-        details: { error: error.message },
+        details: { error: toMessage(error) },
       });
     }
   }
@@ -708,7 +712,7 @@ export class KvShoppingRepository implements ShoppingRepository {
       return err({
         code: "ORDER_CREATION_FAILED",
         message: "Failed to create order",
-        details: { error: error.message },
+        details: { error: toMessage(error) },
       });
     }
   }
@@ -727,7 +731,7 @@ export class KvShoppingRepository implements ShoppingRepository {
       return err({
         code: "ORDER_FETCH_FAILED",
         message: "Failed to fetch order",
-        details: { error: error.message },
+        details: { error: toMessage(error) },
       });
     }
   }
@@ -754,7 +758,7 @@ export class KvShoppingRepository implements ShoppingRepository {
       return err({
         code: "USER_ORDERS_FETCH_FAILED",
         message: "Failed to fetch user orders",
-        details: { error: error.message },
+        details: { error: toMessage(error) },
       });
     }
   }
@@ -783,7 +787,7 @@ export class KvShoppingRepository implements ShoppingRepository {
       return err({
         code: "ORDER_SUMMARY_FAILED",
         message: "Failed to get order summary",
-        details: { error: error.message },
+        details: { error: toMessage(error) },
       });
     }
   }
@@ -822,7 +826,7 @@ export class KvShoppingRepository implements ShoppingRepository {
       return err({
         code: "RECOMMENDATIONS_FAILED",
         message: "Failed to get recommendations",
-        details: { error: error.message },
+        details: { error: toMessage(error) },
       });
     }
   }
@@ -876,7 +880,7 @@ export async function createRepository(): Promise<
     return err({
       code: "REPOSITORY_CREATION_FAILED",
       message: "Failed to create repository",
-      details: { error: error.message },
+      details: { error: toMessage(error) },
     });
   }
 }

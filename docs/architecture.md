@@ -11,8 +11,10 @@ ui-lib is built on seven fundamental principles:
 3. **Progressive Enhancement** - Works without JavaScript, enhanced with it
 4. **Type Safety** - Full TypeScript support from props to rendering
 5. **Functional Approach** - Pure functions, immutable data, no classes
-6. **Composition Over Customization** - Apps compose pre-styled components with variants
-7. **Enforced Consistency** - Library controls styling, apps control business logic
+6. **Composition Over Customization** - Apps compose pre-styled components with
+   variants
+7. **Enforced Consistency** - Library controls styling, apps control business
+   logic
 
 ## System Architecture
 
@@ -57,7 +59,10 @@ ui-lib now offers two distinct architectures:
 └──────────────────────────────────────────────────────────┘
 ```
 
-**Key Constraint**: Applications cannot add custom styles. The `styles` and `clientScript` properties are not available in `AppComponentConfig`. This enforces:
+**Key Constraint**: Applications cannot add custom styles. The `styles` and
+`clientScript` properties are not available in `AppComponentConfig`. This
+enforces:
+
 - **UI Consistency**: All apps have uniform look and feel
 - **94% Code Reduction**: No app-specific CSS needed
 - **Maintainability**: Style updates at library level benefit all apps
@@ -123,13 +128,18 @@ interface AppComponentConfig {
 
 ```tsx
 import { defineComponent, h } from "ui-lib/mod.ts";
-import { Card, Button, Badge } from "ui-lib/components";
+import { Badge, Button, Card } from "ui-lib/components";
 
 // App component composes library components with variants
 defineComponent("user-card", {
   render: ({ name, role, status }) => (
     <card variant="elevated" padding="lg">
-      <h2>{name} <badge variant={status === "active" ? "success" : "neutral"}>{status}</badge></h2>
+      <h2>
+        {name}{" "}
+        <badge variant={status === "active" ? "success" : "neutral"}>
+          {status}
+        </badge>
+      </h2>
       <p>{role}</p>
       <button variant="primary">Edit Profile</button>
     </card>
@@ -182,7 +192,8 @@ const Component = createTokenComponent(config);
 
 1. **Props Processing** - Transform raw attributes to typed props
 2. **Component Composition** - Render function composes library components
-3. **Library Component Resolution** - Each library component renders with its pre-defined styles
+3. **Library Component Resolution** - Each library component renders with its
+   pre-defined styles
 4. **Reactivity Injection** - Add reactive attributes if configured
 5. **HTML Generation** - Convert composed JSX to HTML string
 

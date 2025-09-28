@@ -59,9 +59,7 @@ defineComponent<TodoListProps>("todo-list", {
           </div>
         )}
         <stack direction="vertical" gap="md">
-          {todos.map((todo) => (
-            <todo-item todo={todo} />
-          ))}
+          {todos.map((todo) => <todo-item todo={todo} />)}
         </stack>
       </stack>
     );

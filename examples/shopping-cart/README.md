@@ -1,8 +1,12 @@
 # Shopping Cart Demo
 
-Comprehensive e-commerce application demonstrating ui-lib's **composition-only component system** (`mod.ts`), DOM-native state management, and three-tier reactivity.
+Comprehensive e-commerce application demonstrating ui-lib's **composition-only
+component system** (`mod.ts`), DOM-native state management, and three-tier
+reactivity.
 
-> **Note**: This example uses the composition-only architecture pattern, which is the same as the pattern (`mod.ts`) demonstrated in the todo-app. Applications compose pre-styled library components with variants.
+> **Note**: This example uses the composition-only architecture pattern, which
+> is the same as the pattern (`mod.ts`) demonstrated in the todo-app.
+> Applications compose pre-styled library components with variants.
 
 ## 🚀 Quick Start
 
@@ -24,8 +28,10 @@ open http://localhost:8080
 
 ### 🎨 Composition-Only Component System
 
-- **Library Component Composition**: Applications compose pre-styled library components
-- **Variant-Based Customization**: Use predefined component variants (primary, secondary, etc.)
+- **Library Component Composition**: Applications compose pre-styled library
+  components
+- **Variant-Based Customization**: Use predefined component variants (primary,
+  secondary, etc.)
 - **Superior DX**: No custom CSS needed - just compose and configure
 - **Perfect UI Uniformity**: Consistent styling enforced across applications
 - **Library-Controlled Theming**: All styling controlled by the library
@@ -73,7 +79,8 @@ open http://localhost:8080
 
 ### Composition-Only Components
 
-All components are built by composing pre-styled library components with variants:
+All components are built by composing pre-styled library components with
+variants:
 
 ```typescript
 import { defineComponent } from "ui-lib/mod.ts";
@@ -121,7 +128,9 @@ deno run --allow-net --allow-read --allow-env --allow-write examples/shopping-ca
 
 ## Component Architecture
 
-All components in this example use `defineComponent` from `mod.ts`. They are **composition-only components** that build interfaces by composing pre-styled library components with variants.
+All components in this example use `defineComponent` from `mod.ts`. They are
+**composition-only components** that build interfaces by composing pre-styled
+library components with variants.
 
 ### Core Components (Composition-Only)
 
@@ -132,6 +141,7 @@ All components in this example use `defineComponent` from `mod.ts`. They are **c
 - All styling handled by library component variants
 
 **Architecture Pattern**: Composition-only (`mod.ts`)
+
 - Components built by composing library components
 - No custom CSS in application components
 - Styling through library component variants only
@@ -139,7 +149,8 @@ All components in this example use `defineComponent` from `mod.ts`. They are **c
 
 ### Features Demonstrated
 
-- **Library Component Composition**: Applications build UIs by composing library components
+- **Library Component Composition**: Applications build UIs by composing library
+  components
 - **Variant-Based Styling**: Components styled through predefined variants
 - **UI Uniformity**: Consistent design enforced by library
 - **Accessibility**: Semantic HTML and ARIA support

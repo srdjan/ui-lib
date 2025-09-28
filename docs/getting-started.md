@@ -49,7 +49,9 @@ deno task bundle:state  # Emit dist/ui-lib-state.js for browser progressive enha
 
 ## Your First Component
 
-**Important:** Applications use `defineComponent()` to compose pre-styled library components, not to add custom styles. Custom styling is reserved for library components only.
+**Important:** Applications use `defineComponent()` to compose pre-styled
+library components, not to add custom styles. Custom styling is reserved for
+library components only.
 
 Let's create a greeting component using library components:
 
@@ -73,14 +75,17 @@ console.log(html);
 
 ### Why No Custom Styles in Apps?
 
-ui-lib enforces UI consistency by providing a rich library of pre-styled components with variants. Applications compose these components rather than adding custom CSS. This provides:
+ui-lib enforces UI consistency by providing a rich library of pre-styled
+components with variants. Applications compose these components rather than
+adding custom CSS. This provides:
 
 - **Consistency**: Uniform UI across all applications
 - **Speed**: No CSS authoring needed
 - **Quality**: Library components are rigorously tested
 - **Maintainability**: Style updates happen at the library level
 
-If you need to create styled components for the library itself, see the [Library Development Guide](./library-development.md).
+If you need to create styled components for the library itself, see the
+[Library Development Guide](./library-development.md).
 
 ## Using Function-Style Props
 

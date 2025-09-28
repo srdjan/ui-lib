@@ -118,6 +118,13 @@ to demonstrate how all principles come together.
 
 ---
 
+## 9. **Predfined styles and tokens**
+
+The ui-lib applications are purely compositional:
+
+- they assemble pre-built, fully-styled library components rather than defining
+  custom UI elements
+
 ## Example: **Counter Component**
 
 ### Author’s Code (Minimal)

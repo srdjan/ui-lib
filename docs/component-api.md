@@ -7,6 +7,7 @@ Complete API reference for ui-lib components and utilities.
 Applications compose these pre-styled components using their variant APIs:
 
 ### Layout Components
+
 - **Card** - Content containers (variants: `default`, `elevated`, `outlined`)
 - **Container** - Page width containers (sizes: `sm`, `md`, `lg`, `xl`, `full`)
 - **Grid** - CSS Grid layouts (columns: `1-12`, gap: `sm`, `md`, `lg`)
@@ -14,7 +15,9 @@ Applications compose these pre-styled components using their variant APIs:
 - **Flex** - Flexbox layouts with gap control
 
 ### Form Components
-- **Input** - Text inputs (types: `text`, `email`, `password`, `number`, `search`)
+
+- **Input** - Text inputs (types: `text`, `email`, `password`, `number`,
+  `search`)
 - **Textarea** - Multi-line text input
 - **Select** - Dropdown selections
 - **Checkbox** - Boolean selections
@@ -22,27 +25,35 @@ Applications compose these pre-styled components using their variant APIs:
 - **Form** - Form containers with validation styling
 
 ### Button Components
-- **Button** - Interactive buttons (variants: `primary`, `secondary`, `outline`, `ghost`)
+
+- **Button** - Interactive buttons (variants: `primary`, `secondary`, `outline`,
+  `ghost`)
 - **ButtonGroup** - Grouped button layouts
 
 ### Feedback Components
-- **Alert** - Notification messages (variants: `info`, `success`, `warning`, `error`)
-- **Badge** - Status indicators (variants: `primary`, `success`, `warning`, `danger`, `neutral`)
+
+- **Alert** - Notification messages (variants: `info`, `success`, `warning`,
+  `error`)
+- **Badge** - Status indicators (variants: `primary`, `success`, `warning`,
+  `danger`, `neutral`)
 - **Toast** - Temporary notifications
 - **Progress** - Progress indicators
 
 ### Data Display Components
+
 - **Item** - Generic item display (used for lists, todos, cards)
 - **List** - Collection display
 - **Stat** - Statistical data display
 - **AnimatedCounter** - Animated number display
 
 ### Media Components
+
 - **Image** - Responsive images with lazy loading
 - **Video** - Video players
 - **Audio** - Audio players
 
 ### Overlay Components
+
 - **Modal** - Dialog overlays
 - **Drawer** - Side panel overlays
 - **Popover** - Contextual popovers
@@ -60,7 +71,8 @@ Creates a new component with type-safe props and optional reactivity.
 
 #### Application Components (Composition-Only)
 
-Applications use `defineComponent` from `mod.ts` which enforces composition-only patterns:
+Applications use `defineComponent` from `mod.ts` which enforces composition-only
+patterns:
 
 ```typescript
 defineComponent(name: string, config: AppComponentConfig): Component
@@ -68,20 +80,22 @@ defineComponent(name: string, config: AppComponentConfig): Component
 
 **AppComponentConfig Parameters:**
 
-| Property   | Type                    | Description                                |
-| ---------- | ----------------------- | ------------------------------------------ |
-| `name`     | `string`                | Unique component identifier                |
-| `render`   | `Function`              | Render function returning HTML string      |
-| `reactive` | `ReactiveConfig`        | Optional reactivity configuration          |
-| `api`      | `ApiMap`                | Optional API endpoint definitions          |
+| Property   | Type             | Description                           |
+| ---------- | ---------------- | ------------------------------------- |
+| `name`     | `string`         | Unique component identifier           |
+| `render`   | `Function`       | Render function returning HTML string |
+| `reactive` | `ReactiveConfig` | Optional reactivity configuration     |
+| `api`      | `ApiMap`         | Optional API endpoint definitions     |
 
-**Note:** `styles` and `clientScript` properties are **not allowed** in application components. Apps must compose pre-styled library components with variants.
+**Note:** `styles` and `clientScript` properties are **not allowed** in
+application components. Apps must compose pre-styled library components with
+variants.
 
 **Example (Application):**
 
 ```tsx
 import { defineComponent, h } from "ui-lib/mod.ts";
-import { Card, Button } from "ui-lib/components";
+import { Button, Card } from "ui-lib/components";
 
 // ✅ Correct: Compose library components
 defineComponent("user-card", {
@@ -96,14 +110,15 @@ defineComponent("user-card", {
 
 // ❌ Wrong: Custom styles not allowed
 defineComponent("custom-card", {
-  styles: { padding: "1rem" },  // ERROR!
+  styles: { padding: "1rem" }, // ERROR!
   render: () => <div>...</div>,
 });
 ```
 
 #### Library Components (Full API)
 
-Library components use `defineComponent` from `lib/internal.ts` with full styling capabilities:
+Library components use `defineComponent` from `lib/internal.ts` with full
+styling capabilities:
 
 ```typescript
 defineComponent(name: string, config: ComponentConfig): Component
@@ -124,7 +139,7 @@ defineComponent(name: string, config: ComponentConfig): Component
 
 ```tsx
 // lib/components/my-component.ts
-import { defineComponent, css, h } from "../../internal.ts";
+import { css, defineComponent, h } from "../../internal.ts";
 
 defineComponent("my-component", {
   styles: css({
@@ -142,7 +157,9 @@ defineComponent("my-component", {
 
 #### API Property
 
-The `api` property allows you to define server endpoints whose client bindings are generated for you. Applications compose library components and bind API actions to them.
+The `api` property allows you to define server endpoints whose client bindings
+are generated for you. Applications compose library components and bind API
+actions to them.
 
 **Application Example (Composition-Only):**
 
@@ -166,8 +183,8 @@ defineComponent("user-card", {
             text: "Delete",
             variant: "danger",
             confirm: "Delete this user?",
-            ...api.deleteUser(id)
-          }
+            ...api.deleteUser(id),
+          },
         ]}
       />
     </card>
@@ -253,7 +270,9 @@ defineComponent("settings", {
 
 ### CSS-in-TypeScript (Library Components Only)
 
-**Note:** CSS utilities are **only available for library component development** via `lib/internal.ts`. Applications using `mod.ts` cannot access these APIs and must compose pre-styled components instead.
+**Note:** CSS utilities are **only available for library component development**
+via `lib/internal.ts`. Applications using `mod.ts` cannot access these APIs and
+must compose pre-styled components instead.
 
 #### css(styles: CSSProperties)
 

@@ -17,7 +17,11 @@ export type ActionPlan = {
 export type ActionModifier =
   | { readonly type: "delay"; readonly ms: number }
   | { readonly type: "optimistic"; readonly value: unknown }
-  | { readonly type: "unknown"; readonly name: string; readonly value?: unknown };
+  | {
+    readonly type: "unknown";
+    readonly name: string;
+    readonly value?: unknown;
+  };
 
 export function parseActionPlan(raw: string): ActionPlan | undefined {
   const parsed = parseActionExpression(raw);
@@ -83,7 +87,9 @@ function isIdentifier(value: string): boolean {
   return /^[A-Za-z_$][0-9A-Za-z_$]*$/.test(value);
 }
 
-export function resolveActionTarget(value: string | undefined): string | undefined {
+export function resolveActionTarget(
+  value: string | undefined,
+): string | undefined {
   if (!value) return undefined;
   const trimmed = value.trim();
   if (!trimmed) return undefined;

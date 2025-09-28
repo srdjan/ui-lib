@@ -5,11 +5,16 @@
  * Demonstrates progressive enhancement and server-side validation
  */
 
-import type { Handler } from "../../../lib/router.ts";
-import type { CreateOrder, OrderAddress, PaymentMethod } from "./types.ts";
-import { CheckoutFlow } from "../components/checkout-flow.tsx";
+import { CheckoutFlow } from "../../../lib/components/forms/checkout-flow.tsx";
+import type { RouteHandler as Handler } from "../../../lib/router.ts";
 import { getRepository } from "./repository.ts";
-import { err, ok, type Result } from "../../../lib/result.ts";
+import type {
+  CreateOrderRequest,
+  PaymentMethod,
+  ShippingAddress,
+} from "./types.ts";
+
+import { renderComponent } from "../../../mod.ts";
 
 // ============================================================
 // Validation Helpers
@@ -21,7 +26,7 @@ interface ValidationError {
 }
 
 function validateAddress(
-  address: Partial<OrderAddress>,
+  address: Partial<ShippingAddress>,
   prefix = "",
 ): ValidationError[] {
   const errors: ValidationError[] = [];
@@ -40,10 +45,10 @@ function validateAddress(
     });
   }
 
-  if (!address.street?.trim()) {
+  if (!address.address1?.trim()) {
     errors.push({
-      field: `${prefix}street`,
-      message: "Street address is required",
+      field: `${prefix}address1`,
+      message: "Address is required",
     });
   }
 
@@ -71,19 +76,28 @@ function validateAddress(
   return errors;
 }
 
-function validatePayment(payment: Partial<PaymentMethod>): ValidationError[] {
+type CardPaymentInput = {
+  readonly type: "credit_card";
+  readonly cardNumber?: string;
+  readonly expiry?: string;
+  readonly cvc?: string;
+};
+
+function validatePayment(
+  payment: Partial<CardPaymentInput>,
+): ValidationError[] {
   const errors: ValidationError[] = [];
 
-  if (payment.type === "card") {
+  if (payment.type === "credit_card") {
     if (!payment.cardNumber?.replace(/\s/g, "")) {
       errors.push({ field: "card.number", message: "Card number is required" });
     } else if (!/^\d{13,19}$/.test(payment.cardNumber.replace(/\s/g, ""))) {
       errors.push({ field: "card.number", message: "Invalid card number" });
     }
 
-    if (!payment.expiryDate) {
+    if (!payment.expiry) {
       errors.push({ field: "card.expiry", message: "Expiry date is required" });
-    } else if (!/^\d{2}\/\d{2}$/.test(payment.expiryDate)) {
+    } else if (!/^\d{2}\/\d{2}$/.test(payment.expiry!)) {
       errors.push({
         field: "card.expiry",
         message: "Invalid expiry date format (MM/YY)",
@@ -94,13 +108,6 @@ function validatePayment(payment: Partial<PaymentMethod>): ValidationError[] {
       errors.push({ field: "card.cvc", message: "CVC is required" });
     } else if (!/^\d{3,4}$/.test(payment.cvc)) {
       errors.push({ field: "card.cvc", message: "Invalid CVC" });
-    }
-
-    if (!payment.cardHolderName?.trim()) {
-      errors.push({
-        field: "card.name",
-        message: "Cardholder name is required",
-      });
     }
   }
 
@@ -113,8 +120,8 @@ function validatePayment(payment: Partial<PaymentMethod>): ValidationError[] {
 
 const checkoutSessions = new Map<string, {
   cartId: string;
-  shippingAddress?: OrderAddress;
-  billingAddress?: OrderAddress;
+  shippingAddress?: ShippingAddress;
+  billingAddress?: ShippingAddress;
   paymentMethod?: PaymentMethod;
   sameAsBilling?: boolean;
   currentStep: number;
@@ -128,8 +135,8 @@ function getCheckoutSession(sessionId: string) {
 function updateCheckoutSession(
   sessionId: string,
   updates: Partial<{
-    shippingAddress: OrderAddress;
-    billingAddress: OrderAddress;
+    shippingAddress: ShippingAddress;
+    billingAddress: ShippingAddress;
     paymentMethod: PaymentMethod;
     sameAsBilling: boolean;
     currentStep: number;
@@ -187,7 +194,7 @@ export const getCheckoutStep: Handler = async (req) => {
     // Update current step
     updateCheckoutSession(sessionId, { currentStep: step });
 
-    const checkoutHtml = CheckoutFlow({
+    const checkoutHtml = renderComponent(CheckoutFlow, {
       cart,
       currentStep: step,
       sessionId,
@@ -220,10 +227,11 @@ export const submitShipping: Handler = async (req) => {
     }
 
     // Parse form data
-    const shippingAddress: Partial<OrderAddress> = {
+    const shippingAddress: Partial<ShippingAddress> = {
       firstName: formData.get("shipping.firstName") as string,
       lastName: formData.get("shipping.lastName") as string,
-      street: formData.get("shipping.street") as string,
+      address1: formData.get("shipping.address1") as string,
+      address2: (formData.get("shipping.address2") as string) || undefined,
       city: formData.get("shipping.city") as string,
       state: formData.get("shipping.state") as string,
       zipCode: formData.get("shipping.zipCode") as string,
@@ -231,13 +239,14 @@ export const submitShipping: Handler = async (req) => {
     };
 
     const sameAsBilling = formData.has("sameAsBilling");
-    let billingAddress: Partial<OrderAddress> | undefined;
+    let billingAddress: Partial<ShippingAddress> | undefined;
 
     if (!sameAsBilling) {
       billingAddress = {
         firstName: formData.get("billing.firstName") as string,
         lastName: formData.get("billing.lastName") as string,
-        street: formData.get("billing.street") as string,
+        address1: formData.get("billing.address1") as string,
+        address2: (formData.get("billing.address2") as string) || undefined,
         city: formData.get("billing.city") as string,
         state: formData.get("billing.state") as string,
         zipCode: formData.get("billing.zipCode") as string,
@@ -262,7 +271,7 @@ export const submitShipping: Handler = async (req) => {
       }
 
       const session = getCheckoutSession(sessionId);
-      const checkoutHtml = CheckoutFlow({
+      const checkoutHtml = renderComponent(CheckoutFlow, {
         cart: cartResult.value,
         currentStep: 1,
         sessionId,
@@ -280,10 +289,10 @@ export const submitShipping: Handler = async (req) => {
 
     // Save to session
     updateCheckoutSession(sessionId, {
-      shippingAddress: shippingAddress as OrderAddress,
+      shippingAddress: shippingAddress as ShippingAddress,
       billingAddress: sameAsBilling
-        ? shippingAddress as OrderAddress
-        : billingAddress as OrderAddress,
+        ? (shippingAddress as ShippingAddress)
+        : (billingAddress as ShippingAddress),
       sameAsBilling,
       currentStep: 2,
     });
@@ -293,6 +302,7 @@ export const submitShipping: Handler = async (req) => {
       new Request(
         new URL(`/api/checkout/step/2?session=${sessionId}`, req.url),
       ),
+      {} as any,
     );
   } catch (error) {
     console.error("Shipping submission error:", error);
@@ -309,28 +319,16 @@ export const submitPayment: Handler = async (req) => {
       return new Response("Session ID required", { status: 400 });
     }
 
-    const paymentType = formData.get("paymentType") as string;
+    // Parse credit card fields (demo uses credit card only)
+    const cardInput: CardPaymentInput = {
+      type: "credit_card",
+      cardNumber: formData.get("payment.cardNumber") as string,
+      expiry: formData.get("payment.expiry") as string,
+      cvc: formData.get("payment.cvc") as string,
+    };
 
-    let paymentMethod: Partial<PaymentMethod>;
-
-    if (paymentType === "card") {
-      paymentMethod = {
-        type: "card",
-        cardNumber: formData.get("card.number") as string,
-        expiryDate: formData.get("card.expiry") as string,
-        cvc: formData.get("card.cvc") as string,
-        cardHolderName: formData.get("card.name") as string,
-      };
-    } else if (paymentType === "paypal") {
-      paymentMethod = {
-        type: "paypal",
-      };
-    } else {
-      return new Response("Invalid payment type", { status: 400 });
-    }
-
-    // Validate payment method
-    const paymentErrors = validatePayment(paymentMethod);
+    // Validate payment input
+    const paymentErrors = validatePayment(cardInput);
 
     if (paymentErrors.length > 0) {
       // Return form with validation errors
@@ -342,7 +340,7 @@ export const submitPayment: Handler = async (req) => {
       }
 
       const session = getCheckoutSession(sessionId);
-      const checkoutHtml = CheckoutFlow({
+      const checkoutHtml = renderComponent(CheckoutFlow, {
         cart: cartResult.value,
         currentStep: 2,
         sessionId,
@@ -359,17 +357,25 @@ export const submitPayment: Handler = async (req) => {
     }
 
     // Process payment method (mask card number for storage)
-    if (paymentMethod.type === "card" && paymentMethod.cardNumber) {
-      const cleanCardNumber = paymentMethod.cardNumber.replace(/\s/g, "");
-      paymentMethod.last4 = cleanCardNumber.slice(-4);
-      // In production, you would tokenize this with a payment processor
-      delete paymentMethod.cardNumber;
-      delete paymentMethod.cvc;
-    }
+    const cleanCardNumber = (cardInput.cardNumber || "").replace(/\s/g, "");
+    const last4 = cleanCardNumber ? cleanCardNumber.slice(-4) : undefined;
+    const brand = cleanCardNumber.startsWith("4")
+      ? "Visa"
+      : cleanCardNumber.startsWith("5")
+      ? "Mastercard"
+      : cleanCardNumber.startsWith("3")
+      ? "Amex"
+      : undefined;
+
+    const paymentMethod: PaymentMethod = {
+      type: "credit_card",
+      ...(last4 ? { last4 } : {}),
+      ...(brand ? { brand } : {}),
+    };
 
     // Save to session
     updateCheckoutSession(sessionId, {
-      paymentMethod: paymentMethod as PaymentMethod,
+      paymentMethod,
       currentStep: 3,
     });
 
@@ -378,6 +384,7 @@ export const submitPayment: Handler = async (req) => {
       new Request(
         new URL(`/api/checkout/step/3?session=${sessionId}`, req.url),
       ),
+      {} as any,
     );
   } catch (error) {
     console.error("Payment submission error:", error);
@@ -416,21 +423,12 @@ export const completeCheckout: Handler = async (req) => {
       return new Response("Incomplete checkout data", { status: 400 });
     }
 
-    // Create order
-    const orderData: CreateOrder = {
-      userId: "guest", // In a real app, this would come from authentication
-      items: cart.items.map((item) => ({
-        productId: item.productId,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-      })),
+    // Create order (repository will consume cart and generate full order)
+    const orderData: CreateOrderRequest = {
+      cartId: cart.id,
+      paymentMethod: session.paymentMethod,
       shippingAddress: session.shippingAddress,
       billingAddress: session.billingAddress,
-      paymentMethod: session.paymentMethod,
-      subtotal: cart.subtotal,
-      shipping: cart.shipping || 0,
-      tax: cart.tax || 0,
-      total: cart.total,
     };
 
     const orderResult = await repository.createOrder(orderData);
@@ -538,7 +536,12 @@ export const completeCheckout: Handler = async (req) => {
             <h3>Shipping Address</h3>
             <p>
               ${order.shippingAddress.firstName} ${order.shippingAddress.lastName}<br>
-              ${order.shippingAddress.street}<br>
+              ${order.shippingAddress.address1}<br>
+              ${
+      order.shippingAddress.address2
+        ? `${order.shippingAddress.address2}<br>`
+        : ""
+    }
               ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.zipCode}<br>
               ${order.shippingAddress.country}
             </p>
@@ -592,6 +595,7 @@ export const initializeCheckout: Handler = async (req) => {
       new Request(
         new URL(`/api/checkout/step/1?session=${sessionId}`, req.url),
       ),
+      {} as any,
     );
   } catch (error) {
     console.error("Checkout initialization error:", error);

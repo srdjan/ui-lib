@@ -12,27 +12,15 @@
  */
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
-import { Router } from "../../lib/router.ts";
 import { html } from "../../lib/response.ts";
-import { registerComponentApi } from "../../lib/define-component.ts";
+import { Router } from "../../lib/router.ts";
 import { renderComponent } from "../../mod.ts";
 import { createRepository } from "./api/repository.ts";
 
-// Import composition-only components (mod.ts architecture)
-import { ProductCard } from "./components/product-card.tsx";
-import { ProductGrid } from "./components/product-grid.tsx";
-import { CartSidebar } from "./components/cart-sidebar.tsx";
-import { CheckoutFlow } from "./components/checkout-flow.tsx";
+// Import library components to register them; app composes by props/variants
 
 // Import API handlers for non-component endpoints
-import {
-  addToCart,
-  getCart,
-  getProducts,
-  removeFromCart,
-  searchProducts,
-  updateCartItem,
-} from "./api/handlers.tsx";
+import { getCart, getProducts, searchProducts } from "./api/handlers.tsx";
 
 import {
   completeCheckout,
@@ -43,7 +31,6 @@ import {
 } from "./api/checkout-handlers.tsx";
 
 import type { Cart, Product } from "./api/types.ts";
-import { seedData } from "./data/seed.ts";
 
 // ============================================================
 // Layout Component
@@ -437,7 +424,7 @@ function Layout({
 // Page Components
 // ============================================================
 
-function HomePage(products: Product[], sessionId: string) {
+function HomePage(products: readonly Product[], sessionId: string) {
   return Layout({
     title: "Home",
     sessionId,
@@ -757,7 +744,7 @@ if (!repositoryResult.ok) {
 // Page Routes
 // ============================================================
 
-router.get("/", async (req) => {
+router.get("/", async (req: Request) => {
   const sessionId = req.headers.get("X-Session-ID") || "default";
   const productsResult = await repositoryResult.value.getProducts();
   const products = productsResult.ok ? productsResult.value.items : [];
@@ -765,7 +752,7 @@ router.get("/", async (req) => {
   return html(HomePage(products, sessionId));
 });
 
-router.get("/checkout", async (req) => {
+router.get("/checkout", async (req: Request) => {
   const url = new URL(req.url);
   const sessionId = url.searchParams.get("session") || "default";
   const step = parseInt(url.searchParams.get("step") || "1");
@@ -814,7 +801,6 @@ router.post("/api/checkout/complete", completeCheckout);
 // ============================================================
 // Static File Serving
 // ============================================================
-
 
 router.get("/static/cart-state.js", () => {
   // In a real app, you'd build and serve the actual JavaScript module

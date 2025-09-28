@@ -1,4 +1,7 @@
-import { assertEquals, assertExists } from "https://deno.land/std@0.224.0/assert/mod.ts";
+import {
+  assertEquals,
+  assertExists,
+} from "https://deno.land/std@0.224.0/assert/mod.ts";
 import { parseActionPlan, resolveActionTarget } from "./action-dsl.ts";
 
 Deno.test("parseActionPlan handles single call", () => {

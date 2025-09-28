@@ -4,7 +4,9 @@
 
 // Token type definitions
 export type TokenValue = string | number;
-export type TokenSet = Record<string, TokenValue | TokenSet>; // Allow nested token sets
+export interface TokenSet {
+  readonly [key: string]: TokenValue | TokenSet;
+} // Allow nested token sets
 export type ComponentTokens<T extends Record<string, TokenSet>> = T;
 
 // Button component tokens

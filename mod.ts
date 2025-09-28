@@ -3,9 +3,7 @@
 // Core component system
 export { renderComponent } from "./lib/component-state.ts";
 export { render } from "./lib/render.ts";
-export {
-  registerComponentApi,
-} from "./lib/define-component.ts";
+export { registerComponentApi } from "./lib/define-component.ts";
 export type {
   AppComponentConfig,
   DefinedComponent,
@@ -15,8 +13,8 @@ export { h } from "./lib/jsx-runtime.ts";
 // App-level defineComponent - restricted to composition only (no custom styles)
 // Apps must use pre-styled library components with variants
 import {
-  defineComponent as defineComponentInternal,
   type AppComponentConfig as AppComponentConfigInternal,
+  defineComponent as defineComponentInternal,
   type DefinedComponent as DefinedComponentInternal,
 } from "./lib/define-component.ts";
 
