@@ -7,7 +7,9 @@
  */
 
 import { h } from "jsx";
-import { defineComponent } from "../../../lib/define-component.ts";
+import { defineComponent } from "../../../mod.ts";
+import "../../../lib/components/data-display/stat.ts";
+import "../../../lib/components/layout/grid.ts";
 
 export type TodoStatsProps = {
   stats: {
@@ -22,22 +24,23 @@ defineComponent<TodoStatsProps>("todo-stats", {
     const { stats } = props;
 
     return (
-      <section class="todo-stats">
-        <div class="todo-stats__grid">
-          <article class="todo-stat todo-stat--primary">
-            <span class="todo-stat__value">{stats.active}</span>
-            <span class="todo-stat__label">Active</span>
-          </article>
-          <article class="todo-stat todo-stat--success">
-            <span class="todo-stat__value">{stats.completed}</span>
-            <span class="todo-stat__label">Completed</span>
-          </article>
-          <article class="todo-stat">
-            <span class="todo-stat__value">{stats.total}</span>
-            <span class="todo-stat__label">Total</span>
-          </article>
-        </div>
-      </section>
+      <grid columns="3" gap="md">
+        <stat
+          value={String(stats.active)}
+          label="Active"
+          variant="primary"
+        />
+        <stat
+          value={String(stats.completed)}
+          label="Completed"
+          variant="success"
+        />
+        <stat
+          value={String(stats.total)}
+          label="Total"
+          variant="default"
+        />
+      </grid>
     );
   },
 });

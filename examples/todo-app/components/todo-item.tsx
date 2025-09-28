@@ -9,7 +9,7 @@
 import { h } from "jsx";
 import { itemAction, onAction } from "../../../lib/api-recipes.ts";
 import "../../../lib/components/data-display/item.ts";
-import { defineComponent } from "../../../lib/define-component.ts";
+import { defineComponent } from "../../../mod.ts";
 import { todoAPI } from "../api/index.ts";
 
 import type { Todo } from "../api/types.ts";

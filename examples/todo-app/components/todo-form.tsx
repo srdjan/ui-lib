@@ -7,7 +7,10 @@
  */
 
 import { h } from "jsx";
-import { defineComponent } from "../../../lib/define-component.ts";
+import { defineComponent } from "../../../mod.ts";
+import "../../../lib/components/input/input.ts";
+import "../../../lib/components/input/select.ts";
+import "../../../lib/components/button/button.ts";
 
 export type TodoFormProps = {
   action?: string;
@@ -19,36 +22,30 @@ defineComponent<TodoFormProps>("todo-form", {
     const { action = "/api/todos", method = "post" } = props;
 
     return (
-      <section class="todo-form">
-        <header class="todo-form__header">
-          <h2>Add New Todo</h2>
-          <p>Capture tasks with priority for the active demo user.</p>
-        </header>
-        <form method={method} action={action} class="todo-form__body">
-          <div class="form-field">
-            <label for="text">What needs to be done?</label>
-            <input
-              type="text"
-              name="text"
-              id="text"
-              placeholder="Enter todo text..."
-              required
-            />
-          </div>
-          <div class="form-field">
-            <label for="priority">Priority</label>
-            <select name="priority" id="priority" required>
-              <option value="">Select priority</option>
-              <option value="low">Low Priority</option>
-              <option value="medium">Medium Priority</option>
-              <option value="high">High Priority</option>
-            </select>
-          </div>
-          <div class="form-actions">
-            <button type="submit">Add Todo</button>
-          </div>
-        </form>
-      </section>
+      <form method={method} action={action}>
+        <input
+          type="text"
+          name="text"
+          id="text"
+          label="What needs to be done?"
+          placeholder="Enter todo text..."
+          required
+        />
+        <input
+          type="select"
+          name="priority"
+          id="priority"
+          label="Priority"
+          required
+          options={[
+            { value: "", label: "Select priority" },
+            { value: "low", label: "Low Priority" },
+            { value: "medium", label: "Medium Priority" },
+            { value: "high", label: "High Priority" },
+          ]}
+        />
+        <button type="submit" variant="primary">Add Todo</button>
+      </form>
     );
   },
 });

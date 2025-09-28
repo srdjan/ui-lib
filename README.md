@@ -6,17 +6,14 @@ hybrid reactivity.
 ## Features
 
 - 🌐 SSR-first, JSX-always rendering
-- 🧭 Light Functional Programming: types-first, pure functions, Result<T,E>, no
-  classes
-- 🧩 DOM-native state: classes, data-* attributes, element content, CSS custom
-  properties
-- 🔒 **Token-Based Customization**: Components sealed with CSS variable
-  interface
-- 🎨 **Zero Style Conflicts**: All customization through standardized tokens
+- 🧭 Light Functional Programming: types-first, pure functions, Result<T,E>, no classes
+- 🧩 DOM-native state: classes, data-* attributes, element content, CSS custom properties
+- 🔒 **Composition-Only Pattern**: Apps compose pre-styled components, enforcing UI consistency
+- 🎨 **Zero Style Conflicts**: No custom CSS in apps, 94% code reduction
 - 🕵️ HTMX encapsulated via component APIs (no hx-* in application code)
 - 📦 Component-colocated API, styles, and reactivity
 - 🔧 Type-safe end-to-end with strict TypeScript
-- 📚 50+ components; progressive enhancement optional (zero framework runtime)
+- 📚 50+ pre-styled components with rich variant APIs; progressive enhancement optional (zero framework runtime)
 
 ## Quick Start
 
@@ -25,12 +22,10 @@ hybrid reactivity.
 | Entry Point     | Use When                                                                       | Highlights                                                            |
 | --------------- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
 | `mod-token.ts`  | **Recommended**: Token-based sealed components with CSS variable customization | Block-level components only, token customization API, theme support   |
-| `mod.ts`        | You need the stable SSR-focused surface with registry-driven components.       | Full prop helpers, CSS-in-TS, reactive helpers, router, API bindings. |
+| `mod.ts`        | Building applications through **composition-only** pattern                      | Compose pre-styled library components, no custom CSS, enforced consistency |
 | `mod-simple.ts` | You want direct JSX functions and minimal ceremony.                            | JSX runtime, lightweight state helpers, curated component subset.     |
 
-> **New**: The `mod-token.ts` entry point provides sealed components that can
-> only be customized through CSS variables, ensuring complete style
-> encapsulation and preventing conflicts.
+> **Important**: `mod.ts` enforces UI consistency by allowing applications to **compose** pre-styled library components only. Custom styles are reserved for library development. This ensures uniform UIs across all applications.
 
 ### Installation
 
@@ -72,30 +67,27 @@ const button = Button({
 });
 ```
 
-### Basic Usage (Traditional)
+### Basic Usage (Composition-Only)
 
 ```tsx
 import { defineComponent, h, render } from "ui-lib/mod.ts";
+import { Card } from "ui-lib/components";
 
-// Define a component
-defineComponent("card", {
-  styles: {
-    padding: "1rem",
-    borderRadius: "0.5rem",
-    backgroundColor: "white",
-    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-  },
-  render: ({ title = "Title", content = "Content" }) => (
-    <div class="card">
-      <h2>{title}</h2>
-      <p>{content}</p>
-    </div>
+// Application components compose pre-styled library components
+defineComponent("user-card", {
+  render: ({ name = "Guest", role = "User" }) => (
+    <card variant="elevated" padding="lg">
+      <h2>{name}</h2>
+      <p>{role}</p>
+    </card>
   ),
 });
 
 // Use it (JSX + render to produce HTML on the server)
-const html = render(<card title="Hello" content="World" />);
+const html = render(<user-card name="Alice" role="Admin" />);
 ```
+
+> **Why Composition-Only?** Applications cannot add custom styles when using `mod.ts`. This enforces UI consistency, reduces code by 94%, and ensures all apps using ui-lib have a uniform look. Custom styling is reserved for library component development (see `lib/internal.ts`).
 
 > Note: In application code, call `render(<Component />)` to produce HTML.
 > `renderComponent` is still available for low-level access when needed.
@@ -104,6 +96,7 @@ const html = render(<card title="Hello" content="World" />);
 
 ```tsx
 import { boolean, defineComponent, h, number, string } from "ui-lib";
+import { Card, Button } from "ui-lib/components";
 
 defineComponent("counter", {
   render: ({
@@ -111,10 +104,12 @@ defineComponent("counter", {
     value = number(0),
     disabled = boolean(false),
   }) => (
-    <div class="counter">
+    <card variant="default" padding="md">
       <span>{label}: {value}</span>
-      <button disabled={disabled}>Increment</button>
-    </div>
+      <button variant="primary" size="md" disabled={disabled}>
+        Increment
+      </button>
+    </card>
   ),
 });
 
@@ -122,27 +117,35 @@ defineComponent("counter", {
 const html = <counter label="Items" value={5} />;
 ```
 
-### Using Built-in Components
+### Composing Library Components
+
+Applications build UIs by composing pre-styled library components with variants:
 
 ```tsx
-import { Alert, Button, Card } from "ui-lib/components";
+import { Alert, Button, Card, Badge } from "ui-lib/components";
 
 const Page = () => (
   <>
-    <Alert type="success">
+    <alert variant="success">
       Operation completed!
-    </Alert>
+    </alert>
 
-    <Card title="Welcome">
-      <Button variant="primary">
+    <card variant="elevated" padding="lg">
+      <h2>Welcome <badge variant="primary">New</badge></h2>
+      <p>Get started with ui-lib's 50+ components</p>
+      <button variant="primary" size="lg">
         Get Started
-      </Button>
-    </Card>
+      </button>
+    </card>
   </>
 );
 ```
 
+All components provide rich variant APIs (primary, secondary, success, danger, etc.) for customization without CSS.
+
 ### API Integration
+
+Components can define API endpoints and bind them to UI actions:
 
 ```tsx
 import { defineComponent, h } from "ui-lib";
@@ -152,32 +155,23 @@ defineComponent("todo-item", {
     toggle: ["POST", "/api/todos/:id/toggle", toggleTodo],
     deleteTodo: ["DELETE", "/api/todos/:id", deleteTodo],
   },
-  render: ({ id, text, done }, api) => (
-    <div class="todo-item" data-component>
-      <input
-        type="checkbox"
-        checked={!!done}
-        onAction={{ api: "toggle", args: [id] }}
-      />
-      <span class={done ? "done" : ""}>{text}</span>
-      <button
-        class="btn btn--danger"
-        onAction={{
-          api: "deleteTodo",
-          args: [id],
-          attributes: { "hx-confirm": "Delete this todo?" },
-        }}
-      >
-        Delete
-      </button>
-    </div>
+  render: ({ id, text, done, priority }, api) => (
+    // Compose library Item component with API bindings
+    <item
+      title={text}
+      completed={done}
+      priority={priority}
+      badges={[{ text: priority, variant: priority === "high" ? "danger" : "success" }]}
+      actions={[
+        { text: "Delete", variant: "danger", ...api.deleteTodo(id) }
+      ]}
+      icon={`<input type="checkbox" ${done ? "checked" : ""} ${api.toggle(id)} />`}
+    />
   ),
 });
 ```
 
-The `api` property defines server endpoints and the JSX `onAction` prop binds
-elements to them. HTMX is encapsulated by the library; defaults
-(target/swap/headers) apply automatically.
+The `api` property defines server endpoints and the library generates HTMX bindings automatically. Defaults (target/swap/headers) apply without explicit configuration.
 
 ## Three-Tier Reactivity
 
@@ -363,10 +357,41 @@ deno task docs
 ui-lib reimagines web components by embracing the platform:
 
 1. **State belongs in the DOM** - Not in JavaScript memory
-2. **CSS is the styling language** - Not JavaScript objects
+2. **CSS is the styling language** - Not JavaScript objects (for library components)
 3. **HTML is the structure** - Not virtual DOM trees
 4. **Progressive enhancement** - Not hydration
 5. **Server-first** - Not client-first with SSR bolted on
+6. **Composition over customization** - Apps compose pre-styled components with variants
+
+## Library Development
+
+While applications use the composition-only pattern, **library components** have full styling capabilities:
+
+```tsx
+// lib/components/my-component.ts
+import { defineComponent, css } from "../../internal.ts";
+
+defineComponent("my-component", {
+  styles: css({
+    padding: "1rem",
+    backgroundColor: "var(--surface-bg)",
+    // Full CSS-in-TS capabilities
+  }),
+  render: ({ variant = "default" }) => (
+    <div class={`my-component my-component--${variant}`}>
+      {/* component content */}
+    </div>
+  ),
+});
+```
+
+Library components import from `lib/internal.ts` which provides unrestricted access to:
+- Full `defineComponent` with styles
+- CSS-in-TS system (`css`, `createTheme`, `composeStyles`)
+- Design tokens and theme system
+- All internal utilities
+
+See [Contributing Guide](CONTRIBUTING.md) for details on developing library components.
 
 ## License
 

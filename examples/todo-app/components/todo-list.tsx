@@ -7,8 +7,10 @@
  */
 
 import { h } from "jsx";
-import { defineComponent } from "../../../lib/define-component.ts";
+import { defineComponent } from "../../../mod.ts";
 import { todoAPI } from "../api/index.ts";
+import "../../../lib/components/button/button.ts";
+import "../../../lib/components/layout/stack.ts";
 import "./todo-item.tsx";
 
 import type { Todo } from "../api/types.ts";
@@ -36,39 +38,32 @@ defineComponent<TodoListProps>("todo-list", {
 
     if (todos.length === 0) {
       return (
-        <div class="todo-list todo-list--empty">
+        <div style="text-align: center; padding: 2rem; color: #6b7280;">
           <p>{emptyMessage}</p>
         </div>
       );
     }
 
     return (
-      <div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginBottom: "0.5rem",
-          }}
-        >
-          {hasCompleted && (
+      <stack direction="vertical" gap="md">
+        {hasCompleted && (
+          <div style="display: flex; justify-content: flex-end;">
             <button
               type="button"
-              class="btn btn--danger"
+              variant="danger"
+              size="sm"
               onAction={{ api: "clearCompleted" }}
             >
               Clear completed
             </button>
-          )}
-        </div>
-        <ul class="todo-list">
+          </div>
+        )}
+        <stack direction="vertical" gap="md">
           {todos.map((todo) => (
-            <li class="todo-list__item">
-              <todo-item todo={todo} />
-            </li>
+            <todo-item todo={todo} />
           ))}
-        </ul>
-      </div>
+        </stack>
+      </stack>
     );
   },
 });

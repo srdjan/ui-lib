@@ -2,38 +2,139 @@
 
 Complete API reference for ui-lib components and utilities.
 
+## Available Library Components
+
+Applications compose these pre-styled components using their variant APIs:
+
+### Layout Components
+- **Card** - Content containers (variants: `default`, `elevated`, `outlined`)
+- **Container** - Page width containers (sizes: `sm`, `md`, `lg`, `xl`, `full`)
+- **Grid** - CSS Grid layouts (columns: `1-12`, gap: `sm`, `md`, `lg`)
+- **Stack** - Vertical/horizontal layouts (direction: `vertical`, `horizontal`)
+- **Flex** - Flexbox layouts with gap control
+
+### Form Components
+- **Input** - Text inputs (types: `text`, `email`, `password`, `number`, `search`)
+- **Textarea** - Multi-line text input
+- **Select** - Dropdown selections
+- **Checkbox** - Boolean selections
+- **Radio** - Single selections from groups
+- **Form** - Form containers with validation styling
+
+### Button Components
+- **Button** - Interactive buttons (variants: `primary`, `secondary`, `outline`, `ghost`)
+- **ButtonGroup** - Grouped button layouts
+
+### Feedback Components
+- **Alert** - Notification messages (variants: `info`, `success`, `warning`, `error`)
+- **Badge** - Status indicators (variants: `primary`, `success`, `warning`, `danger`, `neutral`)
+- **Toast** - Temporary notifications
+- **Progress** - Progress indicators
+
+### Data Display Components
+- **Item** - Generic item display (used for lists, todos, cards)
+- **List** - Collection display
+- **Stat** - Statistical data display
+- **AnimatedCounter** - Animated number display
+
+### Media Components
+- **Image** - Responsive images with lazy loading
+- **Video** - Video players
+- **Audio** - Audio players
+
+### Overlay Components
+- **Modal** - Dialog overlays
+- **Drawer** - Side panel overlays
+- **Popover** - Contextual popovers
+- **Tooltip** - Hover tooltips
+
+See individual component documentation for complete prop and variant lists.
+
 ## Core APIs
 
 ### defineComponent
 
 Creates a new component with type-safe props and optional reactivity.
 
+**Two APIs depending on context:**
+
+#### Application Components (Composition-Only)
+
+Applications use `defineComponent` from `mod.ts` which enforces composition-only patterns:
+
 ```typescript
-defineComponent(config: ComponentConfig): Component
+defineComponent(name: string, config: AppComponentConfig): Component
 ```
 
-#### Parameters
+**AppComponentConfig Parameters:**
 
 | Property   | Type                    | Description                                |
 | ---------- | ----------------------- | ------------------------------------------ |
 | `name`     | `string`                | Unique component identifier                |
-| `styles`   | `StyleObject \| string` | Component styles (CSS-in-TS or CSS string) |
 | `render`   | `Function`              | Render function returning HTML string      |
 | `reactive` | `ReactiveConfig`        | Optional reactivity configuration          |
 | `api`      | `ApiMap`                | Optional API endpoint definitions          |
 
-#### Example
+**Note:** `styles` and `clientScript` properties are **not allowed** in application components. Apps must compose pre-styled library components with variants.
+
+**Example (Application):**
 
 ```tsx
-const MyComponent = defineComponent("my-component", {
-  styles: {
+import { defineComponent, h } from "ui-lib/mod.ts";
+import { Card, Button } from "ui-lib/components";
+
+// ✅ Correct: Compose library components
+defineComponent("user-card", {
+  render: ({ name, role }) => (
+    <card variant="elevated" padding="lg">
+      <h2>{name}</h2>
+      <p>{role}</p>
+      <button variant="primary">Edit Profile</button>
+    </card>
+  ),
+});
+
+// ❌ Wrong: Custom styles not allowed
+defineComponent("custom-card", {
+  styles: { padding: "1rem" },  // ERROR!
+  render: () => <div>...</div>,
+});
+```
+
+#### Library Components (Full API)
+
+Library components use `defineComponent` from `lib/internal.ts` with full styling capabilities:
+
+```typescript
+defineComponent(name: string, config: ComponentConfig): Component
+```
+
+**ComponentConfig Parameters:**
+
+| Property       | Type                    | Description                                |
+| -------------- | ----------------------- | ------------------------------------------ |
+| `name`         | `string`                | Unique component identifier                |
+| `styles`       | `StyleObject \| string` | Component styles (CSS-in-TS or CSS string) |
+| `render`       | `Function`              | Render function returning HTML string      |
+| `reactive`     | `ReactiveConfig`        | Optional reactivity configuration          |
+| `api`          | `ApiMap`                | Optional API endpoint definitions          |
+| `clientScript` | `Function`              | Optional client-side JavaScript            |
+
+**Example (Library Component):**
+
+```tsx
+// lib/components/my-component.ts
+import { defineComponent, css, h } from "../../internal.ts";
+
+defineComponent("my-component", {
+  styles: css({
     padding: "1rem",
-    backgroundColor: "white",
-  },
-  render: ({ title, content }) => (
-    <div class="my-component">
-      <h2>{title}</h2>
-      <p>{content}</p>
+    backgroundColor: "var(--surface-bg)",
+    borderRadius: "0.5rem",
+  }),
+  render: ({ variant = "default" }) => (
+    <div class={`my-component my-component--${variant}`}>
+      {/* component content */}
     </div>
   ),
 });
@@ -41,44 +142,35 @@ const MyComponent = defineComponent("my-component", {
 
 #### API Property
 
-The `api` property allows you to define server endpoints whose client bindings
-are generated for you. In JSX, prefer the `onAction` prop so applications never
-hand-craft hx-* attributes.
+The `api` property allows you to define server endpoints whose client bindings are generated for you. Applications compose library components and bind API actions to them.
+
+**Application Example (Composition-Only):**
 
 ```tsx
-import { defineComponent, h } from "ui-lib";
+import { defineComponent, h } from "ui-lib/mod.ts";
 
 defineComponent("user-card", {
   api: {
     updateUser: ["PUT", "/api/users/:id", updateHandler],
     deleteUser: ["DELETE", "/api/users/:id", deleteHandler],
   },
-  render: ({ id, name }, api) => (
-    <div class="user-card" data-component>
-      <h3>{name}</h3>
-      <button
-        onAction={{
-          api: "updateUser",
-          args: [id],
-          attributes: { "hx-target": "#user-list", "hx-swap": "outerHTML" },
-        }}
-      >
-        Edit
-      </button>
-      <button
-        onAction={{
-          api: "deleteUser",
-          args: [id],
-          attributes: {
-            "hx-target": "#user-list",
-            "hx-swap": "outerHTML",
-            "hx-confirm": "Delete this user?",
-          },
-        }}
-      >
-        Delete
-      </button>
-    </div>
+  render: ({ id, name, role }, api) => (
+    // Compose library Card and Item components
+    <card variant="elevated">
+      <item
+        title={name}
+        description={role}
+        actions={[
+          { text: "Edit", variant: "primary", ...api.updateUser(id) },
+          {
+            text: "Delete",
+            variant: "danger",
+            confirm: "Delete this user?",
+            ...api.deleteUser(id)
+          }
+        ]}
+      />
+    </card>
   ),
 });
 ```
@@ -159,14 +251,17 @@ defineComponent("settings", {
 });
 ```
 
-### CSS-in-TypeScript
+### CSS-in-TypeScript (Library Components Only)
+
+**Note:** CSS utilities are **only available for library component development** via `lib/internal.ts`. Applications using `mod.ts` cannot access these APIs and must compose pre-styled components instead.
 
 #### css(styles: CSSProperties)
 
-Creates type-safe CSS with auto-completion.
+Creates type-safe CSS with auto-completion (library components only).
 
 ```typescript
-import { css } from "ui-lib";
+// lib/components/my-component.ts
+import { css } from "../../internal.ts";
 
 const styles = css({
   display: "flex",
@@ -185,9 +280,12 @@ const styles = css({
 
 #### composeStyles(...styles)
 
-Combines multiple style objects.
+Combines multiple style objects (library components only).
 
 ```typescript
+// lib/components/my-component.ts
+import { composeStyles, css } from "../../internal.ts";
+
 const baseStyles = css({ padding: "1rem" });
 const themeStyles = css({ backgroundColor: "white" });
 

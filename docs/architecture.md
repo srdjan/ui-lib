@@ -4,32 +4,38 @@ Deep dive into ui-lib's architecture and design decisions.
 
 ## Core Philosophy
 
-ui-lib is built on six fundamental principles:
+ui-lib is built on seven fundamental principles:
 
 1. **DOM-Native State** - State lives in the DOM, not in JavaScript memory
 2. **Zero Runtime** - No client-side framework needed for basic functionality
 3. **Progressive Enhancement** - Works without JavaScript, enhanced with it
 4. **Type Safety** - Full TypeScript support from props to rendering
 5. **Functional Approach** - Pure functions, immutable data, no classes
-6. **Token-Based Customization** - Components sealed with CSS variable interface
+6. **Composition Over Customization** - Apps compose pre-styled components with variants
+7. **Enforced Consistency** - Library controls styling, apps control business logic
 
 ## System Architecture
 
 ui-lib now offers two distinct architectures:
 
-### Traditional Architecture (mod.ts)
+### Composition-Only Architecture (mod.ts)
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                     Application Layer                     │
-│  (Your components, pages, and business logic)            │
+│  (defineComponent - composition only, NO custom styles)  │
+│  • Composes pre-styled library components               │
+│  • Defines business logic and API endpoints              │
+│  • Uses component variants (primary, danger, etc.)       │
 └─────────────────┬───────────────────────────────────────┘
                   │
 ┌─────────────────▼───────────────────────────────────────┐
-│                    Component System                       │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
-│  │defineComponent│  │ Prop Helpers │  │  CSS-in-TS   │  │
-│  └──────────────┘  └──────────────┘  └──────────────┘  │
+│                  Library Component Layer                  │
+│  (50+ pre-styled components with rich variant APIs)      │
+│  • Button, Card, Input, Alert, Badge, Item, etc.        │
+│  • Fully styled with CSS-in-TS                           │
+│  • Multiple variants per component                       │
+│  • Developed using lib/internal.ts                       │
 └─────────────────┬───────────────────────────────────────┘
                   │
 ┌─────────────────▼───────────────────────────────────────┐
@@ -47,9 +53,14 @@ ui-lib now offers two distinct architectures:
                   │
 ┌─────────────────▼───────────────────────────────────────┐
 │                     HTML Output                          │
-│  (Pure HTML/CSS sent to the browser)                    │
+│  (Pre-styled, consistent UI across all applications)    │
 └──────────────────────────────────────────────────────────┘
 ```
+
+**Key Constraint**: Applications cannot add custom styles. The `styles` and `clientScript` properties are not available in `AppComponentConfig`. This enforces:
+- **UI Consistency**: All apps have uniform look and feel
+- **94% Code Reduction**: No app-specific CSS needed
+- **Maintainability**: Style updates at library level benefit all apps
 
 ### Token-Based Architecture (mod-token.ts) - Recommended
 
@@ -92,17 +103,53 @@ ui-lib now offers two distinct architectures:
 
 ui-lib supports two component definition approaches:
 
-### Traditional Components (mod.ts)
+### Application Components (mod.ts) - Composition-Only
 
-Components are defined using a declarative configuration object:
+Applications define components by composing pre-styled library components:
 
 ```tsx
+// Application component configuration (restricted)
+interface AppComponentConfig {
+  name: string; // Unique identifier
+  render: Function; // JSX render function (composes library components)
+  reactive?: Reactive; // Optional reactivity
+  api?: ApiMap; // Optional API endpoints
+  // NO styles property - composition only!
+  // NO clientScript property - composition only!
+}
+```
+
+**Example:**
+
+```tsx
+import { defineComponent, h } from "ui-lib/mod.ts";
+import { Card, Button, Badge } from "ui-lib/components";
+
+// App component composes library components with variants
+defineComponent("user-card", {
+  render: ({ name, role, status }) => (
+    <card variant="elevated" padding="lg">
+      <h2>{name} <badge variant={status === "active" ? "success" : "neutral"}>{status}</badge></h2>
+      <p>{role}</p>
+      <button variant="primary">Edit Profile</button>
+    </card>
+  ),
+});
+```
+
+### Library Components (lib/internal.ts) - Full API
+
+Library components have complete styling capabilities:
+
+```tsx
+// Library component configuration (full access)
 interface ComponentConfig {
   name: string; // Unique identifier
-  styles?: StyleObject; // Component styles
+  styles?: StyleObject; // Full CSS-in-TS capabilities
   render: Function; // JSX render function
   reactive?: Reactive; // Optional reactivity
   api?: ApiMap; // Optional API endpoints
+  clientScript?: Function; // Optional client-side code
 }
 ```
 
@@ -131,24 +178,40 @@ const Component = createTokenComponent(config);
 
 ### Render Pipeline
 
-#### Traditional Components
+#### Application Components (Composition-Only)
+
+1. **Props Processing** - Transform raw attributes to typed props
+2. **Component Composition** - Render function composes library components
+3. **Library Component Resolution** - Each library component renders with its pre-defined styles
+4. **Reactivity Injection** - Add reactive attributes if configured
+5. **HTML Generation** - Convert composed JSX to HTML string
+
+```tsx
+// Composition-only render pipeline
+function appComponentRender(element: JSX.Element): string {
+  const component = getComponent(element.type);
+  const processedProps = component.props(element.props);
+  // No style generation - components compose library components
+  const jsx = component.render(processedProps);
+  // Library components already have styles
+  return renderToString(jsx, component.reactive);
+}
+```
+
+#### Library Components
 
 1. **Props Processing** - Transform raw attributes to typed props
 2. **Style Generation** - Convert CSS-in-TS to class names
 3. **JSX Rendering** - Execute JSX render function with props
 4. **Reactivity Injection** - Add reactive attributes if configured
-5. **HTML Generation** - Convert JSX to HTML string
-
-Note: The following internalRender example illustrates the library's internal
-pipeline. In application code, prefer JSX directly; SSR evaluation returns an
-HTML string without calling renderToString yourself.
+5. **HTML Generation** - Convert JSX to HTML string with embedded styles
 
 ```tsx
-// Simplified traditional render pipeline
-function internalRender(element: JSX.Element): string {
+// Library component render pipeline (full capabilities)
+function libraryComponentRender(element: JSX.Element): string {
   const component = getComponent(element.type);
   const processedProps = component.props(element.props);
-  const styles = generateStyles(component.styles);
+  const styles = generateStyles(component.styles); // CSS-in-TS
   const jsx = component.render(processedProps);
   return renderToString(jsx, component.reactive);
 }
