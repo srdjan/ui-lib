@@ -17,17 +17,11 @@ import { html } from "../../lib/response.ts";
 import { registerComponentApi } from "../../lib/define-component.ts";
 import { createRepository } from "./api/repository.ts";
 
-// Import refactored components with collocated APIs
-import "./components/product-card-refactored.tsx";
-import "./components/product-grid-refactored.tsx";
-import "./components/cart-sidebar-refactored.tsx";
-import "./components/cart-item-refactored.tsx";
-
-// Import simple components for fallback
-import { ProductCard } from "./components/product-card-simple.tsx";
-import { ProductGrid } from "./components/product-grid-simple.tsx";
-import { CartSidebar } from "./components/cart-sidebar-simple.tsx";
-import { CheckoutFlow } from "./components/checkout-flow-simple.tsx";
+// Import token-based components (mod-token.ts architecture)
+import { ProductCard } from "./components/product-card.tsx";
+import { ProductGrid } from "./components/product-grid.tsx";
+import { CartSidebar } from "./components/cart-sidebar.tsx";
+import { CheckoutFlow } from "./components/checkout-flow.tsx";
 
 // Import API handlers for non-component endpoints
 import {
@@ -753,8 +747,8 @@ if (!repositoryResult.ok) {
 }
 
 // Register component APIs with unique endpoints to avoid conflicts
-registerComponentApi("product-card", router); // Handles /api/cart/add with enhanced reactivity
-registerComponentApi("cart-item", router); // Handles /api/cart/items/:id for updates/deletes
+// Token-based components don't use registerComponentApi pattern
+// They handle their own API integration through the token system
 // registerComponentApi("product-grid", router); // Would handle /api/products/filter
 // registerComponentApi("cart-sidebar", router); // Would conflict with /api/cart
 

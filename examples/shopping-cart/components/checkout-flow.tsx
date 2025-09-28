@@ -10,7 +10,8 @@
  * - Form state management in DOM
  */
 
-import type { Cart, OrderAddress, PaymentMethod } from "../api/types.ts";
+import { createTokenComponent } from "../../../lib/tokens/component-factory.ts";
+import type { Cart, ShippingAddress, PaymentMethod } from "../api/types.ts";
 
 // ============================================================
 // Component Props
@@ -195,8 +196,8 @@ export interface CheckoutFlowProps {
   cart: Cart;
   currentStep?: number;
   sessionId: string;
-  shippingAddress?: OrderAddress;
-  billingAddress?: OrderAddress;
+  shippingAddress?: ShippingAddress;
+  billingAddress?: ShippingAddress;
   paymentMethod?: PaymentMethod;
   sameAsBilling?: boolean;
   tokens?: Partial<CheckoutFlowTokens>;
@@ -207,12 +208,11 @@ export interface CheckoutFlowProps {
 // ============================================================
 
 export const CheckoutFlow = createTokenComponent<
-  CheckoutFlowProps,
-  CheckoutFlowTokens
->(
-  "checkout-flow",
-  // Default token values
-  {
+  CheckoutFlowTokens,
+  CheckoutFlowProps
+>({
+  name: "checkout-flow",
+  tokens: {
     container: {
       width: "100%",
       maxWidth: "800px",
@@ -382,100 +382,100 @@ export const CheckoutFlow = createTokenComponent<
       cursor: "not-allowed",
     },
   },
-  // Styles function
-  (tokens) => `
+
+  styles: (cssVars) => `
     .checkout-flow {
-      width: ${tokens.container.width};
-      max-width: ${tokens.container.maxWidth};
-      margin: ${tokens.container.margin};
-      padding: ${tokens.container.padding};
-      background-color: ${tokens.container.backgroundColor};
-      border-radius: ${tokens.container.borderRadius};
-      box-shadow: ${tokens.container.boxShadow};
+      width: ${cssVars.container.width};
+      max-width: ${cssVars.container.maxWidth};
+      margin: ${cssVars.container.margin};
+      padding: ${cssVars.container.padding};
+      background-color: ${cssVars.container.backgroundColor};
+      border-radius: ${cssVars.container.borderRadius};
+      box-shadow: ${cssVars.container.boxShadow};
     }
 
     .checkout-stepper {
-      display: ${tokens.stepper.display};
-      gap: ${tokens.stepper.gap};
-      margin-bottom: ${tokens.stepper.marginBottom};
-      padding: ${tokens.stepper.padding};
-      border-bottom: ${tokens.stepper.borderBottom};
+      display: ${cssVars.stepper.display};
+      gap: ${cssVars.stepper.gap};
+      margin-bottom: ${cssVars.stepper.marginBottom};
+      padding: ${cssVars.stepper.padding};
+      border-bottom: ${cssVars.stepper.borderBottom};
     }
 
     .checkout-step {
-      display: ${tokens.step.display};
-      align-items: ${tokens.step.alignItems};
-      gap: ${tokens.step.gap};
-      padding: ${tokens.step.padding};
-      border-radius: ${tokens.step.borderRadius};
-      font-weight: ${tokens.step.fontWeight};
-      color: ${tokens.step.color};
-      background-color: ${tokens.step.backgroundColor};
-      border: ${tokens.step.border};
-      cursor: ${tokens.step.cursor};
-      transition: ${tokens.step.transition};
+      display: ${cssVars.step.display};
+      align-items: ${cssVars.step.alignItems};
+      gap: ${cssVars.step.gap};
+      padding: ${cssVars.step.padding};
+      border-radius: ${cssVars.step.borderRadius};
+      font-weight: ${cssVars.step.fontWeight};
+      color: ${cssVars.step.color};
+      background-color: ${cssVars.step.backgroundColor};
+      border: ${cssVars.step.border};
+      cursor: ${cssVars.step.cursor};
+      transition: ${cssVars.step.transition};
     }
 
     .checkout-step--active {
-      color: ${tokens.stepActive.color};
-      background-color: ${tokens.stepActive.backgroundColor};
-      border-color: ${tokens.stepActive.borderColor};
-      font-weight: ${tokens.stepActive.fontWeight};
+      color: ${cssVars.stepActive.color};
+      background-color: ${cssVars.stepActive.backgroundColor};
+      border-color: ${cssVars.stepActive.borderColor};
+      font-weight: ${cssVars.stepActive.fontWeight};
     }
 
     .checkout-step--completed {
-      color: ${tokens.stepCompleted.color};
-      background-color: ${tokens.stepCompleted.backgroundColor};
-      border-color: ${tokens.stepCompleted.borderColor};
+      color: ${cssVars.stepCompleted.color};
+      background-color: ${cssVars.stepCompleted.backgroundColor};
+      border-color: ${cssVars.stepCompleted.borderColor};
     }
 
     .checkout-step__number {
-      width: ${tokens.stepNumber.width};
-      height: ${tokens.stepNumber.height};
-      border-radius: ${tokens.stepNumber.borderRadius};
-      background-color: ${tokens.stepNumber.backgroundColor};
-      color: ${tokens.stepNumber.color};
-      display: ${tokens.stepNumber.display};
-      align-items: ${tokens.stepNumber.alignItems};
-      justify-content: ${tokens.stepNumber.justifyContent};
-      font-size: ${tokens.stepNumber.fontSize};
-      font-weight: ${tokens.stepNumber.fontWeight};
+      width: ${cssVars.stepNumber.width};
+      height: ${cssVars.stepNumber.height};
+      border-radius: ${cssVars.stepNumber.borderRadius};
+      background-color: ${cssVars.stepNumber.backgroundColor};
+      color: ${cssVars.stepNumber.color};
+      display: ${cssVars.stepNumber.display};
+      align-items: ${cssVars.stepNumber.alignItems};
+      justify-content: ${cssVars.stepNumber.justifyContent};
+      font-size: ${cssVars.stepNumber.fontSize};
+      font-weight: ${cssVars.stepNumber.fontWeight};
     }
 
     .checkout-step--active .checkout-step__number {
-      background-color: ${tokens.stepActive.borderColor};
+      background-color: ${cssVars.stepActive.borderColor};
     }
 
     .checkout-step--completed .checkout-step__number {
-      background-color: ${tokens.stepCompleted.borderColor};
+      background-color: ${cssVars.stepCompleted.borderColor};
     }
 
     .checkout-content {
-      padding: ${tokens.content.padding};
-      min-height: ${tokens.content.minHeight};
+      padding: ${cssVars.content.padding};
+      min-height: ${cssVars.content.minHeight};
     }
 
     .checkout-section {
-      margin-bottom: ${tokens.section.marginBottom};
+      margin-bottom: ${cssVars.section.marginBottom};
     }
 
     .checkout-section__title {
-      font-size: ${tokens.sectionTitle.fontSize};
-      font-weight: ${tokens.sectionTitle.fontWeight};
-      margin-bottom: ${tokens.sectionTitle.marginBottom};
-      color: ${tokens.sectionTitle.color};
+      font-size: ${cssVars.sectionTitle.fontSize};
+      font-weight: ${cssVars.sectionTitle.fontWeight};
+      margin-bottom: ${cssVars.sectionTitle.marginBottom};
+      color: ${cssVars.sectionTitle.color};
     }
 
     .checkout-form-grid {
-      display: ${tokens.formGrid.display};
-      gap: ${tokens.formGrid.gap};
-      grid-template-columns: ${tokens.formGrid.gridTemplateColumns};
+      display: ${cssVars.formGrid.display};
+      gap: ${cssVars.formGrid.gap};
+      grid-template-columns: ${cssVars.formGrid.gridTemplateColumns};
     }
 
     .checkout-form-group {
-      display: ${tokens.formGroup.display};
-      flex-direction: ${tokens.formGroup.flexDirection};
-      gap: ${tokens.formGroup.gap};
+      display: ${cssVars.formGroup.display};
+      flex-direction: ${cssVars.formGroup.flexDirection};
+      gap: ${cssVars.formGroup.gap};
     }
 
     .checkout-form-group--full {
@@ -483,66 +483,66 @@ export const CheckoutFlow = createTokenComponent<
     }
 
     .checkout-label {
-      font-size: ${tokens.label.fontSize};
-      font-weight: ${tokens.label.fontWeight};
-      color: ${tokens.label.color};
+      font-size: ${cssVars.label.fontSize};
+      font-weight: ${cssVars.label.fontWeight};
+      color: ${cssVars.label.color};
     }
 
     .checkout-input {
-      padding: ${tokens.input.padding};
-      border: ${tokens.input.border};
-      border-radius: ${tokens.input.borderRadius};
-      font-size: ${tokens.input.fontSize};
-      transition: ${tokens.input.transition};
-      background-color: ${tokens.input.backgroundColor};
-      color: ${tokens.input.color};
+      padding: ${cssVars.input.padding};
+      border: ${cssVars.input.border};
+      border-radius: ${cssVars.input.borderRadius};
+      font-size: ${cssVars.input.fontSize};
+      transition: ${cssVars.input.transition};
+      background-color: ${cssVars.input.backgroundColor};
+      color: ${cssVars.input.color};
     }
 
     .checkout-input:focus {
-      outline: ${tokens.inputFocus.outline};
-      border-color: ${tokens.inputFocus.borderColor};
-      box-shadow: ${tokens.inputFocus.boxShadow};
+      outline: ${cssVars.inputFocus.outline};
+      border-color: ${cssVars.inputFocus.borderColor};
+      box-shadow: ${cssVars.inputFocus.boxShadow};
     }
 
     .checkout-input--error {
-      border-color: ${tokens.inputError.borderColor};
-      background-color: ${tokens.inputError.backgroundColor};
+      border-color: ${cssVars.inputError.borderColor};
+      background-color: ${cssVars.inputError.backgroundColor};
     }
 
     .checkout-select {
-      padding: ${tokens.select.padding};
-      border: ${tokens.select.border};
-      border-radius: ${tokens.select.borderRadius};
-      font-size: ${tokens.select.fontSize};
-      background-color: ${tokens.select.backgroundColor};
-      color: ${tokens.select.color};
-      cursor: ${tokens.select.cursor};
+      padding: ${cssVars.select.padding};
+      border: ${cssVars.select.border};
+      border-radius: ${cssVars.select.borderRadius};
+      font-size: ${cssVars.select.fontSize};
+      background-color: ${cssVars.select.backgroundColor};
+      color: ${cssVars.select.color};
+      cursor: ${cssVars.select.cursor};
     }
 
     .checkout-checkbox {
-      width: ${tokens.checkbox.width};
-      height: ${tokens.checkbox.height};
-      accent-color: ${tokens.checkbox.accentColor};
+      width: ${cssVars.checkbox.width};
+      height: ${cssVars.checkbox.height};
+      accent-color: ${cssVars.checkbox.accentColor};
     }
 
     .checkout-error-message {
-      font-size: ${tokens.errorMessage.fontSize};
-      color: ${tokens.errorMessage.color};
-      margin-top: ${tokens.errorMessage.marginTop};
+      font-size: ${cssVars.errorMessage.fontSize};
+      color: ${cssVars.errorMessage.color};
+      margin-top: ${cssVars.errorMessage.marginTop};
     }
 
     .checkout-summary {
-      padding: ${tokens.summary.padding};
-      background-color: ${tokens.summary.backgroundColor};
-      border-radius: ${tokens.summary.borderRadius};
-      border: ${tokens.summary.border};
+      padding: ${cssVars.summary.padding};
+      background-color: ${cssVars.summary.backgroundColor};
+      border-radius: ${cssVars.summary.borderRadius};
+      border: ${cssVars.summary.border};
     }
 
     .checkout-summary__item {
-      display: ${tokens.summaryItem.display};
-      justify-content: ${tokens.summaryItem.justifyContent};
-      padding: ${tokens.summaryItem.padding};
-      border-bottom: ${tokens.summaryItem.borderBottom};
+      display: ${cssVars.summaryItem.display};
+      justify-content: ${cssVars.summaryItem.justifyContent};
+      padding: ${cssVars.summaryItem.padding};
+      border-bottom: ${cssVars.summaryItem.borderBottom};
     }
 
     .checkout-summary__item:last-child {
@@ -550,47 +550,47 @@ export const CheckoutFlow = createTokenComponent<
     }
 
     .checkout-summary__total {
-      font-size: ${tokens.summaryTotal.fontSize};
-      font-weight: ${tokens.summaryTotal.fontWeight};
-      border-top: ${tokens.summaryTotal.borderTop};
-      padding-top: ${tokens.summaryTotal.paddingTop};
-      margin-top: ${tokens.summaryTotal.marginTop};
+      font-size: ${cssVars.summaryTotal.fontSize};
+      font-weight: ${cssVars.summaryTotal.fontWeight};
+      border-top: ${cssVars.summaryTotal.borderTop};
+      padding-top: ${cssVars.summaryTotal.paddingTop};
+      margin-top: ${cssVars.summaryTotal.marginTop};
     }
 
     .checkout-actions {
-      display: ${tokens.actions.display};
-      justify-content: ${tokens.actions.justifyContent};
-      gap: ${tokens.actions.gap};
-      margin-top: ${tokens.actions.marginTop};
-      padding: ${tokens.actions.padding};
-      border-top: ${tokens.actions.borderTop};
+      display: ${cssVars.actions.display};
+      justify-content: ${cssVars.actions.justifyContent};
+      gap: ${cssVars.actions.gap};
+      margin-top: ${cssVars.actions.marginTop};
+      padding: ${cssVars.actions.padding};
+      border-top: ${cssVars.actions.borderTop};
     }
 
     .checkout-button {
-      padding: ${tokens.button.padding};
-      border: ${tokens.button.border};
-      border-radius: ${tokens.button.borderRadius};
-      font-size: ${tokens.button.fontSize};
-      font-weight: ${tokens.button.fontWeight};
-      cursor: ${tokens.button.cursor};
-      transition: ${tokens.button.transition};
-      min-width: ${tokens.button.minWidth};
+      padding: ${cssVars.button.padding};
+      border: ${cssVars.button.border};
+      border-radius: ${cssVars.button.borderRadius};
+      font-size: ${cssVars.button.fontSize};
+      font-weight: ${cssVars.button.fontWeight};
+      cursor: ${cssVars.button.cursor};
+      transition: ${cssVars.button.transition};
+      min-width: ${cssVars.button.minWidth};
     }
 
     .checkout-button--primary {
-      background-color: ${tokens.buttonPrimary.backgroundColor};
-      color: ${tokens.buttonPrimary.color};
-      border-color: ${tokens.buttonPrimary.borderColor};
+      background-color: ${cssVars.buttonPrimary.backgroundColor};
+      color: ${cssVars.buttonPrimary.color};
+      border-color: ${cssVars.buttonPrimary.borderColor};
     }
 
     .checkout-button--primary:hover:not(:disabled) {
-      background-color: color-mix(in srgb, ${tokens.buttonPrimary.backgroundColor} 90%, black);
+      background-color: color-mix(in srgb, ${cssVars.buttonPrimary.backgroundColor} 90%, black);
     }
 
     .checkout-button--secondary {
-      background-color: ${tokens.buttonSecondary.backgroundColor};
-      color: ${tokens.buttonSecondary.color};
-      border-color: ${tokens.buttonSecondary.borderColor};
+      background-color: ${cssVars.buttonSecondary.backgroundColor};
+      color: ${cssVars.buttonSecondary.color};
+      border-color: ${cssVars.buttonSecondary.borderColor};
     }
 
     .checkout-button--secondary:hover:not(:disabled) {
@@ -598,8 +598,8 @@ export const CheckoutFlow = createTokenComponent<
     }
 
     .checkout-button:disabled {
-      opacity: ${tokens.buttonDisabled.opacity};
-      cursor: ${tokens.buttonDisabled.cursor};
+      opacity: ${cssVars.buttonDisabled.opacity};
+      cursor: ${cssVars.buttonDisabled.cursor};
     }
 
     /* Mobile responsiveness */
@@ -628,7 +628,7 @@ export const CheckoutFlow = createTokenComponent<
 
     /* Focus ring for accessibility */
     .checkout-step:focus-visible {
-      outline: 2px solid ${tokens.stepActive.borderColor};
+      outline: 2px solid ${cssVars.stepActive.borderColor};
       outline-offset: 2px;
     }
 
@@ -646,8 +646,8 @@ export const CheckoutFlow = createTokenComponent<
       }
     }
   `,
-  // Render function
-  (props) => {
+
+  render: (props) => {
     const currentStep = props.currentStep || 1;
     const steps = [
       { number: 1, title: "Shipping", id: "shipping" },
@@ -691,7 +691,7 @@ export const CheckoutFlow = createTokenComponent<
       </div>
     `;
   },
-);
+});
 
 // ============================================================
 // Step Content Renderers
@@ -759,17 +759,17 @@ function renderShippingStep(props: CheckoutFlowProps): string {
             </div>
 
             <div class="checkout-form-group checkout-form-group--full">
-              <label for="shipping-street" class="checkout-label">Street Address *</label>
+              <label for="shipping-address1" class="checkout-label">Street Address *</label>
               <input
                 type="text"
-                id="shipping-street"
-                name="shipping.street"
+                id="shipping-address1"
+                name="shipping.address1"
                 class="checkout-input"
-                value="${shipping?.street || ""}"
+                value="${shipping?.address1 || ""}"
                 required
-                aria-describedby="shipping-street-error"
+                aria-describedby="shipping-address1-error"
               >
-              <div id="shipping-street-error" class="checkout-error-message" role="alert"></div>
+              <div id="shipping-address1-error" class="checkout-error-message" role="alert"></div>
             </div>
 
             <div class="checkout-form-group">
@@ -895,13 +895,13 @@ function renderShippingStep(props: CheckoutFlowProps): string {
               </div>
 
               <div class="checkout-form-group checkout-form-group--full">
-                <label for="billing-street" class="checkout-label">Street Address *</label>
+                <label for="billing-address1" class="checkout-label">Street Address *</label>
                 <input
                   type="text"
-                  id="billing-street"
-                  name="billing.street"
+                  id="billing-address1"
+                  name="billing.address1"
                   class="checkout-input"
-                  value="${billing?.street || ""}"
+                  value="${billing?.address1 || ""}"
                   ${sameAsBilling ? "" : "required"}
                 >
               </div>
@@ -1031,9 +1031,9 @@ function renderPaymentStep(props: CheckoutFlowProps): string {
               <input
                 type="radio"
                 name="paymentType"
-                value="card"
+                value="credit_card"
                 class="checkout-checkbox"
-                ${payment?.type === "card" || !payment ? "checked" : ""}
+                ${payment?.type === "credit_card" || !payment ? "checked" : ""}
                 onchange="togglePaymentMethod(this)"
               >
               <span class="checkout-label">Credit/Debit Card</span>
@@ -1041,7 +1041,7 @@ function renderPaymentStep(props: CheckoutFlowProps): string {
           </div>
 
           <div id="card-fields" style="${
-    payment?.type === "card" || !payment ? "" : "display: none;"
+    payment?.type === "credit_card" || !payment ? "" : "display: none;"
   }">
             <div class="checkout-form-grid">
               <div class="checkout-form-group checkout-form-group--full">
@@ -1148,7 +1148,7 @@ function renderPaymentStep(props: CheckoutFlowProps): string {
         const cardFields = document.getElementById('card-fields');
         const cardInputs = cardFields.querySelectorAll('input');
 
-        if (radio.value === 'card') {
+        if (radio.value === 'credit_card') {
           cardFields.style.display = 'block';
           cardInputs.forEach(input => input.setAttribute('required', ''));
         } else {
@@ -1195,7 +1195,7 @@ function renderReviewStep(props: CheckoutFlowProps): string {
     props.shippingAddress
       ? `
             <p>${props.shippingAddress.firstName} ${props.shippingAddress.lastName}</p>
-            <p>${props.shippingAddress.street}</p>
+            <p>${props.shippingAddress.address1}</p>
             <p>${props.shippingAddress.city}, ${props.shippingAddress.state} ${props.shippingAddress.zipCode}</p>
             <p>${props.shippingAddress.country}</p>
           `
@@ -1222,10 +1222,10 @@ function renderReviewStep(props: CheckoutFlowProps): string {
     props.paymentMethod
       ? `
             <p>${
-        props.paymentMethod.type === "card" ? "Credit Card" : "PayPal"
+        props.paymentMethod.type === "credit_card" ? "Credit Card" : "PayPal"
       }</p>
             ${
-        props.paymentMethod.type === "card" && props.paymentMethod.last4
+        props.paymentMethod.type === "credit_card" && props.paymentMethod.last4
           ? `<p>**** **** **** ${props.paymentMethod.last4}</p>`
           : ""
       }

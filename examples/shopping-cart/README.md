@@ -1,7 +1,8 @@
 # Shopping Cart Demo
 
-Comprehensive e-commerce application demonstrating ui-lib's token-based
-component system, DOM-native state management, and three-tier reactivity.
+Comprehensive e-commerce application demonstrating ui-lib's **token-based component system** (`mod-token.ts`), DOM-native state management, and three-tier reactivity.
+
+> **Note**: This example uses the token-based architecture pattern, which is different from the composition-only pattern (`mod.ts`) demonstrated in the todo-app. Both patterns are supported by ui-lib for different use cases.
 
 ## 🚀 Quick Start
 
@@ -118,13 +119,21 @@ deno run --allow-net --allow-read --allow-env --allow-write examples/shopping-ca
 
 ## Component Architecture
 
+All components in this example use `createTokenComponent` from `lib/tokens/component-factory.ts`. They are **sealed components** that can only be customized through CSS variables (tokens), not through custom styles.
+
 ### Core Components (Token-Based)
 
 - `ProductCard` - Sealed component with token customization
 - `ProductGrid` - Responsive catalog with filtering
 - `CartSidebar` - Sliding cart overlay
-- `CheckoutForm` - Multi-step wizard
-- `ThemeToggle` - Token-based theme switching
+- `CheckoutFlow` - Multi-step wizard
+- Theme system integrated throughout
+
+**Architecture Pattern**: Token-based (`mod-token.ts`)
+- Components sealed with CSS variable interfaces
+- No custom CSS in component definitions
+- Customization only through standardized tokens
+- Type-safe token contracts with IntelliSense
 
 ### Features Demonstrated
 

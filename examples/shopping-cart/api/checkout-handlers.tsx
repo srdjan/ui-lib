@@ -7,7 +7,7 @@
 
 import type { Handler } from "../../../lib/router.ts";
 import type { CreateOrder, OrderAddress, PaymentMethod } from "./types.ts";
-import { CheckoutFlow } from "../components/checkout-flow-simple.tsx";
+import { CheckoutFlow } from "../components/checkout-flow.tsx";
 import { getRepository } from "./repository.ts";
 import { err, ok, type Result } from "../../../lib/result.ts";
 
