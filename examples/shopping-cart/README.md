@@ -1,8 +1,8 @@
 # Shopping Cart Demo
 
-Comprehensive e-commerce application demonstrating ui-lib's **token-based component system** (`mod-token.ts`), DOM-native state management, and three-tier reactivity.
+Comprehensive e-commerce application demonstrating ui-lib's **composition-only component system** (`mod.ts`), DOM-native state management, and three-tier reactivity.
 
-> **Note**: This example uses the token-based architecture pattern, which is different from the composition-only pattern (`mod.ts`) demonstrated in the todo-app. Both patterns are supported by ui-lib for different use cases.
+> **Note**: This example uses the composition-only architecture pattern, which is the same as the pattern (`mod.ts`) demonstrated in the todo-app. Applications compose pre-styled library components with variants.
 
 ## 🚀 Quick Start
 
@@ -22,13 +22,13 @@ open http://localhost:8080
 
 ## ✨ Features Demonstrated
 
-### 🎨 Token-Based Component System
+### 🎨 Composition-Only Component System
 
-- **Complete Component Sealing**: Components expose only CSS variable interfaces
-- **Type-Safe Customization**: Full TypeScript support for token contracts
-- **Superior DX**: IntelliSense autocompletion for all customization options
-- **Perfect Encapsulation**: No internal implementation leakage
-- **Consistent Theming**: Unified token system across all components
+- **Library Component Composition**: Applications compose pre-styled library components
+- **Variant-Based Customization**: Use predefined component variants (primary, secondary, etc.)
+- **Superior DX**: No custom CSS needed - just compose and configure
+- **Perfect UI Uniformity**: Consistent styling enforced across applications
+- **Library-Controlled Theming**: All styling controlled by the library
 
 ### 🏗️ DOM-Native State Management
 
@@ -71,25 +71,27 @@ open http://localhost:8080
 
 ## Architecture Highlights
 
-### Token-Based Components
+### Composition-Only Components
 
-All components are sealed and can only be customized through CSS variables:
+All components are built by composing pre-styled library components with variants:
 
 ```typescript
-import { defineTokens, ProductCard } from "ui-lib/mod-token.ts";
+import { defineComponent } from "ui-lib/mod.ts";
 
-// Customize product cards
-const customTheme = defineTokens({
-  productCard: {
-    base: {
-      borderRadius: "12px",
-      shadow: "0 4px 12px rgba(0,0,0,0.1)",
-    },
-    price: {
-      color: "#059669",
-      fontSize: "1.25rem",
-    },
-  },
+// Product card using library component composition
+defineComponent("product-card", {
+  render: (props) => `
+    <card variant="elevated" size="md">
+      <stack direction="vertical" gap="sm">
+        <img src="${props.imageUrl}" alt="${props.name}" />
+        <stack direction="vertical" gap="xs">
+          <h3>${props.name}</h3>
+          <div>${props.price}</div>
+          <button variant="primary">Add to Cart</button>
+        </stack>
+      </stack>
+    </card>
+  `,
 });
 ```
 
@@ -119,27 +121,27 @@ deno run --allow-net --allow-read --allow-env --allow-write examples/shopping-ca
 
 ## Component Architecture
 
-All components in this example use `createTokenComponent` from `lib/tokens/component-factory.ts`. They are **sealed components** that can only be customized through CSS variables (tokens), not through custom styles.
+All components in this example use `defineComponent` from `mod.ts`. They are **composition-only components** that build interfaces by composing pre-styled library components with variants.
 
-### Core Components (Token-Based)
+### Core Components (Composition-Only)
 
-- `ProductCard` - Sealed component with token customization
-- `ProductGrid` - Responsive catalog with filtering
-- `CartSidebar` - Sliding cart overlay
-- `CheckoutFlow` - Multi-step wizard
-- Theme system integrated throughout
+- `ProductCard` - Composed using Card + Stack + Button library components
+- `ProductGrid` - Composed using Grid + Section library components
+- `CartSidebar` - Composed using Section + Stack + Grid library components
+- `CheckoutFlow` - Composed using Card + Grid + Button library components
+- All styling handled by library component variants
 
-**Architecture Pattern**: Token-based (`mod-token.ts`)
-- Components sealed with CSS variable interfaces
-- No custom CSS in component definitions
-- Customization only through standardized tokens
-- Type-safe token contracts with IntelliSense
+**Architecture Pattern**: Composition-only (`mod.ts`)
+- Components built by composing library components
+- No custom CSS in application components
+- Styling through library component variants only
+- Enforced UI uniformity across applications
 
 ### Features Demonstrated
 
-- **Component Sealing**: No access to internal implementation
-- **Type Safety**: Full TypeScript inference for tokens
-- **Performance**: CSS variables for instant updates
+- **Library Component Composition**: Applications build UIs by composing library components
+- **Variant-Based Styling**: Components styled through predefined variants
+- **UI Uniformity**: Consistent design enforced by library
 - **Accessibility**: Semantic HTML and ARIA support
 - **SSR**: Complete server-side rendering
 - **Progressive Enhancement**: HTMX for interactions
@@ -153,75 +155,49 @@ All components in this example use `createTokenComponent` from `lib/tokens/compo
 - `POST /api/checkout` - Process order
 - `GET /api/orders` - Order history
 
-## Token Customization Examples
+## Component Composition Examples
 
-### Product Card Themes
+### Product Card Composition
 
 ```typescript
-// E-commerce theme
-const ecommerceTheme = defineTokens({
-  productCard: {
-    base: {
-      background: "white",
-      borderRadius: "8px",
-      shadow: "0 2px 8px rgba(0,0,0,0.1)",
-    },
-    image: {
-      aspectRatio: "1/1",
-      borderRadius: "4px",
-    },
-    title: {
-      fontSize: "1rem",
-      fontWeight: "600",
-    },
-    price: {
-      fontSize: "1.125rem",
-      fontWeight: "700",
-      color: "#DC2626",
-    },
-  },
-});
-
-// Luxury theme
-const luxuryTheme = defineTokens({
-  productCard: {
-    base: {
-      background: "#1F2937",
-      borderRadius: "12px",
-      shadow: "0 8px 24px rgba(0,0,0,0.3)",
-    },
-    title: {
-      color: "#F9FAFB",
-      fontSize: "1.125rem",
-    },
-    price: {
-      color: "#FCD34D",
-      fontSize: "1.25rem",
-    },
-  },
+// Basic product card using library components
+defineComponent("product-card", {
+  render: (props) => `
+    <card variant="elevated" size="md">
+      <stack direction="vertical" gap="sm">
+        <img src="${props.imageUrl}" alt="${props.name}" />
+        <stack direction="vertical" gap="xs">
+          <h3>${props.name}</h3>
+          <div>${formatPrice(props.price)}</div>
+          <button variant="primary" size="md">
+            ${props.inStock ? "Add to Cart" : "Out of Stock"}
+          </button>
+        </stack>
+      </stack>
+    </card>
+  `,
 });
 ```
 
-### Responsive Tokens
+### Different Variants
 
 ```typescript
-const responsiveTokens = responsiveTokens("productCard", {
-  mobile: {
-    base: { padding: "0.75rem" },
-    title: { fontSize: "0.875rem" },
-  },
-  desktop: {
-    base: { padding: "1.5rem" },
-    title: { fontSize: "1.125rem" },
-  },
-});
+// Use different variants for different contexts
+// Featured product
+<product-card variant="featured" show-quick-add="true" />
+
+// Sale item
+<product-card variant="sale" show-discount="true" />
+
+// Out of stock
+<product-card variant="disabled" />
 ```
 
 ## Performance Features
 
 - **SSR Rendering**: ~0.5ms per component
 - **Zero Client Runtime**: Works without JavaScript
-- **Instant Theming**: CSS variables for immediate updates
+- **Consistent Styling**: Library-controlled styling through variants
 - **Optimized Images**: Responsive loading strategies
 - **Minimal Bundle**: < 10KB for enhancements
 
@@ -234,4 +210,4 @@ const responsiveTokens = responsiveTokens("productCard", {
 - **Focus Management**: Logical tab order
 
 This example showcases ui-lib's philosophy: powerful, type-safe components that
-are completely sealed yet highly customizable through a clean token interface.
+enforce UI uniformity while enabling rapid development through composition.

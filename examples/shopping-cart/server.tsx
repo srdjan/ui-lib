@@ -3,11 +3,11 @@
  *
  * Demonstrates:
  * - Complete SSR application with ui-lib components
- * - Token-based component system
+ * - Composition-only component system
  * - DOM-native state management
  * - Three-tier reactivity system
  * - Progressive enhancement with HTMX
- * - Theme system integration
+ * - Library component variants
  * - Comprehensive routing setup
  */
 
@@ -15,9 +15,10 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { Router } from "../../lib/router.ts";
 import { html } from "../../lib/response.ts";
 import { registerComponentApi } from "../../lib/define-component.ts";
+import { renderComponent } from "../../mod.ts";
 import { createRepository } from "./api/repository.ts";
 
-// Import token-based components (mod-token.ts architecture)
+// Import composition-only components (mod.ts architecture)
 import { ProductCard } from "./components/product-card.tsx";
 import { ProductGrid } from "./components/product-grid.tsx";
 import { CartSidebar } from "./components/cart-sidebar.tsx";
@@ -88,7 +89,7 @@ function Layout({
 
       <!-- Application styles -->
       <style>
-        /* Global application styles using theme tokens */
+        /* Global application styles */
         * {
           box-sizing: border-box;
         }
@@ -324,11 +325,11 @@ function Layout({
 
         <!-- Footer -->
         <footer class="app-footer">
-          <p>Built with ui-lib • Demonstrating token-based components, SSR, and DOM-native state management</p>
+          <p>Built with ui-lib • Demonstrating composition-only components, SSR, and DOM-native state management</p>
         </footer>
       </div>
 
-      ${includeSidebar ? CartSidebar({ sessionId }) : ""}
+      ${includeSidebar ? renderComponent("cart-sidebar", { sessionId }) : ""}
 
       <!-- Cart overlay -->
       <div class="cart-overlay" onclick="closeCart()"></div>
@@ -446,7 +447,7 @@ function HomePage(products: Product[], sessionId: string) {
           Welcome to Shopping Demo
         </h1>
         <p style="font-size: var(--typography-text-lg); color: var(--color-on-surface-variant); margin-bottom: var(--spacing-lg);">
-          Experience the power of token-based components with DOM-native state management
+          Experience the power of composition-only components with DOM-native state management
         </p>
 
         <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-xl);">
@@ -482,7 +483,7 @@ function HomePage(products: Product[], sessionId: string) {
 
       <div id="product-grid">
         ${
-      ProductGrid({
+      renderComponent("product-grid", {
         products,
         sessionId,
         showFilters: true,
@@ -661,7 +662,7 @@ function CheckoutPage(cart: Cart, sessionId: string, step = 1) {
       </div>
 
       ${
-      CheckoutFlow({
+      renderComponent("checkout-flow", {
         cart,
         sessionId,
         currentStep: step,
@@ -685,7 +686,7 @@ function AboutPage() {
             🚀 Features Demonstrated
           </h2>
           <ul style="color: var(--color-on-surface); line-height: 1.8;">
-            <li><strong>Token-based Component System:</strong> Completely sealed components with CSS variable interfaces</li>
+            <li><strong>Composition-only Component System:</strong> Applications compose pre-styled library components with variants</li>
             <li><strong>DOM-native State Management:</strong> State lives in DOM, not JavaScript memory</li>
             <li><strong>Three-tier Reactivity:</strong> CSS properties, Pub/Sub, and DOM events</li>
             <li><strong>Server-side Rendering:</strong> Components render to HTML strings</li>
@@ -702,13 +703,13 @@ function AboutPage() {
             🎨 Component Architecture
           </h2>
           <p style="color: var(--color-on-surface); margin-bottom: var(--spacing-md);">
-            This shopping cart demonstrates ui-lib's token-based component system where components are completely sealed
-            and can only be customized through CSS variables. This approach provides:
+            This shopping cart demonstrates ui-lib's composition-only component system where applications
+            compose pre-styled library components with variants. This approach provides:
           </p>
           <ul style="color: var(--color-on-surface); line-height: 1.8;">
-            <li>Superior developer experience with type-safe customization</li>
-            <li>Perfect encapsulation - no internal implementation leakage</li>
-            <li>Consistent theming across all components</li>
+            <li>Superior developer experience with pre-styled components</li>
+            <li>Perfect component uniformity across applications</li>
+            <li>Consistent styling through library-defined variants</li>
             <li>Easy maintenance and updates</li>
             <li>Excellent performance characteristics</li>
           </ul>
@@ -720,10 +721,10 @@ function AboutPage() {
           </h2>
           <ul style="color: var(--color-on-surface); line-height: 1.8;">
             <li><strong>Runtime:</strong> Deno with TypeScript</li>
-            <li><strong>UI Library:</strong> ui-lib with token-based components</li>
+            <li><strong>UI Library:</strong> ui-lib with composition-only components</li>
             <li><strong>Database:</strong> Deno KV for persistence</li>
             <li><strong>Enhancement:</strong> HTMX for progressive behavior</li>
-            <li><strong>Styling:</strong> CSS-in-TS with theme tokens</li>
+            <li><strong>Styling:</strong> Library component variants</li>
             <li><strong>State:</strong> DOM-native with three-tier reactivity</li>
             <li><strong>Routing:</strong> Server-side with type-safe parameters</li>
           </ul>
@@ -747,8 +748,8 @@ if (!repositoryResult.ok) {
 }
 
 // Register component APIs with unique endpoints to avoid conflicts
-// Token-based components don't use registerComponentApi pattern
-// They handle their own API integration through the token system
+// Composition-only components use standard component API integration
+// Each component handles its own API endpoints through registerComponentApi
 // registerComponentApi("product-grid", router); // Would handle /api/products/filter
 // registerComponentApi("cart-sidebar", router); // Would conflict with /api/cart
 
@@ -814,14 +815,6 @@ router.post("/api/checkout/complete", completeCheckout);
 // Static File Serving
 // ============================================================
 
-router.get("/static/theme-system.js", () => {
-  // In a real app, you'd build and serve the actual JavaScript module
-  return new Response(
-    `// Theme system module would be bundled here
-     console.log('Theme system loaded');`,
-    { headers: { "Content-Type": "application/javascript" } },
-  );
-});
 
 router.get("/static/cart-state.js", () => {
   // In a real app, you'd build and serve the actual JavaScript module
@@ -887,7 +880,7 @@ const PORT = parseInt(Deno.env.get("PORT") || "8080");
 
 console.log(`🚀 Shopping Cart Demo starting on port ${PORT}`);
 console.log(
-  `📦 Features: Token components, SSR, DOM-native state, 3-tier reactivity`,
+  `📦 Features: Composition components, SSR, DOM-native state, 3-tier reactivity`,
 );
 console.log(`🎯 Visit: http://localhost:${PORT}`);
 
