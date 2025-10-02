@@ -20,7 +20,12 @@ import { createRepository } from "./api/repository.ts";
 // Import library components to register them; app composes by props/variants
 
 // Import API handlers for non-component endpoints
-import { getCart, getProducts, searchProducts } from "./api/handlers.tsx";
+import {
+  addToCart,
+  getCart,
+  getProducts,
+  searchProducts,
+} from "./api/handlers.tsx";
 
 import {
   completeCheckout,
@@ -783,7 +788,7 @@ router.get("/api/products/search", searchProducts);
 // API Routes - Cart
 // ============================================================
 
-// router.post("/api/cart/add", addToCart); // Now handled by product-card component with enhanced reactivity
+router.post("/api/cart/add", addToCart);
 router.get("/api/cart", getCart); // Keep this for direct cart loading
 // router.patch("/api/cart/items/:itemId", updateCartItem); // Handled via cart-item component API
 // router.delete("/api/cart/items/:itemId", removeFromCart); // Handled via cart-item component API

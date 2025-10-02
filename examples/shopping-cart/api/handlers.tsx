@@ -28,6 +28,13 @@ function renderProductCard(
   // Compose the library ProductCard with standard tokens/variants and actions
   const availability = product.inStock ? "in_stock" : "out_of_stock";
 
+  // Build hx-vals JSON and escape quotes for attribute context
+  const hxVals = JSON.stringify({
+    productId: product.id,
+    quantity: 1,
+    sessionId,
+  }).replace(/"/g, "&quot;");
+
   return renderComponent(ProductCard, {
     product: {
       id: product.id,
@@ -56,13 +63,9 @@ function renderProductCard(
       disabled: !product.inStock,
       attributes: {
         "hx-post": "/api/cart/add",
-        "hx-vals": JSON.stringify({
-          productId: product.id,
-          quantity: 1,
-          sessionId,
-        }),
-        "hx-target": "#cart-feedback",
-        "hx-swap": "innerHTML",
+        "hx-vals": hxVals,
+        "hx-target": "#cart-count",
+        "hx-swap": "outerHTML",
         "hx-ext": "json-enc",
       },
     },
@@ -411,9 +414,9 @@ export async function addToCart(req: Request): Promise<Response> {
       req.headers.get("hx-request") === "true";
 
     if (acceptsHtml) {
-      // Return updated cart count for header
+      // Return updated cart count badge for header
       return html(`
-        <span class="cart-count" data-count="${result.value.itemCount}">
+        <span id="cart-count" class="cart-badge" data-count="${result.value.itemCount}">
           ${result.value.itemCount}
         </span>
       `);
