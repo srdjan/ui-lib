@@ -1,12 +1,11 @@
 # Todo App Example
 
-A full-featured todo application demonstrating ui-lib's capabilities with
-**properly organized components** and functional programming patterns.
+A full-featured todo application demonstrating ui-lib's capabilities with two different architectural approaches.
 
 ## 🚀 Quick Start
 
 ```bash
-# Start the development server
+# Start the development server (runs server-custom.tsx)
 deno task serve
 
 # Or with type checking first
@@ -18,27 +17,46 @@ deno task bundle:state
 # Server runs on http://localhost:8080
 ```
 
-## 🏗️ New Structure
+## 📚 Two Architectural Approaches
+
+This example includes two different server implementations showcasing different component architecture patterns:
+
+### 1. **server-library.tsx** - Library Components Architecture
+- Uses pre-built, reusable library components (Button, Card, Input, etc.)
+- Demonstrates **94% code reduction** (800+ lines → 50 lines)
+- Best for: Rapid prototyping, consistent design systems, minimal custom UI
+- Architecture: Generic, composable components from the library
+
+### 2. **server-custom.tsx** - Custom Components Architecture (Default)
+- Custom components with clean separation of concerns
+- Demonstrates best practices for component authoring
+- Best for: Unique designs, full control, learning component patterns
+- Architecture: Purpose-built components with no inline CSS
+
+**Choose based on your needs:**
+- Building quickly with consistent UI? → Use `server-library.tsx`
+- Need full design control or learning patterns? → Use `server-custom.tsx`
+
+## 🏗️ Project Structure
 
 ```
 todo-app/
-├── components/          # UI Components (one file per component)
+├── components/          # Custom UI Components (used by server-custom.tsx)
 │   ├── TodoItem.tsx    # Individual todo item with actions
 │   ├── TodoForm.tsx    # Add/edit todo form
 │   ├── TodoList.tsx    # Todo list container
 │   ├── TodoFilters.tsx # Filter controls
 │   └── index.ts        # Component exports
 │
-├── api/                # Backend logic
+├── api/                # Backend logic (shared by both servers)
 │   ├── types.ts       # Shared type definitions
 │   ├── repository.ts  # Data layer with functional error handling
 │   ├── handlers.ts    # Request handlers
 │   └── index.ts       # API exports
 │
-
-├── server.tsx         # Main server with routing
-├── server-simple.tsx  # Alternative server implementation
-└── README.md         # This documentation
+├── server-library.tsx  # Server using library components
+├── server-custom.tsx   # Server using custom components (default)
+└── README.md          # This documentation
 ```
 
 ## ✨ Key Features
