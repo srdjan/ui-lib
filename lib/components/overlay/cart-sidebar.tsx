@@ -4,8 +4,9 @@
  * Full-featured commerce drawer for cart review and checkout handoff.
  */
 
-import { array, boolean, defineComponent, object } from "../../internal.ts";
 import { css } from "../../css-in-ts.ts";
+import { buildAttrs } from "../../dom-helpers.ts";
+import { array, boolean, defineComponent, object } from "../../internal.ts";
 import { componentTokens } from "../../themes/component-tokens.ts";
 
 export type CartSidebarQuantityControls = {
@@ -367,19 +368,6 @@ const keyframes = `
   to { transform: rotate(360deg); }
 }`;
 
-function attrString(
-  attrs?: Readonly<Record<string, string | number | boolean>>,
-): string {
-  if (!attrs) return "";
-  return Object.entries(attrs)
-    .flatMap(([key, value]) => {
-      if (value === undefined || value === null || value === false) return [];
-      if (value === true) return [key];
-      return [`${key}="${String(value)}"`];
-    })
-    .join(" ");
-}
-
 function formatCurrency(amount: number, currency: string): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -505,9 +493,15 @@ defineComponent<CartSidebarProps>("cart-sidebar", {
         const quantity = item.quantity ?? 1;
         const lineTotal = item.lineTotal ?? (item.price * quantity);
         const controls = item.controls;
-        const decrementAttr = attrString(controls?.decrement);
-        const incrementAttr = attrString(controls?.increment);
-        const removeAttr = attrString(item.removeAction);
+        const decrementAttr = buildAttrs(
+          controls?.decrement as Record<string, unknown>,
+        );
+        const incrementAttr = buildAttrs(
+          controls?.increment as Record<string, unknown>,
+        );
+        const removeAttr = buildAttrs(
+          item.removeAction as Record<string, unknown>,
+        );
 
         return `
           <article class="${styles.classMap.item}" data-item-id="${item.id}" data-product-id="${item.productId}">
@@ -568,9 +562,12 @@ defineComponent<CartSidebarProps>("cart-sidebar", {
     }
         ${
       props.emptyState?.action
-        ? `<button type="button" class="${styles.classMap.actionButton} ${styles.classMap.actionSecondary}" ${
-          attrString(props.emptyState.action.attributes)
-        }>${props.emptyState.action.label}</button>`
+        ? `<button type=\"button\" class=\"${styles.classMap.actionButton} ${styles.classMap.actionSecondary}\" ${
+          buildAttrs(
+            props.emptyState.action.attributes as Record<string, unknown>,
+          )
+        }
+        >${props.emptyState.action.label}</button>`
         : ""
     }
       </div>
@@ -632,8 +629,8 @@ defineComponent<CartSidebarProps>("cart-sidebar", {
       if (action.fullWidth ?? true) {
         classes.push(styles.classMap.actionFullWidth);
       }
-      return `<button type="button" class="${classes.join(" ")}" ${
-        attrString(action.attributes)
+      return `<button type=\"button\" class=\"${classes.join(" ")}\" ${
+        buildAttrs(action.attributes as Record<string, unknown>)
       }>${action.label}</button>`;
     };
 
@@ -659,8 +656,8 @@ defineComponent<CartSidebarProps>("cart-sidebar", {
       <aside id="${props.id ?? "cart-sidebar"}" class="${
       rootClasses.join(" ")
     }" data-component="cart-sidebar" data-state="${isOpen ? "open" : "closed"}">
-        <div class="${overlayClasses.join(" ")}" ${
-      attrString(props.overlayAttributes)
+        <div class=\"${overlayClasses.join(" ")}\" ${
+      buildAttrs(props.overlayAttributes as Record<string, unknown>)
     }></div>
         <section class="${
       panelClasses.join(" ")
@@ -671,8 +668,8 @@ defineComponent<CartSidebarProps>("cart-sidebar", {
             <h2 class="${styles.classMap.title}">${
       props.title ?? "Shopping Cart"
     }</h2>
-            <button type="button" class="${styles.classMap.closeButton}" aria-label="Close cart" ${
-      attrString(props.closeAttributes)
+            <button type=\"button\" class=\"${styles.classMap.closeButton}\" aria-label=\"Close cart\" ${
+      buildAttrs(props.closeAttributes as Record<string, unknown>)
     }>×</button>
           </header>
           <div class="${styles.classMap.content}">

@@ -6,6 +6,7 @@
  */
 
 import { ProductCard } from "../../../lib/components/data-display/product-card.tsx";
+import { hxVals } from "../../../lib/dom-helpers.ts";
 import { error, html, json } from "../../../lib/response.ts";
 import { renderComponent } from "../../../mod.ts";
 import { getRepository } from "./repository.ts";
@@ -27,13 +28,6 @@ function renderProductCard(
 ): string {
   // Compose the library ProductCard with standard tokens/variants and actions
   const availability = product.inStock ? "in_stock" : "out_of_stock";
-
-  // Build hx-vals JSON and escape quotes for attribute context
-  const hxVals = JSON.stringify({
-    productId: product.id,
-    quantity: 1,
-    sessionId,
-  }).replace(/"/g, "&quot;");
 
   return renderComponent(ProductCard, {
     product: {
@@ -63,7 +57,11 @@ function renderProductCard(
       disabled: !product.inStock,
       attributes: {
         "hx-post": "/api/cart/add",
-        "hx-vals": hxVals,
+        "hx-vals": JSON.stringify({
+          productId: product.id,
+          quantity: 1,
+          sessionId,
+        }),
         "hx-target": "#cart-count",
         "hx-swap": "outerHTML",
         "hx-ext": "json-enc",
@@ -315,16 +313,16 @@ export async function getCart(req: Request): Promise<Response> {
             <div class="cart-item__quantity">
               <button class="quantity-btn"
                       hx-patch="/api/cart/items/${item.id}"
-                      hx-headers='{"Content-Type": "application/json"}'
-                      hx-vals='{"quantity": ${Math.max(1, item.quantity - 1)}}'
+                      hx-ext="json-enc"
+                      ${hxVals({ quantity: Math.max(1, item.quantity - 1) })}
                       hx-target="#cart-sidebar .cart-items"
                       hx-swap="innerHTML"
                       ${item.quantity <= 1 ? "disabled" : ""}>-</button>
               <span class="quantity-value">${item.quantity}</span>
               <button class="quantity-btn"
                       hx-patch="/api/cart/items/${item.id}"
-                      hx-headers='{"Content-Type": "application/json"}'
-                      hx-vals='{"quantity": ${item.quantity + 1}}'
+                      hx-ext="json-enc"
+                      ${hxVals({ quantity: item.quantity + 1 })}
                       hx-target="#cart-sidebar .cart-items"
                       hx-swap="innerHTML">+</button>
             </div>

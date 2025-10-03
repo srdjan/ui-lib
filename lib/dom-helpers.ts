@@ -44,12 +44,25 @@ export const chain = (...actions: ComponentAction[]): ChainAction => ({
  */
 export const spreadAttrs = (attrs: Record<string, unknown> = {}): string => {
   return Object.entries(attrs)
-    .map(([key, value]) => {
-      const safeValue = String(value).replace(/"/g, "&quot;");
-      return `${key}="${safeValue}"`;
+    .map(([key, value]) => `${key}="${escape(String(value))}"`)
+    .join(" ");
+};
+
+// Build attributes safely, supporting boolean presence attributes
+export const buildAttrs = (attrs: Record<string, unknown> = {}): string => {
+  if (!attrs) return "";
+  return Object.entries(attrs)
+    .flatMap(([key, value]) => {
+      if (value === false || value === undefined || value === null) return [];
+      if (value === true) return [key];
+      return [`${key}="${escape(String(value))}"`];
     })
     .join(" ");
 };
+
+// Build a safe hx-vals attribute from a values object
+export const hxVals = (values: Record<string, unknown>): string =>
+  `hx-vals="${escape(JSON.stringify(values))}"`;
 
 /**
  * Generate conditional CSS class based on a condition

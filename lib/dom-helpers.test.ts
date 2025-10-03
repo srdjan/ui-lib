@@ -2,9 +2,11 @@
 
 import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import {
+  buildAttrs,
   conditionalClass,
   dataAttrs,
   escape,
+  hxVals,
   spreadAttrs,
   toggleClass,
   toggleClasses,
@@ -54,4 +56,31 @@ Deno.test("escape function sanitizes HTML", () => {
   );
   assertEquals(escape("Tom & Jerry"), "Tom &amp; Jerry");
   assertEquals(escape("'quotes'"), "&#39;quotes&#39;");
+});
+
+Deno.test("spreadAttrs escapes special characters", () => {
+  const attrs = spreadAttrs({ title: "Tom & \"Jerry\" <tag> 'q'" });
+  assertEquals(
+    attrs,
+    'title="Tom &amp; &quot;Jerry&quot; &lt;tag&gt; &#39;q&#39;"',
+  );
+});
+
+Deno.test("buildAttrs supports boolean presence and escaping", () => {
+  const s = buildAttrs({ disabled: true, "aria-hidden": false, id: "x&" });
+  // disabled present, aria-hidden omitted, id escaped
+  const parts = s.split(" ");
+  const hasDisabled = parts.includes("disabled");
+  const hasAriaHidden = s.includes("aria-hidden");
+  const hasEscapedId = s.includes('id="x&amp;"');
+  assertEquals(hasDisabled, true);
+  assertEquals(hasAriaHidden, false);
+  assertEquals(hasEscapedId, true);
+});
+
+Deno.test("hxVals builds valid attribute with escaped JSON", () => {
+  const attr = hxVals({ productId: "p\"1&<>'" });
+  // Should start with hx-vals and include &quot; for embedded quotes
+  assertEquals(attr.startsWith('hx-vals="'), true);
+  assertEquals(attr.includes("&quot;"), true);
 });

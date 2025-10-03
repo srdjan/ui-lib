@@ -7,6 +7,8 @@
  * - No inline styles; theming controlled by `--product-card-*` tokens
  */
 
+import { css } from "../../css-in-ts.ts";
+import { buildAttrs } from "../../dom-helpers.ts";
 import {
   array,
   boolean,
@@ -15,7 +17,6 @@ import {
   oneOf,
   string,
 } from "../../internal.ts";
-import { css } from "../../css-in-ts.ts";
 import { componentTokens } from "../../themes/component-tokens.ts";
 import type { ComponentSize } from "../types.ts";
 
@@ -445,19 +446,6 @@ function renderStars(rating: number): string {
   return `<span class="${baseStyles.classMap.stars}" aria-hidden="true">${stars}</span>`;
 }
 
-function attrsToString(
-  attributes?: Readonly<Record<string, string | number | boolean>>,
-): string {
-  if (!attributes) return "";
-  return Object.entries(attributes)
-    .flatMap(([key, value]) => {
-      if (value === false || value === undefined || value === null) return [];
-      if (value === true) return [key];
-      return [`${key}="${String(value)}"`];
-    })
-    .join(" ");
-}
-
 function resolveActionClass(action?: ProductAction): string {
   const classes = [baseStyles.classMap.actionButton];
   if (!action) return classes.join(" ");
@@ -493,8 +481,8 @@ function renderQuickAction(action: ProductAction): string {
     baseStyles.classMap.actionGhost,
   ]
     .join(" ");
-  const attrString = attrsToString(action.attributes);
-  return `<button type="button" class="${classes}" ${attrString}>${
+  const attrString = buildAttrs(action.attributes as Record<string, unknown>);
+  return `<button type=\"button\" class=\"${classes}\" ${attrString}>${
     action.icon ?? ""
   }<span>${action.label}</span></button>`;
 }
@@ -627,21 +615,21 @@ defineComponent<ProductCardProps>("product-card", {
       : "";
 
     const primaryActionHtml = props.primaryAction
-      ? `<button type="button" class="${
+      ? `<button type=\"button\" class=\"${
         resolveActionClass(props.primaryAction)
-      }" ${attrsToString(props.primaryAction.attributes)} ${
-        props.primaryAction?.disabled ? "disabled" : ""
-      }>${
+      }\" ${
+        buildAttrs(props.primaryAction.attributes as Record<string, unknown>)
+      } ${props.primaryAction?.disabled ? "disabled" : ""}>${
         props.primaryAction.icon ?? ""
       }<span>${props.primaryAction.label}</span></button>`
       : "";
 
     const secondaryActionHtml = props.secondaryAction
-      ? `<button type="button" class="${
+      ? `<button type=\"button\" class=\"${
         resolveActionClass(props.secondaryAction)
-      }" ${attrsToString(props.secondaryAction.attributes)} ${
-        props.secondaryAction?.disabled ? "disabled" : ""
-      }>${
+      }\" ${
+        buildAttrs(props.secondaryAction.attributes as Record<string, unknown>)
+      } ${props.secondaryAction?.disabled ? "disabled" : ""}>${
         props.secondaryAction.icon ?? ""
       }<span>${props.secondaryAction.label}</span></button>`
       : "";

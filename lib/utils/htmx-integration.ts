@@ -1,3 +1,5 @@
+import { hxVals as buildHxVals } from "../dom-helpers.ts";
+
 // HTMX Integration Utilities - Enhanced HTMX helper functions
 // Extracted from showcase HTMX usage patterns
 
@@ -191,10 +193,7 @@ export const htmx = {
   /**
    * Build hx-vals attribute
    */
-  vals: (values: Record<string, unknown>): string => {
-    const encoded = JSON.stringify(values).replace(/"/g, "&quot;");
-    return `hx-vals='${encoded}'`;
-  },
+  vals: (values: Record<string, unknown>): string => buildHxVals(values),
 
   /**
    * Build hx-headers attribute
@@ -290,7 +289,7 @@ window.uiLibHTMX = {
 
     htmx.ajax(method, url, {
       target,
-      swap, 
+      swap,
       headers,
       values
     });
@@ -299,7 +298,7 @@ window.uiLibHTMX = {
   // Process element with HTMX
   process(element) {
     if (!this.isLoaded()) return;
-    
+
     const el = typeof element === 'string' ? document.querySelector(element) : element;
     if (el) {
       htmx.process(el);
@@ -309,7 +308,7 @@ window.uiLibHTMX = {
   // Trigger HTMX event
   trigger(element, eventName) {
     if (!this.isLoaded()) return;
-    
+
     const el = typeof element === 'string' ? document.querySelector(element) : element;
     if (el) {
       htmx.trigger(el, eventName);
@@ -322,11 +321,11 @@ window.uiLibHTMX = {
     loadOnLoad(url, target) {
       const element = document.querySelector(target);
       if (!element) return;
-      
+
       element.setAttribute('hx-get', url);
       element.setAttribute('hx-trigger', 'load');
       element.setAttribute('hx-target', target);
-      
+
       if (window.uiLibHTMX.isLoaded()) {
         htmx.process(element);
       }
@@ -336,11 +335,11 @@ window.uiLibHTMX = {
     loadOnVisible(url, target) {
       const element = document.querySelector(target);
       if (!element) return;
-      
+
       element.setAttribute('hx-get', url);
       element.setAttribute('hx-trigger', 'intersect');
       element.setAttribute('hx-target', target);
-      
+
       if (window.uiLibHTMX.isLoaded()) {
         htmx.process(element);
       }
@@ -350,11 +349,11 @@ window.uiLibHTMX = {
     autoRefresh(url, target, interval) {
       const element = document.querySelector(target);
       if (!element) return;
-      
+
       element.setAttribute('hx-get', url);
       element.setAttribute('hx-trigger', \`every \${interval}\`);
       element.setAttribute('hx-target', target);
-      
+
       if (window.uiLibHTMX.isLoaded()) {
         htmx.process(element);
       }

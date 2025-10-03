@@ -6,6 +6,7 @@
  */
 
 import { css } from "../../css-in-ts.ts";
+import { buildAttrs } from "../../dom-helpers.ts";
 import {
   array,
   boolean,
@@ -15,6 +16,7 @@ import {
   renderComponent,
   string,
 } from "../../internal.ts";
+
 import { componentTokens } from "../../themes/component-tokens.ts";
 import type {
   ProductAction,
@@ -326,19 +328,6 @@ const keyframes = `
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }`;
-
-function attrString(
-  attrs?: Readonly<Record<string, string | number | boolean>>,
-): string {
-  if (!attrs) return "";
-  return Object.entries(attrs)
-    .flatMap(([key, value]) => {
-      if (value === undefined || value === null || value === false) return [];
-      if (value === true) return [key];
-      return [`${key}="${String(value)}"`];
-    })
-    .join(" ");
-}
 
 function toNumber(value: unknown): number | undefined {
   if (value === null || value === undefined || value === "") return undefined;
@@ -654,9 +643,10 @@ defineComponent<ProductGridProps>("product-grid", {
     }
         ${
       emptyState.action
-        ? `<button type="button" class="${styles.classMap.submitButton}" ${
-          attrString(emptyState.action.attributes)
-        }>${emptyState.action.label}</button>`
+        ? `<button type=\"button\" class=\"${styles.classMap.submitButton}\" ${
+          buildAttrs(emptyState.action.attributes as Record<string, unknown>)
+        }
+        >${emptyState.action.label}</button>`
         : ""
     }
       </div>
