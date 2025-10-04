@@ -24,39 +24,39 @@ ui-lib now offers two distinct architectures:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                     Application Layer                     │
-│  (defineComponent - composition only, NO custom styles)  │
+│                     Application Layer                   │
+│  (defineComponent - composition only, NO custom styles) │
 │  • Composes pre-styled library components               │
-│  • Defines business logic and API endpoints              │
-│  • Uses component variants (primary, danger, etc.)       │
+│  • Defines business logic and API endpoints             │
+│  • Uses component variants (primary, danger, etc.)      │
 └─────────────────┬───────────────────────────────────────┘
                   │
 ┌─────────────────▼───────────────────────────────────────┐
-│                  Library Component Layer                  │
-│  (50+ pre-styled components with rich variant APIs)      │
+│                  Library Component Layer                │
+│  (50+ pre-styled components with rich variant APIs)     │
 │  • Button, Card, Input, Alert, Badge, Item, etc.        │
-│  • Fully styled with CSS-in-TS                           │
-│  • Multiple variants per component                       │
-│  • Developed using lib/internal.ts                       │
+│  • Fully styled with CSS-in-TS                          │
+│  • Multiple variants per component                      │
+│  • Developed using lib/internal.ts                      │
 └─────────────────┬───────────────────────────────────────┘
                   │
 ┌─────────────────▼───────────────────────────────────────┐
-│                   Reactivity System                       │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
-│  │ CSS Properties│  │  Pub/Sub     │  │ DOM Events   │  │
-│  │   (Tier 1)   │  │   (Tier 2)   │  │   (Tier 3)   │  │
-│  └──────────────┘  └──────────────┘  └──────────────┘  │
+│                   Reactivity System                     │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐   │
+│  │ CSS Props.   │  │  Pub/Sub     │  │ DOM Events   │   │
+│  │   (Tier 1)   │  │   (Tier 2)   │  │   (Tier 3)   │   │
+│  └──────────────┘  └──────────────┘  └──────────────┘   │
 └─────────────────┬───────────────────────────────────────┘
                   │
 ┌─────────────────▼───────────────────────────────────────┐
-│                      SSR Engine                          │
-│  (Renders components to HTML strings on the server)      │
+│                      SSR Engine                         │
+│  (Renders components to HTML strings on the server)     │
 └─────────────────┬───────────────────────────────────────┘
                   │
 ┌─────────────────▼───────────────────────────────────────┐
-│                     HTML Output                          │
+│                     HTML Output                         │
 │  (Pre-styled, consistent UI across all applications)    │
-└──────────────────────────────────────────────────────────┘
+└─────────────────────────────────────────────────────────┘
 ```
 
 **Key Constraint**: Applications cannot add custom styles. The `styles` and
@@ -71,37 +71,37 @@ enforces:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                     Application Layer                     │
-│  (Uses sealed components + token customization only)     │
+│                     Application Layer                   │
+│  (Uses sealed components + token customization only)    │
 └─────────────────┬───────────────────────────────────────┘
                   │
 ┌─────────────────▼───────────────────────────────────────┐
-│                   Token System                           │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
-│  │ defineTokens │  │ applyTheme   │  │ customizeComp│  │
-│  │              │  │              │  │              │  │
-│  └──────────────┘  └──────────────┘  └──────────────┘  │
+│                   Token System                          │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐   │
+│  │ defineTokens │  │ applyTheme   │  │ customizeComp│   │
+│  │              │  │              │  │              │   │
+│  └──────────────┘  └──────────────┘  └──────────────┘   │
 └─────────────────┬───────────────────────────────────────┘
                   │ CSS Variables Only
 ┌─────────────────▼───────────────────────────────────────┐
-│                 Sealed Components                        │
-│  ┌─────────────────────────────────────────────────────┐ │
-│  │ Component Factory (createTokenComponent)            │ │
-│  │ • CSS variable injection                            │ │
-│  │ • Style encapsulation                              │ │
-│  │ • No internal access                               │ │
-│  └─────────────────────────────────────────────────────┘ │
+│                 Sealed Components                       │
+│  ┌─────────────────────────────────────────────────────┐│
+│  │ Component Factory (createTokenComponent)            ││
+│  │ • CSS variable injection                            ││
+│  │ • Style encapsulation                               ││
+│  │ • No internal access                                ││
+│  └─────────────────────────────────────────────────────┘│
 └─────────────────┬───────────────────────────────────────┘
                   │
 ┌─────────────────▼───────────────────────────────────────┐
-│                      SSR Engine                          │
+│                      SSR Engine                         │
 │  (Components render with CSS variables)                 │
 └─────────────────┬───────────────────────────────────────┘
                   │
 ┌─────────────────▼───────────────────────────────────────┐
-│              HTML + CSS Variables                        │
-│  (Instantly themeable via CSS custom properties)       │
-└──────────────────────────────────────────────────────────┘
+│              HTML + CSS Variables                       │
+│  (Instantly themeable via CSS custom properties)        │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ## Component System
