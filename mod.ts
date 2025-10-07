@@ -8,7 +8,7 @@ export type {
   AppComponentConfig,
   DefinedComponent,
 } from "./lib/define-component.ts";
-export { h } from "./lib/jsx-runtime.ts";
+export { Fragment, h } from "./lib/jsx-runtime.ts";
 
 // App-level defineComponent - restricted to composition only (no custom styles)
 // Apps must use pre-styled library components with variants
