@@ -3,9 +3,9 @@
  * Provides consistent content spacing and centering across different viewports
  */
 
-import { css, defineComponent } from "../../internal";
-import { componentTokens } from "../../themes/component-tokens";
-import type { ContainerProps } from "./types";
+import { css, defineComponent } from "../../internal.ts";
+import { componentTokens } from "../../themes/component-tokens.ts";
+import type { ContainerProps } from "./types.ts";
 
 const containerStyles = css({
   container: {
