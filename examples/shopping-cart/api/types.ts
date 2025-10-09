@@ -229,11 +229,37 @@ export type OrderSummary = {
 
 export type ApiResponse<T> = Result<T, ApiError>;
 
-export type ApiError = {
-  readonly code: string;
-  readonly message: string;
-  readonly details?: Record<string, unknown>;
-};
+// Discriminated union for type-safe error handling (matching todo app pattern)
+export type ApiError =
+  | { readonly type: "not_found"; readonly entity: string; readonly id: string }
+  | {
+    readonly type: "validation_error";
+    readonly field: string;
+    readonly message: string;
+  }
+  | {
+    readonly type: "out_of_stock";
+    readonly productId: string;
+    readonly message: string;
+  }
+  | {
+    readonly type: "empty_cart";
+    readonly message: string;
+  }
+  | {
+    readonly type: "kv_connection_error";
+    readonly message: string;
+  }
+  | {
+    readonly type: "kv_operation_error";
+    readonly operation: string;
+    readonly message: string;
+  }
+  | {
+    readonly type: "generic_error";
+    readonly code: string;
+    readonly message: string;
+  };
 
 export type PaginatedResponse<T> = {
   readonly items: readonly T[];
@@ -358,24 +384,3 @@ export type ID = string;
 export type Timestamp = string;
 export type Currency = number;
 export type Percentage = number;
-
-// Type guards for runtime validation
-export function isProduct(obj: unknown): obj is Product {
-  return typeof obj === "object" && obj !== null &&
-    typeof (obj as Product).id === "string" &&
-    typeof (obj as Product).name === "string" &&
-    typeof (obj as Product).price === "number";
-}
-
-export function isCartItem(obj: unknown): obj is CartItem {
-  return typeof obj === "object" && obj !== null &&
-    typeof (obj as CartItem).id === "string" &&
-    typeof (obj as CartItem).quantity === "number" &&
-    isProduct((obj as CartItem).product);
-}
-
-export function isUser(obj: unknown): obj is User {
-  return typeof obj === "object" && obj !== null &&
-    typeof (obj as User).id === "string" &&
-    typeof (obj as User).email === "string";
-}
