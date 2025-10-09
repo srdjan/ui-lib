@@ -5,6 +5,7 @@ import {
   assertExists,
   assertStringIncludes,
 } from "https://deno.land/std@0.224.0/assert/mod.ts";
+import { del, post } from "./api-helpers.ts";
 import { renderComponent } from "./component-state.ts";
 import { defineComponent } from "./define-component.ts";
 import { h } from "./jsx-runtime.ts";
@@ -97,8 +98,8 @@ Deno.test("Minimal API: Component with API", () => {
 
   const TestApi = defineComponent("test-api", {
     api: {
-      save: ["POST", "/api/save", mockHandler],
-      delete: ["DELETE", "/api/delete/:id", mockHandler],
+      save: post("/api/save", mockHandler),
+      delete: del("/api/delete/:id", mockHandler),
     },
     render: (attrs: Record<string, string>, api) => {
       assertExists(api);

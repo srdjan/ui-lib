@@ -2,9 +2,10 @@ import {
   assert,
   assertEquals,
 } from "https://deno.land/std@0.224.0/testing/asserts.ts";
-import { decorateAttributes, generateClientHx, hx } from "./api-recipes.ts";
 import type { ApiMap } from "./api-generator.ts";
+import { decorateAttributes, generateClientHx, hx } from "./api-recipes.ts";
 
+import { patch } from "./api-helpers.ts";
 Deno.test("decorateAttributes merges hx metadata", () => {
   const base: Record<string, string> = {
     "hx-patch": "/api/todos/1",
@@ -38,7 +39,7 @@ Deno.test("decorateAttributes merges hx metadata", () => {
 Deno.test("generateClientHx produces enriched hx attribute strings", () => {
   const handler = () => new Response("ok");
   const apiMap: ApiMap = {
-    toggle: ["PATCH", "/api/todos/:id/toggle", handler],
+    toggle: patch("/api/todos/:id/toggle", handler),
   };
 
   const actions = generateClientHx(apiMap, { trigger: "click" });

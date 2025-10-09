@@ -157,7 +157,8 @@ defineComponent("my-component", {
 
 #### API Property - HTTP Method Helpers
 
-The `api` property allows you to define server endpoints with HTTP method helpers that completely abstract away HTMX attributes.
+The `api` property allows you to define server endpoints with HTTP method
+helpers that completely abstract away HTMX attributes.
 
 **Available HTTP Method Helpers:**
 
@@ -220,8 +221,10 @@ defineComponent("todo-item", {
 
 **Key Features:**
 
-- ✅ **Zero HTMX in application code** - All `hx-*` attributes generated internally
-- ✅ **Direct spread operator** - `{...api!.action(id)}` returns attribute object
+- ✅ **Zero HTMX in application code** - All `hx-*` attributes generated
+  internally
+- ✅ **Direct spread operator** - `{...api!.action(id)}` returns attribute
+  object
 - ✅ **Path interpolation** - Parameters like `:id` automatically replaced
 - ✅ **Automatic registration** - Call `registerComponentApi(name, router)` once
 - ✅ **Type safety** - Full TypeScript support with proper types
@@ -237,24 +240,6 @@ When you call `api!.toggle(todo.id)`, it generates:
   "hx-swap": "outerHTML"
 }
 ```
-
-**Legacy Format (Still Supported):**
-
-The tuple-based format still works for backwards compatibility:
-
-```tsx
-defineComponent("user-card", {
-  api: {
-    updateUser: ["PUT", "/api/users/:id", updateHandler],
-    deleteUser: ["DELETE", "/api/users/:id", deleteHandler],
-  },
-  render: ({ id }, api) => (
-    <div {...api.updateUser(id)}>Update</div>
-  ),
-});
-```
-
-**Migration:** Replace tuples with HTTP method helpers for better ergonomics and clarity.
 
 ### Prop Helpers
 
@@ -843,13 +828,15 @@ defineComponent("my-component", {
     deleteItem: del("/api/items/:id", handler),
 
     // Aliases (same as above)
-    addItem: create("/api/items", handler),    // Alias for post
+    addItem: create("/api/items", handler), // Alias for post
     removeItem: remove("/api/items/:id", handler), // Alias for del
   },
   render: (props, api) => {
     // Use with direct spread operator
     const attrs = api!.loadData();
-    return `<button ${Object.entries(attrs).map(([k, v]) => `${k}="${v}"`).join(" ")}>Load</button>`;
+    return `<button ${
+      Object.entries(attrs).map(([k, v]) => `${k}="${v}"`).join(" ")
+    }>Load</button>`;
   },
 });
 ```
@@ -871,22 +858,23 @@ type ApiRoute = {
 
 ```typescript
 // No parameters
-api!.loadData()
+api!.loadData();
 // => { "hx-get": "/api/data", "hx-target": "this", "hx-swap": "outerHTML" }
 
 // Single parameter
-api!.deleteItem("123")
+api!.deleteItem("123");
 // => { "hx-delete": "/api/items/123", "hx-target": "this", "hx-swap": "outerHTML" }
 
 // Multiple parameters
-api!.updateComment("post-1", "comment-5")
+api!.updateComment("post-1", "comment-5");
 // Path: "/api/posts/:postId/comments/:commentId"
 // => { "hx-patch": "/api/posts/post-1/comments/comment-5", ... }
 ```
 
 ### generateClientApi (Internal)
 
-Used internally by defineComponent to generate client-side API bindings. Applications rarely need to call this directly.
+Used internally by defineComponent to generate client-side API bindings.
+Applications rarely need to call this directly.
 
 ```typescript
 const api = {
@@ -898,17 +886,16 @@ const clientApi = generateClientApi(api);
 // Produces functions like: clientApi.toggle(id) => { "hx-patch": "/api/todos/:id/toggle", ... }
 ```
 
-### generateClientHx & hx (Legacy)
+### generateClientHx & hx
 
-Legacy helpers for the tuple-based API format. Still supported but HTTP method helpers are preferred:
+Helpers for enriching generated attributes with HTMX options:
 
 ```typescript
-import { generateClientHx, hx } from "ui-lib";
+import { del, generateClientHx, hx, post } from "ui-lib";
 
-// Legacy tuple format
 const api = {
-  toggle: ["POST", "/api/todos/:id/toggle", handler],
-  remove: ["DELETE", "/api/todos/:id", handler],
+  toggle: post("/api/todos/:id/toggle", handler),
+  remove: del("/api/todos/:id", handler),
 };
 
 const actions = generateClientHx(api, { target: "#main", swap: "outerHTML" });

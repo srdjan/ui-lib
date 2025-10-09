@@ -9,7 +9,9 @@ code in this repository.
 DOM-native state management and hybrid reactivity. Built with Deno and
 TypeScript using functional programming patterns for zero runtime overhead.
 
-**Core Philosophy**: State belongs in the DOM (classes, data-* attributes, CSS variables), not JavaScript memory. Components are pure server-side JSX functions. Progressive enhancement over hydration.
+**Core Philosophy**: State belongs in the DOM (classes, data-* attributes, CSS
+variables), not JavaScript memory. Components are pure server-side JSX
+functions. Progressive enhancement over hydration.
 
 ## Architecture & Core Concepts
 
@@ -76,7 +78,8 @@ deno run --allow-run --allow-read --allow-env scripts/release.ts  # Release prep
 deno task ci:examples-guard  # Ensure examples use JSX patterns correctly
 ```
 
-**Note**: The `--unstable-kv` flag is required for examples using Deno KV storage.
+**Note**: The `--unstable-kv` flag is required for examples using Deno KV
+storage.
 
 ## Project Structure
 
@@ -183,8 +186,8 @@ defineComponent("todo-item", {
     done: "done" in attrs,
   }),
   api: {
-    toggle: ["PATCH", "/api/todos/:id/toggle", handler],
-    remove: ["DELETE", "/api/todos/:id", handler],
+    toggle: patch("/api/todos/:id/toggle", handler),
+    remove: del("/api/todos/:id", handler),
   },
   render: (props, api) => (
     <div>
@@ -295,13 +298,15 @@ return json({ status: "ok" });
 
 ui-lib provides two entry points for different use cases:
 
-| Entry Point     | Use Case                                           | Key Features                                                             |
-| --------------- | -------------------------------------------------- | ------------------------------------------------------------------------ |
-| `mod.ts`        | **Recommended**: Composition-only pattern          | Pre-styled components, no custom CSS, enforced UI consistency            |
-| `mod-simple.ts` | Direct JSX functions with minimal ceremony         | JSX runtime, lightweight state helpers, curated component subset         |
+| Entry Point     | Use Case                                   | Key Features                                                     |
+| --------------- | ------------------------------------------ | ---------------------------------------------------------------- |
+| `mod.ts`        | **Recommended**: Composition-only pattern  | Pre-styled components, no custom CSS, enforced UI consistency    |
+| `mod-simple.ts` | Direct JSX functions with minimal ceremony | JSX runtime, lightweight state helpers, curated component subset |
 
 **Choosing the right entry point**:
-- **mod.ts** (recommended): For applications using composition-only pattern. Apps compose pre-styled library components; no custom styles allowed.
+
+- **mod.ts** (recommended): For applications using composition-only pattern.
+  Apps compose pre-styled library components; no custom styles allowed.
 - **mod-simple.ts**: For rapid prototyping or minimal applications.
 
 Both entry points share the same core: index.ts exports the base functionality.
@@ -346,28 +351,36 @@ defineComponent("user-card", {
 
 ## Important Notes
 
-- **State management philosophy**: State belongs in the DOM, not JavaScript memory
+- **State management philosophy**: State belongs in the DOM, not JavaScript
+  memory
 - **Progressive enhancement over hydration**: No client-side hydration needed
 - **Server-first design**: Not client-first with SSR bolted on
 - **All user input must be escaped**: XSS protection via lib/escape.ts
 - **Components should be pure functions**: No side effects in render
-- **The main public API is exported from `index.ts`**: All mod files import from here
-- **HTMX is encapsulated**: Use `onAction`/`itemAction` helpers, not raw `hx-*` attributes
-- **JSX-only in application code**: Use `render(<Component />)` for HTML, not `renderComponent`
-- **Light FP principles**: See AGENTS.md for detailed coding standards (Result types, ports pattern, no classes)
+- **The main public API is exported from `index.ts`**: All mod files import from
+  here
+- **HTMX is encapsulated**: Use `onAction`/`itemAction` helpers, not raw `hx-*`
+  attributes
+- **JSX-only in application code**: Use `render(<Component />)` for HTML, not
+  `renderComponent`
+- **Light FP principles**: See AGENTS.md for detailed coding standards (Result
+  types, ports pattern, no classes)
 
 ## Light Functional Programming Guidelines
 
 This codebase follows Light FP principles (see AGENTS.md for complete guide):
 
 ### Core Patterns
+
 1. **Types over interfaces** for data; interfaces ONLY for ports (capabilities)
 2. **Result<T,E> for errors** - no throwing in core logic
 3. **Ports pattern** - dependency injection via function parameters
-4. **Immutability** - `readonly` in public APIs, local mutation OK inside functions
+4. **Immutability** - `readonly` in public APIs, local mutation OK inside
+   functions
 5. **Pure core, effects at edges** - keep I/O at application boundaries
 
 ### Quick Reference
+
 ```typescript
 // ✅ Data as types with readonly
 export type User = {
@@ -381,7 +394,8 @@ export interface UserRepository {
 }
 
 // ✅ Error handling with Result
-export const createUser = (repo: UserRepository) =>
+export const createUser =
+  (repo: UserRepository) =>
   async (data: CreateUserData): Promise<Result<User, CreateUserError>> => {
     // Pure validation
     const validation = validateUser(data);
@@ -395,13 +409,18 @@ export const createUser = (repo: UserRepository) =>
 ## Examples
 
 ### TODO App (`examples/todo-app/`)
+
 Two architectural approaches:
-- **server-custom.tsx** (default): Custom components demonstrating best practices
-- **server-library.tsx**: Using pre-built library components (94% code reduction)
+
+- **server-custom.tsx** (default): Custom components demonstrating best
+  practices
+- **server-library.tsx**: Using pre-built library components (94% code
+  reduction)
 
 Both share the same API layer with functional error handling and Result types.
 
 ### Shopping Cart (`examples/shopping-cart/`)
+
 Demonstrates e-commerce patterns with cart state management.
 
 ## Common Development Workflows
@@ -428,7 +447,7 @@ Demonstrates e-commerce patterns with cart state management.
    ```typescript
    // Compose library components only
    import { defineComponent, h } from "ui-lib/mod.ts";
-   import { Card, Button } from "ui-lib/components";
+   import { Button, Card } from "ui-lib/components";
 
    defineComponent("user-card", {
      render: ({ name, role }) => (
@@ -445,8 +464,8 @@ Demonstrates e-commerce patterns with cart state management.
 ```typescript
 defineComponent("todo-item", {
   api: {
-    toggle: ["POST", "/api/todos/:id/toggle", toggleHandler],
-    remove: ["DELETE", "/api/todos/:id", removeHandler],
+    toggle: post("/api/todos/:id/toggle", toggleHandler),
+    remove: del("/api/todos/:id", removeHandler),
   },
   render: ({ id, text }, api) => (
     <div>
@@ -483,7 +502,8 @@ deno task coverage
 1. **Component not rendering**: Check component is registered before use
 2. **Props not parsing**: Use prop helpers (`string()`, `number()`, `boolean()`)
 3. **Styles not applying**: Verify CSS-in-TS syntax and class name generation
-4. **XSS concerns**: User input is auto-escaped; use `dangerouslySetInnerHTML` only when needed
+4. **XSS concerns**: User input is auto-escaped; use `dangerouslySetInnerHTML`
+   only when needed
 
 ### Performance Monitoring
 
@@ -498,30 +518,33 @@ deno bench bench/ssr.bench.ts
 
 ### Common Issues
 
-| Issue | Solution |
-|-------|----------|
-| `Component not found: xyz` | Register component with `defineComponent` before rendering |
-| Props not typed correctly | Wrap attributes with `parseProps()` or use prop helpers |
-| HTMX not working | Ensure `onAction` helper is used, not raw `hx-*` attributes |
-| Styles not scoped | Use CSS-in-TS system; check class name generation |
-| Type errors in JSX | Verify JSX pragma in tsconfig: `jsx: "react"`, `jsxFactory: "h"` |
-| Deno KV errors | Add `--unstable-kv` flag when running server |
+| Issue                      | Solution                                                         |
+| -------------------------- | ---------------------------------------------------------------- |
+| `Component not found: xyz` | Register component with `defineComponent` before rendering       |
+| Props not typed correctly  | Wrap attributes with `parseProps()` or use prop helpers          |
+| HTMX not working           | Ensure `onAction` helper is used, not raw `hx-*` attributes      |
+| Styles not scoped          | Use CSS-in-TS system; check class name generation                |
+| Type errors in JSX         | Verify JSX pragma in tsconfig: `jsx: "react"`, `jsxFactory: "h"` |
+| Deno KV errors             | Add `--unstable-kv` flag when running server                     |
 
 ### Getting Help
 
-- **Documentation**: See `docs/` folder for architecture, component API, examples
+- **Documentation**: See `docs/` folder for architecture, component API,
+  examples
 - **Examples**: Study `examples/todo-app/` for complete patterns
 - **AGENTS.md**: Detailed Light FP coding guidelines
 
 ## File Organization & Naming Conventions
 
 ### File Extensions
+
 - `.ts` - TypeScript source files (utilities, types, non-component logic)
 - `.tsx` - TSX files with JSX (components, server files)
 - `.test.ts` or `.test.tsx` - Unit tests
 - `.integration.test.ts` - Integration tests
 
 ### Key Files
+
 - `index.ts` - Main public API; imported by all mod files
 - `mod.ts` - Composition-only entry point (recommended for apps)
 - `mod-simple.ts` - Simple/lightweight entry point
@@ -529,6 +552,7 @@ deno bench bench/ssr.bench.ts
 - `lib/jsx-runtime.ts` - JSX/TSX runtime with `h()` function
 
 ### Module Organization
+
 ```
 lib/
 ├── core/                    # Core systems
@@ -552,16 +576,20 @@ lib/
 
 ### Important Conventions
 
-1. **Test files**: Co-located with implementation (e.g., `css-in-ts.ts` + `css-in-ts.test.ts`)
+1. **Test files**: Co-located with implementation (e.g., `css-in-ts.ts` +
+   `css-in-ts.test.ts`)
 2. **Component names**: kebab-case (e.g., `todo-item`, `user-card`)
 3. **File names**: kebab-case (e.g., `define-component.ts`, `jsx-runtime.ts`)
 4. **Export patterns**: Named exports preferred over default exports
-5. **Imports**: Use explicit type imports: `import type { User } from "./types.ts"`
+5. **Imports**: Use explicit type imports:
+   `import type { User } from "./types.ts"`
 
 ## Critical Implementation Details
 
 ### JSX Configuration
+
 The codebase uses custom JSX runtime:
+
 ```json
 {
   "jsx": "react",
@@ -573,22 +601,26 @@ The codebase uses custom JSX runtime:
 **Important**: JSX elements call `h()` from `lib/jsx-runtime.ts`, not React.
 
 ### Component Registration Flow
+
 1. `defineComponent()` creates component configuration
 2. Component registered in global registry
 3. `render()` or `renderComponent()` looks up component and executes
 4. SSR processor can handle custom tags in HTML strings
 
 ### Props vs Attributes
+
 - **Attributes**: Raw string key-value pairs from HTML/JSX
 - **Props**: Parsed, typed values using `parseProps()` or prop helpers
 - Always parse attributes in your render function
 
 ### HTMX Integration
+
 - HTMX attributes generated by `onAction`, `itemAction` helpers
 - Never write `hx-*` attributes directly in application code
 - API bindings connect handlers automatically
 
 ### Result Type Pattern
+
 ```typescript
 import type { Result } from "./lib/result.ts";
 import { err, ok } from "./lib/result.ts";
@@ -602,6 +634,7 @@ if (!result.ok) {
 ```
 
 ### Don't Confuse the Entry Points
+
 - `mod.ts` - Apps can ONLY compose library components (no custom styles)
 - `lib/internal.ts` - Library developers have full CSS-in-TS access
 - Application code should never import from `lib/internal.ts`

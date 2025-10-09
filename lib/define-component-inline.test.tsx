@@ -10,6 +10,7 @@ import { h } from "./jsx-runtime.ts";
 import { boolean, number, oneOf, string } from "./prop-helpers.ts";
 import { getRegistry } from "./registry.ts";
 
+import { del, post } from "./api-helpers.ts";
 Deno.test("Inline props: Basic component with prop helpers", () => {
   const registry = getRegistry();
   delete registry["inline-test"];
@@ -149,8 +150,8 @@ Deno.test("Inline props: Component with API integration", () => {
 
   defineComponent("inline-api", {
     api: {
-      save: ["POST", "/api/save", mockHandler],
-      delete: ["DELETE", "/api/delete/:id", mockHandler],
+      save: post("/api/save", mockHandler),
+      delete: del("/api/delete/:id", mockHandler),
     },
     render: ({
       id = string(""),

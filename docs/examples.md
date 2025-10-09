@@ -27,8 +27,8 @@ import { Badge, Button, Card } from "ui-lib/components";
 // ✅ CORRECT: Compose library components with variants
 defineComponent("todo-item", {
   api: {
-    toggle: ["POST", "/api/todos/:id/toggle", handler],
-    delete: ["DELETE", "/api/todos/:id", handler],
+    toggle: post("/api/todos/:id/toggle", handler),
+    delete: del("/api/todos/:id", handler),
   },
   render: ({ todo }, api) => (
     <div>
@@ -627,7 +627,7 @@ import { defineComponent } from "ui-lib";
 const HTMXExample = defineComponent({
   name: "htmx-example",
   api: {
-    load: ["GET", "/api/content", loadHandler],
+    load: get("/api/content", loadHandler),
   },
   render: (props, api) => `
     <div class="htmx-demo">

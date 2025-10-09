@@ -1,11 +1,12 @@
 /** @jsx h */
 import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
-import { h } from "./jsx-runtime.ts";
-import { defineComponent } from "./define-component.ts";
-import { resetRegistry } from "./registry.ts";
-import { boolean, number, string } from "./prop-helpers.ts";
 import { renderComponent } from "./component-state.ts";
+import { defineComponent } from "./define-component.ts";
+import { h } from "./jsx-runtime.ts";
+import { boolean, number, string } from "./prop-helpers.ts";
+import { resetRegistry } from "./registry.ts";
 
+import { del, get, post } from "./api-helpers.ts";
 Deno.test("JSX runtime detects and renders ui-lib components", () => {
   // Clean registry
   resetRegistry();
@@ -119,12 +120,12 @@ Deno.test("JSX runtime normalizes className arrays and style objects", () => {
   );
 });
 
-Deno.test("onAction resolves legacy api strings", () => {
+Deno.test("onAction resolves api strings from typed helpers", () => {
   resetRegistry();
 
-  defineComponent("action-legacy", {
+  defineComponent("action-typed", {
     api: {
-      toggle: ["POST", "/api/items/:id/toggle", () => new Response("ok")],
+      toggle: post("/api/items/:id/toggle", () => new Response("ok")),
     },
     render: (_props, _api) => {
       return h(
@@ -137,7 +138,7 @@ Deno.test("onAction resolves legacy api strings", () => {
     },
   });
 
-  const html = renderComponent("action-legacy");
+  const html = renderComponent("action-typed");
   assertEquals(html.includes('hx-post="/api/items/123/toggle"'), true);
   assertEquals(html.includes("hx-target"), true);
 });
@@ -147,7 +148,7 @@ Deno.test("onAction supports descriptor arrays", () => {
 
   defineComponent("action-array", {
     api: {
-      filter: ["GET", "/api/items", () => new Response("ok")],
+      filter: get("/api/items", () => new Response("ok")),
     },
     render: (_props, _api) => {
       return h(
@@ -170,7 +171,7 @@ Deno.test("onAction accepts attribute maps and object descriptors", () => {
 
   defineComponent("action-object", {
     api: {
-      remove: ["DELETE", "/api/items/:id", () => new Response("ok")],
+      remove: del("/api/items/:id", () => new Response("ok")),
     },
     render: (_props, _api) => {
       return [

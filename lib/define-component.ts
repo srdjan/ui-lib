@@ -2,6 +2,7 @@
 import { type ApiMap } from "./api-generator.ts";
 import { type ApiRoute } from "./api-helpers.ts";
 import { generateClientHx, type HxActionMap } from "./api-recipes.ts";
+import { renderComponent } from "./component-state.ts";
 import { getConfig } from "./config.ts";
 import {
   hasDeclarativeBindings,
@@ -17,7 +18,6 @@ import {
   parseUnifiedStyles,
   type UnifiedStyles,
 } from "./styles-parser.ts";
-import { renderComponent } from "./component-state.ts";
 // Re-export h function for JSX support
 export { h } from "./jsx-runtime.ts";
 
@@ -287,40 +287,18 @@ export function registerComponentApi(
     return;
   }
 
-  for (
-    const [functionName, apiDefinition] of Object.entries(component.apiMap)
-  ) {
-    let method: string;
-    let path: string;
-    let handler: unknown;
-
-    // Check if it's an ApiRoute object (new format) or tuple (old format)
-    if (isApiRoute(apiDefinition)) {
-      // New ApiRoute format
-      method = apiDefinition.method;
-      path = apiDefinition.path;
-      handler = apiDefinition.handler as unknown;
-    } else if (Array.isArray(apiDefinition) && apiDefinition.length === 3) {
-      // Legacy tuple format
-      [method, path, handler] = apiDefinition;
-
-      if (!method || !path || !handler) {
-        console.warn(
-          `Invalid API definition for "${functionName}": method, path, and handler are required`,
-        );
-        continue;
-      }
-    } else {
+  for (const apiDefinition of Object.values(component.apiMap)) {
+    if (!isApiRoute(apiDefinition)) {
       console.warn(
-        `Invalid API definition for "${functionName}". Expected ApiRoute object or [method, path, handler] tuple`,
+        `Invalid API definition for component "${componentName}". Expected ApiRoute object created by get/post/patch/put/del helpers`,
       );
       continue;
     }
 
     router.register(
-      method,
-      path,
-      handler as (
+      apiDefinition.method,
+      apiDefinition.path,
+      apiDefinition.handler as (
         req: Request,
         params?: Record<string, string>,
       ) => Promise<Response> | Response,

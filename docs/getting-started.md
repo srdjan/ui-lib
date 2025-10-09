@@ -126,7 +126,8 @@ const html = (
 
 ## API Integration - Component-Colocated APIs
 
-Define server endpoints directly in your components using HTTP method helpers. **HTMX is completely abstracted away** - no `hx-*` attributes in your code!
+Define server endpoints directly in your components using HTTP method helpers.
+**HTMX is completely abstracted away** - no `hx-*` attributes in your code!
 
 ### Basic Example
 
@@ -180,7 +181,7 @@ defineComponent("my-component", {
     deleteItem: del("/api/items/:id", handler),
 
     // Aliases
-    addItem: create("/api/items", handler),     // Alias for post
+    addItem: create("/api/items", handler), // Alias for post
     removeItem: remove("/api/items/:id", handler), // Alias for del
   },
   render: (props, api) => {
@@ -196,17 +197,18 @@ Parameters like `:id` are automatically interpolated:
 
 ```tsx
 // Route: "/api/todos/:id/toggle"
-api!.toggle("123")
+api!.toggle("123");
 // Generates: { "hx-post": "/api/todos/123/toggle", ... }
 
 // Route: "/api/posts/:postId/comments/:commentId"
-api!.updateComment("post-1", "comment-5")
+api!.updateComment("post-1", "comment-5");
 // Generates: { "hx-patch": "/api/posts/post-1/comments/comment-5", ... }
 ```
 
 ### Complete Real-World Example
 
-From the todo app ([examples/todo-app/components/todo-item.tsx](../examples/todo-app/components/todo-item.tsx)):
+From the todo app
+([examples/todo-app/components/todo-item.tsx](../examples/todo-app/components/todo-item.tsx)):
 
 ```tsx
 import { defineComponent, del, h, post } from "ui-lib/mod.ts";
@@ -237,9 +239,11 @@ defineComponent("todo-item", {
         icon={`<input
           type="checkbox"
           ${todo.completed ? "checked" : ""}
-          ${Object.entries(api!.toggle(todo.id))
+          ${
+          Object.entries(api!.toggle(todo.id))
             .map(([k, v]) => `${k}="${v}"`)
-            .join(" ")}
+            .join(" ")
+        }
         />`}
       />
     );
@@ -253,10 +257,13 @@ registerComponentApi("todo-item", router);
 
 ### Key Benefits
 
-- ✅ **Zero HTMX in application code** - All `hx-*` attributes generated internally
+- ✅ **Zero HTMX in application code** - All `hx-*` attributes generated
+  internally
 - ✅ **Type-safe APIs** - Full TypeScript support with proper types
-- ✅ **Direct spread operator** - `{...api!.action(id)}` returns attribute object
-- ✅ **Automatic path interpolation** - Parameters like `:id` filled automatically
+- ✅ **Direct spread operator** - `{...api!.action(id)}` returns attribute
+  object
+- ✅ **Automatic path interpolation** - Parameters like `:id` filled
+  automatically
 - ✅ **Centralized routes** - All API endpoints defined with the component
 - ✅ **Single registration** - Call `registerComponentApi()` once per component
 
@@ -391,7 +398,7 @@ const ContactForm = () => (
 const SearchBox = defineComponent({
   name: "search-box",
   api: {
-    search: ["GET", "/api/search", searchHandler],
+    search: get("/api/search", searchHandler),
   },
   render: (props, api) => (
     <div class="search-box">
