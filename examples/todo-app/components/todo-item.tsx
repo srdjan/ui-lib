@@ -7,9 +7,8 @@
  */
 
 import { h } from "jsx";
-import { itemAction, onAction } from "../../../lib/api-recipes.ts";
+import { defineComponent, del, post } from "../../../mod.ts";
 import "../../../lib/components/data-display/item.ts";
-import { defineComponent } from "../../../mod.ts";
 import { todoAPI } from "../api/index.ts";
 
 import type { Todo } from "../api/types.ts";
@@ -68,21 +67,17 @@ function getPriorityVariant(priority: string): BadgeVariant {
 // Define the TodoItem component that accepts todo props directly
 defineComponent<{ todo: Todo }>("todo-item", {
   api: {
-    toggle: [
-      "POST",
+    toggle: post(
       "/api/todos/:id/toggle",
       (req, params) => todoAPI.toggleTodo(req, params as { id: string }),
-    ],
-    deleteTodo: [
-      "DELETE",
+    ),
+    deleteTodo: del(
       "/api/todos/:id",
       (req, params) => todoAPI.deleteTodo(req, params as { id: string }),
-    ],
+    ),
   },
   render: ({ todo }, api) => {
     const rootId = `todo-${todo.id}`;
-
-    const toggleAttrs = api ? onAction(api.toggle, todo.id) : "";
 
     const itemProps: ItemProps = {
       id: rootId,
@@ -96,13 +91,22 @@ defineComponent<{ todo: Todo }>("todo-item", {
       }],
       icon: `<input type="checkbox" ${
         todo.completed ? "checked" : ""
-      } ${toggleAttrs} />`,
+      } ${
+        // Spread API action attributes directly
+        Object.entries(api!.toggle(todo.id))
+          .map(([key, value]) => `${key}="${value}"`)
+          .join(" ")
+      } />`,
       actions: [
-        { text: "Delete" },
-        itemAction(api!.deleteTodo, "Delete", [todo.id], {
+        {
+          text: "Delete",
+          // Convert spread attributes to string for library Item component
+          attributes: Object.entries(api!.deleteTodo(todo.id))
+            .map(([key, value]) => `${key}="${value}"`)
+            .join(" "),
           variant: "danger",
           confirm: "Are you sure you want to delete this todo?",
-        }) as unknown as ItemAction,
+        },
       ],
     };
 

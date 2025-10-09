@@ -40,5 +40,9 @@ export { Router } from "./lib/router.ts";
 // Response helpers (reuse existing)
 export { error, html, json, text } from "./lib/response.ts";
 
+// HTTP method helpers for API definitions
+export { del, get, patch, post, put, remove } from "./lib/api-helpers.ts";
+export type { ApiAction, ApiRoute } from "./lib/api-helpers.ts";
+
 // JSX types
 import "./lib/jsx.d.ts";

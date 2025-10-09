@@ -1,5 +1,6 @@
 // Minimal defineComponent API with inline prop definitions
 import { type ApiMap } from "./api-generator.ts";
+import { type ApiRoute } from "./api-helpers.ts";
 import { generateClientHx, type HxActionMap } from "./api-recipes.ts";
 import { getConfig } from "./config.ts";
 import {
@@ -289,17 +290,29 @@ export function registerComponentApi(
   for (
     const [functionName, apiDefinition] of Object.entries(component.apiMap)
   ) {
-    if (!Array.isArray(apiDefinition) || apiDefinition.length !== 3) {
-      console.warn(
-        `Invalid API definition for "${functionName}". Expected format: [method, path, handler]`,
-      );
-      continue;
-    }
+    let method: string;
+    let path: string;
+    let handler: unknown;
 
-    const [method, path, handler] = apiDefinition;
-    if (!method || !path || !handler) {
+    // Check if it's an ApiRoute object (new format) or tuple (old format)
+    if (isApiRoute(apiDefinition)) {
+      // New ApiRoute format
+      method = apiDefinition.method;
+      path = apiDefinition.path;
+      handler = apiDefinition.handler as unknown;
+    } else if (Array.isArray(apiDefinition) && apiDefinition.length === 3) {
+      // Legacy tuple format
+      [method, path, handler] = apiDefinition;
+
+      if (!method || !path || !handler) {
+        console.warn(
+          `Invalid API definition for "${functionName}": method, path, and handler are required`,
+        );
+        continue;
+      }
+    } else {
       console.warn(
-        `Invalid API definition for "${functionName}": method, path, and handler are required`,
+        `Invalid API definition for "${functionName}". Expected ApiRoute object or [method, path, handler] tuple`,
       );
       continue;
     }
@@ -327,4 +340,19 @@ export function defineSimpleComponent(
     styles,
     api,
   });
+}
+
+/**
+ * Type guard to check if value is ApiRoute object (new format)
+ */
+function isApiRoute(value: unknown): value is ApiRoute {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "method" in value &&
+    "path" in value &&
+    "handler" in value &&
+    "toAction" in value &&
+    typeof (value as ApiRoute).toAction === "function"
+  );
 }

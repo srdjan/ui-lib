@@ -44,7 +44,7 @@ export function generateClientHx<TApi extends ApiMap>(
       if (hasTagged) {
         hxOptions = args[args.length - 1] as TaggedHxOptions;
       }
-      const attrs = fn(...callArgs);
+      const attrs = fn(...(callArgs as string[]));
       const enhanced = decorateAttributes(attrs, defaults, hxOptions);
       return spreadAttrs(enhanced);
     };

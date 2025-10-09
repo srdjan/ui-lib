@@ -3,13 +3,17 @@
 import type { RouteHandler } from "./router.ts";
 import { currentRequestHeaders } from "./request-headers.ts";
 import { getConfig } from "./config.ts";
+import type { ApiRoute } from "./api-helpers.ts";
 
-// Type-safe tuple format: functionName -> [method, path, handler]
+// Type-safe tuple format (deprecated): functionName -> [method, path, handler]
 export type ApiDefinition = readonly [string, string, RouteHandler]; // [method, path, handler]
-export type ApiMap = Record<string, ApiDefinition>;
+
+// New ApiRoute format (recommended)
+export type ApiMap = Record<string, ApiRoute | ApiDefinition>; // Support both for migration
+
 export type GeneratedApiMap = Record<
   string,
-  (...args: unknown[]) => Record<string, string>
+  (...args: string[]) => Record<string, string>
 >;
 
 // Options accepted by generated client functions
@@ -22,27 +26,35 @@ export type ApiClientOptions = {
 /**
  * Auto-generates client attribute functions from type-safe API definitions
  *
- * Examples:
- * toggle: ["PATCH", "/api/todos/:id/toggle", handler] → toggle: (id) => ({ 'hx-patch': `/api/todos/${id}/toggle` })
- * remove: ["DELETE", "/api/todos/:id", handler]       → remove: (id) => ({ 'hx-delete': `/api/todos/${id}` })
- * create: ["POST", "/api/todos", handler]             → create: () => ({ 'hx-post': '/api/todos' })
+ * Supports both new ApiRoute format and legacy tuple format:
+ * - New: toggle: post("/api/todos/:id/toggle", handler) → toggle: (id) => ({ 'hx-post': `/api/todos/${id}/toggle` })
+ * - Old: toggle: ["POST", "/api/todos/:id/toggle", handler] → toggle: (id) => ({ 'hx-post': `/api/todos/${id}/toggle` })
  */
 export function generateClientApi(apiMap: ApiMap): GeneratedApiMap {
   const generatedApi: GeneratedApiMap = {};
 
   for (const [functionName, apiDefinition] of Object.entries(apiMap)) {
-    if (!Array.isArray(apiDefinition) || apiDefinition.length !== 3) {
-      console.warn(
-        `Invalid API definition for "${functionName}". Expected format: [method, path, handler] (e.g., ["POST", "/api/todos", handler])`,
-      );
+    let method: string;
+    let path: string;
+
+    // Check if it's an ApiRoute object (new format) or tuple (old format)
+    if (isApiRoute(apiDefinition)) {
+      // New ApiRoute format - use the toAction method directly
+      generatedApi[functionName] = apiDefinition.toAction;
       continue;
-    }
+    } else if (Array.isArray(apiDefinition) && apiDefinition.length === 3) {
+      // Legacy tuple format
+      [method, path] = apiDefinition;
 
-    const [method, path, _handler] = apiDefinition;
-
-    if (!method || !path) {
+      if (!method || !path) {
+        console.warn(
+          `Invalid API definition for "${functionName}": method and path are required`,
+        );
+        continue;
+      }
+    } else {
       console.warn(
-        `Invalid API definition for "${functionName}": method and path are required`,
+        `Invalid API definition for "${functionName}". Expected ApiRoute object or [method, path, handler] tuple`,
       );
       continue;
     }
@@ -134,4 +146,19 @@ function extractParameterNames(path: string): string[] {
   }
 
   return params;
+}
+
+/**
+ * Type guard to check if value is ApiRoute object
+ */
+function isApiRoute(value: unknown): value is ApiRoute {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "method" in value &&
+    "path" in value &&
+    "handler" in value &&
+    "toAction" in value &&
+    typeof (value as ApiRoute).toAction === "function"
+  );
 }
