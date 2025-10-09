@@ -285,6 +285,7 @@ export type ItemProps = {
   readonly priority?: ItemPriority;
   readonly completed?: boolean;
   readonly selected?: boolean;
+  readonly children?: string; // Custom HTML content (replaces auto-generated content)
 };
 
 // Enhanced props with better typing
@@ -330,6 +331,7 @@ defineComponent<ItemProps>("item", {
       priority = "",
       completed = false,
       selected = false,
+      children = "",
     } = props;
 
     // Generate CSS styles
@@ -435,6 +437,26 @@ defineComponent<ItemProps>("item", {
     `
       : "";
 
+    // If children provided, use custom content; otherwise use auto-generated
+    const contentHtml = children
+      ? children
+      : `
+        <div class="${styles.classMap.content}">
+          ${iconHtml}
+          <div class="${styles.classMap.main}">
+            ${title ? `<h3 class="${styles.classMap.title}">${title}</h3>` : ""}
+            ${
+        description
+          ? `<p class="${styles.classMap.description}">${description}</p>`
+          : ""
+      }
+            ${metadataHtml}
+            ${badgesHtml}
+          </div>
+        </div>
+        ${actionsHtml}
+      `;
+
     return `
       <style>${styles.css}</style>
       <div
@@ -447,20 +469,7 @@ defineComponent<ItemProps>("item", {
         data-completed="${completed.toString()}"
         data-selected="${selected.toString()}"
       >
-        <div class="${styles.classMap.content}">
-          ${iconHtml}
-          <div class="${styles.classMap.main}">
-            ${title ? `<h3 class="${styles.classMap.title}">${title}</h3>` : ""}
-            ${
-      description
-        ? `<p class="${styles.classMap.description}">${description}</p>`
-        : ""
-    }
-            ${metadataHtml}
-            ${badgesHtml}
-          </div>
-        </div>
-        ${actionsHtml}
+        ${contentHtml}
       </div>
     `;
   },

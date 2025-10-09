@@ -3,13 +3,13 @@
 /** @jsx h */
 /**
  * TodoItem Component
- * Pure composition using library's Item component
+ * Pure composition using library's Item component with custom children
  * Zero custom CSS - all styling from ui-lib
+ * API spread operators preserved: {...api!.action(id)}
  */
 
 import { h } from "jsx";
-import { defineComponent, del, post, spreadAttrs } from "../../../mod.ts";
-import type { ItemBadgeVariant } from "../../../mod.ts";
+import { defineComponent, del, post } from "../../../mod.ts";
 import "../../../lib/components/data-display/item.ts";
 import { todoAPI } from "../api/index.ts";
 
@@ -30,31 +30,31 @@ defineComponent<{ todo: Todo }>("todo-item", {
   render: ({ todo }, api) => {
     const rootId = `todo-${todo.id}`;
 
-    // Map priority to badge variant
-    const badgeVariant: ItemBadgeVariant =
-      todo.priority === "high" ? "danger" :
-      todo.priority === "medium" ? "warning" : "success";
-
     return (
       <item
         id={rootId}
-        title={todo.text}
-        timestamp={new Date(todo.createdAt).toLocaleDateString()}
-        completed={todo.completed ? "true" : "false"}
+        completed={todo.completed}
         priority={todo.priority}
-        icon={`<input type="checkbox" ${todo.completed ? "checked" : ""} ${
-          spreadAttrs(api!.toggle(todo.id))
-        } />`}
-        badges={JSON.stringify([{
-          text: todo.priority,
-          variant: badgeVariant,
-        }])}
-        actions={JSON.stringify([{
-          text: "Delete",
-          variant: "danger",
-          attributes: spreadAttrs(api!.deleteTodo(todo.id)),
-        }])}
-      />
+      >
+        <input
+          type="checkbox"
+          checked={todo.completed}
+          {...api!.toggle(todo.id)}
+        />
+        <span>{todo.text}</span>
+        <span data-priority={todo.priority}>
+          {todo.priority}
+        </span>
+        <span>
+          {new Date(todo.createdAt).toLocaleDateString()}
+        </span>
+        <button
+          type="button"
+          {...api!.deleteTodo(todo.id)}
+        >
+          Delete
+        </button>
+      </item>
     ) as unknown as string;
   },
 });
