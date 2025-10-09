@@ -293,20 +293,18 @@ return json({ status: "ok" });
 
 ## Entry Points
 
-ui-lib provides three different entry points for different use cases:
+ui-lib provides two entry points for different use cases:
 
 | Entry Point     | Use Case                                           | Key Features                                                             |
 | --------------- | -------------------------------------------------- | ------------------------------------------------------------------------ |
-| `mod-token.ts`  | **Recommended**: Token-based sealed components     | CSS variable customization, block-level components, theme support        |
-| `mod.ts`        | Composition-only pattern (apps compose library)    | Pre-styled components, no custom CSS, enforced UI consistency            |
+| `mod.ts`        | **Recommended**: Composition-only pattern          | Pre-styled components, no custom CSS, enforced UI consistency            |
 | `mod-simple.ts` | Direct JSX functions with minimal ceremony         | JSX runtime, lightweight state helpers, curated component subset         |
 
 **Choosing the right entry point**:
-- **mod-token.ts** (recommended): For new projects. Components sealed with CSS variable interfaces. Best type safety and encapsulation.
-- **mod.ts**: For applications using composition-only pattern. Apps compose pre-styled library components; no custom styles allowed.
+- **mod.ts** (recommended): For applications using composition-only pattern. Apps compose pre-styled library components; no custom styles allowed.
 - **mod-simple.ts**: For rapid prototyping or minimal applications.
 
-All entry points share the same core: index.ts exports the base functionality.
+Both entry points share the same core: index.ts exports the base functionality.
 
 ## Component API
 
@@ -514,7 +512,6 @@ deno bench bench/ssr.bench.ts
 - **Documentation**: See `docs/` folder for architecture, component API, examples
 - **Examples**: Study `examples/todo-app/` for complete patterns
 - **AGENTS.md**: Detailed Light FP coding guidelines
-- **Token System**: See `docs/token-system.md` for CSS variable customization
 
 ## File Organization & Naming Conventions
 
@@ -526,8 +523,7 @@ deno bench bench/ssr.bench.ts
 
 ### Key Files
 - `index.ts` - Main public API; imported by all mod files
-- `mod.ts` - Composition-only entry point (apps)
-- `mod-token.ts` - Token-based component entry point (recommended)
+- `mod.ts` - Composition-only entry point (recommended for apps)
 - `mod-simple.ts` - Simple/lightweight entry point
 - `lib/internal.ts` - Full API for library component development
 - `lib/jsx-runtime.ts` - JSX/TSX runtime with `h()` function
@@ -608,5 +604,4 @@ if (!result.ok) {
 ### Don't Confuse the Entry Points
 - `mod.ts` - Apps can ONLY compose library components (no custom styles)
 - `lib/internal.ts` - Library developers have full CSS-in-TS access
-- `mod-token.ts` - Sealed components with CSS variable customization
 - Application code should never import from `lib/internal.ts`

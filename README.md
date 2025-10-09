@@ -8,30 +8,18 @@ hybrid reactivity.
 - 🌐 SSR-first, JSX-always rendering
 - 🧭 Light Functional Programming: types-first, pure functions, Result<T,E>, no
   classes
-- 🧩 DOM-native state: classes, data-* attributes, element content, CSS custom
+- 🧩 DOM-native **state management**: classes, data-* attributes, element content, CSS custom
   properties
 - 🔒 **Composition-Only Pattern**: Apps compose pre-styled components, enforcing
   UI consistency
-- 🎨 **Zero Style Conflicts**: No custom CSS in apps, 94% code reduction
-- 🕵️ HTMX encapsulated via component APIs (no hx-* in application code)
+- 🎨 **Zero Style Conflicts**: No custom CSS in apps
+- 🕵️ **HTMX** encapsulated via component APIs (no hx-* in application code)
 - 📦 Component-colocated API, styles, and reactivity
 - 🔧 Type-safe end-to-end with strict TypeScript
 - 📚 50+ pre-styled components with rich variant APIs; progressive enhancement
   optional (zero framework runtime)
 
 ## Quick Start
-
-### Choosing an Entry Point
-
-| Entry Point     | Use When                                                                       | Highlights                                                                 |
-| --------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
-| `mod-token.ts`  | **Recommended**: Token-based sealed components with CSS variable customization | Block-level components only, token customization API, theme support        |
-| `mod.ts`        | Building applications through **composition-only** pattern                     | Compose pre-styled library components, no custom CSS, enforced consistency |
-| `mod-simple.ts` | You want direct JSX functions and minimal ceremony.                            | JSX runtime, lightweight state helpers, curated component subset.          |
-
-> **Important**: `mod.ts` enforces UI consistency by allowing applications to
-> **compose** pre-styled library components only. Custom styles are reserved for
-> library development. This ensures uniform UIs across all applications.
 
 ### Installation
 
@@ -46,34 +34,7 @@ deno task serve         # start the Todo demo directly
 deno task bundle:state  # emits dist/ui-lib-state.js for optional client helpers
 ```
 
-### Basic Usage (Token-Based - Recommended)
-
-```tsx
-import { applyTheme, Button, defineTokens, themes } from "ui-lib/mod-token.ts";
-
-// Option 1: Use pre-built themes
-const styles = applyTheme(themes.dark);
-
-// Option 2: Define custom tokens
-const customStyles = defineTokens({
-  button: {
-    primary: {
-      background: "#007bff",
-      backgroundHover: "#0056b3",
-      textColor: "white",
-    },
-  },
-});
-
-// Use sealed components - no access to internals
-const button = Button({
-  variant: "primary",
-  size: "md",
-  children: "Click Me",
-});
-```
-
-### Basic Usage (Composition-Only)
+### Basic Usage
 
 ```tsx
 import { defineComponent, h, render } from "ui-lib/mod.ts";
@@ -259,60 +220,13 @@ defineComponent("notification", {
 });
 ```
 
-## Token-Based Component System
-
-### Why Token-Based Components?
-
-ui-lib components are **sealed** - they can only be customized through CSS
-variables (tokens). This ensures:
-
-- **No style conflicts**: Component internals are completely isolated
-- **Consistent theming**: All customization through standardized tokens
-- **Type safety**: Full IntelliSense for available tokens
-- **Performance**: CSS variables enable instant theming without re-rendering
-- **Maintainability**: Component updates won't break your customizations
-
-### Token Customization
-
-```tsx
-import {
-  customizeComponent,
-  defineTokens,
-  responsiveTokens,
-} from "ui-lib/mod-token.ts";
-
-// Global token overrides
-const globalStyles = defineTokens({
-  button: {
-    primary: {
-      background: "#FF5722",
-      backgroundHover: "#E64A19",
-    },
-  },
-});
-
-// Scoped overrides for specific sections
-const darkModeStyles = customizeComponent(".dark-mode", "button", {
-  primary: {
-    background: "#1a1a1a",
-    textColor: "#ffffff",
-  },
-});
-
-// Responsive token values
-const mobileStyles = responsiveTokens("button", {
-  mobile: { base: { fontSize: "0.75rem" } },
-  desktop: { base: { fontSize: "1rem" } },
-});
-```
-
 ## Component Library
 
-ui-lib includes 50+ production-ready components (being migrated to token-based):
+ui-lib includes 50+ production-ready components:
 
 - **Layout**: AppLayout, Navbar, Sidebar, MainContent
 - **Forms**: Input, Select, Textarea, Checkbox, Radio, Switch
-- **Buttons**: Button (token-based), ButtonGroup, IconButton
+- **Buttons**: Button, ButtonGroup, IconButton
 - **Data**: Table, Card, List, Tree
 - **Feedback**: Alert, Toast, Progress, Skeleton
 - **Overlays**: Modal, Drawer, Popover, Tooltip
@@ -328,9 +242,6 @@ Run the showcase server to see all components in action:
 deno task serve
 
 # Open http://localhost:8080
-
-# Run token-based component demo
-deno run --allow-net examples/todo-app/token-demo.tsx
 ```
 
 Repo layout (examples)
@@ -338,18 +249,11 @@ Repo layout (examples)
 ```
 examples/
 └── todo-app/
-    ├── server.tsx         # Traditional demo server entry
-    ├── token-demo.tsx     # Token-based component demo
+    ├── server-custom.tsx  # Custom components demo
+    ├── server-library.tsx # Library components demo
     ├── api/               # Handlers, types, repository
     └── components/        # SSR components with colocated API/styles/reactivity
 ```
-
-Notes
-
-- **Token-based API** (recommended):
-  `import { Button, defineTokens } from 'ui-lib/mod-token.ts'`
-- Traditional API: `import { defineComponent } from 'ui-lib/mod.ts'`
-- Simple API: `import { h } from 'ui-lib/mod-simple.ts'`
 
 ## Performance
 
@@ -361,8 +265,6 @@ Notes
 ## Documentation
 
 - [Getting Started](docs/getting-started.md)
-- [Token System Guide](docs/token-system.md) **← New!**
-- [Migration Guide](docs/migration-guide.md) **← New!**
 - [Architecture](docs/architecture.md)
 - [Component API](docs/component-api.md)
 - [Examples](docs/examples.md)
@@ -428,7 +330,7 @@ access to:
 
 - Full `defineComponent` with styles
 - CSS-in-TS system (`css`, `createTheme`, `composeStyles`)
-- Design tokens and theme system
+- Theme system and design utilities
 - All internal utilities
 
 See [Contributing Guide](CONTRIBUTING.md) for details on developing library
