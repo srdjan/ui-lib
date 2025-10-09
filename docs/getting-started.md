@@ -124,58 +124,141 @@ const html = (
 );
 ```
 
-## API Integration
+## API Integration - Component-Colocated APIs
 
-Integrate server endpoints using the `api` property with the `hx()` wrapper for
-complete HTMX configuration:
+Define server endpoints directly in your components using HTTP method helpers. **HTMX is completely abstracted away** - no `hx-*` attributes in your code!
+
+### Basic Example
 
 ```tsx
-import { defineComponent, h } from "ui-lib";
+import { defineComponent, del, h, post } from "ui-lib/mod.ts";
 
-defineComponent("interactive-button", {
+defineComponent("todo-item", {
   api: {
-    like: ["POST", "/api/posts/:id/like", likeHandler],
-    share: ["POST", "/api/posts/:id/share", shareHandler],
+    toggle: post("/api/todos/:id/toggle", toggleHandler),
+    deleteTodo: del("/api/todos/:id", deleteHandler),
   },
-  render: ({ postId, likes = 0 }, api) => (
-    <div class="post-actions">
-      <button
-        onAction={{
-          api: "like",
-          args: [postId],
-          attributes: { "hx-target": "#like-count", "hx-swap": "innerHTML" },
-        }}
-      >
-        ❤️ <span id="like-count">{likes}</span>
-      </button>
-      <button
-        onAction={{
-          api: "share",
-          args: [postId],
-          attributes: {
-            "hx-target": "#share-status",
-            "hx-swap": "innerHTML",
-            "hx-confirm": "Share this post?",
-          },
-        }}
-      >
-        📤 Share
-      </button>
-      <div id="share-status"></div>
-    </div>
-  ),
+  render: ({ todo }, api) => {
+    // Direct spread operator - HTMX hidden!
+    const toggleAttrs = Object.entries(api!.toggle(todo.id))
+      .map(([key, value]) => `${key}="${value}"`)
+      .join(" ");
+
+    return (
+      <div class="todo-item">
+        <input
+          type="checkbox"
+          checked={todo.completed}
+          ${toggleAttrs}
+        />
+        <span>{todo.text}</span>
+        <button
+          ${Object.entries(api!.deleteTodo(todo.id))
+            .map(([k, v]) => `${k}="${v}"`)
+            .join(" ")}
+        >
+          Delete
+        </button>
+      </div>
+    );
+  },
 });
 ```
 
-The `hx()` wrapper supports all HTMX configuration options:
+### Available HTTP Method Helpers
 
-- `target`: Element to update
-- `swap`: How to replace content (innerHTML, outerHTML, etc.)
-- `confirm`: Show confirmation dialog
-- `trigger`: When to send the request
-- `indicator`: Loading indicator
-- `vals`: Additional form data
-- `headers`: Custom HTTP headers
+```typescript
+import { create, del, get, patch, post, put, remove } from "ui-lib/mod.ts";
+
+defineComponent("my-component", {
+  api: {
+    // Primary helpers
+    loadData: get("/api/data", handler),
+    createItem: post("/api/items", handler),
+    updateItem: patch("/api/items/:id", handler),
+    replaceItem: put("/api/items/:id", handler),
+    deleteItem: del("/api/items/:id", handler),
+
+    // Aliases
+    addItem: create("/api/items", handler),     // Alias for post
+    removeItem: remove("/api/items/:id", handler), // Alias for del
+  },
+  render: (props, api) => {
+    // api!.loadData() returns { "hx-get": "/api/data", "hx-target": "this", ... }
+    return `<button ${toAttrs(api!.loadData())}>Load</button>`;
+  },
+});
+```
+
+### Path Parameters
+
+Parameters like `:id` are automatically interpolated:
+
+```tsx
+// Route: "/api/todos/:id/toggle"
+api!.toggle("123")
+// Generates: { "hx-post": "/api/todos/123/toggle", ... }
+
+// Route: "/api/posts/:postId/comments/:commentId"
+api!.updateComment("post-1", "comment-5")
+// Generates: { "hx-patch": "/api/posts/post-1/comments/comment-5", ... }
+```
+
+### Complete Real-World Example
+
+From the todo app ([examples/todo-app/components/todo-item.tsx](../examples/todo-app/components/todo-item.tsx)):
+
+```tsx
+import { defineComponent, del, h, post } from "ui-lib/mod.ts";
+import { todoAPI } from "../api/index.ts";
+
+defineComponent("todo-item", {
+  api: {
+    toggle: post("/api/todos/:id/toggle", todoAPI.toggleTodo),
+    deleteTodo: del("/api/todos/:id", todoAPI.deleteTodo),
+  },
+  render: ({ todo }, api) => {
+    return (
+      <item
+        title={todo.text}
+        completed={todo.completed}
+        priority={todo.priority}
+        badges={[{
+          text: todo.priority,
+          variant: todo.priority === "high" ? "danger" : "success",
+        }]}
+        actions={[{
+          text: "Delete",
+          variant: "danger",
+          attributes: Object.entries(api!.deleteTodo(todo.id))
+            .map(([k, v]) => `${k}="${v}"`)
+            .join(" "),
+        }]}
+        icon={`<input
+          type="checkbox"
+          ${todo.completed ? "checked" : ""}
+          ${Object.entries(api!.toggle(todo.id))
+            .map(([k, v]) => `${k}="${v}"`)
+            .join(" ")}
+        />`}
+      />
+    );
+  },
+});
+
+// Register API routes once in your server
+import { registerComponentApi } from "ui-lib/mod.ts";
+registerComponentApi("todo-item", router);
+```
+
+### Key Benefits
+
+- ✅ **Zero HTMX in application code** - All `hx-*` attributes generated internally
+- ✅ **Type-safe APIs** - Full TypeScript support with proper types
+- ✅ **Direct spread operator** - `{...api!.action(id)}` returns attribute object
+- ✅ **Automatic path interpolation** - Parameters like `:id` filled automatically
+- ✅ **Centralized routes** - All API endpoints defined with the component
+- ✅ **Single registration** - Call `registerComponentApi()` once per component
 
 ## Styling Components
 

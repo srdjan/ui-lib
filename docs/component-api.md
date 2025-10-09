@@ -155,59 +155,106 @@ defineComponent("my-component", {
 });
 ```
 
-#### API Property
+#### API Property - HTTP Method Helpers
 
-The `api` property allows you to define server endpoints whose client bindings
-are generated for you. Applications compose library components and bind API
-actions to them.
+The `api` property allows you to define server endpoints with HTTP method helpers that completely abstract away HTMX attributes.
 
-**Application Example (Composition-Only):**
+**Available HTTP Method Helpers:**
+
+```typescript
+import { del, get, patch, post, put } from "ui-lib/mod.ts";
+
+// HTTP method helpers
+get(path: string, handler: RouteHandler): ApiRoute
+post(path: string, handler: RouteHandler): ApiRoute
+patch(path: string, handler: RouteHandler): ApiRoute
+put(path: string, handler: RouteHandler): ApiRoute
+del(path: string, handler: RouteHandler): ApiRoute
+
+// Aliases
+remove = del  // Alias for DELETE
+create = post // Alias for POST
+```
+
+**Real-World Example (Todo Item):**
 
 ```tsx
-import { defineComponent, h } from "ui-lib/mod.ts";
+import { defineComponent, del, h, post } from "ui-lib/mod.ts";
+import { todoAPI } from "./api/index.ts";
 
+defineComponent("todo-item", {
+  api: {
+    toggle: post("/api/todos/:id/toggle", todoAPI.toggleTodo),
+    deleteTodo: del("/api/todos/:id", todoAPI.deleteTodo),
+  },
+  render: ({ todo }, api) => {
+    // Direct spread operator - no HTMX attributes visible!
+    const toggleAttrs = Object.entries(api!.toggle(todo.id))
+      .map(([key, value]) => `${key}="${value}"`)
+      .join(" ");
+
+    return (
+      <item
+        title={todo.text}
+        completed={todo.completed}
+        priority={todo.priority}
+        badges={[{
+          text: todo.priority,
+          variant: todo.priority === "high" ? "danger" : "success",
+        }]}
+        actions={[{
+          text: "Delete",
+          variant: "danger",
+          attributes: Object.entries(api!.deleteTodo(todo.id))
+            .map(([k, v]) => `${k}="${v}"`)
+            .join(" "),
+        }]}
+        icon={`<input type="checkbox" ${
+          todo.completed ? "checked" : ""
+        } ${toggleAttrs} />`}
+      />
+    );
+  },
+});
+```
+
+**Key Features:**
+
+- ✅ **Zero HTMX in application code** - All `hx-*` attributes generated internally
+- ✅ **Direct spread operator** - `{...api!.action(id)}` returns attribute object
+- ✅ **Path interpolation** - Parameters like `:id` automatically replaced
+- ✅ **Automatic registration** - Call `registerComponentApi(name, router)` once
+- ✅ **Type safety** - Full TypeScript support with proper types
+
+**Generated HTMX Attributes:**
+
+When you call `api!.toggle(todo.id)`, it generates:
+
+```typescript
+{
+  "hx-post": "/api/todos/123/toggle",
+  "hx-target": "this",
+  "hx-swap": "outerHTML"
+}
+```
+
+**Legacy Format (Still Supported):**
+
+The tuple-based format still works for backwards compatibility:
+
+```tsx
 defineComponent("user-card", {
   api: {
     updateUser: ["PUT", "/api/users/:id", updateHandler],
     deleteUser: ["DELETE", "/api/users/:id", deleteHandler],
   },
-  render: ({ id, name, role }, api) => (
-    // Compose library Card and Item components
-    <card variant="elevated">
-      <item
-        title={name}
-        description={role}
-        actions={[
-          { text: "Edit", variant: "primary", ...api.updateUser(id) },
-          {
-            text: "Delete",
-            variant: "danger",
-            confirm: "Delete this user?",
-            ...api.deleteUser(id),
-          },
-        ]}
-      />
-    </card>
+  render: ({ id }, api) => (
+    <div {...api.updateUser(id)}>Update</div>
   ),
 });
 ```
 
-**API Definition Format**: `[method, path, handler]`
-
-- `method`: HTTP method (GET, POST, PUT, PATCH, DELETE)
-- `path`: URL path with optional parameters (`:id`)
-- `handler`: Server-side request handler function
-
-**hx() Wrapper Options**:
-
-- `target`: Element to update with response
-- `swap`: How to swap content (innerHTML, outerHTML, etc.)
-- `confirm`: Confirmation message before request
-- `trigger`: When to trigger the request
-- `indicator`: Loading indicator element
-- `vals`: Additional values to send
-- `headers`: Custom headers
-- `include`: Form elements to include
+**Migration:** Replace tuples with HTTP method helpers for better ergonomics and clarity.
 
 ### Prop Helpers
 
@@ -778,24 +825,68 @@ const script = createStateManagerScript({
 
 ## API Helpers
 
-### HTTP Method Helpers
+### HTTP Method Helpers (Recommended)
+
+The modern way to define component APIs with full HTMX abstraction:
 
 ```typescript
-import { del, get, patch, post, put } from "ui-lib";
+import { create, del, get, patch, post, put, remove } from "ui-lib/mod.ts";
 
-// Define API endpoints
-const api = {
-  getUser: get("/api/users/:id"),
-  createUser: post("/api/users"),
-  updateUser: put("/api/users/:id"),
-  patchUser: patch("/api/users/:id"),
-  deleteUser: del("/api/users/:id"),
+// Use in component definitions
+defineComponent("my-component", {
+  api: {
+    // Primary helpers
+    loadData: get("/api/data", handler),
+    createItem: post("/api/items", handler),
+    updateItem: patch("/api/items/:id", handler),
+    replaceItem: put("/api/items/:id", handler),
+    deleteItem: del("/api/items/:id", handler),
+
+    // Aliases (same as above)
+    addItem: create("/api/items", handler),    // Alias for post
+    removeItem: remove("/api/items/:id", handler), // Alias for del
+  },
+  render: (props, api) => {
+    // Use with direct spread operator
+    const attrs = api!.loadData();
+    return `<button ${Object.entries(attrs).map(([k, v]) => `${k}="${v}"`).join(" ")}>Load</button>`;
+  },
+});
+```
+
+**ApiRoute Type:**
+
+Each helper returns an `ApiRoute` object:
+
+```typescript
+type ApiRoute = {
+  readonly method: string;
+  readonly path: string;
+  readonly handler: RouteHandler;
+  readonly toAction: (...params: string[]) => Record<string, string>;
 };
 ```
 
-### generateClientApi
+**Usage Examples:**
 
-Generates HTMX-ready attribute maps from definitions.
+```typescript
+// No parameters
+api!.loadData()
+// => { "hx-get": "/api/data", "hx-target": "this", "hx-swap": "outerHTML" }
+
+// Single parameter
+api!.deleteItem("123")
+// => { "hx-delete": "/api/items/123", "hx-target": "this", "hx-swap": "outerHTML" }
+
+// Multiple parameters
+api!.updateComment("post-1", "comment-5")
+// Path: "/api/posts/:postId/comments/:commentId"
+// => { "hx-patch": "/api/posts/post-1/comments/comment-5", ... }
+```
+
+### generateClientApi (Internal)
+
+Used internally by defineComponent to generate client-side API bindings. Applications rarely need to call this directly.
 
 ```typescript
 const api = {
@@ -803,55 +894,28 @@ const api = {
   remove: del("/api/todos/:id", deleteTodo),
 };
 
-const client = generateClientApi(api);
-
-// Spread onto elements
-const attrs = client.toggle("42", { optimistic: true });
-/*
-{
-  "hx-patch": "/api/todos/42/toggle",
-  "hx-vals": "{\"optimistic\":true}",
-  "hx-headers": "{\"Accept\":\"text/html; charset=utf-8\"}",
-  "hx-target": "#main",
-  "hx-swap": "innerHTML"
-}
-*/
+const clientApi = generateClientApi(api);
+// Produces functions like: clientApi.toggle(id) => { "hx-patch": "/api/todos/:id/toggle", ... }
 ```
 
-### generateClientHx & hx
+### generateClientHx & hx (Legacy)
 
-`generateClientHx` is used internally to create per-method client functions that
-return HTMX attribute strings. Most applications won’t call these
-directly—prefer `onAction` in JSX. The `hx()` helper remains available for
-advanced per-call configuration.
+Legacy helpers for the tuple-based API format. Still supported but HTTP method helpers are preferred:
 
 ```typescript
 import { generateClientHx, hx } from "ui-lib";
 
+// Legacy tuple format
 const api = {
   toggle: ["POST", "/api/todos/:id/toggle", handler],
   remove: ["DELETE", "/api/todos/:id", handler],
 };
 
 const actions = generateClientHx(api, { target: "#main", swap: "outerHTML" });
-
-// Advanced: build attribute string manually (usually not needed)
 const toggleAttrs = actions.toggle("42", hx({ indicator: "#spinner" }));
-const buttonHtml = `<button ${toggleAttrs}>Toggle</button>`;
 ```
 
-**hx() Options**:
-
-- `target`: Element selector to update
-- `swap`: Content swap method (innerHTML, outerHTML, etc.)
-- `confirm`: Confirmation dialog message
-- `trigger`: Event that triggers the request
-- `indicator`: Loading indicator element
-- `disable`: Disable element during request
-- `vals`: Additional form values
-- `headers`: Custom request headers
-- `include`: Additional form elements to include
-- `pushUrl`: Update browser URL
+**Note:** Prefer HTTP method helpers (`post()`, `del()`, etc.) for new code.
 
 ## TypeScript Types
 

@@ -155,42 +155,58 @@ const Page = () => (
 All components provide rich variant APIs (primary, secondary, success, danger,
 etc.) for customization without CSS.
 
-### API Integration
+### Component-Colocated APIs (HTMX Abstracted Away)
 
-Components can define API endpoints and bind them to UI actions:
+Components define APIs with HTTP method helpers, keeping HTMX completely hidden from application code:
 
 ```tsx
-import { defineComponent, h } from "ui-lib";
+import { defineComponent, del, h, post } from "ui-lib/mod.ts";
+import { todoAPI } from "./api/index.ts";
 
 defineComponent("todo-item", {
   api: {
-    toggle: ["POST", "/api/todos/:id/toggle", toggleTodo],
-    deleteTodo: ["DELETE", "/api/todos/:id", deleteTodo],
+    toggle: post("/api/todos/:id/toggle", todoAPI.toggleTodo),
+    deleteTodo: del("/api/todos/:id", todoAPI.deleteTodo),
   },
-  render: ({ id, text, done, priority }, api) => (
-    // Compose library Item component with API bindings
-    <item
-      title={text}
-      completed={done}
-      priority={priority}
-      badges={[{
-        text: priority,
-        variant: priority === "high" ? "danger" : "success",
-      }]}
-      actions={[
-        { text: "Delete", variant: "danger", ...api.deleteTodo(id) },
-      ]}
-      icon={`<input type="checkbox" ${done ? "checked" : ""} ${
-        api.toggle(id)
-      } />`}
-    />
-  ),
+  render: ({ todo }, api) => {
+    // Direct spread operator - no HTMX attributes in sight!
+    const toggleAttrs = Object.entries(api!.toggle(todo.id))
+      .map(([key, value]) => `${key}="${value}"`)
+      .join(" ");
+
+    return (
+      <item
+        title={todo.text}
+        completed={todo.completed}
+        priority={todo.priority}
+        badges={[{
+          text: todo.priority,
+          variant: todo.priority === "high" ? "danger" : "success",
+        }]}
+        actions={[{
+          text: "Delete",
+          variant: "danger",
+          attributes: Object.entries(api!.deleteTodo(todo.id))
+            .map(([k, v]) => `${k}="${v}"`)
+            .join(" "),
+        }]}
+        icon={`<input type="checkbox" ${
+          todo.completed ? "checked" : ""
+        } ${toggleAttrs} />`}
+      />
+    );
+  },
 });
 ```
 
-The `api` property defines server endpoints and the library generates HTMX
-bindings automatically. Defaults (target/swap/headers) apply without explicit
-configuration.
+**Key Benefits:**
+- ✅ **Zero HTMX in app code** - All `hx-*` attributes generated internally
+- ✅ **Type-safe APIs** - HTTP methods (`post`, `del`, `get`, `patch`, `put`) with route params
+- ✅ **Direct spread operator** - `{...api!.toggle(id)}` returns ready-to-use attributes
+- ✅ **Automatic route registration** - Call `registerComponentApi("todo-item", router)` once
+- ✅ **Centralized endpoints** - All API routes defined with the component
+
+Available HTTP helpers: `get()`, `post()`, `patch()`, `put()`, `del()` (aliased: `remove`, `create`)
 
 ## Three-Tier Reactivity
 
