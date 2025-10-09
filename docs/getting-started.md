@@ -132,7 +132,7 @@ Define server endpoints directly in your components using HTTP method helpers.
 ### Basic Example (Composition Pattern)
 
 ```tsx
-import { defineComponent, del, h, post, spreadAttrs } from "ui-lib/mod.ts";
+import { defineComponent, del, h, post } from "ui-lib/mod.ts";
 
 defineComponent("todo-item", {
   api: {
@@ -141,27 +141,30 @@ defineComponent("todo-item", {
   },
   render: ({ todo }, api) => {
     return (
-      <item
-        title={todo.text}
-        completed={todo.completed ? "true" : "false"}
-        icon={`<input type="checkbox" ${todo.completed ? "checked" : ""} ${
-          spreadAttrs(api!.toggle(todo.id))
-        } />`}
-        actions={JSON.stringify([{
-          text: "Delete",
-          variant: "danger",
-          attributes: spreadAttrs(api!.deleteTodo(todo.id)),
-        }])}
-      />
+      <item completed={todo.completed}>
+        <input
+          type="checkbox"
+          checked={todo.completed}
+          {...api!.toggle(todo.id)}
+        />
+        <span>{todo.text}</span>
+        <button
+          type="button"
+          {...api!.deleteTodo(todo.id)}
+        >
+          Delete
+        </button>
+      </item>
     );
   },
 });
 ```
 
 **Key Points:**
-- ✅ **Zero custom CSS** - Uses library's `<item>` component
-- ✅ **`spreadAttrs()` helper** - Converts API actions to HTML attribute strings
-- ✅ **Pre-styled components** - Item, Badge, Button, Card from ui-lib
+- ✅ **Zero custom CSS** - Library's `<item>` component provides all styling
+- ✅ **Ergonomic spread syntax** - Use `{...api!.action(id)}` directly in JSX
+- ✅ **Children support** - Library components accept custom children
+- ✅ **Pre-styled components** - Item, Card, Stack, Badge, Button from ui-lib
 
 ### Available HTTP Method Helpers
 
@@ -208,8 +211,7 @@ From the todo app
 ([examples/todo-app/components/todo-item.tsx](../examples/todo-app/components/todo-item.tsx)):
 
 ```tsx
-import { defineComponent, del, h, post, spreadAttrs } from "ui-lib/mod.ts";
-import type { ItemBadgeVariant } from "ui-lib/mod.ts";
+import { defineComponent, del, h, post } from "ui-lib/mod.ts";
 import { todoAPI } from "../api/index.ts";
 
 defineComponent("todo-item", {
@@ -218,29 +220,31 @@ defineComponent("todo-item", {
     deleteTodo: del("/api/todos/:id", todoAPI.deleteTodo),
   },
   render: ({ todo }, api) => {
-    const badgeVariant: ItemBadgeVariant =
-      todo.priority === "high" ? "danger" : "warning";
-
     return (
       <item
         id={`todo-${todo.id}`}
-        title={todo.text}
-        timestamp={new Date(todo.createdAt).toLocaleDateString()}
-        completed={todo.completed ? "true" : "false"}
+        completed={todo.completed}
         priority={todo.priority}
-        icon={`<input type="checkbox" ${todo.completed ? "checked" : ""} ${
-          spreadAttrs(api!.toggle(todo.id))
-        } />`}
-        badges={JSON.stringify([{
-          text: todo.priority,
-          variant: badgeVariant,
-        }])}
-        actions={JSON.stringify([{
-          text: "Delete",
-          variant: "danger",
-          attributes: spreadAttrs(api!.deleteTodo(todo.id)),
-        }])}
-      />
+      >
+        <input
+          type="checkbox"
+          checked={todo.completed}
+          {...api!.toggle(todo.id)}
+        />
+        <span>{todo.text}</span>
+        <span data-priority={todo.priority}>
+          {todo.priority}
+        </span>
+        <span>
+          {new Date(todo.createdAt).toLocaleDateString()}
+        </span>
+        <button
+          type="button"
+          {...api!.deleteTodo(todo.id)}
+        >
+          Delete
+        </button>
+      </item>
     );
   },
 });
@@ -255,7 +259,8 @@ registerComponentApi("todo-item", router);
 - ✅ **Zero HTMX in application code** - All `hx-*` attributes generated internally
 - ✅ **Zero custom CSS** - Pure composition using library's `<item>` component
 - ✅ **Type-safe APIs** - Full TypeScript support with proper types
-- ✅ **Direct API integration** - `spreadAttrs(api!.action(id))` converts to HTML attributes
+- ✅ **Ergonomic spread syntax** - Use `{...api!.action(id)}` directly in JSX
+- ✅ **Children support** - Library components accept custom children
 - ✅ **Automatic path interpolation** - Parameters like `:id` filled automatically
 - ✅ **Centralized routes** - All API endpoints defined with the component
 - ✅ **Single registration** - Call `registerComponentApi()` once per component

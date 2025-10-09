@@ -53,7 +53,7 @@ const containerStyles = css({
 });
 
 defineComponent<ContainerProps>("container", {
-  render: (props) => {
+  render: (props: ContainerProps) => {
     const {
       variant = "constrained",
       maxWidth,

@@ -36,52 +36,50 @@ defineComponent<TodoAppProps>("todo-app", {
     const appContent = (
       <container size="lg">
         <stack direction="vertical" gap="xl">
-          <header style="text-align: center;">
+          <stack direction="vertical" gap="sm" align="center">
             <h1>Composition-Only Architecture Demo</h1>
-            <p style="color: #6b7280;">
+            <p>
               Todo app using only library components with variants - no custom
               CSS
             </p>
-          </header>
+          </stack>
 
           <grid columns="2" gap="lg" responsive>
             <card variant="elevated" padding="lg">
               <stack direction="vertical" gap="md">
-                <div>
+                <stack direction="vertical" gap="xs">
                   <h2>Add New Todo</h2>
-                  <p style="color: #6b7280; font-size: 0.95rem;">
+                  <p>
                     Capture a task and assign a priority
                   </p>
-                </div>
+                </stack>
                 <todo-form />
               </stack>
             </card>
 
             <card variant="elevated" padding="lg">
               <stack direction="vertical" gap="md">
-                <div>
+                <stack direction="vertical" gap="xs">
                   <h2>Stats</h2>
-                  <p style="color: #6b7280; font-size: 0.95rem;">
+                  <p>
                     Completion progress snapshot
                   </p>
-                </div>
+                </stack>
                 <todo-stats stats={stats} />
               </stack>
             </card>
 
-            <div style="grid-column: span 2;">
-              <card variant="elevated" padding="lg">
-                <stack direction="vertical" gap="md">
-                  <div>
-                    <h2>Your Todos ({todos.length})</h2>
-                    <p style="color: #6b7280; font-size: 0.95rem;">
-                      Sorted by creation time with priority indicators
-                    </p>
-                  </div>
-                  <todo-list todos={todos} />
+            <card variant="elevated" padding="lg" span="2">
+              <stack direction="vertical" gap="md">
+                <stack direction="vertical" gap="xs">
+                  <h2>Your Todos ({todos.length})</h2>
+                  <p>
+                    Sorted by creation time with priority indicators
+                  </p>
                 </stack>
-              </card>
-            </div>
+                <todo-list todos={todos} />
+              </stack>
+            </card>
           </grid>
         </stack>
       </container>

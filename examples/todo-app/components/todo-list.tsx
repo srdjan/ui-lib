@@ -34,16 +34,16 @@ defineComponent<TodoListProps>("todo-list", {
 
     if (todos.length === 0) {
       return (
-        <div style="text-align: center; padding: 2rem; color: #6b7280;">
+        <stack direction="vertical" gap="md" align="center">
           <p>{emptyMessage}</p>
-        </div>
+        </stack>
       );
     }
 
     return (
       <stack direction="vertical" gap="md">
         {hasCompleted && (
-          <div style="display: flex; justify-content: flex-end;">
+          <stack direction="horizontal" gap="md" justify="end">
             <button
               type="button"
               variant="danger"
@@ -52,7 +52,7 @@ defineComponent<TodoListProps>("todo-list", {
             >
               Clear completed
             </button>
-          </div>
+          </stack>
         )}
         <stack direction="vertical" gap="md">
           {todos.map((todo) => <todo-item todo={todo} />)}

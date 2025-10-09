@@ -176,28 +176,41 @@ defineComponent("reactive-component", {
 });
 ```
 
-### Component with API Integration
+### Component with API Integration (Composition-Only Pattern)
 
 ```tsx
+import { defineComponent, del, post } from "./mod.ts";
+
 defineComponent("todo-item", {
-  props: (attrs) => ({
-    id: attrs.id,
-    text: attrs.text,
-    done: "done" in attrs,
-  }),
   api: {
-    toggle: patch("/api/todos/:id/toggle", handler),
-    remove: del("/api/todos/:id", handler),
+    toggle: post("/api/todos/:id/toggle", todoAPI.toggleTodo),
+    deleteTodo: del("/api/todos/:id", todoAPI.deleteTodo),
   },
-  render: (props, api) => (
-    <div>
-      <span>{props.text}</span>
-      <button {...api.toggle(props.id)}>Toggle</button>
-      <button {...api.remove(props.id)}>×</button>
-    </div>
+  render: ({ todo }, api) => (
+    <item
+      id={`todo-${todo.id}`}
+      completed={todo.completed}
+      priority={todo.priority}
+    >
+      <input
+        type="checkbox"
+        checked={todo.completed}
+        {...api!.toggle(todo.id)}
+      />
+      <span>{todo.text}</span>
+      <button type="button" {...api!.deleteTodo(todo.id)}>
+        Delete
+      </button>
+    </item>
   ),
 });
 ```
+
+**Key Points:**
+- ✅ **Zero custom CSS** - Library's `<item>` component provides all styling
+- ✅ **Ergonomic spread syntax** - Use `{...api!.action(id)}` directly in JSX
+- ✅ **Children support** - Library components accept custom children
+- ✅ **Pre-styled components** - Item, Card, Stack, Badge, Button from ui-lib
 
 ## Code Style & Conventions
 
@@ -355,6 +368,11 @@ defineComponent("user-card", {
   memory
 - **Progressive enhancement over hydration**: No client-side hydration needed
 - **Server-first design**: Not client-first with SSR bolted on
+- **Composition-only pattern**: Applications compose pre-styled library components,
+  no custom CSS allowed in app code
+- **Ergonomic API spread**: Use `{...api!.action(id)}` directly in JSX, not helper functions
+- **Library components accept children**: Wrap native elements with library components
+  for styling
 - **All user input must be escaped**: XSS protection via lib/escape.ts
 - **Components should be pure functions**: No side effects in render
 - **The main public API is exported from `index.ts`**: All mod files import from
@@ -464,14 +482,25 @@ Demonstrates e-commerce patterns with cart state management.
 ```typescript
 defineComponent("todo-item", {
   api: {
-    toggle: post("/api/todos/:id/toggle", toggleHandler),
-    remove: del("/api/todos/:id", removeHandler),
+    toggle: post("/api/todos/:id/toggle", todoAPI.toggleTodo),
+    deleteTodo: del("/api/todos/:id", todoAPI.deleteTodo),
   },
-  render: ({ id, text }, api) => (
-    <div>
-      <input type="checkbox" {...api.toggle(id)} />
-      <button {...api.remove(id)}>Delete</button>
-    </div>
+  render: ({ todo }, api) => (
+    <item
+      id={`todo-${todo.id}`}
+      completed={todo.completed}
+      priority={todo.priority}
+    >
+      <input
+        type="checkbox"
+        checked={todo.completed}
+        {...api!.toggle(todo.id)}
+      />
+      <span>{todo.text}</span>
+      <button type="button" {...api!.deleteTodo(todo.id)}>
+        Delete
+      </button>
+    </item>
   ),
 });
 ```
