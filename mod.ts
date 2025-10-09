@@ -96,8 +96,18 @@ export {
 } from "./lib/state-manager.ts";
 
 // DOM helpers
-export { toggleClass, toggleClasses } from "./lib/dom-helpers.ts";
+export { spreadAttrs, toggleClass, toggleClasses } from "./lib/dom-helpers.ts";
 export { escapeHtml as escape } from "./lib/ssr.ts";
+
+// Library Components for composition-only pattern
+export type {
+  ActionVariant,
+  BadgeVariant as ItemBadgeVariant,
+  ItemAction,
+  ItemBadge,
+  ItemPriority,
+  ItemProps,
+} from "./lib/components/data-display/item.ts";
 
 // Declarative bindings
 export {

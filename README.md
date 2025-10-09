@@ -118,10 +118,12 @@ etc.) for customization without CSS.
 
 ### Component-Colocated APIs (HTMX Abstracted Away)
 
-Components define APIs with HTTP method helpers, keeping HTMX completely hidden from application code:
+Components define APIs with HTTP method helpers, keeping HTMX completely hidden from application code.
+Applications compose library components using `spreadAttrs()` to pass API actions:
 
 ```tsx
-import { defineComponent, del, h, post } from "ui-lib/mod.ts";
+import { defineComponent, del, h, post, spreadAttrs } from "ui-lib/mod.ts";
+import type { ItemBadgeVariant } from "ui-lib/mod.ts";
 import { todoAPI } from "./api/index.ts";
 
 defineComponent("todo-item", {
@@ -130,23 +132,29 @@ defineComponent("todo-item", {
     deleteTodo: del("/api/todos/:id", todoAPI.deleteTodo),
   },
   render: ({ todo }, api) => {
+    const badgeVariant: ItemBadgeVariant =
+      todo.priority === "high" ? "danger" : "warning";
+
     return (
-      <div class="todo-item">
-        <input
-          type="checkbox"
-          checked={todo.completed}
-          {...api!.toggle(todo.id)}
-        />
-        <span class="todo-text">{todo.text}</span>
-        <span class="todo-priority">{todo.priority}</span>
-        <button
-          type="button"
-          class="todo-delete"
-          {...api!.deleteTodo(todo.id)}
-        >
-          Delete
-        </button>
-      </div>
+      <item
+        id={`todo-${todo.id}`}
+        title={todo.text}
+        timestamp={new Date(todo.createdAt).toLocaleDateString()}
+        completed={todo.completed ? "true" : "false"}
+        priority={todo.priority}
+        icon={`<input type="checkbox" ${todo.completed ? "checked" : ""} ${
+          spreadAttrs(api!.toggle(todo.id))
+        } />`}
+        badges={JSON.stringify([{
+          text: todo.priority,
+          variant: badgeVariant,
+        }])}
+        actions={JSON.stringify([{
+          text: "Delete",
+          variant: "danger",
+          attributes: spreadAttrs(api!.deleteTodo(todo.id)),
+        }])}
+      />
     );
   },
 });
@@ -154,8 +162,9 @@ defineComponent("todo-item", {
 
 **Key Benefits:**
 - ✅ **Zero HTMX in app code** - All `hx-*` attributes generated internally
+- ✅ **Zero custom CSS** - Compose pre-styled library components (Item, Badge, Button, Card)
 - ✅ **Type-safe APIs** - HTTP methods (`post`, `del`, `get`, `patch`, `put`) with route params
-- ✅ **Direct spread operator** - `{...api!.toggle(id)}` returns ready-to-use attributes
+- ✅ **Direct spread operator** - `spreadAttrs(api!.toggle(id))` converts API actions to HTML attributes
 - ✅ **Automatic route registration** - Call `registerComponentApi("todo-item", router)` once
 - ✅ **Centralized endpoints** - All API routes defined with the component
 

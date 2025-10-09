@@ -129,10 +129,10 @@ const html = (
 Define server endpoints directly in your components using HTTP method helpers.
 **HTMX is completely abstracted away** - no `hx-*` attributes in your code!
 
-### Basic Example
+### Basic Example (Composition Pattern)
 
 ```tsx
-import { defineComponent, del, h, post } from "ui-lib/mod.ts";
+import { defineComponent, del, h, post, spreadAttrs } from "ui-lib/mod.ts";
 
 defineComponent("todo-item", {
   api: {
@@ -141,24 +141,27 @@ defineComponent("todo-item", {
   },
   render: ({ todo }, api) => {
     return (
-      <div class="todo-item">
-        <input
-          type="checkbox"
-          checked={todo.completed}
-          {...api!.toggle(todo.id)}
-        />
-        <span>{todo.text}</span>
-        <button
-          type="button"
-          {...api!.deleteTodo(todo.id)}
-        >
-          Delete
-        </button>
-      </div>
+      <item
+        title={todo.text}
+        completed={todo.completed ? "true" : "false"}
+        icon={`<input type="checkbox" ${todo.completed ? "checked" : ""} ${
+          spreadAttrs(api!.toggle(todo.id))
+        } />`}
+        actions={JSON.stringify([{
+          text: "Delete",
+          variant: "danger",
+          attributes: spreadAttrs(api!.deleteTodo(todo.id)),
+        }])}
+      />
     );
   },
 });
 ```
+
+**Key Points:**
+- ✅ **Zero custom CSS** - Uses library's `<item>` component
+- ✅ **`spreadAttrs()` helper** - Converts API actions to HTML attribute strings
+- ✅ **Pre-styled components** - Item, Badge, Button, Card from ui-lib
 
 ### Available HTTP Method Helpers
 
@@ -205,7 +208,8 @@ From the todo app
 ([examples/todo-app/components/todo-item.tsx](../examples/todo-app/components/todo-item.tsx)):
 
 ```tsx
-import { defineComponent, del, h, post } from "ui-lib/mod.ts";
+import { defineComponent, del, h, post, spreadAttrs } from "ui-lib/mod.ts";
+import type { ItemBadgeVariant } from "ui-lib/mod.ts";
 import { todoAPI } from "../api/index.ts";
 
 defineComponent("todo-item", {
@@ -214,27 +218,29 @@ defineComponent("todo-item", {
     deleteTodo: del("/api/todos/:id", todoAPI.deleteTodo),
   },
   render: ({ todo }, api) => {
+    const badgeVariant: ItemBadgeVariant =
+      todo.priority === "high" ? "danger" : "warning";
+
     return (
-      <div class="todo-item" id={`todo-${todo.id}`}>
-        <input
-          type="checkbox"
-          checked={todo.completed}
-          {...api!.toggle(todo.id)}
-        />
-        <div class="todo-content">
-          <span class="todo-text">{todo.text}</span>
-          <span class="todo-priority" data-priority={todo.priority}>
-            {todo.priority}
-          </span>
-        </div>
-        <button
-          type="button"
-          class="todo-delete"
-          {...api!.deleteTodo(todo.id)}
-        >
-          Delete
-        </button>
-      </div>
+      <item
+        id={`todo-${todo.id}`}
+        title={todo.text}
+        timestamp={new Date(todo.createdAt).toLocaleDateString()}
+        completed={todo.completed ? "true" : "false"}
+        priority={todo.priority}
+        icon={`<input type="checkbox" ${todo.completed ? "checked" : ""} ${
+          spreadAttrs(api!.toggle(todo.id))
+        } />`}
+        badges={JSON.stringify([{
+          text: todo.priority,
+          variant: badgeVariant,
+        }])}
+        actions={JSON.stringify([{
+          text: "Delete",
+          variant: "danger",
+          attributes: spreadAttrs(api!.deleteTodo(todo.id)),
+        }])}
+      />
     );
   },
 });
@@ -246,13 +252,11 @@ registerComponentApi("todo-item", router);
 
 ### Key Benefits
 
-- ✅ **Zero HTMX in application code** - All `hx-*` attributes generated
-  internally
+- ✅ **Zero HTMX in application code** - All `hx-*` attributes generated internally
+- ✅ **Zero custom CSS** - Pure composition using library's `<item>` component
 - ✅ **Type-safe APIs** - Full TypeScript support with proper types
-- ✅ **Direct spread operator** - `{...api!.action(id)}` returns attribute
-  object
-- ✅ **Automatic path interpolation** - Parameters like `:id` filled
-  automatically
+- ✅ **Direct API integration** - `spreadAttrs(api!.action(id))` converts to HTML attributes
+- ✅ **Automatic path interpolation** - Parameters like `:id` filled automatically
 - ✅ **Centralized routes** - All API endpoints defined with the component
 - ✅ **Single registration** - Call `registerComponentApi()` once per component
 

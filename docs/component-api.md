@@ -177,10 +177,11 @@ remove = del  // Alias for DELETE
 create = post // Alias for POST
 ```
 
-**Real-World Example (Todo Item):**
+**Real-World Example (Todo Item with Composition):**
 
 ```tsx
-import { defineComponent, del, h, post } from "ui-lib/mod.ts";
+import { defineComponent, del, h, post, spreadAttrs } from "ui-lib/mod.ts";
+import type { ItemBadgeVariant } from "ui-lib/mod.ts";
 import { todoAPI } from "./api/index.ts";
 
 defineComponent("todo-item", {
@@ -189,23 +190,29 @@ defineComponent("todo-item", {
     deleteTodo: del("/api/todos/:id", todoAPI.deleteTodo),
   },
   render: ({ todo }, api) => {
+    const badgeVariant: ItemBadgeVariant =
+      todo.priority === "high" ? "danger" : "warning";
+
     return (
-      <div class="todo-item">
-        <input
-          type="checkbox"
-          checked={todo.completed}
-          {...api!.toggle(todo.id)}
-        />
-        <span class="todo-text">{todo.text}</span>
-        <span class="todo-priority">{todo.priority}</span>
-        <button
-          type="button"
-          class="todo-delete"
-          {...api!.deleteTodo(todo.id)}
-        >
-          Delete
-        </button>
-      </div>
+      <item
+        id={`todo-${todo.id}`}
+        title={todo.text}
+        timestamp={new Date(todo.createdAt).toLocaleDateString()}
+        completed={todo.completed ? "true" : "false"}
+        priority={todo.priority}
+        icon={`<input type="checkbox" ${todo.completed ? "checked" : ""} ${
+          spreadAttrs(api!.toggle(todo.id))
+        } />`}
+        badges={JSON.stringify([{
+          text: todo.priority,
+          variant: badgeVariant,
+        }])}
+        actions={JSON.stringify([{
+          text: "Delete",
+          variant: "danger",
+          attributes: spreadAttrs(api!.deleteTodo(todo.id)),
+        }])}
+      />
     );
   },
 });
@@ -213,10 +220,9 @@ defineComponent("todo-item", {
 
 **Key Features:**
 
-- ✅ **Zero HTMX in application code** - All `hx-*` attributes generated
-  internally
-- ✅ **Direct spread operator** - `{...api!.action(id)}` returns attribute
-  object
+- ✅ **Zero HTMX in application code** - All `hx-*` attributes generated internally
+- ✅ **Zero custom CSS** - Compose library's pre-styled Item component
+- ✅ **Direct API integration** - `spreadAttrs(api!.action(id))` converts to HTML attributes
 - ✅ **Path interpolation** - Parameters like `:id` automatically replaced
 - ✅ **Automatic registration** - Call `registerComponentApi(name, router)` once
 - ✅ **Type safety** - Full TypeScript support with proper types
