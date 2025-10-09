@@ -2,6 +2,7 @@
 // Functional data access layer using Deno KV for persistence
 // Implements all CRUD operations for products, cart, users, and orders
 
+// deno-lint-ignore-file no-explicit-any
 import type { Result } from "../../../lib/result.ts";
 import { err, ok } from "../../../lib/result.ts";
 import { sampleProducts, sampleUsers } from "../data/seed.ts";
@@ -26,6 +27,10 @@ import type {
 // Safe error message extraction
 const toMessage = (error: unknown): string =>
   error instanceof Error ? error.message : String(error);
+
+// We use any for KV to avoid complex Deno.Kv type issues
+// deno-lint-ignore no-explicit-any
+type KvLike = any;
 
 // ============================================================
 // Repository Interface (Port)
@@ -202,7 +207,7 @@ const sortProducts = (
 // ============================================================
 
 export const createKvShoppingRepository = async (
-  kv: Deno.Kv,
+  kv: KvLike,
 ): Promise<Result<ShoppingRepository, ApiError>> => {
   // Initialize (seed data if needed)
   try {
@@ -451,7 +456,7 @@ export const createKvShoppingRepository = async (
           });
         }
 
-        const existingItemIndex = cart.items.findIndex((item) =>
+        const existingItemIndex = cart.items.findIndex((item: CartItem) =>
           item.productId === request.productId
         );
 
@@ -459,7 +464,7 @@ export const createKvShoppingRepository = async (
 
         if (existingItemIndex >= 0) {
           // Update existing item
-          updatedItems = cart.items.map((item, index) =>
+          updatedItems = cart.items.map((item: CartItem, index: number) =>
             index === existingItemIndex
               ? { ...item, quantity: item.quantity + request.quantity }
               : item
@@ -510,7 +515,7 @@ export const createKvShoppingRepository = async (
         }
 
         const cart = result.value;
-        const itemIndex = cart.items.findIndex((item) => item.id === itemId);
+        const itemIndex = cart.items.findIndex((item: CartItem) => item.id === itemId);
 
         if (itemIndex === -1) {
           return err({
@@ -521,12 +526,12 @@ export const createKvShoppingRepository = async (
         }
 
         const updatedItems = request.quantity > 0
-          ? cart.items.map((item, index) =>
+          ? cart.items.map((item: CartItem, index: number) =>
             index === itemIndex
               ? { ...item, quantity: request.quantity }
               : item
           )
-          : cart.items.filter((_, index) => index !== itemIndex);
+          : cart.items.filter((_: CartItem, index: number) => index !== itemIndex);
 
         const updatedCart = calculateCartTotals({
           ...cart,
@@ -558,7 +563,7 @@ export const createKvShoppingRepository = async (
         }
 
         const cart = result.value;
-        const updatedItems = cart.items.filter((item) => item.id !== itemId);
+        const updatedItems = cart.items.filter((item: CartItem) => item.id !== itemId);
 
         const updatedCart = calculateCartTotals({
           ...cart,
@@ -784,7 +789,7 @@ export const createKvShoppingRepository = async (
           orderNumber: `ORD-${Date.now()}`,
           userId: cart.userId || "guest",
           status: "pending",
-          items: cart.items.map((item) => ({
+          items: cart.items.map((item: CartItem) => ({
             id: item.id,
             productId: item.productId,
             productName: item.product.name,

@@ -7,7 +7,7 @@
 
 import { CheckoutFlow } from "../../../lib/components/forms/checkout-flow.tsx";
 import type { RouteHandler as Handler } from "../../../lib/router.ts";
-import { getRepository } from "./repository.ts";
+import { getRepository } from "./repository-factory.ts";
 import type {
   CreateOrderRequest,
   PaymentMethod,

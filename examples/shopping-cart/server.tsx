@@ -15,7 +15,7 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { html } from "../../lib/response.ts";
 import { Router } from "../../lib/router.ts";
 import { renderComponent } from "../../mod.ts";
-import { createRepository } from "./api/repository.ts";
+import { ensureRepository } from "./api/repository-factory.ts";
 
 // Import library components to register them; app composes by props/variants
 
@@ -733,11 +733,13 @@ function AboutPage() {
 const router = new Router();
 
 // Initialize repository
-const repositoryResult = await createRepository();
+console.log("Initializing repository...");
+const repositoryResult = await ensureRepository();
 if (!repositoryResult.ok) {
   console.error("Failed to initialize repository:", repositoryResult.error);
   Deno.exit(1);
 }
+console.log("Repository initialized successfully");
 
 // Register component APIs with unique endpoints to avoid conflicts
 // Composition-only components use standard component API integration

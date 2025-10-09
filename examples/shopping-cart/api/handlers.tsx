@@ -7,9 +7,15 @@
 
 import { ProductCard } from "../../../lib/components/data-display/product-card.tsx";
 import { hxVals } from "../../../lib/dom-helpers.ts";
-import { error, html, json } from "../../../lib/response.ts";
 import { renderComponent } from "../../../mod.ts";
-import { getRepository } from "./repository.ts";
+import { getRepository } from "./repository-factory.ts";
+import {
+  apiErrorResponse,
+  errorResponse,
+  handleDatabaseError,
+  htmlResponse,
+  jsonResponse,
+} from "./response.tsx";
 import type {
   AddToCartRequest,
   CreateOrderRequest,
@@ -141,7 +147,7 @@ export async function getProducts(req: Request): Promise<Response> {
     const result = await repository.getProducts(filter);
 
     if (!result.ok) {
-      return error(400, result.error.message);
+      return handleDatabaseError(result.error);
     }
 
     const acceptsHtml = req.headers.get("accept")?.includes("text/html") ||
@@ -155,16 +161,16 @@ export async function getProducts(req: Request): Promise<Response> {
       ).join("");
 
       // Return just the products HTML for HTMX to swap into #product-grid
-      return html(
+      return htmlResponse(
         productsHtml ||
           '<div class="no-products"><p>No products found</p></div>',
       );
     } else {
-      return json(result.value);
+      return jsonResponse(result.value);
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return error(500, `Failed to fetch products: ${msg}`);
+    return errorResponse(`Failed to fetch products: ${msg}`, 500);
   }
 }
 
@@ -177,16 +183,13 @@ export async function getProduct(
     const result = await repository.getProduct(params.id);
 
     if (!result.ok) {
-      return error(
-        result.error.code === "PRODUCT_NOT_FOUND" ? 404 : 400,
-        result.error.message,
-      );
+      return handleDatabaseError(result.error);
     }
 
-    return json(result.value);
+    return jsonResponse(result.value);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return error(500, `Failed to fetch product: ${msg}`);
+    return errorResponse(`Failed to fetch product: ${msg}`, 500);
   }
 }
 
@@ -199,7 +202,7 @@ export async function getFeaturedProducts(req: Request): Promise<Response> {
     const result = await repository.getFeaturedProducts(limit);
 
     if (!result.ok) {
-      return error(400, result.error.message);
+      return handleDatabaseError(result.error);
     }
 
     const acceptsHtml = req.headers.get("accept")?.includes("text/html") ||
@@ -212,16 +215,16 @@ export async function getFeaturedProducts(req: Request): Promise<Response> {
       ).join("");
 
       // Return just the products HTML for HTMX to swap
-      return html(
+      return htmlResponse(
         productsHtml ||
           '<div class="no-products"><p>No featured products available</p></div>',
       );
     } else {
-      return json(result.value);
+      return jsonResponse(result.value);
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return error(500, `Failed to fetch featured products: ${msg}`);
+    return errorResponse(`Failed to fetch featured products: ${msg}`);
   }
 }
 
@@ -235,7 +238,7 @@ export async function searchProducts(req: Request): Promise<Response> {
     const result = await repository.searchProducts(query, limit);
 
     if (!result.ok) {
-      return error(400, result.error.message);
+      return handleDatabaseError(result.error);
     }
 
     const acceptsHtml = req.headers.get("accept")?.includes("text/html") ||
@@ -243,7 +246,7 @@ export async function searchProducts(req: Request): Promise<Response> {
 
     if (acceptsHtml) {
       if (result.value.length === 0) {
-        return html(`
+        return htmlResponse(`
           <div class="search-results-empty">
             <p>No products found for "${query}"</p>
           </div>
@@ -255,7 +258,7 @@ export async function searchProducts(req: Request): Promise<Response> {
         renderProductCard(product, sessionId)
       ).join("");
 
-      return html(`
+      return htmlResponse(`
         <div class="search-results" data-query="${query}" data-count="${result.value.length}">
           <h3>Search Results for "${query}" (${result.value.length} found)</h3>
           <div class="products-grid">
@@ -264,11 +267,11 @@ export async function searchProducts(req: Request): Promise<Response> {
         </div>
       `);
     } else {
-      return json(result.value);
+      return jsonResponse(result.value);
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return error(500, `Failed to search products: ${msg}`);
+    return errorResponse(`Failed to search products: ${msg}`);
   }
 }
 
@@ -284,7 +287,7 @@ export async function getCart(req: Request): Promise<Response> {
     const result = await repository.getCart(sessionId);
 
     if (!result.ok) {
-      return error(400, result.error.message);
+      return handleDatabaseError(result.error);
     }
 
     const acceptsHtml = req.headers.get("accept")?.includes("text/html") ||
@@ -294,7 +297,7 @@ export async function getCart(req: Request): Promise<Response> {
       const cart = result.value;
 
       if (cart.items.length === 0) {
-        return html(`
+        return htmlResponse(`
           <div class="cart-empty">
             <h3>Your cart is empty</h3>
             <p>Add some products to get started!</p>
@@ -335,7 +338,7 @@ export async function getCart(req: Request): Promise<Response> {
         </div>
       `).join("");
 
-      return html(`
+      return htmlResponse(`
         <div class="cart-content" data-item-count="${cart.itemCount}" data-total="${cart.total}">
           <div class="cart-header">
             <h3>Shopping Cart (${cart.itemCount} items)</h3>
@@ -374,11 +377,11 @@ export async function getCart(req: Request): Promise<Response> {
         </div>
       `);
     } else {
-      return json(result.value);
+      return jsonResponse(result.value);
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return error(500, `Failed to fetch cart: ${msg}`);
+    return errorResponse(`Failed to fetch cart: ${msg}`);
   }
 }
 
@@ -405,7 +408,7 @@ export async function addToCart(req: Request): Promise<Response> {
     const result = await repository.addToCart(sessionId, body);
 
     if (!result.ok) {
-      return error(400, result.error.message);
+      return handleDatabaseError(result.error);
     }
 
     const acceptsHtml = req.headers.get("accept")?.includes("text/html") ||
@@ -413,17 +416,17 @@ export async function addToCart(req: Request): Promise<Response> {
 
     if (acceptsHtml) {
       // Return updated cart count badge for header
-      return html(`
+      return htmlResponse(`
         <span id="cart-count" class="cart-badge" data-count="${result.value.itemCount}">
           ${result.value.itemCount}
         </span>
       `);
     } else {
-      return json(result.value);
+      return jsonResponse(result.value);
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return error(500, `Failed to add to cart: ${msg}`);
+    return errorResponse(`Failed to add to cart: ${msg}`);
   }
 }
 
@@ -439,7 +442,7 @@ export async function updateCartItem(
     const result = await repository.updateCartItem(sessionId, params.id, body);
 
     if (!result.ok) {
-      return error(400, result.error.message);
+      return handleDatabaseError(result.error);
     }
 
     const acceptsHtml = req.headers.get("accept")?.includes("text/html") ||
@@ -449,11 +452,11 @@ export async function updateCartItem(
       // Return updated cart content
       return getCart(req);
     } else {
-      return json(result.value);
+      return jsonResponse(result.value);
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return error(500, `Failed to update cart item: ${msg}`);
+    return errorResponse(`Failed to update cart item: ${msg}`);
   }
 }
 
@@ -468,7 +471,7 @@ export async function removeFromCart(
     const result = await repository.removeFromCart(sessionId, params.id);
 
     if (!result.ok) {
-      return error(400, result.error.message);
+      return handleDatabaseError(result.error);
     }
 
     const acceptsHtml = req.headers.get("accept")?.includes("text/html") ||
@@ -478,11 +481,11 @@ export async function removeFromCart(
       // Return updated cart content
       return getCart(req);
     } else {
-      return json(result.value);
+      return jsonResponse(result.value);
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return error(500, `Failed to remove from cart: ${msg}`);
+    return errorResponse(`Failed to remove from cart: ${msg}`);
   }
 }
 
@@ -494,7 +497,7 @@ export async function getCartSummary(req: Request): Promise<Response> {
     const result = await repository.getCartSummary(sessionId);
 
     if (!result.ok) {
-      return error(400, result.error.message);
+      return handleDatabaseError(result.error);
     }
 
     const acceptsHtml = req.headers.get("accept")?.includes("text/html") ||
@@ -502,18 +505,18 @@ export async function getCartSummary(req: Request): Promise<Response> {
 
     if (acceptsHtml) {
       const summary = result.value;
-      return html(`
+      return htmlResponse(`
         <div class="cart-summary-widget">
           <span class="item-count">${summary.itemCount}</span>
           <span class="total">$${summary.total.toFixed(2)}</span>
         </div>
       `);
     } else {
-      return json(result.value);
+      return jsonResponse(result.value);
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return error(500, `Failed to get cart summary: ${msg}`);
+    return errorResponse(`Failed to get cart summary: ${msg}`);
   }
 }
 
@@ -529,13 +532,13 @@ export async function createUser(req: Request): Promise<Response> {
     const result = await repository.createUser(body);
 
     if (!result.ok) {
-      return error(400, result.error.message);
+      return handleDatabaseError(result.error);
     }
 
-    return json(result.value, { status: 201 });
+    return jsonResponse(result.value, { status: 201 });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return error(500, `Failed to create user: ${msg}`);
+    return errorResponse(`Failed to create user: ${msg}`);
   }
 }
 
@@ -548,16 +551,13 @@ export async function getUser(
     const result = await repository.getUser(params.id);
 
     if (!result.ok) {
-      return error(
-        result.error.code === "USER_NOT_FOUND" ? 404 : 400,
-        result.error.message,
-      );
+      return handleDatabaseError(result.error);
     }
 
-    return json(result.value);
+    return jsonResponse(result.value);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return error(500, `Failed to fetch user: ${msg}`);
+    return errorResponse(`Failed to fetch user: ${msg}`);
   }
 }
 
@@ -573,7 +573,7 @@ export async function createOrder(req: Request): Promise<Response> {
     const result = await repository.createOrder(body);
 
     if (!result.ok) {
-      return error(400, result.error.message);
+      return handleDatabaseError(result.error);
     }
 
     const acceptsHtml = req.headers.get("accept")?.includes("text/html") ||
@@ -581,7 +581,7 @@ export async function createOrder(req: Request): Promise<Response> {
 
     if (acceptsHtml) {
       const order = result.value;
-      return html(`
+      return htmlResponse(`
         <div class="order-confirmation">
           <h2>Order Confirmed!</h2>
           <p>Order Number: <strong>${order.orderNumber}</strong></p>
@@ -599,11 +599,11 @@ export async function createOrder(req: Request): Promise<Response> {
         </div>
       `);
     } else {
-      return json(result.value, { status: 201 });
+      return jsonResponse(result.value, { status: 201 });
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return error(500, `Failed to create order: ${msg}`);
+    return errorResponse(`Failed to create order: ${msg}`);
   }
 }
 
@@ -616,10 +616,7 @@ export async function getOrder(
     const result = await repository.getOrder(params.id);
 
     if (!result.ok) {
-      return error(
-        result.error.code === "ORDER_NOT_FOUND" ? 404 : 400,
-        result.error.message,
-      );
+      return handleDatabaseError(result.error);
     }
 
     const acceptsHtml = req.headers.get("accept")?.includes("text/html") ||
@@ -639,7 +636,7 @@ export async function getOrder(
         </div>
       `).join("");
 
-      return html(`
+      return htmlResponse(`
         <div class="order-details">
           <h2>Order ${order.orderNumber}</h2>
           <div class="order-status">Status: <span class="status-${order.status}">${order.status}</span></div>
@@ -675,11 +672,11 @@ export async function getOrder(
         </div>
       `);
     } else {
-      return json(result.value);
+      return jsonResponse(result.value);
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return error(500, `Failed to fetch order: ${msg}`);
+    return errorResponse(`Failed to fetch order: ${msg}`);
   }
 }
 
@@ -692,7 +689,7 @@ export async function getUserOrders(
     const result = await repository.getUserOrders(params.userId);
 
     if (!result.ok) {
-      return error(400, result.error.message);
+      return handleDatabaseError(result.error);
     }
 
     const acceptsHtml = req.headers.get("accept")?.includes("text/html") ||
@@ -700,7 +697,7 @@ export async function getUserOrders(
 
     if (acceptsHtml) {
       if (result.value.length === 0) {
-        return html(`
+        return htmlResponse(`
           <div class="orders-empty">
             <h3>No orders yet</h3>
             <p>Start shopping to see your orders here!</p>
@@ -723,18 +720,18 @@ export async function getUserOrders(
         </div>
       `).join("");
 
-      return html(`
+      return htmlResponse(`
         <div class="orders-list">
           <h2>Order History</h2>
           ${ordersHtml}
         </div>
       `);
     } else {
-      return json(result.value);
+      return jsonResponse(result.value);
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return error(500, `Failed to fetch user orders: ${msg}`);
+    return errorResponse(`Failed to fetch user orders: ${msg}`);
   }
 }
 
@@ -752,7 +749,7 @@ export async function getRecommendations(req: Request): Promise<Response> {
     const result = await repository.getRecommendedProducts(userId, limit);
 
     if (!result.ok) {
-      return error(400, result.error.message);
+      return handleDatabaseError(result.error);
     }
 
     const acceptsHtml = req.headers.get("accept")?.includes("text/html") ||
@@ -764,7 +761,7 @@ export async function getRecommendations(req: Request): Promise<Response> {
         renderProductCard(product, sessionId)
       ).join("");
 
-      return html(`
+      return htmlResponse(`
         <div class="recommendations">
           <h3>Recommended for You</h3>
           <div class="products-grid">
@@ -773,10 +770,10 @@ export async function getRecommendations(req: Request): Promise<Response> {
         </div>
       `);
     } else {
-      return json(result.value);
+      return jsonResponse(result.value);
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return error(500, `Failed to get recommendations: ${msg}`);
+    return errorResponse(`Failed to get recommendations: ${msg}`);
   }
 }

@@ -1,3 +1,4 @@
+/// <reference lib="deno.unstable" />
 /**
  * Repository Factory
  * Creates and manages repository instances
