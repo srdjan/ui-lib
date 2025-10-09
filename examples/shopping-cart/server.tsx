@@ -14,8 +14,11 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { html } from "../../lib/response.ts";
 import { Router } from "../../lib/router.ts";
-import { renderComponent } from "../../mod.ts";
+import { registerComponentApi, renderComponent } from "../../mod.ts";
 import { ensureRepository } from "./api/repository-factory.ts";
+
+// Import application components
+import "./components/product-card.tsx";
 
 // Import library components to register them; app composes by props/variants
 
@@ -741,11 +744,8 @@ if (!repositoryResult.ok) {
 }
 console.log("Repository initialized successfully");
 
-// Register component APIs with unique endpoints to avoid conflicts
-// Composition-only components use standard component API integration
-// Each component handles its own API endpoints through registerComponentApi
-// registerComponentApi("product-grid", router); // Would handle /api/products/filter
-// registerComponentApi("cart-sidebar", router); // Would conflict with /api/cart
+// Register component APIs
+registerComponentApi("shopping-product-card", router);
 
 // ============================================================
 // Page Routes

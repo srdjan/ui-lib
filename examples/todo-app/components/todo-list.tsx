@@ -7,7 +7,7 @@
  */
 
 import { h } from "jsx";
-import { defineComponent } from "../../../mod.ts";
+import { defineComponent, post } from "../../../mod.ts";
 import { todoAPI } from "../api/index.ts";
 import "../../../lib/components/button/button.ts";
 import "../../../lib/components/layout/stack.ts";
@@ -22,13 +22,9 @@ export type TodoListProps = {
 
 defineComponent<TodoListProps>("todo-list", {
   api: {
-    clearCompleted: [
-      "POST",
-      "/api/todos/clear-completed",
-      todoAPI.clearCompleted,
-    ],
+    clearCompleted: post("/api/todos/clear-completed", todoAPI.clearCompleted),
   },
-  render: (props, _api) => {
+  render: (props, api) => {
     const {
       todos,
       emptyMessage = "No todos yet. Add a todo above to get started!",
@@ -52,7 +48,7 @@ defineComponent<TodoListProps>("todo-list", {
               type="button"
               variant="danger"
               size="sm"
-              onAction={{ api: "clearCompleted" }}
+              {...api!.clearCompleted()}
             >
               Clear completed
             </button>

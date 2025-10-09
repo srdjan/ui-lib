@@ -5,9 +5,9 @@
  * Demonstrates integration between ui-lib components and server APIs
  */
 
-import { ProductCard } from "../../../lib/components/data-display/product-card.tsx";
-import { hxVals } from "../../../lib/dom-helpers.ts";
 import { renderComponent } from "../../../mod.ts";
+import { hxVals } from "../../../lib/dom-helpers.ts";
+import "../components/product-card.tsx";
 import { getRepository } from "./repository-factory.ts";
 import {
   apiErrorResponse,
@@ -32,47 +32,9 @@ function renderProductCard(
   product: any,
   sessionId: string = "default",
 ): string {
-  // Compose the library ProductCard with standard tokens/variants and actions
-  const availability = product.inStock ? "in_stock" : "out_of_stock";
-
-  return renderComponent(ProductCard, {
-    product: {
-      id: product.id,
-      name: product.name,
-      description: product.description,
-      imageUrl: product.imageUrl,
-      price: product.price,
-      currency: product.currency ?? "USD",
-      originalPrice: product.originalPrice,
-      rating: product.rating,
-      reviewCount: product.reviewCount,
-      badges: product.featured ? [{ label: "Featured", tone: "info" }] : [],
-      featured: Boolean(product.featured),
-      availability,
-    },
-    size: "md",
-    appearance: "default",
-    layout: "vertical",
-    showDescription: true,
-    showRating: true,
-    highlightSale: true,
-    primaryAction: {
-      label: product.inStock ? "Add to Cart" : "Out of Stock",
-      variant: "primary",
-      fullWidth: true,
-      disabled: !product.inStock,
-      attributes: {
-        "hx-post": "/api/cart/add",
-        "hx-vals": JSON.stringify({
-          productId: product.id,
-          quantity: 1,
-          sessionId,
-        }),
-        "hx-target": "#cart-count",
-        "hx-swap": "outerHTML",
-        "hx-ext": "json-enc",
-      },
-    },
+  return renderComponent("shopping-product-card", {
+    product,
+    sessionId,
   });
 }
 
