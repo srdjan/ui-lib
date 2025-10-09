@@ -140,23 +140,17 @@ defineComponent("todo-item", {
     deleteTodo: del("/api/todos/:id", deleteHandler),
   },
   render: ({ todo }, api) => {
-    // Direct spread operator - HTMX hidden!
-    const toggleAttrs = Object.entries(api!.toggle(todo.id))
-      .map(([key, value]) => `${key}="${value}"`)
-      .join(" ");
-
     return (
       <div class="todo-item">
         <input
           type="checkbox"
           checked={todo.completed}
-          ${toggleAttrs}
+          {...api!.toggle(todo.id)}
         />
         <span>{todo.text}</span>
         <button
-          ${Object.entries(api!.deleteTodo(todo.id))
-            .map(([k, v]) => `${k}="${v}"`)
-            .join(" ")}
+          type="button"
+          {...api!.deleteTodo(todo.id)}
         >
           Delete
         </button>
@@ -221,31 +215,26 @@ defineComponent("todo-item", {
   },
   render: ({ todo }, api) => {
     return (
-      <item
-        title={todo.text}
-        completed={todo.completed}
-        priority={todo.priority}
-        badges={[{
-          text: todo.priority,
-          variant: todo.priority === "high" ? "danger" : "success",
-        }]}
-        actions={[{
-          text: "Delete",
-          variant: "danger",
-          attributes: Object.entries(api!.deleteTodo(todo.id))
-            .map(([k, v]) => `${k}="${v}"`)
-            .join(" "),
-        }]}
-        icon={`<input
+      <div class="todo-item" id={`todo-${todo.id}`}>
+        <input
           type="checkbox"
-          ${todo.completed ? "checked" : ""}
-          ${
-          Object.entries(api!.toggle(todo.id))
-            .map(([k, v]) => `${k}="${v}"`)
-            .join(" ")
-        }
-        />`}
-      />
+          checked={todo.completed}
+          {...api!.toggle(todo.id)}
+        />
+        <div class="todo-content">
+          <span class="todo-text">{todo.text}</span>
+          <span class="todo-priority" data-priority={todo.priority}>
+            {todo.priority}
+          </span>
+        </div>
+        <button
+          type="button"
+          class="todo-delete"
+          {...api!.deleteTodo(todo.id)}
+        >
+          Delete
+        </button>
+      </div>
     );
   },
 });

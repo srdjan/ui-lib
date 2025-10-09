@@ -130,31 +130,23 @@ defineComponent("todo-item", {
     deleteTodo: del("/api/todos/:id", todoAPI.deleteTodo),
   },
   render: ({ todo }, api) => {
-    // Direct spread operator - no HTMX attributes in sight!
-    const toggleAttrs = Object.entries(api!.toggle(todo.id))
-      .map(([key, value]) => `${key}="${value}"`)
-      .join(" ");
-
     return (
-      <item
-        title={todo.text}
-        completed={todo.completed}
-        priority={todo.priority}
-        badges={[{
-          text: todo.priority,
-          variant: todo.priority === "high" ? "danger" : "success",
-        }]}
-        actions={[{
-          text: "Delete",
-          variant: "danger",
-          attributes: Object.entries(api!.deleteTodo(todo.id))
-            .map(([k, v]) => `${k}="${v}"`)
-            .join(" "),
-        }]}
-        icon={`<input type="checkbox" ${
-          todo.completed ? "checked" : ""
-        } ${toggleAttrs} />`}
-      />
+      <div class="todo-item">
+        <input
+          type="checkbox"
+          checked={todo.completed}
+          {...api!.toggle(todo.id)}
+        />
+        <span class="todo-text">{todo.text}</span>
+        <span class="todo-priority">{todo.priority}</span>
+        <button
+          type="button"
+          class="todo-delete"
+          {...api!.deleteTodo(todo.id)}
+        >
+          Delete
+        </button>
+      </div>
     );
   },
 });

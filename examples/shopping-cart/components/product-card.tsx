@@ -23,59 +23,43 @@ defineComponent<ProductCardProps>("shopping-product-card", {
     addToCart: post("/api/cart/add", addToCart),
   },
   render: ({ product, sessionId }, api) => {
-    const availability = product.inStock ? "in_stock" : "out_of_stock";
-
-    // Generate HTMX attributes for add to cart action
-    const addToCartAttrs = product.inStock
-      ? {
-        ...api!.addToCart(),
-        "hx-vals": JSON.stringify({
-          productId: product.id,
-          quantity: 1,
-          sessionId,
-        }),
-        "hx-target": "#cart-count",
-        "hx-ext": "json-enc",
-      }
-      : {};
-
-    // Convert attributes object to string for library component
-    const attributesString = Object.entries(addToCartAttrs)
-      .map(([key, value]) => `${key}="${value}"`)
-      .join(" ");
-
     return (
-      <product-card
-        product={{
-          id: product.id,
-          name: product.name,
-          description: product.description,
-          imageUrl: product.imageUrl,
-          price: product.price,
-          currency: "USD",
-          originalPrice: product.originalPrice,
-          rating: product.rating,
-          reviewCount: product.reviewCount,
-          badges: product.featured
-            ? [{ label: "Featured", tone: "info" }]
-            : [],
-          featured: Boolean(product.featured),
-          availability,
-        }}
-        size="md"
-        appearance="default"
-        layout="vertical"
-        showDescription={true}
-        showRating={true}
-        highlightSale={true}
-        primaryAction={{
-          label: product.inStock ? "Add to Cart" : "Out of Stock",
-          variant: "primary",
-          fullWidth: true,
-          disabled: !product.inStock,
-          attributes: attributesString,
-        }}
-      />
+      <div class="product-card">
+        <div class="product-image">
+          <img src={product.imageUrl} alt={product.name} />
+          {product.featured && <span class="badge">Featured</span>}
+        </div>
+        <div class="product-content">
+          <h3>{product.name}</h3>
+          <p>{product.description}</p>
+          <div class="product-rating">
+            ⭐ {product.rating} ({product.reviewCount} reviews)
+          </div>
+          <div class="product-price">
+            <span class="price">${product.price.toFixed(2)}</span>
+            {product.originalPrice && (
+              <span class="original-price">
+                ${product.originalPrice.toFixed(2)}
+              </span>
+            )}
+          </div>
+          <button
+            type="button"
+            class="add-to-cart-btn"
+            disabled={!product.inStock}
+            {...api!.addToCart()}
+            hx-vals={JSON.stringify({
+              productId: product.id,
+              quantity: 1,
+              sessionId,
+            })}
+            hx-target="#cart-count"
+            hx-ext="json-enc"
+          >
+            {product.inStock ? "Add to Cart" : "Out of Stock"}
+          </button>
+        </div>
+      </div>
     ) as unknown as string;
   },
 });
