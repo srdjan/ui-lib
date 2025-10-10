@@ -16,6 +16,7 @@
  */
 
 import { DESIGN_TOKENS, type DesignTokens } from "./styles/design-tokens.ts";
+import { getTypographyCSS } from "./styles/typography.ts";
 
 // ============================================================
 // Type Definitions
@@ -400,6 +401,9 @@ export function getBaseThemeCss(
     : "";
 
   return `/* ui-lib Base Theme System */
+
+${getTypographyCSS()}
+
 ${rootCSS}
 
 ${themeClasses}${systemPreferenceCSS}
@@ -540,3 +544,13 @@ export const BASE_THEMES = {
   light: lightTheme,
   dark: darkTheme,
 } as const;
+
+/**
+ * Re-export typography utilities for convenience
+ */
+export {
+  getFontFaceCSS,
+  getTypographyCSS,
+  getTypographyPresets,
+  getTypographyUtilities,
+} from "./styles/typography.ts";
