@@ -16,21 +16,21 @@ defineComponent("product-filters", {
     clothing: get("/api/products?category=clothing", () => new Response("")),
   },
   render: (_props, api) => (
-    <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-xl);">
+    <div class="filter-buttons">
       <button
-        style="padding: var(--spacing-md) var(--spacing-lg); background: var(--color-primary); color: var(--color-on-primary); border: none; border-radius: var(--layout-border-radius); font-weight: var(--typography-weight-medium); cursor: pointer;"
+        class="filter-btn filter-btn--primary"
         {...api!.featured(hx({ target: "#product-grid", swap: "innerHTML" }))}
       >
         🌟 Featured Products
       </button>
       <button
-        style="padding: var(--spacing-md) var(--spacing-lg); background: var(--color-secondary); color: var(--color-on-secondary); border: none; border-radius: var(--layout-border-radius); font-weight: var(--typography-weight-medium); cursor: pointer;"
+        class="filter-btn filter-btn--secondary"
         {...api!.electronics(hx({ target: "#product-grid", swap: "innerHTML" }))}
       >
         📱 Electronics
       </button>
       <button
-        style="padding: var(--spacing-md) var(--spacing-lg); background: var(--color-secondary); color: var(--color-on-secondary); border: none; border-radius: var(--layout-border-radius); font-weight: var(--typography-weight-medium); cursor: pointer;"
+        class="filter-btn filter-btn--secondary"
         {...api!.clothing(hx({ target: "#product-grid", swap: "innerHTML" }))}
       >
         👕 Clothing

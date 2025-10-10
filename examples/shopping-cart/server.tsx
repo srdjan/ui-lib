@@ -120,35 +120,37 @@ ${themeScript}
       <div class="app-container">
         <!-- Header -->
         <header class="app-header">
-          <div style="display: flex; align-items: center; gap: var(--spacing-lg);">
-            <a href="/" class="app-logo">🛍️ Shopping Demo</a>
-            <nav class="app-nav">
-              <a href="/">Products</a>
-              <a href="/categories">Categories</a>
-              <a href="/about">About</a>
-            </nav>
-          </div>
+          <div class="app-header-content">
+            <div class="flex items-center gap-lg">
+              <a href="/" class="app-logo">🛍️ Shopping Demo</a>
+              <nav class="app-nav">
+                <a href="/">Products</a>
+                <a href="/categories">Categories</a>
+                <a href="/about">About</a>
+              </nav>
+            </div>
 
-          <div style="display: flex; align-items: center; gap: var(--spacing-md);">
-            <!-- Theme toggle button -->
-            <button
-              class="theme-toggle"
-              onclick="window.uiLibThemeToggle()"
-              aria-label="Toggle dark mode"
-              title="Toggle between light and dark theme"
-            >
-              🌓
-            </button>
+            <div class="flex items-center gap-md">
+              <!-- Theme toggle button -->
+              <button
+                class="theme-toggle"
+                onclick="window.uiLibThemeToggle()"
+                aria-label="Toggle dark mode"
+                title="Toggle between light and dark theme"
+              >
+                🌓
+              </button>
 
-            <!-- Cart toggle -->
-            <button
-              class="cart-toggle"
-              onclick="toggleCart()"
-              aria-label="Open shopping cart"
-            >
-              🛒 Cart
-              <span class="cart-badge hidden" id="cart-count">0</span>
-            </button>
+              <!-- Cart toggle -->
+              <button
+                class="cart-toggle"
+                onclick="toggleCart()"
+                aria-label="Open shopping cart"
+              >
+                🛒 Cart
+                <span class="cart-badge hidden" id="cart-count">0</span>
+              </button>
+            </div>
           </div>
         </header>
 
@@ -163,7 +165,21 @@ ${themeScript}
         </footer>
       </div>
 
-      ${includeSidebar ? renderComponent("cart-sidebar", { sessionId }) : ""}
+      ${includeSidebar ? `
+        <div id="cart-sidebar" class="cart-sidebar"
+             hx-get="/api/cart?session=${sessionId}"
+             hx-trigger="load, cart-updated from:body"
+             hx-target=".cart-items"
+             hx-swap="innerHTML">
+          <div class="p-md flex items-center justify-between" style="border-bottom: 1px solid var(--surface-border);">
+            <h2 class="text-xl">Shopping Cart</h2>
+            <button onclick="closeCart()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+          </div>
+          <div class="cart-items" style="flex: 1; overflow-y: auto;">
+            <!-- Cart items will be loaded here via HTMX -->
+          </div>
+        </div>
+      ` : ""}
 
       <!-- Cart overlay -->
       <div class="cart-overlay" onclick="closeCart()"></div>
@@ -179,12 +195,12 @@ ${themeScript}
           const overlay = document.querySelector('.cart-overlay');
 
           if (cartOpen) {
-            sidebar.classList.add('cart-sidebar--open');
-            overlay.classList.add('cart-overlay--visible');
+            sidebar.classList.add('open');
+            overlay.classList.add('open');
             document.body.style.overflow = 'hidden';
           } else {
-            sidebar.classList.remove('cart-sidebar--open');
-            overlay.classList.remove('cart-overlay--visible');
+            sidebar.classList.remove('open');
+            overlay.classList.remove('open');
             document.body.style.overflow = '';
           }
         }
@@ -193,8 +209,8 @@ ${themeScript}
           cartOpen = false;
           const sidebar = document.getElementById('cart-sidebar');
           const overlay = document.querySelector('.cart-overlay');
-          sidebar.classList.remove('cart-sidebar--open');
-          overlay.classList.remove('cart-overlay--visible');
+          sidebar.classList.remove('open');
+          overlay.classList.remove('open');
           document.body.style.overflow = '';
         }
 
@@ -276,33 +292,31 @@ function HomePage(products: readonly Product[], sessionId: string) {
     title: "Home",
     sessionId,
     children: `
-      <div style="margin-bottom: var(--spacing-xl);">
-        <h1 style="font-size: var(--typography-text-3xl); font-weight: var(--typography-weight-bold); margin-bottom: var(--spacing-md); color: var(--color-on-background);">
+      <div class="page-hero">
+        <h1 class="page-hero__title">
           Welcome to Shopping Demo
         </h1>
-        <p style="font-size: var(--typography-text-lg); color: var(--color-on-surface-variant); margin-bottom: var(--spacing-lg);">
+        <p class="page-hero__subtitle">
           Experience the power of composition-only components with DOM-native state management
         </p>
 
         ${renderComponent("product-filters", {})}
       </div>
 
-      <div id="product-grid">
+      <div id="product-grid" class="product-grid">
         ${
-      renderComponent("product-grid", {
-        products,
-        sessionId,
-        showFilters: true,
-        showSearch: true,
-        showSort: true,
-      })
+      products
+        .map((product) =>
+          renderComponent("shopping-product-card", { product, sessionId })
+        )
+        .join("")
     }
       </div>
 
       <!-- Loading indicator -->
-      <div class="htmx-indicator" style="text-align: center; padding: var(--spacing-xl);">
-        <div style="display: inline-flex; align-items: center; gap: var(--spacing-sm); color: var(--color-on-surface-variant);">
-          <div style="width: 16px; height: 16px; border: 2px solid var(--color-primary); border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+      <div class="htmx-indicator loading-indicator">
+        <div class="loading-spinner">
+          <div class="loading-spinner__icon"></div>
           Loading products...
         </div>
       </div>
@@ -316,11 +330,11 @@ function CheckoutPage(cart: Cart, sessionId: string, step = 1) {
     sessionId,
     includeSidebar: false,
     children: `
-      <div style="margin-bottom: var(--spacing-lg);">
-        <h1 style="font-size: var(--typography-text-2xl); font-weight: var(--typography-weight-bold); margin-bottom: var(--spacing-sm); color: var(--color-on-background);">
+      <div class="page-hero">
+        <h1 class="text-2xl mb-sm">
           Checkout
         </h1>
-        <p style="color: var(--color-on-surface-variant);">
+        <p class="text-muted">
           Complete your purchase securely
         </p>
       </div>
@@ -461,7 +475,7 @@ router.get("/api/products/search", searchProducts);
 // API Routes - Cart
 // ============================================================
 
-router.post("/api/cart/add", addToCart);
+// router.post("/api/cart/add", addToCart); // Handled via shopping-product-card component API
 router.get("/api/cart", getCart); // Keep this for direct cart loading
 // router.patch("/api/cart/items/:itemId", updateCartItem); // Handled via cart-item component API
 // router.delete("/api/cart/items/:itemId", removeFromCart); // Handled via cart-item component API

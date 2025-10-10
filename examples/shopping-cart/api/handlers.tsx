@@ -349,12 +349,18 @@ export async function addToCart(req: Request): Promise<Response> {
       req.headers.get("hx-request") === "true";
 
     if (acceptsHtml) {
-      // Return updated cart count badge for header
-      return htmlResponse(`
+      // Return updated cart count badge for header and trigger cart reload
+      return new Response(`
         <span id="cart-count" class="cart-badge" data-count="${result.value.itemCount}">
           ${result.value.itemCount}
         </span>
-      `);
+      `, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+          "HX-Trigger": "cart-updated",
+        },
+      });
     } else {
       return jsonResponse(result.value);
     }
