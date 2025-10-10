@@ -158,6 +158,30 @@ export {
   type StateManager,
 } from "./lib/state-manager.ts";
 
+// Theme System (Phase 6)
+export {
+  BASE_THEMES,
+  createMinimalTheme,
+  darkTheme,
+  defineTheme,
+  getBaseThemeCss,
+  lightTheme,
+  themeToken,
+  type ThemeColors,
+  type ThemeConfig,
+  type ThemeExtension,
+  type ThemeTokens as ThemeSystemTokens,
+} from "./lib/theme-system.ts";
+
+export {
+  createThemeManager,
+  createThemeManagerScript,
+  createThemeToggleAction,
+  type ThemeManager,
+  type ThemeManagerConfig,
+  type ThemeState,
+} from "./lib/state-patterns/theme-manager.ts";
+
 // Utility Helpers
 export {
   conditionalAction,

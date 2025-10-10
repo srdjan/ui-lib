@@ -15,7 +15,8 @@ export * from "./components/index.ts";
 
 // State management patterns (extracted from showcase)
 // Export specific items to avoid conflicts
-export { CartManager, ThemeManager } from "./state-patterns/index.ts";
+export { CartManager } from "./state-patterns/index.ts";
+export type { ThemeManager } from "./state-patterns/index.ts";
 
 // Animation utilities (extracted from showcase)
 export * from "./animations/index.ts";

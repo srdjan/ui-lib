@@ -13,7 +13,9 @@ export type {
 } from "./cart-manager.ts";
 
 export type {
-  ThemeConfig,
   ThemeManagerConfig,
   ThemeState,
 } from "./theme-manager.ts";
+
+// Re-export ThemeConfig from theme-system (actual source)
+export type { ThemeConfig } from "../theme-system.ts";

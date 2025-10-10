@@ -1,17 +1,16 @@
-// Theme Manager - Type-safe theme switching state management
-// Provides centralized theme state with CSS custom property integration
+/**
+ * Theme Manager - Functional theme switching with state management
+ *
+ * Provides centralized theme state with CSS custom property integration.
+ * Refactored to follow Light FP principles:
+ * - No classes, use factory functions
+ * - Closures instead of instance variables
+ * - Pure functions where possible
+ * - Ports pattern (StateManager injected)
+ */
 
 import type { StateManager } from "../state-manager.ts";
-
-/**
- * Theme configuration interface
- */
-export interface ThemeConfig {
-  readonly name: string;
-  readonly properties: Record<string, string>;
-  readonly displayName?: string;
-  readonly isDark?: boolean;
-}
+import type { ThemeConfig } from "../theme-system.ts";
 
 /**
  * Theme state interface
@@ -33,310 +32,400 @@ export interface ThemeManagerConfig {
 }
 
 /**
- * Type-safe theme manager for application theming
+ * Theme manager instance interface
  */
-export class ThemeManager {
-  private readonly topic: string;
-  private readonly persistToLocalStorage: boolean;
-  private readonly cssScope: "global" | "component";
-  private readonly themes = new Map<string, ThemeConfig>();
-  private readonly defaultTheme: string;
+export interface ThemeManager {
+  readonly switchTheme: (themeName: string) => ThemeState;
+  readonly toggleDarkMode: () => ThemeState;
+  readonly getCurrentState: () => ThemeState;
+  readonly getCurrentTheme: () => ThemeConfig | undefined;
+  readonly subscribe: (callback: (state: ThemeState) => void, element: Element) => void;
+  readonly addTheme: (theme: ThemeConfig) => void;
+  readonly removeTheme: (themeName: string) => void;
+}
 
-  constructor(
-    private readonly stateManager: StateManager,
-    themes: readonly ThemeConfig[],
-    config: ThemeManagerConfig = {},
-  ) {
-    this.topic = config.topic ?? "theme";
-    this.persistToLocalStorage = config.persistToLocalStorage ?? true;
-    this.cssScope = config.cssScope ?? "global";
-    this.defaultTheme = config.defaultTheme ?? themes[0]?.name ?? "default";
+// ============================================================
+// Pure Helper Functions
+// ============================================================
 
-    // Register themes
-    themes.forEach((theme) => {
-      this.themes.set(theme.name, theme);
-    });
+/**
+ * Apply CSS data-attribute for theme switching
+ */
+function applyThemeAttribute(themeName: string, scope: "global" | "component"): void {
+  const target = scope === "global"
+    ? document.documentElement
+    : document.querySelector("[data-component]") ?? document.documentElement;
 
-    // Load initial theme
-    this.loadInitialTheme();
+  target.setAttribute("data-theme", themeName);
+}
+
+/**
+ * Find opposite theme (light <-> dark)
+ */
+function findOppositeTheme(
+  currentTheme: ThemeConfig,
+  themes: Map<string, ThemeConfig>,
+): ThemeConfig | undefined {
+  const targetIsDark = !currentTheme.isDark;
+  return Array.from(themes.values())
+    .find((theme) => theme.isDark === targetIsDark);
+}
+
+/**
+ * Load theme from localStorage
+ */
+function loadFromLocalStorage(
+  topic: string,
+  themes: Map<string, ThemeConfig>,
+): string | null {
+  try {
+    const saved = localStorage.getItem(`ui-lib-theme-${topic}`);
+    return (saved && themes.has(saved)) ? saved : null;
+  } catch (error) {
+    console.warn("Failed to load theme from localStorage:", error);
+    return null;
   }
+}
 
-  /**
-   * Switch to a specific theme
-   */
-  switchTheme(themeName: string): ThemeState {
-    const theme = this.themes.get(themeName);
+/**
+ * Detect system color scheme preference
+ */
+function detectSystemPreference(themes: Map<string, ThemeConfig>): ThemeConfig | undefined {
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  if (prefersDark) {
+    return Array.from(themes.values()).find((theme) => theme.isDark);
+  }
+  return undefined;
+}
+
+/**
+ * Persist theme to localStorage
+ */
+function persistToStorage(topic: string, themeName: string): void {
+  try {
+    localStorage.setItem(`ui-lib-theme-${topic}`, themeName);
+  } catch (error) {
+    console.warn("Failed to persist theme to localStorage:", error);
+  }
+}
+
+// ============================================================
+// Theme Manager Factory
+// ============================================================
+
+/**
+ * Create a functional theme manager instance
+ *
+ * @param stateManager - State manager port for pub/sub
+ * @param themesArray - Array of theme configurations
+ * @param config - Theme manager configuration
+ * @returns Theme manager instance with methods
+ *
+ * @example
+ * ```typescript
+ * import { createThemeManager } from "ui-lib";
+ * import { lightTheme, darkTheme } from "ui-lib/theme-system";
+ *
+ * const themeManager = createThemeManager(
+ *   stateManager,
+ *   [lightTheme, darkTheme],
+ *   { defaultTheme: "light" }
+ * );
+ *
+ * themeManager.switchTheme("dark");
+ * ```
+ */
+export function createThemeManager(
+  stateManager: StateManager,
+  themesArray: readonly ThemeConfig[],
+  config: ThemeManagerConfig = {},
+): ThemeManager {
+  // Configuration with defaults
+  const topic = config.topic ?? "theme";
+  const persistToLocalStorage = config.persistToLocalStorage ?? true;
+  const cssScope = config.cssScope ?? "global";
+  const defaultTheme = config.defaultTheme ?? themesArray[0]?.name ?? "default";
+
+  // Internal theme registry (mutable Map is OK inside closure)
+  const themes = new Map<string, ThemeConfig>();
+  themesArray.forEach((theme) => themes.set(theme.name, theme));
+
+  // Helper: Get default state
+  const getDefaultState = (): ThemeState => ({
+    currentTheme: defaultTheme,
+    availableThemes: Array.from(themes.keys()),
+    isDarkMode: false,
+  });
+
+  // Helper: Publish state to state manager
+  const publishState = (state: ThemeState): void => {
+    stateManager.publish(topic, state);
+
+    if (persistToLocalStorage) {
+      persistToStorage(topic, state.currentTheme);
+    }
+  };
+
+  // Public API: Get current theme state
+  const getCurrentState = (): ThemeState => {
+    const state = stateManager.getState(topic) as ThemeState;
+    return state ?? getDefaultState();
+  };
+
+  // Public API: Switch to a specific theme
+  const switchTheme = (themeName: string): ThemeState => {
+    const theme = themes.get(themeName);
     if (!theme) {
       throw new Error(`Theme "${themeName}" not found`);
     }
 
-    // Apply CSS custom properties
-    this.applyCSSProperties(theme.properties);
+    // Apply theme via data attribute (CSS handles the rest)
+    applyThemeAttribute(themeName, cssScope);
 
-    // Update state
+    // Create new state
     const newState: ThemeState = {
       currentTheme: themeName,
-      availableThemes: Array.from(this.themes.keys()),
+      availableThemes: Array.from(themes.keys()),
       isDarkMode: theme.isDark ?? false,
     };
 
-    this.publishState(newState);
+    publishState(newState);
     return newState;
-  }
+  };
 
-  /**
-   * Toggle between light and dark themes
-   */
-  toggleDarkMode(): ThemeState {
-    const currentState = this.getCurrentState();
-    const currentTheme = this.themes.get(currentState.currentTheme);
+  // Public API: Toggle between light and dark themes
+  const toggleDarkMode = (): ThemeState => {
+    const currentState = getCurrentState();
+    const currentTheme = themes.get(currentState.currentTheme);
 
     if (!currentTheme) {
       throw new Error(`Current theme "${currentState.currentTheme}" not found`);
     }
 
-    // Find opposite theme
-    const targetIsDark = !currentTheme.isDark;
-    const targetTheme = Array.from(this.themes.values())
-      .find((theme) => theme.isDark === targetIsDark);
+    const targetTheme = findOppositeTheme(currentTheme, themes);
 
     if (!targetTheme) {
       console.warn("No opposite theme found for dark mode toggle");
       return currentState;
     }
 
-    return this.switchTheme(targetTheme.name);
-  }
+    return switchTheme(targetTheme.name);
+  };
 
-  /**
-   * Get current theme state
-   */
-  getCurrentState(): ThemeState {
-    const state = this.stateManager.getState(this.topic) as ThemeState;
-    return state ?? this.getDefaultState();
-  }
+  // Public API: Get current theme configuration
+  const getCurrentTheme = (): ThemeConfig | undefined => {
+    const state = getCurrentState();
+    return themes.get(state.currentTheme);
+  };
 
-  /**
-   * Subscribe to theme state changes
-   */
-  subscribe(callback: (state: ThemeState) => void, element: Element): void {
-    this.stateManager.subscribe(
-      this.topic,
+  // Public API: Subscribe to theme state changes
+  const subscribe = (callback: (state: ThemeState) => void, element: Element): void => {
+    stateManager.subscribe(
+      topic,
       callback as (data: unknown) => void,
       element,
     );
-  }
+  };
 
-  /**
-   * Get current theme configuration
-   */
-  getCurrentTheme(): ThemeConfig | undefined {
-    const state = this.getCurrentState();
-    return this.themes.get(state.currentTheme);
-  }
+  // Public API: Add a new theme
+  const addTheme = (theme: ThemeConfig): void => {
+    themes.set(theme.name, theme);
 
-  /**
-   * Add a new theme
-   */
-  addTheme(theme: ThemeConfig): void {
-    this.themes.set(theme.name, theme);
-
-    // Update available themes in state
-    const currentState = this.getCurrentState();
+    const currentState = getCurrentState();
     const newState: ThemeState = {
       ...currentState,
-      availableThemes: Array.from(this.themes.keys()),
+      availableThemes: Array.from(themes.keys()),
     };
-    this.publishState(newState);
-  }
+    publishState(newState);
+  };
 
-  /**
-   * Remove a theme
-   */
-  removeTheme(themeName: string): void {
-    if (themeName === this.defaultTheme) {
+  // Public API: Remove a theme
+  const removeTheme = (themeName: string): void => {
+    if (themeName === defaultTheme) {
       throw new Error(`Cannot remove default theme "${themeName}"`);
     }
 
-    this.themes.delete(themeName);
+    themes.delete(themeName);
 
-    // Switch to default if current theme was removed
-    const currentState = this.getCurrentState();
+    const currentState = getCurrentState();
     if (currentState.currentTheme === themeName) {
-      this.switchTheme(this.defaultTheme);
+      switchTheme(defaultTheme);
     }
-  }
+  };
 
-  private loadInitialTheme(): void {
-    let initialTheme = this.defaultTheme;
+  // Initialize theme on creation
+  const initializeTheme = (): void => {
+    let initialTheme = defaultTheme;
 
-    // Try to load from localStorage
-    if (this.persistToLocalStorage) {
-      try {
-        const saved = localStorage.getItem(`ui-lib-theme-${this.topic}`);
-        if (saved && this.themes.has(saved)) {
-          initialTheme = saved;
-        }
-      } catch (error) {
-        console.warn("Failed to load theme from localStorage:", error);
+    // Try localStorage first
+    if (persistToLocalStorage) {
+      const saved = loadFromLocalStorage(topic, themes);
+      if (saved) {
+        initialTheme = saved;
       }
     }
 
-    // Try to detect system preference
-    if (initialTheme === this.defaultTheme) {
-      const prefersDark =
-        window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const darkTheme = Array.from(this.themes.values()).find((theme) =>
-        theme.isDark
-      );
-      if (prefersDark && darkTheme) {
-        initialTheme = darkTheme.name;
+    // Try system preference if still using default
+    if (initialTheme === defaultTheme) {
+      const systemTheme = detectSystemPreference(themes);
+      if (systemTheme) {
+        initialTheme = systemTheme.name;
       }
     }
 
-    this.switchTheme(initialTheme);
-  }
+    switchTheme(initialTheme);
+  };
 
-  private applyCSSProperties(properties: Record<string, string>): void {
-    const target = this.cssScope === "global"
-      ? document.documentElement
-      : document.querySelector("[data-component]") ?? document.documentElement;
+  // Run initialization
+  initializeTheme();
 
-    Object.entries(properties).forEach(([property, value]) => {
-      const cssProperty = property.startsWith("--")
-        ? property
-        : `--${property}`;
-      (target as HTMLElement).style.setProperty(cssProperty, value);
-    });
-  }
-
-  private publishState(state: ThemeState): void {
-    this.stateManager.publish(this.topic, state);
-
-    if (this.persistToLocalStorage) {
-      try {
-        localStorage.setItem(`ui-lib-theme-${this.topic}`, state.currentTheme);
-      } catch (error) {
-        console.warn("Failed to persist theme to localStorage:", error);
-      }
-    }
-  }
-
-  private getDefaultState(): ThemeState {
-    return {
-      currentTheme: this.defaultTheme,
-      availableThemes: Array.from(this.themes.keys()),
-      isDarkMode: false,
-    };
-  }
+  // Return public API
+  return {
+    switchTheme,
+    toggleDarkMode,
+    getCurrentState,
+    getCurrentTheme,
+    subscribe,
+    addTheme,
+    removeTheme,
+  };
 }
 
 /**
  * Create theme toggle action for reactive helpers
+ *
+ * @param themeManager - Theme manager instance
+ * @returns JavaScript code string for theme toggle
  */
-export const createThemeToggleAction = (themeManager: ThemeManager): string => {
+export function createThemeToggleAction(themeManager: ThemeManager): string {
   return `window.uiLibThemeToggle()`;
-};
+}
 
 /**
- * JavaScript implementation string for injection into host pages
+ * Generate client-side theme manager script for injection
+ *
+ * This creates a lightweight client-side version of the theme manager
+ * that works without the full state manager. Useful for static sites.
+ *
+ * @param themes - Array of theme configurations
+ * @param config - Theme manager configuration
+ * @returns JavaScript code string for <script> injection
+ *
+ * @example
+ * ```typescript
+ * const script = createThemeManagerScript([lightTheme, darkTheme]);
+ * // In layout:
+ * <script>${script}</script>
+ * ```
  */
-export const createThemeManagerScript = (
+export function createThemeManagerScript(
   themes: readonly ThemeConfig[],
   config: ThemeManagerConfig = {},
-): string => {
+): string {
   const topic = config.topic ?? "theme";
   const defaultTheme = config.defaultTheme ?? themes[0]?.name ?? "default";
   const cssScope = config.cssScope ?? "global";
 
-  const themesJson = JSON.stringify(themes);
+  // Serialize theme names and isDark flags (not full tokens)
+  const themeData = themes.map((t) => ({
+    name: t.name,
+    isDark: t.isDark ?? false,
+  }));
+  const themesJson = JSON.stringify(themeData);
 
   return `
 // ui-lib Theme Manager - Client-side theme switching
-window.uiLibThemeManager = {
-  themes: new Map(${themesJson}.map(theme => [theme.name, theme])),
-  currentTheme: "${defaultTheme}",
-  
-  switchTheme(themeName) {
-    const theme = this.themes.get(themeName);
+(function() {
+  const themes = new Map(${themesJson}.map(t => [t.name, t]));
+  let currentTheme = "${defaultTheme}";
+
+  function applyTheme(themeName) {
+    const theme = themes.get(themeName);
     if (!theme) {
       console.error("Theme not found:", themeName);
       return;
     }
-    
-    // Apply CSS properties
-    const target = "${cssScope}" === "global" 
-      ? document.documentElement 
+
+    // Apply data-theme attribute (CSS handles the rest)
+    const target = "${cssScope}" === "global"
+      ? document.documentElement
       : document.querySelector("[data-component]") || document.documentElement;
-    
-    Object.entries(theme.properties).forEach(([property, value]) => {
-      const cssProperty = property.startsWith("--") ? property : "--" + property;
-      (target as HTMLElement).style.setProperty(cssProperty, value);
-    });
-    
-    this.currentTheme = themeName;
-    
-    // Update state
-    const themeState = {
-      currentTheme: themeName,
-      availableThemes: Array.from(this.themes.keys()),
-      isDarkMode: theme.isDark || false
-    };
-    
-    window.funcwcState?.publish("${topic}", themeState);
-    
+
+    target.setAttribute("data-theme", themeName);
+    currentTheme = themeName;
+
     // Persist to localStorage
     try {
       localStorage.setItem("ui-lib-theme-${topic}", themeName);
     } catch (e) {
       console.warn("Failed to persist theme:", e);
     }
-  },
-  
-  toggleDarkMode() {
-    const currentTheme = this.themes.get(this.currentTheme);
-    if (!currentTheme) return;
-    
-    const targetIsDark = !currentTheme.isDark;
-    const targetTheme = Array.from(this.themes.values())
-      .find(theme => theme.isDark === targetIsDark);
-    
+
+    // Publish state if state manager exists
+    if (window.funcwcState?.publish) {
+      window.funcwcState.publish("${topic}", {
+        currentTheme: themeName,
+        availableThemes: Array.from(themes.keys()),
+        isDarkMode: theme.isDark || false
+      });
+    }
+  }
+
+  function toggleDarkMode() {
+    const current = themes.get(currentTheme);
+    if (!current) return;
+
+    const targetIsDark = !current.isDark;
+    const targetTheme = Array.from(themes.values())
+      .find(t => t.isDark === targetIsDark);
+
     if (targetTheme) {
-      this.switchTheme(targetTheme.name);
+      applyTheme(targetTheme.name);
     }
   }
-};
 
-// Global theme toggle function
-window.uiLibThemeToggle = function() {
-  window.uiLibThemeManager.toggleDarkMode();
-};
+  // Initialize on page load
+  function initialize() {
+    let initialTheme = "${defaultTheme}";
 
-// Initialize theme on page load
-document.addEventListener("DOMContentLoaded", function() {
-  let initialTheme = "${defaultTheme}";
-  
-  // Load from localStorage
-  try {
-    const saved = localStorage.getItem("ui-lib-theme-${topic}");
-    if (saved && window.uiLibThemeManager.themes.has(saved)) {
-      initialTheme = saved;
+    // Try localStorage
+    try {
+      const saved = localStorage.getItem("ui-lib-theme-${topic}");
+      if (saved && themes.has(saved)) {
+        initialTheme = saved;
+      }
+    } catch (e) {
+      console.warn("Failed to load theme:", e);
     }
-  } catch (e) {
-    console.warn("Failed to load theme:", e);
-  }
-  
-  // Detect system preference
-  if (initialTheme === "${defaultTheme}") {
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const darkTheme = Array.from(window.uiLibThemeManager.themes.values())
-      .find(theme => theme.isDark);
-    if (prefersDark && darkTheme) {
-      initialTheme = darkTheme.name;
+
+    // Try system preference if still default
+    if (initialTheme === "${defaultTheme}") {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const darkTheme = Array.from(themes.values()).find(t => t.isDark);
+      if (prefersDark && darkTheme) {
+        initialTheme = darkTheme.name;
+      }
     }
+
+    applyTheme(initialTheme);
   }
-  
-  window.uiLibThemeManager.switchTheme(initialTheme);
-});
+
+  // Expose global API
+  window.uiLibThemeManager = {
+    switchTheme: applyTheme,
+    toggleDarkMode: toggleDarkMode,
+    getCurrentTheme: () => currentTheme,
+    getAvailableThemes: () => Array.from(themes.keys())
+  };
+
+  window.uiLibThemeToggle = toggleDarkMode;
+
+  // Auto-initialize
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initialize);
+  } else {
+    initialize();
+  }
+})();
 `.trim();
-};
+}

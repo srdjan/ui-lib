@@ -9,12 +9,22 @@
  * - Progressive enhancement with HTMX
  * - Library component variants
  * - Comprehensive routing setup
+ * - Theme system with light/dark mode toggle
+ * - CSS custom properties for theming
+ * - System preference detection
  */
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { html } from "../../lib/response.ts";
 import { Router } from "../../lib/router.ts";
-import { registerComponentApi, renderComponent } from "../../mod.ts";
+import {
+  createThemeManagerScript,
+  getBaseThemeCss,
+  lightTheme,
+  darkTheme,
+  registerComponentApi,
+  renderComponent,
+} from "../../mod.ts";
 import { ensureRepository } from "./api/repository-factory.ts";
 
 // Import application components
@@ -55,6 +65,18 @@ function Layout({
   includeSidebar?: boolean;
   sessionId?: string;
 }) {
+  // Generate base theme CSS for light and dark modes
+  const themeCSS = getBaseThemeCss([lightTheme, darkTheme], {
+    includeSystemPreference: true,
+    defaultTheme: "light",
+  });
+
+  // Generate client-side theme manager script
+  const themeScript = createThemeManagerScript([lightTheme, darkTheme], {
+    defaultTheme: "light",
+    persistToLocalStorage: true,
+  });
+
   return `
     <!DOCTYPE html>
     <html lang="en">
@@ -67,24 +89,19 @@ function Layout({
       <script src="https://unpkg.com/htmx.org@2.0.7" defer></script>
       <script src="https://unpkg.com/htmx.org@2.0.7/dist/ext/json-enc.js" defer></script>
 
-      <!-- Basic theme styles -->
+      <!-- ui-lib Base Theme System -->
       <style>
-        :root {
-          --color-primary: #6366F1;
-          --color-background: #FFFFFF;
-          --color-surface: #F9FAFB;
-          --color-text: #1F2937;
-          --color-text-secondary: #6B7280;
-          --spacing-sm: 0.5rem;
-          --spacing-md: 1rem;
-          --spacing-lg: 1.5rem;
-          --spacing-xl: 2rem;
-        }
+${themeCSS}
       </style>
+
+      <!-- Theme Manager Script -->
+      <script>
+${themeScript}
+      </script>
 
       <!-- Application styles -->
       <style>
-        /* Global application styles */
+        /* Global application styles using theme tokens */
         * {
           box-sizing: border-box;
         }
@@ -92,10 +109,10 @@ function Layout({
         body {
           margin: 0;
           padding: 0;
-          font-family: system-ui, -apple-system, sans-serif;
-          background-color: var(--color-background);
-          color: var(--color-text);
-          line-height: 1.5;
+          font-family: var(--theme-typography-fontFamily);
+          background-color: var(--theme-colors-background);
+          color: var(--theme-colors-on-background);
+          line-height: var(--theme-typography-leadingNormal);
         }
 
         .app-container {
@@ -105,9 +122,9 @@ function Layout({
         }
 
         .app-header {
-          background-color: var(--color-surface);
-          border-bottom: 1px solid #E5E7EB;
-          padding: var(--spacing-md) var(--spacing-lg);
+          background-color: var(--theme-colors-surface);
+          border-bottom: 1px solid var(--theme-colors-outline);
+          padding: var(--theme-spacing-md) var(--theme-spacing-lg);
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -117,30 +134,46 @@ function Layout({
         }
 
         .app-logo {
-          font-size: 1.25rem;
-          font-weight: 700;
-          color: var(--color-primary);
+          font-size: var(--theme-typography-textXl);
+          font-weight: var(--theme-typography-weightBold);
+          color: var(--theme-colors-primary);
           text-decoration: none;
         }
 
         .app-nav {
           display: flex;
           align-items: center;
-          gap: var(--spacing-lg);
+          gap: var(--theme-spacing-lg);
         }
 
         .app-nav a {
-          color: var(--color-text);
+          color: var(--theme-colors-on-surface);
           text-decoration: none;
-          font-weight: 500;
-          padding: var(--spacing-sm) var(--spacing-md);
-          border-radius: 6px;
-          transition: all 200ms ease;
+          font-weight: var(--theme-typography-weightMedium);
+          padding: var(--theme-spacing-sm) var(--theme-spacing-md);
+          border-radius: var(--theme-radius-md);
+          transition: all var(--theme-animation-durationNormal) var(--theme-animation-easingEaseOut);
         }
 
         .app-nav a:hover {
-          background-color: #F3F4F6;
-          color: var(--color-primary);
+          background-color: var(--theme-colors-hover);
+          color: var(--theme-colors-primary);
+        }
+
+        /* Theme toggle button */
+        .theme-toggle {
+          background: var(--theme-colors-surface-variant);
+          border: 1px solid var(--theme-colors-outline);
+          border-radius: var(--theme-radius-md);
+          padding: var(--theme-spacing-sm) var(--theme-spacing-md);
+          cursor: pointer;
+          font-size: var(--theme-typography-textBase);
+          transition: all var(--theme-animation-durationNormal);
+        }
+
+        .theme-toggle:hover {
+          background: var(--theme-colors-hover);
+          border-color: var(--theme-colors-primary);
         }
 
         .cart-toggle {
@@ -301,6 +334,16 @@ function Layout({
           </div>
 
           <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+            <!-- Theme toggle button -->
+            <button
+              class="theme-toggle"
+              onclick="window.uiLibThemeToggle()"
+              aria-label="Toggle dark mode"
+              title="Toggle between light and dark theme"
+            >
+              🌓
+            </button>
+
             <!-- Cart toggle -->
             <button
               class="cart-toggle"
