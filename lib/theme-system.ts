@@ -116,48 +116,48 @@ export const lightTheme: ThemeConfig = {
   isDark: false,
   tokens: {
     colors: {
-      // Surface colors
+      // Surface colors (warmer, more refined)
       background: "#FFFFFF",
-      surface: "#F9FAFB",
-      surfaceVariant: "#F3F4F6",
-      overlay: "rgba(0, 0, 0, 0.5)",
+      surface: "#FAFAFA",
+      surfaceVariant: "#F5F5F5",
+      overlay: "rgba(0, 0, 0, 0.4)",
 
-      // Text colors
-      onBackground: "#111827",
-      onSurface: "#1F2937",
-      onSurfaceVariant: "#6B7280",
+      // Text colors (better contrast)
+      onBackground: "#0A0A0A",
+      onSurface: "#171717",
+      onSurfaceVariant: "#737373",
 
-      // Primary colors (Blue)
-      primary: "#3B82F6",
+      // Primary colors (Refined indigo)
+      primary: "#6366F1",
       onPrimary: "#FFFFFF",
-      primaryContainer: "#DBEAFE",
-      onPrimaryContainer: "#1E3A8A",
+      primaryContainer: "#E0E7FF",
+      onPrimaryContainer: "#3730A3",
 
-      // Secondary colors (Slate)
+      // Secondary colors (Elegant slate)
       secondary: "#64748B",
       onSecondary: "#FFFFFF",
       secondaryContainer: "#F1F5F9",
-      onSecondaryContainer: "#334155",
+      onSecondaryContainer: "#1E293B",
 
-      // State colors
-      success: "#10B981",
+      // State colors (with container support)
+      success: "#22C55E",
       onSuccess: "#FFFFFF",
       warning: "#F59E0B",
-      onWarning: "#FFFFFF",
+      onWarning: "#1A1A1A",
       error: "#EF4444",
       onError: "#FFFFFF",
-      info: "#06B6D4",
+      info: "#0EA5E9",
       onInfo: "#FFFFFF",
 
-      // Border and outline
-      outline: "#D1D5DB",
-      outlineVariant: "#E5E7EB",
+      // Border and outline (refined)
+      outline: "#D4D4D8",
+      outlineVariant: "#E4E4E7",
 
-      // Interactive states
-      hover: "rgba(59, 130, 246, 0.08)",
-      focus: "rgba(59, 130, 246, 0.12)",
-      pressed: "rgba(59, 130, 246, 0.16)",
-      disabled: "#9CA3AF",
+      // Interactive states (refined with indigo)
+      hover: "rgba(99, 102, 241, 0.08)",
+      focus: "rgba(99, 102, 241, 0.12)",
+      pressed: "rgba(99, 102, 241, 0.16)",
+      disabled: "#A1A1AA",
     },
     spacing: {
       xs: "0.25rem", // 4px
@@ -169,9 +169,11 @@ export const lightTheme: ThemeConfig = {
     },
     typography: {
       fontFamily:
-        'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+        'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+      fontFamilyDisplay:
+        '"Cal Sans", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
       fontFamilyMono:
-        '"SF Mono", Monaco, Inconsolata, "Roboto Mono", Consolas, "Courier New", monospace',
+        '"JetBrains Mono", "Fira Code", "SF Mono", Monaco, "Roboto Mono", Consolas, monospace',
 
       textXs: "0.75rem", // 12px
       textSm: "0.875rem", // 14px
@@ -181,11 +183,15 @@ export const lightTheme: ThemeConfig = {
       text2xl: "1.5rem", // 24px
       text3xl: "1.875rem", // 30px
       text4xl: "2.25rem", // 36px
+      text5xl: "3rem", // 48px
 
+      weightLight: "300",
       weightRegular: "400",
       weightMedium: "500",
       weightSemibold: "600",
       weightBold: "700",
+      weightExtrabold: "800",
+      weightBlack: "900",
 
       leadingTight: "1.25",
       leadingNormal: "1.5",
@@ -202,22 +208,29 @@ export const lightTheme: ThemeConfig = {
     },
     shadow: {
       none: "none",
-      sm: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-      base: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)",
-      md: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)",
-      lg:
-        "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)",
-      xl:
-        "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+      xs: "0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 1px 0 rgba(0, 0, 0, 0.02)",
+      sm: "0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04)",
+      base: "0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.06)",
+      md: "0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06)",
+      lg: "0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.06)",
+      xl: "0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.06)",
+      "2xl": "0 25px 50px -12px rgba(0, 0, 0, 0.2)",
+      primary: "0 4px 14px 0 rgba(99, 102, 241, 0.2)",
+      focus: "0 0 0 3px rgba(99, 102, 241, 0.12), 0 0 0 1px rgba(99, 102, 241, 0.4)",
     },
     animation: {
+      durationInstant: "50ms",
       durationFast: "150ms",
       durationNormal: "250ms",
       durationSlow: "350ms",
+      durationSlower: "500ms",
+      durationSlowest: "750ms",
 
-      easingEaseOut: "cubic-bezier(0, 0, 0.2, 1)",
+      easingEaseOut: "cubic-bezier(0.16, 1, 0.3, 1)",
       easingEaseIn: "cubic-bezier(0.4, 0, 1, 1)",
-      easingEaseInOut: "cubic-bezier(0.4, 0, 0.2, 1)",
+      easingEaseInOut: "cubic-bezier(0.65, 0, 0.35, 1)",
+      easingSpring: "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+      easingSmooth: "cubic-bezier(0.4, 0, 0.2, 1)",
     },
     surface: {
       background: "var(--theme-color-background)",
@@ -239,22 +252,22 @@ export const darkTheme: ThemeConfig = {
   isDark: true,
   tokens: {
     colors: {
-      // Surface colors
-      background: "#0F172A",
-      surface: "#1E293B",
-      surfaceVariant: "#334155",
+      // Surface colors (refined slate)
+      background: "#0A0A0A",
+      surface: "#171717",
+      surfaceVariant: "#262626",
       overlay: "rgba(0, 0, 0, 0.7)",
 
-      // Text colors
-      onBackground: "#F8FAFC",
-      onSurface: "#E2E8F0",
-      onSurfaceVariant: "#94A3B8",
+      // Text colors (better contrast)
+      onBackground: "#FAFAFA",
+      onSurface: "#F5F5F5",
+      onSurfaceVariant: "#A3A3A3",
 
-      // Primary colors (Lighter blue for dark mode)
-      primary: "#60A5FA",
-      onPrimary: "#1E3A8A",
-      primaryContainer: "#1E40AF",
-      onPrimaryContainer: "#DBEAFE",
+      // Primary colors (Lighter indigo for dark mode)
+      primary: "#818CF8",
+      onPrimary: "#1E1B4B",
+      primaryContainer: "#3730A3",
+      onPrimaryContainer: "#E0E7FF",
 
       // Secondary colors (Lighter slate)
       secondary: "#94A3B8",
@@ -263,37 +276,39 @@ export const darkTheme: ThemeConfig = {
       onSecondaryContainer: "#CBD5E1",
 
       // State colors (Lighter for visibility)
-      success: "#34D399",
-      onSuccess: "#064E3B",
+      success: "#4ADE80",
+      onSuccess: "#14532D",
       warning: "#FBBF24",
       onWarning: "#451A03",
       error: "#F87171",
       onError: "#7F1D1D",
-      info: "#22D3EE",
-      onInfo: "#164E63",
+      info: "#38BDF8",
+      onInfo: "#0C4A6E",
 
-      // Border and outline
-      outline: "#475569",
-      outlineVariant: "#334155",
+      // Border and outline (refined)
+      outline: "#404040",
+      outlineVariant: "#525252",
 
-      // Interactive states
-      hover: "rgba(96, 165, 250, 0.08)",
-      focus: "rgba(96, 165, 250, 0.12)",
-      pressed: "rgba(96, 165, 250, 0.16)",
-      disabled: "#64748B",
+      // Interactive states (refined with indigo)
+      hover: "rgba(129, 140, 248, 0.12)",
+      focus: "rgba(129, 140, 248, 0.16)",
+      pressed: "rgba(129, 140, 248, 0.20)",
+      disabled: "#525252",
     },
     spacing: lightTheme.tokens.spacing,
     typography: lightTheme.tokens.typography,
     radius: lightTheme.tokens.radius,
     shadow: {
       none: "none",
-      sm: "0 1px 2px 0 rgba(0, 0, 0, 0.3)",
-      base: "0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.4)",
-      md: "0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4)",
-      lg:
-        "0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4)",
-      xl:
-        "0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4)",
+      xs: "0 1px 2px 0 rgba(0, 0, 0, 0.4), 0 1px 1px 0 rgba(0, 0, 0, 0.3)",
+      sm: "0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 1px 2px -1px rgba(0, 0, 0, 0.4)",
+      base: "0 1px 3px 0 rgba(0, 0, 0, 0.6), 0 1px 2px -1px rgba(0, 0, 0, 0.5)",
+      md: "0 4px 6px -1px rgba(0, 0, 0, 0.6), 0 2px 4px -2px rgba(0, 0, 0, 0.5)",
+      lg: "0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -4px rgba(0, 0, 0, 0.5)",
+      xl: "0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.5)",
+      "2xl": "0 25px 50px -12px rgba(0, 0, 0, 0.8)",
+      primary: "0 4px 14px 0 rgba(129, 140, 248, 0.3)",
+      focus: "0 0 0 3px rgba(129, 140, 248, 0.16), 0 0 0 1px rgba(129, 140, 248, 0.5)",
     },
     animation: lightTheme.tokens.animation,
     surface: lightTheme.tokens.surface,

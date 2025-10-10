@@ -4,106 +4,109 @@
 export const componentTokens = {
   // Color palette
   colors: {
-    // Primary colors
+    // Primary colors (refined indigo)
     primary: {
-      50: "var(--blue-0)",
-      100: "var(--blue-1)",
-      200: "var(--blue-2)",
-      300: "var(--blue-3)",
-      400: "var(--blue-5)",
-      500: "var(--blue-6)",
-      600: "var(--blue-7)",
-      700: "var(--blue-8)",
-      800: "var(--blue-9)",
-      900: "var(--blue-10)",
-      950: "var(--blue-11)",
+      50: "var(--color-primary-50)",
+      100: "var(--color-primary-100)",
+      200: "var(--color-primary-200)",
+      300: "var(--color-primary-300)",
+      400: "var(--color-primary-400)",
+      500: "var(--color-primary-500)",
+      600: "var(--color-primary-600)",
+      700: "var(--color-primary-700)",
+      800: "var(--color-primary-800)",
+      900: "var(--color-primary-900)",
+      950: "var(--color-primary-950)",
     },
 
-    // Semantic colors
+    // Semantic colors (full scales for containers)
     success: {
-      50: "var(--green-0)",
-      100: "var(--green-1)",
-      200: "var(--green-2)",
-      300: "var(--green-3)",
-      400: "var(--green-5)",
-      500: "var(--green-6)",
-      600: "var(--green-7)",
-      700: "var(--green-8)",
-      800: "var(--green-9)",
-      900: "var(--green-10)",
+      50: "var(--color-success-50)",
+      100: "var(--color-success-100)",
+      200: "var(--color-success-200)",
+      300: "var(--color-success-300)",
+      400: "var(--color-success-400)",
+      500: "var(--color-success-500)",
+      600: "var(--color-success-600)",
+      700: "var(--color-success-700)",
+      800: "var(--color-success-800)",
+      900: "var(--color-success-900)",
     },
 
     warning: {
-      50: "var(--yellow-0)",
-      100: "var(--yellow-1)",
-      200: "var(--yellow-2)",
-      300: "var(--yellow-3)",
-      400: "var(--yellow-5)",
-      500: "var(--yellow-6)",
-      600: "var(--yellow-7)",
-      700: "var(--yellow-8)",
-      800: "var(--yellow-9)",
-      900: "var(--yellow-10)",
+      50: "var(--color-warning-50)",
+      100: "var(--color-warning-100)",
+      200: "var(--color-warning-200)",
+      300: "var(--color-warning-300)",
+      400: "var(--color-warning-400)",
+      500: "var(--color-warning-500)",
+      600: "var(--color-warning-600)",
+      700: "var(--color-warning-700)",
+      800: "var(--color-warning-800)",
+      900: "var(--color-warning-900)",
     },
 
     error: {
-      50: "var(--red-0)",
-      100: "var(--red-1)",
-      200: "var(--red-2)",
-      300: "var(--red-3)",
-      400: "var(--red-5)",
-      500: "var(--red-6)",
-      600: "var(--red-7)",
-      700: "var(--red-8)",
-      800: "var(--red-9)",
-      900: "var(--red-10)",
+      50: "var(--color-error-50)",
+      100: "var(--color-error-100)",
+      200: "var(--color-error-200)",
+      300: "var(--color-error-300)",
+      400: "var(--color-error-400)",
+      500: "var(--color-error-500)",
+      600: "var(--color-error-600)",
+      700: "var(--color-error-700)",
+      800: "var(--color-error-800)",
+      900: "var(--color-error-900)",
     },
 
-    // Neutral colors
+    // Neutral colors (warmer grays)
     gray: {
-      50: "var(--gray-50)",
-      100: "var(--gray-100)",
-      200: "var(--gray-200)",
-      300: "var(--gray-300)",
-      400: "var(--gray-400)",
-      500: "var(--gray-500)",
-      600: "var(--gray-600)",
-      700: "var(--gray-700)",
-      800: "var(--gray-800)",
-      900: "var(--gray-900)",
-      950: "var(--gray-950)",
+      50: "var(--color-gray-50)",
+      100: "var(--color-gray-100)",
+      200: "var(--color-gray-200)",
+      300: "var(--color-gray-300)",
+      400: "var(--color-gray-400)",
+      500: "var(--color-gray-500)",
+      600: "var(--color-gray-600)",
+      700: "var(--color-gray-700)",
+      800: "var(--color-gray-800)",
+      900: "var(--color-gray-900)",
+      950: "var(--color-gray-950)",
     },
 
     // Surface colors
     surface: {
-      background: "var(--gray-0)",
-      foreground: "var(--gray-900)",
-      muted: "var(--gray-50)",
-      border: "var(--gray-200)",
-      input: "var(--gray-0)",
-      overlay: "rgba(0, 0, 0, 0.5)",
+      background: "var(--surface-background)",
+      foreground: "var(--surface-foreground)",
+      muted: "var(--surface-muted)",
+      border: "var(--surface-border)",
+      input: "var(--surface-background)",
+      overlay: "var(--surface-overlay)",
     },
   },
 
-  // Typography scale
+  // Typography scale (fluid sizing)
   typography: {
     sizes: {
-      xs: "0.75rem", // 12px
-      sm: "0.875rem", // 14px
-      base: "1rem", // 16px
-      lg: "1.125rem", // 18px
-      xl: "1.25rem", // 20px
-      "2xl": "1.5rem", // 24px
-      "3xl": "1.875rem", // 30px
-      "4xl": "2.25rem", // 36px
+      xs: "var(--typography-text-xs)", // Fluid 11-12px
+      sm: "var(--typography-text-sm)", // Fluid 13-14px
+      base: "var(--typography-text-base)", // Fluid 15-16px
+      lg: "var(--typography-text-lg)", // Fluid 17-18px
+      xl: "var(--typography-text-xl)", // Fluid 19-20px
+      "2xl": "var(--typography-text-2xl)", // Fluid 23-26px
+      "3xl": "var(--typography-text-3xl)", // Fluid 29-34px
+      "4xl": "var(--typography-text-4xl)", // Fluid 36-46px
+      "5xl": "var(--typography-text-5xl)", // Fluid 46-60px
     },
 
     weights: {
+      light: "300",
       normal: "400",
       medium: "500",
       semibold: "600",
       bold: "700",
       extrabold: "800",
+      black: "900",
     },
 
     lineHeights: {
@@ -151,43 +154,56 @@ export const componentTokens = {
   // Border radius scale
   radius: {
     none: "0",
-    sm: "0.125rem", // 2px
-    base: "0.25rem", // 4px
-    md: "0.375rem", // 6px
-    lg: "0.5rem", // 8px
-    xl: "0.75rem", // 12px
-    "2xl": "1rem", // 16px
-    "3xl": "1.5rem", // 24px
-    full: "9999px",
+    xs: "var(--radius-xs)", // 2px
+    sm: "var(--radius-sm)", // 4px
+    base: "var(--radius-base)", // 6px
+    md: "var(--radius-md)", // 8px
+    lg: "var(--radius-lg)", // 12px
+    xl: "var(--radius-xl)", // 16px
+    "2xl": "var(--radius-2xl)", // 20px
+    "3xl": "var(--radius-3xl)", // 24px
+    full: "var(--radius-full)", // 9999px
   },
 
-  // Shadow scale
+  // Shadow scale (refined, lighter)
   shadows: {
-    sm: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-    base: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)",
-    md: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)",
-    lg:
-      "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)",
-    xl:
-      "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
-    "2xl": "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-    inner: "inset 0 2px 4px 0 rgba(0, 0, 0, 0.05)",
     none: "none",
+    xs: "var(--shadow-xs)", // Subtle micro-shadow
+    sm: "var(--shadow-sm)", // Refined light shadow
+    base: "var(--shadow-base)", // Standard elevation
+    md: "var(--shadow-md)", // Medium elevation
+    lg: "var(--shadow-lg)", // High elevation
+    xl: "var(--shadow-xl)", // Very high elevation
+    "2xl": "var(--shadow-2xl)", // Dramatic elevation
+    inner: "var(--shadow-inner)", // Inner shadow
+    innerSm: "var(--shadow-inner-sm)", // Subtle inner shadow
+    primary: "var(--shadow-primary)", // Colored shadow - indigo
+    success: "var(--shadow-success)", // Colored shadow - green
+    warning: "var(--shadow-warning)", // Colored shadow - yellow
+    error: "var(--shadow-error)", // Colored shadow - red
+    focus: "var(--shadow-focus)", // Focus ring - indigo
+    focusError: "var(--shadow-focus-error)", // Focus ring - red
+    focusSuccess: "var(--shadow-focus-success)", // Focus ring - green
   },
 
-  // Animation & transition
+  // Animation & transition (refined with spring easings)
   animation: {
     duration: {
-      fast: "150ms",
-      normal: "250ms",
-      slow: "350ms",
+      instant: "var(--animation-duration-instant)", // 50ms - micro-feedback
+      fast: "var(--animation-duration-fast)", // 150ms
+      normal: "var(--animation-duration-normal)", // 250ms
+      slow: "var(--animation-duration-slow)", // 350ms
+      slower: "var(--animation-duration-slower)", // 500ms
+      slowest: "var(--animation-duration-slowest)", // 750ms
     },
 
     easing: {
-      linear: "linear",
-      out: "cubic-bezier(0, 0, 0.2, 1)",
-      in: "cubic-bezier(0.4, 0, 1, 1)",
-      "in-out": "cubic-bezier(0.4, 0, 0.2, 1)",
+      linear: "var(--animation-ease-linear)",
+      out: "var(--animation-ease-out)", // Smoother deceleration
+      in: "var(--animation-ease-in)",
+      "in-out": "var(--animation-ease-in-out)", // More refined
+      spring: "var(--animation-ease-spring)", // Bouncy, natural
+      smooth: "var(--animation-ease-smooth)", // Default smooth
     },
   },
 
