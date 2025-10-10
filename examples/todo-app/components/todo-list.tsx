@@ -3,14 +3,13 @@
 /** @jsx h */
 /**
  * TodoList Component
- * Renders a list of todos using the library Stack layout component
+ * Renders a vertical list of todos using library CSS classes - zero custom CSS
  */
 
 import { h } from "jsx";
 import { defineComponent, post } from "../../../mod.ts";
 import { todoAPI } from "../api/index.ts";
 import "../../../lib/components/button/button.ts";
-import "../../../lib/components/layout/stack.ts";
 import "./todo-item.tsx";
 
 import type { Todo } from "../api/types.ts";
@@ -34,16 +33,16 @@ defineComponent<TodoListProps>("todo-list", {
 
     if (todos.length === 0) {
       return (
-        <stack direction="vertical" gap="md" align="center">
+        <div class="empty-state">
           <p>{emptyMessage}</p>
-        </stack>
+        </div>
       );
     }
 
     return (
-      <stack direction="vertical" gap="md">
+      <div class="stack stack--vertical stack--gap-md">
         {hasCompleted && (
-          <stack direction="horizontal" gap="md" justify="end">
+          <div class="stack stack--horizontal stack--gap-md stack--justify-end">
             <button
               type="button"
               variant="danger"
@@ -52,12 +51,12 @@ defineComponent<TodoListProps>("todo-list", {
             >
               Clear completed
             </button>
-          </stack>
+          </div>
         )}
-        <stack direction="vertical" gap="md">
+        <div class="todo-list">
           {todos.map((todo) => <todo-item todo={todo} />)}
-        </stack>
-      </stack>
+        </div>
+      </div>
     );
   },
 });

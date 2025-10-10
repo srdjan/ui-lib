@@ -44,5 +44,8 @@ export { error, html, json, text } from "./lib/response.ts";
 export { del, get, patch, post, put, remove } from "./lib/api-helpers.ts";
 export type { ApiAction, ApiRoute } from "./lib/api-helpers.ts";
 
+// Component API registration
+export { registerComponentApi } from "./lib/define-component.ts";
+
 // JSX types
 import "./lib/jsx.d.ts";

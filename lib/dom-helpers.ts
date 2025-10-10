@@ -40,12 +40,15 @@ export const chain = (...actions: ComponentAction[]): ChainAction => ({
 // --- Pure utility functions that are not event handlers remain the same ---
 
 /**
- * Spread HTMX attributes into HTML string format
+ * Spread HTMX attributes into format suitable for JSX spread operator
+ * Returns Record<string, string> for proper JSX handling
  */
-export const spreadAttrs = (attrs: Record<string, unknown> = {}): string => {
-  return Object.entries(attrs)
-    .map(([key, value]) => `${key}="${escape(String(value))}"`)
-    .join(" ");
+export const spreadAttrs = (attrs: Record<string, unknown> = {}): Record<string, string> => {
+  const result: Record<string, string> = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    result[key] = String(value);
+  }
+  return result;
 };
 
 // Build attributes safely, supporting boolean presence attributes

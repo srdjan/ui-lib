@@ -3,7 +3,7 @@
 /** @jsx h */
 /**
  * TodoForm Component
- * Simple form for adding new todos using library Card component
+ * Clean form for adding new todos using library components
  */
 
 import { h } from "jsx";
@@ -27,24 +27,28 @@ defineComponent<TodoFormProps>("todo-form", {
           type="text"
           name="text"
           id="text"
-          label="What needs to be done?"
-          placeholder="Enter todo text..."
+          label="Task Description"
+          placeholder="What needs to be done?"
           required
         />
-        <input
-          type="select"
-          name="priority"
-          id="priority"
-          label="Priority"
-          required
-          options={[
-            { value: "", label: "Select priority" },
-            { value: "low", label: "Low Priority" },
-            { value: "medium", label: "Medium Priority" },
-            { value: "high", label: "High Priority" },
-          ]}
-        />
-        <button type="submit" variant="primary">Add Todo</button>
+        <div class="form-row">
+          <input
+            type="select"
+            name="priority"
+            id="priority"
+            label="Priority"
+            required
+            options={[
+              { value: "", label: "Select priority" },
+              { value: "low", label: "Low" },
+              { value: "medium", label: "Medium" },
+              { value: "high", label: "High" },
+            ]}
+          />
+          <button type="submit" variant="primary" size="md" fullWidth>
+            Add Task
+          </button>
+        </div>
       </form>
     );
   },

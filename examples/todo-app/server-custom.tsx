@@ -9,7 +9,7 @@
 
 import { h } from "jsx";
 
-import { html, Router } from "../../mod-simple.ts";
+import { html, registerComponentApi, Router } from "../../mod-simple.ts";
 
 // Import all todo components
 import "./components/todo-app.tsx";
@@ -19,6 +19,11 @@ import { ensureRepository, getRepository, todoAPI } from "./api/index.ts";
 import type { TodoFilter } from "./api/types.ts";
 
 const router = new Router();
+
+// Register component API routes (HTMX is hidden via API helpers)
+registerComponentApi("todo-app", router);
+registerComponentApi("todo-item", router);
+registerComponentApi("todo-list", router);
 
 // Initialize repository
 console.log("Initializing repository...");
@@ -57,12 +62,19 @@ const getTodos = async (filter: TodoFilter, userId: string) => {
 router.register("GET", "/", async (req: Request) => {
   const url = new URL(req.url);
   const currentUser = await firstUser(url);
-  const filter: TodoFilter = { status: "all" };
+
+  // Get filter from query params
+  const filterParam = url.searchParams.get("filter") || "all";
+  const filterStatus = (filterParam === "active" || filterParam === "completed")
+    ? filterParam
+    : "all";
+
+  const filter: TodoFilter = { status: filterStatus };
   const stats = await getStats(currentUser);
   const todos = await getTodos(filter, currentUser);
 
   // Use the clean TodoApp component
-  const appHtml = <todo-app todos={todos} stats={stats} /> as unknown as string;
+  const appHtml = <todo-app todos={todos} stats={stats} filter={filterStatus} /> as unknown as string;
 
   return new Response(appHtml, {
     headers: { "Content-Type": "text/html" },

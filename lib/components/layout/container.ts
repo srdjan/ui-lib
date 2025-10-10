@@ -7,6 +7,8 @@ import { css, defineComponent } from "../../internal.ts";
 import { componentTokens } from "../../themes/component-tokens.ts";
 import type { ContainerProps } from "./types.ts";
 
+export type ContainerSize = "sm" | "md" | "lg" | "xl" | "2xl" | "full";
+
 const containerStyles = css({
   container: {
     width: "100%",
@@ -37,6 +39,31 @@ const containerStyles = css({
     marginRight: "auto",
   },
 
+  // Size variants
+  "container--sm": {
+    maxWidth: "640px",
+  },
+
+  "container--md": {
+    maxWidth: "80vw",
+  },
+
+  "container--lg": {
+    maxWidth: "1024px",
+  },
+
+  "container--xl": {
+    maxWidth: "1280px",
+  },
+
+  "container--2xl": {
+    maxWidth: "1536px",
+  },
+
+  "container--full": {
+    maxWidth: "100%",
+  },
+
   "@media (min-width: 640px)": {
     ".container": {
       paddingLeft: componentTokens.spacing[6],
@@ -52,10 +79,11 @@ const containerStyles = css({
   },
 });
 
-defineComponent<ContainerProps>("container", {
-  render: (props: ContainerProps) => {
+defineComponent<ContainerProps & { size?: ContainerSize }>("container", {
+  render: (props: ContainerProps & { size?: ContainerSize }) => {
     const {
       variant = "constrained",
+      size,
       maxWidth,
       centered = true,
       padding,
@@ -68,7 +96,14 @@ defineComponent<ContainerProps>("container", {
     } = props;
 
     const classes = [containerStyles.classMap.container];
-    classes.push(containerStyles.classMap[`container--${variant}`] || "");
+
+    // Size takes precedence over variant
+    if (size) {
+      classes.push(containerStyles.classMap[`container--${size}`] || "");
+    } else {
+      classes.push(containerStyles.classMap[`container--${variant}`] || "");
+    }
+
     if (centered) classes.push(containerStyles.classMap["container--centered"]);
     if (className) classes.push(className);
 
