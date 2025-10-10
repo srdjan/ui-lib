@@ -13,11 +13,11 @@ export { ProductGrid } from "./product-grid.tsx";
 export { Card } from "./card.ts";
 
 // New starter-friendly components
-export { Container } from "./container";
-export { Footer } from "./footer";
-export { Hero } from "./hero";
-export { Navbar } from "./navbar";
-export { FeatureCard } from "./feature-card";
+export { Container } from "./container.ts";
+export { Footer } from "./footer.ts";
+export { Hero } from "./hero.ts";
+export { Navbar } from "./navbar.ts";
+export { FeatureCard } from "./feature-card.ts";
 
 // Note: The following components are staged or not yet implemented; omit from public exports for now.
 // export { Sidebar } from "./sidebar.ts";
@@ -49,6 +49,6 @@ export type {
   Spacing,
   StackProps,
 } from "./types.ts";
-export type { HeroProps } from "./hero";
-export type { NavbarLink, NavbarProps } from "./navbar";
-export type { FeatureCardProps } from "./feature-card";
+export type { HeroProps } from "./hero.ts";
+export type { NavbarProps } from "./navbar.ts";
+export type { FeatureCardProps } from "./feature-card.ts";

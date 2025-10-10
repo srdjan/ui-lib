@@ -6,7 +6,7 @@ import {
 import { getRegistry } from "../../../lib/registry.ts";
 import { ok } from "../../../lib/result.ts";
 import type { ShoppingRepository } from "../api/repository.ts";
-import { setRepositoryForTesting } from "../api/repository.ts";
+import { setRepositoryForTesting } from "../api/repository-factory.ts";
 import type { Cart } from "../api/types.ts";
 
 // NOTE: This example-level test referenced an app component that was moved into the library.

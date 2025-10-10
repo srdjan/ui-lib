@@ -4,6 +4,7 @@
  */
 
 import type { RouteHandler } from "./router.ts";
+import { getConfig } from "./config.ts";
 
 // Type for the API action that returns spreadable HTMX attributes
 export type ApiAction = (
@@ -133,13 +134,23 @@ function createApiRoute(
       // Interpolate path params
       const interpolatedPath = interpolatePath(path, params);
 
+      // Get configured defaults
+      const config = getConfig();
+
       // Generate HTMX attributes
       const httpMethod = method.toLowerCase();
-      return {
+      const attrs: Record<string, string> = {
         [`hx-${httpMethod}`]: interpolatedPath,
-        "hx-target": "this",
-        "hx-swap": "outerHTML",
+        "hx-target": config.hx.targetDefault,
+        "hx-swap": config.hx.swapDefault,
       };
+
+      // Add headers if configured
+      if (Object.keys(config.hx.headers).length > 0) {
+        attrs["hx-headers"] = JSON.stringify(config.hx.headers);
+      }
+
+      return attrs;
     },
   };
 }

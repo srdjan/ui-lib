@@ -6,10 +6,8 @@ import {
 import { hx } from "../../../lib/api-recipes.ts";
 import { getRegistry } from "../../../lib/registry.ts";
 import { ok } from "../../../lib/result.ts";
-import {
-  setRepositoryForTesting,
-  type ShoppingRepository,
-} from "../api/repository.ts";
+import { setRepositoryForTesting } from "../api/repository-factory.ts";
+import type { ShoppingRepository } from "../api/repository.ts";
 import type { Cart } from "../api/types.ts";
 
 // NOTE: Example component moved into the library; import removed.

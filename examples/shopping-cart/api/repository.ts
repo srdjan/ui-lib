@@ -211,12 +211,12 @@ export const createKvShoppingRepository = async (
 ): Promise<Result<ShoppingRepository, ApiError>> => {
   // Initialize (seed data if needed)
   try {
-    const productsResult = await kv.list<Product>({
+    const productsResult = await kv.list({
       prefix: ["products"],
     });
     const products = [];
     for await (const entry of productsResult) {
-      products.push(entry.value);
+      products.push(entry.value as Product);
     }
 
     if (products.length === 0) {
@@ -231,10 +231,10 @@ export const createKvShoppingRepository = async (
       }
     }
 
-    const usersResult = await kv.list<User>({ prefix: ["users"] });
+    const usersResult = await kv.list({ prefix: ["users"] });
     const users = [];
     for await (const entry of usersResult) {
-      users.push(entry.value);
+      users.push(entry.value as User);
     }
 
     if (users.length === 0) {
@@ -270,18 +270,18 @@ export const createKvShoppingRepository = async (
         let products: Product[] = [];
 
         if (category) {
-          const categoryResults = await kv.list<Product>({
+          const categoryResults = await kv.list({
             prefix: ["productsByCategory", category],
           });
           for await (const entry of categoryResults) {
-            products.push(entry.value);
+            products.push(entry.value as Product);
           }
         } else {
-          const allResults = await kv.list<Product>({
+          const allResults = await kv.list({
             prefix: ["products"],
           });
           for await (const entry of allResults) {
-            products.push(entry.value);
+            products.push(entry.value as Product);
           }
         }
 
@@ -311,7 +311,7 @@ export const createKvShoppingRepository = async (
 
     getProduct: async (id: string) => {
       try {
-        const result = await kv.get<Product>(["products", id]);
+        const result = await kv.get(["products", id]);
         if (!result.value) {
           return err({
             type: "not_found",
@@ -319,7 +319,7 @@ export const createKvShoppingRepository = async (
             id,
           });
         }
-        return ok(result.value);
+        return ok(result.value as Product);
       } catch (error) {
         return err({
           type: "kv_operation_error",
@@ -332,9 +332,9 @@ export const createKvShoppingRepository = async (
     getProductSummary: async () => {
       try {
         const products: Product[] = [];
-        const results = await kv.list<Product>({ prefix: ["products"] });
+        const results = await kv.list({ prefix: ["products"] });
         for await (const entry of results) {
-          products.push(entry.value);
+          products.push(entry.value as Product);
         }
 
         const categories = products.reduce((acc, product) => {
@@ -366,10 +366,11 @@ export const createKvShoppingRepository = async (
     getFeaturedProducts: async (limit = 6) => {
       try {
         const products: Product[] = [];
-        const results = await kv.list<Product>({ prefix: ["products"] });
+        const results = await kv.list({ prefix: ["products"] });
         for await (const entry of results) {
-          if (entry.value.featured) {
-            products.push(entry.value);
+          const product = entry.value as Product;
+          if (product.featured) {
+            products.push(product);
           }
         }
 
@@ -389,7 +390,7 @@ export const createKvShoppingRepository = async (
 
     getCart: async (sessionId: string) => {
       try {
-        const result = await kv.get<Cart>(["carts", sessionId]);
+        const result = await kv.get(["carts", sessionId]);
 
         if (!result.value) {
           // Create new cart
@@ -411,7 +412,7 @@ export const createKvShoppingRepository = async (
           return ok(newCart);
         }
 
-        return ok(result.value);
+        return ok(result.value as Cart);
       } catch (error) {
         return err({
           type: "kv_operation_error",
@@ -424,7 +425,7 @@ export const createKvShoppingRepository = async (
     addToCart: async (sessionId: string, request: AddToCartRequest) => {
       try {
         // Get cart (using the repository method via recursion)
-        const result = await kv.get<Cart>(["carts", sessionId]);
+        const result = await kv.get(["carts", sessionId]);
         if (!result.value) {
           return err({
             type: "not_found",
@@ -432,10 +433,10 @@ export const createKvShoppingRepository = async (
             id: sessionId,
           });
         }
-        const cart = result.value;
+        const cart = result.value as Cart;
 
         // Get product
-        const productResult = await kv.get<Product>([
+        const productResult = await kv.get([
           "products",
           request.productId,
         ]);
@@ -447,7 +448,7 @@ export const createKvShoppingRepository = async (
           });
         }
 
-        const product = productResult.value;
+        const product = productResult.value as Product;
         if (!product.inStock) {
           return err({
             type: "out_of_stock",
@@ -505,7 +506,7 @@ export const createKvShoppingRepository = async (
       request: UpdateCartItemRequest,
     ) => {
       try {
-        const result = await kv.get<Cart>(["carts", sessionId]);
+        const result = await kv.get(["carts", sessionId]);
         if (!result.value) {
           return err({
             type: "not_found",
@@ -514,7 +515,7 @@ export const createKvShoppingRepository = async (
           });
         }
 
-        const cart = result.value;
+        const cart = result.value as Cart;
         const itemIndex = cart.items.findIndex((item: CartItem) => item.id === itemId);
 
         if (itemIndex === -1) {
@@ -553,7 +554,7 @@ export const createKvShoppingRepository = async (
     removeFromCart: async (sessionId: string, itemId: string) => {
       // Reuse updateCartItem with quantity 0
       try {
-        const result = await kv.get<Cart>(["carts", sessionId]);
+        const result = await kv.get(["carts", sessionId]);
         if (!result.value) {
           return err({
             type: "not_found",
@@ -562,7 +563,7 @@ export const createKvShoppingRepository = async (
           });
         }
 
-        const cart = result.value;
+        const cart = result.value as Cart;
         const updatedItems = cart.items.filter((item: CartItem) => item.id !== itemId);
 
         const updatedCart = calculateCartTotals({
@@ -584,7 +585,7 @@ export const createKvShoppingRepository = async (
 
     clearCart: async (sessionId: string) => {
       try {
-        const result = await kv.get<Cart>(["carts", sessionId]);
+        const result = await kv.get(["carts", sessionId]);
         if (!result.value) {
           return err({
             type: "not_found",
@@ -594,7 +595,7 @@ export const createKvShoppingRepository = async (
         }
 
         const clearedCart = calculateCartTotals({
-          ...result.value,
+          ...(result.value as Cart),
           items: [],
           updatedAt: new Date().toISOString(),
         });
@@ -612,7 +613,7 @@ export const createKvShoppingRepository = async (
 
     getCartSummary: async (sessionId: string) => {
       try {
-        const result = await kv.get<Cart>(["carts", sessionId]);
+        const result = await kv.get(["carts", sessionId]);
         if (!result.value) {
           return err({
             type: "not_found",
@@ -621,7 +622,7 @@ export const createKvShoppingRepository = async (
           });
         }
 
-        const cart = result.value;
+        const cart = result.value as Cart;
         return ok({
           itemCount: cart.itemCount,
           subtotal: cart.subtotal,
@@ -688,7 +689,7 @@ export const createKvShoppingRepository = async (
 
     getUser: async (id: string) => {
       try {
-        const result = await kv.get<User>(["users", id]);
+        const result = await kv.get(["users", id]);
         if (!result.value) {
           return err({
             type: "not_found",
@@ -696,7 +697,7 @@ export const createKvShoppingRepository = async (
             id,
           });
         }
-        return ok(result.value);
+        return ok(result.value as User);
       } catch (error) {
         return err({
           type: "kv_operation_error",
@@ -708,7 +709,7 @@ export const createKvShoppingRepository = async (
 
     getUserByEmail: async (email: string) => {
       try {
-        const result = await kv.get<User>(["usersByEmail", email]);
+        const result = await kv.get(["usersByEmail", email]);
         if (!result.value) {
           return err({
             type: "not_found",
@@ -716,7 +717,7 @@ export const createKvShoppingRepository = async (
             id: email,
           });
         }
-        return ok(result.value);
+        return ok(result.value as User);
       } catch (error) {
         return err({
           type: "kv_operation_error",
@@ -728,7 +729,7 @@ export const createKvShoppingRepository = async (
 
     updateUser: async (id: string, updates: Partial<User>) => {
       try {
-        const userResult = await kv.get<User>(["users", id]);
+        const userResult = await kv.get(["users", id]);
         if (!userResult.value) {
           return err({
             type: "not_found",
@@ -765,7 +766,7 @@ export const createKvShoppingRepository = async (
 
     createOrder: async (request: CreateOrderRequest) => {
       try {
-        const cartResult = await kv.get<Cart>(["carts", request.cartId]);
+        const cartResult = await kv.get(["carts", request.cartId]);
         if (!cartResult.value) {
           return err({
             type: "not_found",
@@ -774,7 +775,7 @@ export const createKvShoppingRepository = async (
           });
         }
 
-        const cart = cartResult.value;
+        const cart = cartResult.value as Cart;
         if (cart.items.length === 0) {
           return err({
             type: "empty_cart",
@@ -836,7 +837,7 @@ export const createKvShoppingRepository = async (
 
     getOrder: async (id: string) => {
       try {
-        const result = await kv.get<Order>(["orders", id]);
+        const result = await kv.get(["orders", id]);
         if (!result.value) {
           return err({
             type: "not_found",
@@ -844,7 +845,7 @@ export const createKvShoppingRepository = async (
             id,
           });
         }
-        return ok(result.value);
+        return ok(result.value as Order);
       } catch (error) {
         return err({
           type: "kv_operation_error",
@@ -857,11 +858,11 @@ export const createKvShoppingRepository = async (
     getUserOrders: async (userId: string) => {
       try {
         const orders: Order[] = [];
-        const results = await kv.list<Order>({
+        const results = await kv.list({
           prefix: ["ordersByUser", userId],
         });
         for await (const entry of results) {
-          orders.push(entry.value);
+          orders.push(entry.value as Order);
         }
 
         // Sort by creation date (newest first)
@@ -881,12 +882,12 @@ export const createKvShoppingRepository = async (
 
     getOrderSummary: async (userId: string) => {
       try {
-        const ordersResult = await kv.list<Order>({
+        const ordersResult = await kv.list({
           prefix: ["ordersByUser", userId],
         });
         const orders: Order[] = [];
         for await (const entry of ordersResult) {
-          orders.push(entry.value);
+          orders.push(entry.value as Order);
         }
 
         const totalSpent = orders.reduce((sum, order) => sum + order.total, 0);
@@ -918,10 +919,10 @@ export const createKvShoppingRepository = async (
 
     searchProducts: async (query: string, limit = 10) => {
       const filter: ProductFilter = { search: query, limit };
-      const result = await kv.list<Product>({ prefix: ["products"] });
+      const result = await kv.list({ prefix: ["products"] });
       const products: Product[] = [];
       for await (const entry of result) {
-        products.push(entry.value);
+        products.push(entry.value as Product);
       }
 
       const filtered = applyProductFilters(products, filter);
@@ -932,10 +933,11 @@ export const createKvShoppingRepository = async (
       try {
         // Simple recommendation: return random featured products
         const products: Product[] = [];
-        const results = await kv.list<Product>({ prefix: ["products"] });
+        const results = await kv.list({ prefix: ["products"] });
         for await (const entry of results) {
-          if (entry.value.featured) {
-            products.push(entry.value);
+          const product = entry.value as Product;
+          if (product.featured) {
+            products.push(product);
           }
         }
 
