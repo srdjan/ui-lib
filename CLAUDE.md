@@ -377,8 +377,12 @@ defineComponent("user-card", {
 - **Components should be pure functions**: No side effects in render
 - **The main public API is exported from `index.ts`**: All mod files import from
   here
-- **HTMX is encapsulated**: Use `onAction`/`itemAction` helpers, not raw `hx-*`
-  attributes
+- **HTMX MUST BE COMPLETELY HIDDEN - FUNDAMENTAL FEATURE**: This is a CRITICAL,
+  NON-NEGOTIABLE requirement. Applications MUST NEVER expose raw `hx-*` attributes
+  in component code. ALL HTMX interactions MUST use API helpers (`get`, `post`,
+  `del`, etc.) with spread operator pattern: `{...api!.methodName()}`. Any visible
+  `hx-*` attributes in application JSX is a CRITICAL BUG that violates ui-lib's
+  core design principle. No exceptions.
 - **JSX-only in application code**: Use `render(<Component />)` for HTML, not
   `renderComponent`
 - **Light FP principles**: See AGENTS.md for detailed coding standards (Result

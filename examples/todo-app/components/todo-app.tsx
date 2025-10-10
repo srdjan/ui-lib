@@ -9,7 +9,7 @@
  */
 
 import { h } from "jsx";
-import { defineComponent, get, getBaseThemeCss, lightTheme, darkTheme } from "../../../mod.ts";
+import { defineComponent, get, getBaseThemeCss, hx, lightTheme, darkTheme } from "../../../mod.ts";
 import { generateCSS } from "../../../lib/styles/css-generator.ts";
 
 // Import app-specific components
@@ -29,17 +29,12 @@ export type TodoAppProps = {
   filter?: "all" | "active" | "completed";
 };
 
-// Simple filter handler that returns full page HTML
-const filterHandler = (_req: Request) => {
-  // Just return success - the router will handle the actual filtering
-  return new Response("OK", { status: 200 });
-};
-
 defineComponent<TodoAppProps>("todo-app", {
   api: {
-    filterAll: get("/?filter=all", filterHandler),
-    filterActive: get("/?filter=active", filterHandler),
-    filterCompleted: get("/?filter=completed", filterHandler),
+    // These route to the main GET "/" handler which renders full page
+    filterAll: get("/?filter=all", () => new Response("")),
+    filterActive: get("/?filter=active", () => new Response("")),
+    filterCompleted: get("/?filter=completed", () => new Response("")),
   },
   render: (props, api) => {
     const { todos, stats, filter = "all" } = props;
@@ -75,21 +70,21 @@ defineComponent<TodoAppProps>("todo-app", {
             <button
               type="button"
               class={`filter-tab ${filter === "all" ? "active" : ""}`}
-              {...api!.filterAll()}
+              {...api!.filterAll(hx({ target: "body", swap: "outerHTML", pushUrl: true }))}
             >
               All ({stats.total})
             </button>
             <button
               type="button"
               class={`filter-tab ${filter === "active" ? "active" : ""}`}
-              {...api!.filterActive()}
+              {...api!.filterActive(hx({ target: "body", swap: "outerHTML", pushUrl: true }))}
             >
               Active ({stats.active})
             </button>
             <button
               type="button"
               class={`filter-tab ${filter === "completed" ? "active" : ""}`}
-              {...api!.filterCompleted()}
+              {...api!.filterCompleted(hx({ target: "body", swap: "outerHTML", pushUrl: true }))}
             >
               Completed ({stats.completed})
             </button>
