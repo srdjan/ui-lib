@@ -30,6 +30,8 @@ import { ensureRepository } from "./api/repository-factory.ts";
 
 // Import application components
 import "./components/product-card.tsx";
+import "./components/product-filters.tsx";
+import "./components/cart-item.tsx";
 
 // Import library components to register them; app composes by props/variants
 
@@ -282,35 +284,7 @@ function HomePage(products: readonly Product[], sessionId: string) {
           Experience the power of composition-only components with DOM-native state management
         </p>
 
-        <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-xl);">
-          <button
-            style="padding: var(--spacing-md) var(--spacing-lg); background: var(--color-primary); color: var(--color-on-primary); border: none; border-radius: var(--layout-border-radius); font-weight: var(--typography-weight-medium); cursor: pointer;"
-            hx-get="/api/products?featured=true"
-            hx-target="#product-grid"
-            hx-swap="innerHTML"
-            hx-headers='{"Accept": "text/html"}'
-          >
-            🌟 Featured Products
-          </button>
-          <button
-            style="padding: var(--spacing-md) var(--spacing-lg); background: var(--color-secondary); color: var(--color-on-secondary); border: none; border-radius: var(--layout-border-radius); font-weight: var(--typography-weight-medium); cursor: pointer;"
-            hx-get="/api/products?category=electronics"
-            hx-target="#product-grid"
-            hx-swap="innerHTML"
-            hx-headers='{"Accept": "text/html"}'
-          >
-            📱 Electronics
-          </button>
-          <button
-            style="padding: var(--spacing-md) var(--spacing-lg); background: var(--color-secondary); color: var(--color-on-secondary); border: none; border-radius: var(--layout-border-radius); font-weight: var(--typography-weight-medium); cursor: pointer;"
-            hx-get="/api/products?category=clothing"
-            hx-target="#product-grid"
-            hx-swap="innerHTML"
-            hx-headers='{"Accept": "text/html"}'
-          >
-            👕 Clothing
-          </button>
-        </div>
+        ${renderComponent("product-filters", {})}
       </div>
 
       <div id="product-grid">
@@ -332,148 +306,6 @@ function HomePage(products: readonly Product[], sessionId: string) {
           Loading products...
         </div>
       </div>
-
-      <style>
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-
-        /* Product Card Styles */
-        .product-card {
-          background: white;
-          border-radius: 12px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-          overflow: hidden;
-          transition: all 200ms ease;
-          display: flex;
-          flex-direction: column;
-          height: 100%;
-        }
-
-        .product-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-        }
-
-        .product-card__image {
-          position: relative;
-          width: 100%;
-          padding-bottom: 100%; /* 1:1 aspect ratio */
-          overflow: hidden;
-          background: #f5f5f5;
-        }
-
-        .product-card__image img {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        .product-card__badge {
-          position: absolute;
-          top: 12px;
-          right: 12px;
-          background: #ef4444;
-          color: white;
-          padding: 4px 12px;
-          border-radius: 20px;
-          font-size: 0.75rem;
-          font-weight: 600;
-          text-transform: uppercase;
-        }
-
-        .product-card__content {
-          padding: 1rem;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-        }
-
-        .product-card__title {
-          font-size: 1rem;
-          font-weight: 600;
-          color: #1f2937;
-          margin: 0 0 0.5rem 0;
-          line-height: 1.3;
-        }
-
-        .product-card__description {
-          font-size: 0.875rem;
-          color: #6b7280;
-          margin: 0 0 0.75rem 0;
-          line-height: 1.4;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-
-        .product-card__rating {
-          display: flex;
-          align-items: center;
-          gap: 0.25rem;
-          margin-bottom: 0.75rem;
-          font-size: 0.875rem;
-        }
-
-        .product-card__stars {
-          color: #fbbf24;
-        }
-
-        .product-card__review-count {
-          color: #6b7280;
-          font-size: 0.75rem;
-        }
-
-        .product-card__pricing {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          margin-bottom: 1rem;
-          margin-top: auto;
-        }
-
-        .product-card__price {
-          font-size: 1.25rem;
-          font-weight: 700;
-          color: #059669;
-        }
-
-        .product-card__original-price {
-          font-size: 1rem;
-          color: #9ca3af;
-          text-decoration: line-through;
-        }
-
-        .product-card__actions {
-          margin-top: auto;
-        }
-
-        .product-card__add-btn {
-          width: 100%;
-          padding: 0.75rem;
-          background: #6366f1;
-          color: white;
-          border: none;
-          border-radius: 8px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 200ms ease;
-        }
-
-        .product-card__add-btn:hover:not(:disabled) {
-          background: #4f46e5;
-        }
-
-        .product-card__add-btn:disabled {
-          background: #d1d5db;
-          color: #6b7280;
-          cursor: not-allowed;
-        }
-      </style>
     `,
   });
 }
@@ -583,6 +415,8 @@ console.log("Repository initialized successfully");
 
 // Register component APIs
 registerComponentApi("shopping-product-card", router);
+registerComponentApi("product-filters", router);
+registerComponentApi("cart-item", router);
 
 // ============================================================
 // Page Routes

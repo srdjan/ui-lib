@@ -8,6 +8,7 @@
 import { renderComponent } from "../../../mod.ts";
 import { hxVals } from "../../../lib/dom-helpers.ts";
 import "../components/product-card.tsx";
+import "../components/cart-item.tsx";
 import { getRepository } from "./repository-factory.ts";
 import {
   apiErrorResponse,
@@ -267,38 +268,9 @@ export async function getCart(req: Request): Promise<Response> {
         `);
       }
 
-      const itemsHtml = cart.items.map((item) => `
-        <div class="cart-item" data-item-id="${item.id}">
-          <div class="cart-item__image">
-            <img src="${item.product.imageUrl}" alt="${item.product.name}" />
-          </div>
-          <div class="cart-item__details">
-            <h4 class="cart-item__name">${item.product.name}</h4>
-            <div class="cart-item__price">$${item.unitPrice.toFixed(2)}</div>
-            <div class="cart-item__quantity">
-              <button class="quantity-btn"
-                      hx-patch="/api/cart/items/${item.id}"
-                      hx-ext="json-enc"
-                      ${hxVals({ quantity: Math.max(1, item.quantity - 1) })}
-                      hx-target="#cart-sidebar .cart-items"
-                      hx-swap="innerHTML"
-                      ${item.quantity <= 1 ? "disabled" : ""}>-</button>
-              <span class="quantity-value">${item.quantity}</span>
-              <button class="quantity-btn"
-                      hx-patch="/api/cart/items/${item.id}"
-                      hx-ext="json-enc"
-                      ${hxVals({ quantity: item.quantity + 1 })}
-                      hx-target="#cart-sidebar .cart-items"
-                      hx-swap="innerHTML">+</button>
-            </div>
-          </div>
-          <button class="cart-item__remove"
-                  hx-delete="/api/cart/items/${item.id}"
-                  hx-target="#cart-sidebar .cart-items"
-                  hx-swap="innerHTML"
-                  title="Remove item">×</button>
-        </div>
-      `).join("");
+      const itemsHtml = cart.items.map((item) =>
+        renderComponent("cart-item", { item })
+      ).join("");
 
       return htmlResponse(`
         <div class="cart-content" data-item-count="${cart.itemCount}" data-total="${cart.total}">

@@ -9,7 +9,7 @@
  */
 
 import { h } from "jsx";
-import { defineComponent, post } from "../../../mod.ts";
+import { defineComponent, hx, post } from "../../../mod.ts";
 import "../../../lib/components/layout/card.ts";
 import "../../../lib/components/layout/stack.ts";
 import "../../../lib/components/feedback/badge.ts";
@@ -52,14 +52,15 @@ defineComponent<ProductCardProps>("shopping-product-card", {
               type="button"
               variant="primary"
               disabled={!product.inStock}
-              {...api!.addToCart()}
-              hx-vals={JSON.stringify({
-                productId: product.id,
-                quantity: 1,
-                sessionId,
-              })}
-              hx-target="#cart-count"
-              hx-ext="json-enc"
+              {...api!.addToCart(hx({
+                vals: {
+                  productId: product.id,
+                  quantity: 1,
+                  sessionId,
+                },
+                target: "#cart-count",
+                ext: "json-enc",
+              }))}
             >
               {product.inStock ? "Add to Cart" : "Out of Stock"}
             </button>

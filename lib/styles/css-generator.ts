@@ -287,6 +287,27 @@ form > * {
   text-align: center;
   color: var(--color-gray-500, #6b7280);
 }
+
+/* Product Grid */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-6, 1.5rem);
+  margin-top: var(--space-6, 1.5rem);
+}
+
+/* Loading Indicator */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.htmx-indicator {
+  display: none;
+}
+
+.htmx-request .htmx-indicator {
+  display: inline-flex;
+}
 `;
 }
 
