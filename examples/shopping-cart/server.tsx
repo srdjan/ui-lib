@@ -25,6 +25,7 @@ import {
   registerComponentApi,
   renderComponent,
 } from "../../mod.ts";
+import { generateCSS } from "../../lib/styles/css-generator.ts";
 import { ensureRepository } from "./api/repository-factory.ts";
 
 // Import application components
@@ -71,6 +72,9 @@ function Layout({
     defaultTheme: "light",
   });
 
+  // Generate component CSS (card, button, input, etc.)
+  const componentCSS = generateCSS();
+
   // Generate client-side theme manager script
   const themeScript = createThemeManagerScript([lightTheme, darkTheme], {
     defaultTheme: "light",
@@ -94,230 +98,20 @@ function Layout({
 ${themeCSS}
       </style>
 
+      <!-- ui-lib Component Styles -->
+      <style>
+${componentCSS}
+      </style>
+
       <!-- Theme Manager Script -->
       <script>
 ${themeScript}
       </script>
 
-      <!-- Application styles -->
+      <!-- Minimal global styles only -->
       <style>
-        /* Global application styles using theme tokens */
-        * {
-          box-sizing: border-box;
-        }
-
-        body {
-          margin: 0;
-          padding: 0;
-          font-family: var(--theme-typography-fontFamily);
-          background-color: var(--theme-colors-background);
-          color: var(--theme-colors-on-background);
-          line-height: var(--theme-typography-leadingNormal);
-        }
-
-        .app-container {
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-        }
-
-        .app-header {
-          background-color: var(--theme-colors-surface);
-          border-bottom: 1px solid var(--theme-colors-outline);
-          padding: var(--theme-spacing-md) var(--theme-spacing-lg);
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          position: sticky;
-          top: 0;
-          z-index: 50;
-        }
-
-        .app-logo {
-          font-size: var(--theme-typography-textXl);
-          font-weight: var(--theme-typography-weightBold);
-          color: var(--theme-colors-primary);
-          text-decoration: none;
-        }
-
-        .app-nav {
-          display: flex;
-          align-items: center;
-          gap: var(--theme-spacing-lg);
-        }
-
-        .app-nav a {
-          color: var(--theme-colors-on-surface);
-          text-decoration: none;
-          font-weight: var(--theme-typography-weightMedium);
-          padding: var(--theme-spacing-sm) var(--theme-spacing-md);
-          border-radius: var(--theme-radius-md);
-          transition: all var(--theme-animation-durationNormal) var(--theme-animation-easingEaseOut);
-        }
-
-        .app-nav a:hover {
-          background-color: var(--theme-colors-hover);
-          color: var(--theme-colors-primary);
-        }
-
-        /* Theme toggle button */
-        .theme-toggle {
-          background: var(--theme-colors-surface-variant);
-          border: 1px solid var(--theme-colors-outline);
-          border-radius: var(--theme-radius-md);
-          padding: var(--theme-spacing-sm) var(--theme-spacing-md);
-          cursor: pointer;
-          font-size: var(--theme-typography-textBase);
-          transition: all var(--theme-animation-durationNormal);
-        }
-
-        .theme-toggle:hover {
-          background: var(--theme-colors-hover);
-          border-color: var(--theme-colors-primary);
-        }
-
-        .cart-toggle {
-          position: relative;
-          background: var(--color-primary);
-          color: var(--color-on-primary);
-          border: none;
-          border-radius: var(--layout-border-radius);
-          padding: var(--spacing-sm) var(--spacing-md);
-          font-weight: var(--typography-weight-medium);
-          cursor: pointer;
-          transition: all var(--animation-duration-normal) var(--animation-timing-ease-out);
-        }
-
-        .cart-toggle:hover {
-          background-color: color-mix(in srgb, var(--color-primary) 90%, black);
-        }
-
-        .cart-badge {
-          position: absolute;
-          top: -8px;
-          right: -8px;
-          background: var(--color-cart-badge);
-          color: var(--color-cart-badge-text);
-          border-radius: 50%;
-          width: 20px;
-          height: 20px;
-          font-size: var(--typography-text-xs);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: var(--typography-weight-semibold);
-        }
-
-        .cart-badge.hidden {
-          display: none;
-        }
-
-        /* Cart overlay */
-        .cart-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: rgba(0, 0, 0, 0.5);
-          z-index: 999;
-          opacity: 0;
-          visibility: hidden;
-          transition: opacity 300ms ease, visibility 300ms ease;
-        }
-
-        .cart-overlay--visible {
-          opacity: 1;
-          visibility: visible;
-        }
-
-        .app-main {
-          flex: 1;
-          padding: var(--spacing-lg);
-          max-width: 1200px;
-          margin: 0 auto;
-          width: 100%;
-        }
-
-        .app-footer {
-          background-color: var(--color-surface);
-          border-top: var(--layout-border-width) solid var(--color-outline);
-          padding: var(--spacing-lg);
-          text-align: center;
-          color: var(--color-on-surface-variant);
-          font-size: var(--typography-text-sm);
-        }
-
-        /* Loading states */
-        .htmx-indicator {
-          opacity: 0;
-          transition: opacity var(--animation-duration-normal) var(--animation-timing-ease-out);
-        }
-
-        .htmx-request .htmx-indicator {
-          opacity: 1;
-        }
-
-        .htmx-request.htmx-indicator {
-          opacity: 1;
-        }
-
-        /* Error states */
-        .error-message {
-          background-color: color-mix(in srgb, var(--color-error) 10%, transparent);
-          color: var(--color-error);
-          padding: var(--spacing-md);
-          border-radius: var(--layout-border-radius);
-          border: var(--layout-border-width) solid var(--color-error);
-          margin: var(--spacing-md) 0;
-        }
-
-        /* Success states */
-        .success-message {
-          background-color: color-mix(in srgb, var(--color-success) 10%, transparent);
-          color: var(--color-success);
-          padding: var(--spacing-md);
-          border-radius: var(--layout-border-radius);
-          border: var(--layout-border-width) solid var(--color-success);
-          margin: var(--spacing-md) 0;
-        }
-
-        /* Mobile responsiveness */
-        @media (max-width: 768px) {
-          .app-header {
-            padding: var(--spacing-sm) var(--spacing-md);
-            flex-direction: column;
-            gap: var(--spacing-sm);
-          }
-
-          .app-nav {
-            gap: var(--spacing-md);
-          }
-
-          .app-main {
-            padding: var(--spacing-md);
-          }
-        }
-
-        /* Accessibility improvements */
-        @media (prefers-reduced-motion: reduce) {
-          *, *::before, *::after {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-          }
-        }
-
-        /* High contrast mode */
-        @media (prefers-contrast: high) {
-          .app-header {
-            border-bottom-width: 2px;
-          }
-
-          .app-footer {
-            border-top-width: 2px;
-          }
-        }
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 0; }
       </style>
     </head>
     <body>

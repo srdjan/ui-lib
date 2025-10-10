@@ -271,8 +271,8 @@ export function Input(props: InputProps): string {
           ? componentTokens.colors.error[500]
           : componentTokens.colors.primary[500],
         boxShadow: error
-          ? `0 0 0 3px ${componentTokens.colors.error[100]}`
-          : `0 0 0 3px ${componentTokens.colors.primary[100]}`,
+          ? componentTokens.shadows.focusError
+          : componentTokens.shadows.focus,
       },
 
       "&:disabled": {

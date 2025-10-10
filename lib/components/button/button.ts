@@ -9,7 +9,10 @@ export type ButtonVariant =
   | "outline"
   | "ghost"
   | "link"
-  | "destructive";
+  | "destructive"
+  | "gradient" // New: gradient background with subtle animation
+  | "glow" // New: primary with glow effect
+  | "elevated"; // New: elevated with dramatic shadow
 
 export type ButtonProps = InteractiveComponentProps & {
   readonly variant?: ButtonVariant;
@@ -43,7 +46,7 @@ export type ButtonProps = InteractiveComponentProps & {
  */
 export function Button(props: ButtonProps): string {
   const {
-    variant = "primary",
+    variant = "primary" as ButtonVariant,
     size = "md",
     fullWidth = false,
     loading = false,
@@ -73,15 +76,15 @@ export function Button(props: ButtonProps): string {
       border: "1px solid transparent",
       cursor: "pointer",
       transition:
-        `all ${componentTokens.animation.duration.normal} ${componentTokens.animation.easing.out}`,
+        `all ${componentTokens.animation.duration.normal} ${componentTokens.animation.easing.smooth}, transform ${componentTokens.animation.duration.fast} ${componentTokens.animation.easing.spring}`,
       textDecoration: "none",
       userSelect: "none",
       whiteSpace: "nowrap",
 
-      // Focus styles
+      // Focus styles - refined double-layer ring
       "&:focus": {
         outline: "none",
-        boxShadow: `0 0 0 3px ${componentTokens.colors.primary[200]}`,
+        boxShadow: componentTokens.shadows.focus,
       },
 
       "&:focus:not(:focus-visible)": {
@@ -197,6 +200,64 @@ export function Button(props: ButtonProps): string {
         },
         "&:active:not(:disabled)": {
           backgroundColor: componentTokens.colors.error[700],
+        },
+      }),
+
+      // New modern variants
+      ...(variant === "gradient" && {
+        background: `linear-gradient(135deg, ${componentTokens.colors.primary[500]} 0%, ${componentTokens.colors.primary[700]} 100%)`,
+        color: "white",
+        position: "relative",
+        overflow: "hidden",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: "-100%",
+          width: "100%",
+          height: "100%",
+          background: `linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)`,
+          transition: `left ${componentTokens.animation.duration.slower} ${componentTokens.animation.easing.out}`,
+        },
+        "&:hover:not(:disabled)::before": {
+          left: "100%",
+        },
+        "&:hover:not(:disabled)": {
+          transform: "translateY(-1px)",
+          boxShadow: componentTokens.shadows.primary,
+        },
+        "&:active:not(:disabled)": {
+          transform: "translateY(0)",
+        },
+      }),
+
+      ...(variant === "glow" && {
+        backgroundColor: componentTokens.colors.primary[500],
+        color: "white",
+        boxShadow: componentTokens.shadows.primary,
+        "&:hover:not(:disabled)": {
+          backgroundColor: componentTokens.colors.primary[600],
+          boxShadow: `${componentTokens.shadows.primary}, 0 0 20px ${componentTokens.colors.primary[400]}`,
+          transform: "translateY(-1px)",
+        },
+        "&:active:not(:disabled)": {
+          backgroundColor: componentTokens.colors.primary[700],
+          transform: "translateY(0)",
+          boxShadow: componentTokens.shadows.primary,
+        },
+      }),
+
+      ...(variant === "elevated" && {
+        backgroundColor: "white",
+        color: componentTokens.colors.gray[900],
+        boxShadow: componentTokens.shadows.lg,
+        "&:hover:not(:disabled)": {
+          boxShadow: componentTokens.shadows.xl,
+          transform: "translateY(-2px)",
+        },
+        "&:active:not(:disabled)": {
+          boxShadow: componentTokens.shadows.md,
+          transform: "translateY(-1px)",
         },
       }),
     },

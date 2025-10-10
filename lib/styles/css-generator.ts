@@ -68,25 +68,29 @@ function generateBaseStyles(): string {
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  line-height: 1.6;
-  color: var(--color-gray-900, #111827);
-  background-color: var(--surface-background, #ffffff);
+  font-family: var(--typography-font-sans);
+  font-size: var(--typography-text-base);
+  line-height: var(--typography-line-height-normal);
+  color: var(--color-on-background);
+  background-color: var(--color-background);
 }
 
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
   margin: 0 0 var(--space-4, 1rem) 0;
-  font-weight: 600;
-  line-height: 1.25;
+  font-weight: var(--typography-weight-semibold);
+  line-height: var(--typography-line-height-tight);
+  color: var(--color-on-background);
 }
 
-h1 { font-size: var(--typography-text-2xl, 1.875rem); }
-h2 { font-size: var(--typography-text-xl, 1.5rem); }
-h3 { font-size: var(--typography-text-lg, 1.25rem); }
+h1 { font-size: var(--typography-text-3xl); font-weight: var(--typography-weight-bold); }
+h2 { font-size: var(--typography-text-2xl); }
+h3 { font-size: var(--typography-text-xl); }
+h4 { font-size: var(--typography-text-lg); }
 
 p {
   margin: 0 0 var(--space-4, 1rem) 0;
+  color: var(--color-on-surface);
 }
 
 /* Layout Utilities */
@@ -121,8 +125,8 @@ textarea {
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: var(--color-blue-500, #3b82f6);
-  box-shadow: 0 0 0 3px var(--color-blue-100, #dbeafe);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
 }
 
 button {
@@ -130,19 +134,20 @@ button {
   padding: var(--space-2, 0.5rem) var(--space-4, 1rem);
   border: 1px solid transparent;
   border-radius: var(--radius-md, 0.375rem);
-  background-color: var(--color-blue-500, #3b82f6);
-  color: white;
-  font-weight: 500;
-  transition: all 0.15s ease-in-out;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: var(--typography-weight-medium);
+  transition: all var(--animation-duration-normal) var(--animation-ease-smooth);
 }
 
 button:hover {
-  background-color: var(--color-blue-600, #2563eb);
+  background-color: var(--color-primary-container);
+  transform: translateY(-1px);
 }
 
 button:focus {
   outline: none;
-  box-shadow: 0 0 0 3px var(--color-blue-100, #dbeafe);
+  box-shadow: var(--shadow-focus);
 }
 
 label {
@@ -232,13 +237,21 @@ function generateComponentStyles(): string {
   border-bottom: 2px solid var(--surface-border, #e5e7eb);
 }
 
-/* Card Component */
+/* Card Component - Enhanced with modern interactions */
 .card {
   background-color: var(--surface-background, #ffffff);
   border: 1px solid var(--surface-border, #e5e7eb);
   border-radius: var(--radius-lg, 0.5rem);
   padding: var(--space-6, 1.5rem);
   box-shadow: var(--shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05));
+  margin-bottom: var(--space-4, 1rem);
+  transition: all var(--animation-duration-normal, 250ms) var(--animation-ease-smooth, ease),
+              transform var(--animation-duration-fast, 150ms) var(--animation-ease-spring, ease);
+  position: relative;
+  overflow: hidden;
+}
+
+.card__header {
   margin-bottom: var(--space-4, 1rem);
 }
 
@@ -247,7 +260,93 @@ function generateComponentStyles(): string {
   font-weight: 600;
   color: var(--color-gray-900, #111827);
   margin-top: 0;
-  margin-bottom: var(--space-4, 1rem);
+  margin-bottom: var(--space-2, 0.5rem);
+}
+
+.card__subtitle {
+  font-size: var(--typography-text-sm, 0.875rem);
+  color: var(--color-gray-600, #6b7280);
+  margin: 0;
+}
+
+.card__content {
+  color: var(--color-gray-700, #374151);
+}
+
+/* Card Variants */
+.card--elevated {
+  box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
+  border: none;
+}
+
+.card--elevated:hover {
+  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
+  transform: translateY(-2px);
+}
+
+.card--outlined {
+  background-color: transparent;
+  border: 2px solid var(--surface-border, #e5e7eb);
+  box-shadow: none;
+}
+
+.card--filled {
+  background-color: var(--color-gray-50, #f9fafb);
+  border: none;
+  box-shadow: none;
+}
+
+/* Interactive Cards */
+.card--interactive {
+  cursor: pointer;
+  user-select: none;
+}
+
+.card--interactive::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, transparent 0%, var(--color-primary-50, #eef2ff) 100%);
+  opacity: 0;
+  transition: opacity var(--animation-duration-normal, 250ms) var(--animation-ease-out, ease);
+  pointer-events: none;
+}
+
+.card--interactive:hover {
+  border-color: var(--color-primary-200, #c7d2fe);
+  box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
+  transform: translateY(-2px);
+}
+
+.card--interactive:hover::before {
+  opacity: 0.3;
+}
+
+.card--interactive:active {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05));
+}
+
+.card--interactive:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus, 0 0 0 3px rgba(99, 102, 241, 0.12));
+  border-color: var(--color-primary-500, #6366f1);
+}
+
+/* Card Sizes */
+.card--sm {
+  padding: var(--space-4, 1rem);
+}
+
+.card--md {
+  padding: var(--space-6, 1.5rem);
+}
+
+.card--lg {
+  padding: var(--space-8, 2rem);
 }
 
 /* Stack Component */
@@ -271,6 +370,22 @@ function generateComponentStyles(): string {
 .stack[data-align="center"] { align-items: center; }
 .stack[data-align="end"] { align-items: flex-end; }
 .stack[data-align="baseline"] { align-items: baseline; }
+
+/* Container Component */
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-4, 1rem);
+  padding-right: var(--space-4, 1rem);
+}
+
+.container[data-size="sm"] { max-width: var(--container-sm, 640px); }
+.container[data-size="md"] { max-width: var(--container-md, 768px); }
+.container[data-size="lg"] { max-width: var(--container-lg, 1024px); }
+.container[data-size="xl"] { max-width: var(--container-xl, 1280px); }
+.container[data-size="2xl"] { max-width: var(--container-2xl, 1536px); }
+.container[data-size="full"] { max-width: 100%; }
 
 /* Grid Component */
 .grid {

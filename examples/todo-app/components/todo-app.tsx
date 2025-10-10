@@ -7,7 +7,8 @@
  */
 
 import { h } from "jsx";
-import { defineComponent } from "../../../mod.ts";
+import { defineComponent, getBaseThemeCss, lightTheme, darkTheme } from "../../../mod.ts";
+import { generateCSS } from "../../../lib/styles/css-generator.ts";
 import "../../../lib/components/layout/container.ts";
 import "../../../lib/components/layout/grid.ts";
 import "../../../lib/components/layout/card.ts";
@@ -32,6 +33,13 @@ export type TodoAppProps = {
 defineComponent<TodoAppProps>("todo-app", {
   render: (props) => {
     const { todos, stats } = props;
+
+    // Generate CSS
+    const themeCSS = getBaseThemeCss([lightTheme, darkTheme], {
+      includeSystemPreference: true,
+      defaultTheme: "light",
+    });
+    const componentCSS = generateCSS();
 
     const appContent = (
       <container size="lg">
@@ -97,6 +105,8 @@ defineComponent<TodoAppProps>("todo-app", {
           <script src="https://unpkg.com/htmx.org"></script>
           <script src="https://unpkg.com/htmx-ext-json-enc@2.0.1/json-enc.js">
           </script>
+          <style dangerouslySetInnerHTML={{ __html: themeCSS }}></style>
+          <style dangerouslySetInnerHTML={{ __html: componentCSS }}></style>
         </head>
         <body>
           {appContent}
