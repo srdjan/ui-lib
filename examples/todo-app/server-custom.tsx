@@ -22,6 +22,7 @@ const router = new Router();
 
 // Register component API routes (HTMX is hidden via API helpers)
 registerComponentApi("todo-app", router);
+registerComponentApi("todo-form", router);
 registerComponentApi("todo-item", router);
 registerComponentApi("todo-list", router);
 

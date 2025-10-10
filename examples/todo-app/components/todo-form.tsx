@@ -7,22 +7,22 @@
  */
 
 import { h } from "jsx";
-import { defineComponent } from "../../../mod.ts";
+import { defineComponent, post } from "../../../mod.ts";
 import "../../../lib/components/input/input.ts";
 import "../../../lib/components/input/select.ts";
 import "../../../lib/components/button/button.ts";
 
 export type TodoFormProps = {
-  action?: string;
-  method?: "get" | "post" | "dialog";
+  // Props for customization if needed
 };
 
 defineComponent<TodoFormProps>("todo-form", {
-  render: (props) => {
-    const { action = "/api/todos", method = "post" } = props;
-
+  api: {
+    createTodo: post("/api/todos", () => new Response("")),
+  },
+  render: (_props, api) => {
     return (
-      <form method={method} action={action}>
+      <form {...api!.createTodo()}>
         <input
           type="text"
           name="text"
