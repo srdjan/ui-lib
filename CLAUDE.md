@@ -311,18 +311,17 @@ return json({ status: "ok" });
 
 ui-lib provides two entry points for different use cases:
 
-| Entry Point     | Use Case                                   | Key Features                                                     |
-| --------------- | ------------------------------------------ | ---------------------------------------------------------------- |
-| `mod.ts`        | **Recommended**: Composition-only pattern  | Pre-styled components, no custom CSS, enforced UI consistency    |
-| `mod-simple.ts` | Direct JSX functions with minimal ceremony | JSX runtime, lightweight state helpers, curated component subset |
+| Entry Point | Use Case                                  | Key Features                                                  |
+| ----------- | ----------------------------------------- | ------------------------------------------------------------- |
+| `mod.ts`    | **Recommended**: Composition-only pattern | Pre-styled components, no custom CSS, enforced UI consistency |
+| `index.ts`  | Full library API for internal development | Complete access to all library features and components        |
 
 **Choosing the right entry point**:
 
 - **mod.ts** (recommended): For applications using composition-only pattern.
   Apps compose pre-styled library components; no custom styles allowed.
-- **mod-simple.ts**: For rapid prototyping or minimal applications.
-
-Both entry points share the same core: index.ts exports the base functionality.
+- **index.ts**: For library component development with full access to CSS-in-TS and all features.
+- **lib/internal.ts**: For library developers needing complete API access.
 
 ## Component API
 
@@ -578,9 +577,8 @@ deno bench bench/ssr.bench.ts
 
 ### Key Files
 
-- `index.ts` - Main public API; imported by all mod files
+- `index.ts` - Full library API with all features and components
 - `mod.ts` - Composition-only entry point (recommended for apps)
-- `mod-simple.ts` - Simple/lightweight entry point
 - `lib/internal.ts` - Full API for library component development
 - `lib/jsx-runtime.ts` - JSX/TSX runtime with `h()` function
 

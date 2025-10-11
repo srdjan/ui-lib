@@ -134,7 +134,6 @@ button {
   padding: var(--space-2, 0.5rem) var(--space-4, 1rem);
   border: 1px solid transparent;
   border-radius: var(--radius-md, 0.375rem);
-  background-color: var(--color-primary);
   color: var(--color-on-primary);
   font-weight: var(--typography-weight-medium);
   transition: all var(--animation-duration-normal) var(--animation-ease-smooth);

@@ -44,7 +44,7 @@ deno task test   # Run tests
 deno task serve  # Start dev server
 deno task bundle:state  # Emit dist/ui-lib-state.js for browser progressive enhancement
 
-> Need help choosing between `mod.ts` and `mod-simple.ts`? The README now includes an entry point matrix to guide you.
+> **Entry Point**: Use `mod.ts` for application development with composition-only pattern, or `index.ts` for library component development with full CSS-in-TS access.
 ```
 
 ## Your First Component
