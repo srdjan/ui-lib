@@ -123,38 +123,19 @@ Applications compose library components with **native spread operators**:
 
 ```tsx
 import { defineComponent, del, h, post } from "ui-lib/mod.ts";
-import { todoAPI } from "./api/index.ts";
 
 defineComponent("todo-item", {
   api: {
-    toggle: post("/api/todos/:id/toggle", todoAPI.toggleTodo),
-    deleteTodo: del("/api/todos/:id", todoAPI.deleteTodo),
+    toggle: post("/api/todos/:id/toggle", toggleHandler),
+    remove: del("/api/todos/:id", deleteHandler),
   },
-  render: ({ todo }, api) => {
-    return (
-      <item
-        id={`todo-${todo.id}`}
-        completed={todo.completed}
-        priority={todo.priority}
-      >
-        <input
-          type="checkbox"
-          checked={todo.completed}
-          {...api!.toggle(todo.id)}
-        />
-        <span>{todo.text}</span>
-        <span data-priority={todo.priority}>
-          {todo.priority}
-        </span>
-        <button
-          type="button"
-          {...api!.deleteTodo(todo.id)}
-        >
-          Delete
-        </button>
-      </item>
-    );
-  },
+  render: ({ todo }, api) => (
+    <item completed={todo.completed}>
+      <input type="checkbox" {...api!.toggle(todo.id)} />
+      <span>{todo.text}</span>
+      <button {...api!.remove(todo.id)}>Delete</button>
+    </item>
+  ),
 });
 ```
 
