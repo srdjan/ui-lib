@@ -9,7 +9,7 @@
 
 import { h } from "jsx";
 
-import { html, registerComponentApi, Router } from "../../mod-simple.ts";
+import { html, registerComponentApi, Router } from "../../mod.ts";
 
 // Import all todo components
 import "./components/todo-app.tsx";

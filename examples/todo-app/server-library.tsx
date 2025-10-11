@@ -8,7 +8,7 @@
  */
 
 import { h } from "jsx";
-import { html, Router } from "../../mod-simple.ts";
+import { html, Router } from "../../mod.ts";
 
 import { todoAPI } from "./api/index.ts";
 import type { TodoFilter } from "./api/types.ts";

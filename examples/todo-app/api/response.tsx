@@ -1,6 +1,7 @@
 /** @jsx h */
 import { h } from "jsx";
-import { Alert, renderToString } from "../../../mod-simple.ts";
+import { render } from "../../../mod.ts";
+import { Alert } from "../../../index.ts";
 import type { DatabaseError } from "./types.ts";
 
 export function jsonResponse(data: any, status = 200): Response {
@@ -23,7 +24,7 @@ export function htmlResponse(
 
 export const errorResponse = (message: string, status = 400): Response =>
   htmlResponse(
-    renderToString(
+    render(
       <Alert variant="error" title="Error">
         {message}
       </Alert>,
